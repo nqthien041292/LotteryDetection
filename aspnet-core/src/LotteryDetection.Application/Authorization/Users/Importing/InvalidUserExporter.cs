@@ -7,31 +7,28 @@ using LotteryDetection.DataImporting.Excel;
 using LotteryDetection.Dto;
 using LotteryDetection.Storage;
 
-namespace LotteryDetection.Authorization.Users.Importing
+namespace LotteryDetection.Authorization.Users.Importing;
+
+public class InvalidUserExporter(ITempFileCacheManager tempFileCacheManager)
+    : MiniExcelExcelExporterBase(tempFileCacheManager), IExcelInvalidEntityExporter<ImportUserDto>
 {
-    public class InvalidUserExporter(ITempFileCacheManager tempFileCacheManager)
-        : MiniExcelExcelExporterBase(tempFileCacheManager), IExcelInvalidEntityExporter<ImportUserDto>
+    public async Task<FileDto> ExportToFile(List<ImportUserDto> userList)
     {
-        public async Task<FileDto> ExportToFile(List<ImportUserDto> userList)
-        {
-            var items = new List<Dictionary<string, object>>();
+        var items = new List<Dictionary<string, object>>();
 
-            foreach (var user in userList)
+        foreach (var user in userList)
+            items.Add(new Dictionary<string, object>
             {
-                items.Add(new Dictionary<string, object>()
-                {
-                    {L("UserName"), user.UserName},
-                    {L("Name"), user.Name},
-                    {L("Surname"), user.Surname},
-                    {L("EmailAddress"), user.EmailAddress},
-                    {L("PhoneNumber"), user.PhoneNumber},
-                    {L("Password"), user.Password},
-                    {L("Roles"), user.Roles?.JoinAsString(",")},
-                    {L("RefuseReason"), user.Exception}
-                });
-            }
+                { L("UserName"), user.UserName },
+                { L("Name"), user.Name },
+                { L("Surname"), user.Surname },
+                { L("EmailAddress"), user.EmailAddress },
+                { L("PhoneNumber"), user.PhoneNumber },
+                { L("Password"), user.Password },
+                { L("Roles"), user.Roles?.JoinAsString(",") },
+                { L("RefuseReason"), user.Exception }
+            });
 
-            return await CreateExcelPackageAsync("InvalidUserImportList.xlsx", items);
-        }
+        return await CreateExcelPackageAsync("InvalidUserImportList.xlsx", items);
     }
 }

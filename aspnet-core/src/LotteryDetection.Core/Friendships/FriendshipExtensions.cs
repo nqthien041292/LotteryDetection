@@ -14,4 +14,3 @@ public static class FriendshipExtensions
         return new UserIdentifier(friendship.FriendTenantId, friendship.FriendUserId);
     }
 }
-

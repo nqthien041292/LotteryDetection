@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Abp.Application.Services.Dto;
-using Abp.Web.Models;
+﻿using System.Threading.Tasks;
+using LotteryDetection.Notifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using LotteryDetection.Notifications;
 
 namespace LotteryDetection.Web.Controllers;
 

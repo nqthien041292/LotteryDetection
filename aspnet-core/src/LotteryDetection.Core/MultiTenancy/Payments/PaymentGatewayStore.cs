@@ -24,4 +24,3 @@ public class PaymentGatewayStore : IPaymentGatewayStore, ITransientDependency
         }).ToList();
     }
 }
-

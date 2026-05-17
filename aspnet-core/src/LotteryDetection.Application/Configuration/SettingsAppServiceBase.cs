@@ -2,16 +2,16 @@
 using System.Threading.Tasks;
 using Abp.Net.Mail;
 using Abp.UI;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Configuration.Dto;
 using LotteryDetection.Configuration.Host.Dto;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Configuration;
 
 public abstract class SettingsAppServiceBase : LotteryDetectionAppServiceBase
 {
-    private readonly IEmailSender _emailSender;
     private readonly IAppConfigurationAccessor _configurationAccessor;
+    private readonly IEmailSender _emailSender;
 
     protected SettingsAppServiceBase(
         IEmailSender emailSender,
@@ -43,39 +43,19 @@ public abstract class SettingsAppServiceBase : LotteryDetectionAppServiceBase
     {
         var dto = new ExternalLoginSettingsDto();
         if (!bool.Parse(_configurationAccessor.Configuration["Authentication:AllowSocialLoginSettingsPerTenant"]))
-        {
             return dto;
-        }
 
-        if (IsSocialLoginEnabled("Facebook"))
-        {
-            dto.EnabledSocialLoginSettings.Add("Facebook");
-        }
+        if (IsSocialLoginEnabled("Facebook")) dto.EnabledSocialLoginSettings.Add("Facebook");
 
-        if (IsSocialLoginEnabled("Google"))
-        {
-            dto.EnabledSocialLoginSettings.Add("Google");
-        }
+        if (IsSocialLoginEnabled("Google")) dto.EnabledSocialLoginSettings.Add("Google");
 
-        if (IsSocialLoginEnabled("Twitter"))
-        {
-            dto.EnabledSocialLoginSettings.Add("Twitter");
-        }
+        if (IsSocialLoginEnabled("Twitter")) dto.EnabledSocialLoginSettings.Add("Twitter");
 
-        if (IsSocialLoginEnabled("Microsoft"))
-        {
-            dto.EnabledSocialLoginSettings.Add("Microsoft");
-        }
+        if (IsSocialLoginEnabled("Microsoft")) dto.EnabledSocialLoginSettings.Add("Microsoft");
 
-        if (IsSocialLoginEnabled("WsFederation"))
-        {
-            dto.EnabledSocialLoginSettings.Add("WsFederation");
-        }
+        if (IsSocialLoginEnabled("WsFederation")) dto.EnabledSocialLoginSettings.Add("WsFederation");
 
-        if (IsSocialLoginEnabled("OpenId"))
-        {
-            dto.EnabledSocialLoginSettings.Add("OpenId");
-        }
+        if (IsSocialLoginEnabled("OpenId")) dto.EnabledSocialLoginSettings.Add("OpenId");
 
         return dto;
     }

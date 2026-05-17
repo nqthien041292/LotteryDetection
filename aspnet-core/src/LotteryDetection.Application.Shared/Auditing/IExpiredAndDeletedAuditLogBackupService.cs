@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using Abp.Auditing;
 
-namespace LotteryDetection.Auditing
+namespace LotteryDetection.Auditing;
+
+public interface IExpiredAndDeletedAuditLogBackupService
 {
-    public interface IExpiredAndDeletedAuditLogBackupService
-    {
-        bool CanBackup();
-        
-        Task Backup(List<AuditLog> auditLogs);
-    }
+    bool CanBackup();
+
+    Task Backup(List<AuditLog> auditLogs);
 }

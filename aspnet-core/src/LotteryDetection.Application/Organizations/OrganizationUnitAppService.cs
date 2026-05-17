@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Authorization.Users;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Organizations;
 using LotteryDetection.Authorization;
-using LotteryDetection.Organizations.Dto;
-using System.Linq.Dynamic.Core;
-using Abp.Extensions;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Roles;
+using LotteryDetection.Organizations.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Organizations;
 
@@ -21,9 +21,9 @@ public class OrganizationUnitAppService : LotteryDetectionAppServiceBase, IOrgan
 {
     private readonly OrganizationUnitManager _organizationUnitManager;
     private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
-    private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
     private readonly IRepository<OrganizationUnitRole, long> _organizationUnitRoleRepository;
     private readonly RoleManager _roleManager;
+    private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
 
     public OrganizationUnitAppService(
         OrganizationUnitManager organizationUnitManager,
@@ -77,14 +77,14 @@ public class OrganizationUnitAppService : LotteryDetectionAppServiceBase, IOrgan
         GetOrganizationUnitUsersInput input)
     {
         var query = from ouUser in _userOrganizationUnitRepository.GetAll()
-                    join ou in _organizationUnitRepository.GetAll() on ouUser.OrganizationUnitId equals ou.Id
-                    join user in UserManager.Users on ouUser.UserId equals user.Id
-                    where ouUser.OrganizationUnitId == input.Id
-                    select new
-                    {
-                        ouUser,
-                        user
-                    };
+            join ou in _organizationUnitRepository.GetAll() on ouUser.OrganizationUnitId equals ou.Id
+            join user in UserManager.Users on ouUser.UserId equals user.Id
+            where ouUser.OrganizationUnitId == input.Id
+            select new
+            {
+                ouUser,
+                user
+            };
 
         var totalCount = await query.CountAsync();
         var items = await query.OrderBy(input.Sorting).PageBy(input).ToListAsync();
@@ -96,32 +96,6 @@ public class OrganizationUnitAppService : LotteryDetectionAppServiceBase, IOrgan
                 var organizationUnitUserDto = ObjectMapper.Map<OrganizationUnitUserListDto>(item.user);
                 organizationUnitUserDto.AddedTime = item.ouUser.CreationTime;
                 return organizationUnitUserDto;
-            }).ToList());
-    }
-
-    public async Task<PagedResultDto<OrganizationUnitRoleListDto>> GetOrganizationUnitRoles(
-        GetOrganizationUnitRolesInput input)
-    {
-        var query = from ouRole in _organizationUnitRoleRepository.GetAll()
-                    join ou in _organizationUnitRepository.GetAll() on ouRole.OrganizationUnitId equals ou.Id
-                    join role in _roleManager.Roles on ouRole.RoleId equals role.Id
-                    where ouRole.OrganizationUnitId == input.Id
-                    select new
-                    {
-                        ouRole,
-                        role
-                    };
-
-        var totalCount = await query.CountAsync();
-        var items = await query.OrderBy(input.Sorting).PageBy(input).ToListAsync();
-
-        return new PagedResultDto<OrganizationUnitRoleListDto>(
-            totalCount,
-            items.Select(item =>
-            {
-                var organizationUnitRoleDto = ObjectMapper.Map<OrganizationUnitRoleListDto>(item.role);
-                organizationUnitRoleDto.AddedTime = item.ouRole.CreationTime;
-                return organizationUnitRoleDto;
             }).ToList());
     }
 
@@ -182,22 +156,19 @@ public class OrganizationUnitAppService : LotteryDetectionAppServiceBase, IOrgan
     public async Task AddUsersToOrganizationUnit(UsersToOrganizationUnitInput input)
     {
         foreach (var userId in input.UserIds)
-        {
             await UserManager.AddToOrganizationUnitAsync(userId, input.OrganizationUnitId);
-        }
     }
 
     [AbpAuthorize(AppPermissions.Pages_Administration_OrganizationUnits_ManageRoles)]
     public async Task AddRolesToOrganizationUnit(RolesToOrganizationUnitInput input)
     {
         foreach (var roleId in input.RoleIds)
-        {
             await _roleManager.AddToOrganizationUnitAsync(roleId, input.OrganizationUnitId, AbpSession.TenantId);
-        }
     }
 
     [AbpAuthorize(AppPermissions.Pages_Administration_OrganizationUnits_ManageMembers)]
-    public async Task<PagedResultDto<FindOrganizationUnitUsersOutputDto>> FindUsers(FindOrganizationUnitUsersInput input)
+    public async Task<PagedResultDto<FindOrganizationUnitUsersOutputDto>> FindUsers(
+        FindOrganizationUnitUsersInput input)
     {
         var userIdsInOrganizationUnit = _userOrganizationUnitRepository.GetAll()
             .Where(uou => uou.OrganizationUnitId == input.OrganizationUnitId)
@@ -221,7 +192,8 @@ public class OrganizationUnitAppService : LotteryDetectionAppServiceBase, IOrgan
             .PageBy(input)
             .ToListAsync();
 
-        return new PagedResultDto<FindOrganizationUnitUsersOutputDto>(userCount, ObjectMapper.Map<List<FindOrganizationUnitUsersOutputDto>>(users));
+        return new PagedResultDto<FindOrganizationUnitUsersOutputDto>(userCount,
+            ObjectMapper.Map<List<FindOrganizationUnitUsersOutputDto>>(users));
     }
 
     [AbpAuthorize(AppPermissions.Pages_Administration_OrganizationUnits_ManageRoles)]
@@ -261,6 +233,32 @@ public class OrganizationUnitAppService : LotteryDetectionAppServiceBase, IOrgan
     {
         var organizationUnits = await _organizationUnitRepository.GetAllListAsync();
         return ObjectMapper.Map<List<OrganizationUnitDto>>(organizationUnits);
+    }
+
+    public async Task<PagedResultDto<OrganizationUnitRoleListDto>> GetOrganizationUnitRoles(
+        GetOrganizationUnitRolesInput input)
+    {
+        var query = from ouRole in _organizationUnitRoleRepository.GetAll()
+            join ou in _organizationUnitRepository.GetAll() on ouRole.OrganizationUnitId equals ou.Id
+            join role in _roleManager.Roles on ouRole.RoleId equals role.Id
+            where ouRole.OrganizationUnitId == input.Id
+            select new
+            {
+                ouRole,
+                role
+            };
+
+        var totalCount = await query.CountAsync();
+        var items = await query.OrderBy(input.Sorting).PageBy(input).ToListAsync();
+
+        return new PagedResultDto<OrganizationUnitRoleListDto>(
+            totalCount,
+            items.Select(item =>
+            {
+                var organizationUnitRoleDto = ObjectMapper.Map<OrganizationUnitRoleListDto>(item.role);
+                organizationUnitRoleDto.AddedTime = item.ouRole.CreationTime;
+                return organizationUnitRoleDto;
+            }).ToList());
     }
 
     private async Task<OrganizationUnitDto> CreateOrganizationUnitDto(OrganizationUnit organizationUnit)

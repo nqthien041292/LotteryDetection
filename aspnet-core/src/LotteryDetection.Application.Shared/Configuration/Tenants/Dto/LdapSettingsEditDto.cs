@@ -4,6 +4,11 @@ namespace LotteryDetection.Configuration.Tenants.Dto;
 
 public class LdapSettingsEditDto
 {
+    public LdapSettingsEditDto()
+    {
+        UseSsl = false;
+    }
+
     public bool IsModuleEnabled { get; set; }
 
     public bool IsEnabled { get; set; }
@@ -12,14 +17,7 @@ public class LdapSettingsEditDto
 
     public string UserName { get; set; }
 
-    [DisableAuditing]
-    public string Password { get; set; }
+    [DisableAuditing] public string Password { get; set; }
 
     public bool UseSsl { get; set; }
-
-    public LdapSettingsEditDto()
-    {
-        UseSsl = false;
-    }
 }
-

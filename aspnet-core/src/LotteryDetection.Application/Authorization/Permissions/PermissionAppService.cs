@@ -27,22 +27,17 @@ public class PermissionAppService : LotteryDetectionAppServiceBase, IPermissionA
         };
     }
 
-    private void AddPermission(Permission permission, IReadOnlyList<Permission> allPermissions, List<FlatPermissionWithLevelDto> result, int level)
+    private void AddPermission(Permission permission, IReadOnlyList<Permission> allPermissions,
+        List<FlatPermissionWithLevelDto> result, int level)
     {
         var flatPermission = ObjectMapper.Map<FlatPermissionWithLevelDto>(permission);
         flatPermission.Level = level;
         result.Add(flatPermission);
 
-        if (permission.Children == null)
-        {
-            return;
-        }
+        if (permission.Children == null) return;
 
         var children = allPermissions.Where(p => p.Parent != null && p.Parent.Name == permission.Name).ToList();
 
-        foreach (var childPermission in children)
-        {
-            AddPermission(childPermission, allPermissions, result, level + 1);
-        }
+        foreach (var childPermission in children) AddPermission(childPermission, allPermissions, result, level + 1);
     }
 }

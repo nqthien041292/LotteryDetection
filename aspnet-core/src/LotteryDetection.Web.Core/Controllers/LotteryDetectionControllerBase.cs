@@ -34,4 +34,3 @@ public abstract class LotteryDetectionControllerBase : AbpController
         );
     }
 }
-

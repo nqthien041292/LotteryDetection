@@ -1,4 +1,7 @@
-﻿using Abp;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
@@ -8,25 +11,22 @@ using Abp.UI;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Friendships;
 using LotteryDetection.Friendships.Cache;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LotteryDetection.Chat;
 
 [AbpAuthorize]
 public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessageManager
 {
-    private readonly IFriendshipManager _friendshipManager;
     private readonly IChatCommunicator _chatCommunicator;
-    private readonly IOnlineClientManager _onlineClientManager;
-    private readonly UserManager _userManager;
-    private readonly ITenantCache _tenantCache;
-    private readonly IUserFriendsCache _userFriendsCache;
-    private readonly IUserEmailer _userEmailer;
-    private readonly IRepository<ChatMessage, long> _chatMessageRepository;
     private readonly IChatFeatureChecker _chatFeatureChecker;
+    private readonly IRepository<ChatMessage, long> _chatMessageRepository;
+    private readonly IFriendshipManager _friendshipManager;
+    private readonly IOnlineClientManager _onlineClientManager;
+    private readonly ITenantCache _tenantCache;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IUserEmailer _userEmailer;
+    private readonly IUserFriendsCache _userFriendsCache;
+    private readonly UserManager _userManager;
 
     public ChatMessageManager(
         IFriendshipManager friendshipManager,
@@ -60,10 +60,7 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
         _chatFeatureChecker.CheckChatFeatures(sender.TenantId, receiver.TenantId);
 
         var friendshipState = (await _friendshipManager.GetFriendshipOrNullAsync(sender, receiver))?.State;
-        if (friendshipState == FriendshipState.Blocked)
-        {
-            throw new UserFriendlyException(L("UserIsBlocked"));
-        }
+        if (friendshipState == FriendshipState.Blocked) throw new UserFriendlyException(L("UserIsBlocked"));
 
         var sharedMessageId = Guid.NewGuid();
 
@@ -71,15 +68,6 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
         await HandleReceiverToSenderAsync(sender, receiver, message, sharedMessageId);
         await HandleSenderUserInfoChangeAsync(sender, receiver, senderTenancyName, senderUserName,
             senderProfilePictureId);
-    }
-
-    private void CheckReceiverExists(UserIdentifier receiver)
-    {
-        var receiverUser = _userManager.GetUserOrNull(receiver);
-        if (receiverUser == null)
-        {
-            throw new UserFriendlyException(L("TargetUserNotFoundProbablyDeleted"));
-        }
     }
 
     public virtual long Save(ChatMessage message)
@@ -112,6 +100,12 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
         return await _chatMessageRepository.FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
     }
 
+    private void CheckReceiverExists(UserIdentifier receiver)
+    {
+        var receiverUser = _userManager.GetUserOrNull(receiver);
+        if (receiverUser == null) throw new UserFriendlyException(L("TargetUserNotFoundProbablyDeleted"));
+    }
+
     private async Task HandleSenderToReceiverAsync(UserIdentifier senderIdentifier,
         UserIdentifier receiverIdentifier, string message, Guid sharedMessageId)
     {
@@ -136,10 +130,8 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
         }
 
         if (friendshipState.Value == FriendshipState.Blocked)
-        {
             //Do not send message if receiver banned the sender
             return;
-        }
 
         var sentMessage = new ChatMessage(
             senderIdentifier,
@@ -190,10 +182,8 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
         }
 
         if (friendshipState == FriendshipState.Blocked)
-        {
             //Do not send message if receiver banned the sender
             return;
-        }
 
         var sentMessage = new ChatMessage(
             receiverIdentifier,
@@ -231,23 +221,15 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
 
         var senderAsFriend = receiverCacheItem?.Friends.FirstOrDefault(f =>
             f.FriendTenantId == sender.TenantId && f.FriendUserId == sender.UserId);
-        if (senderAsFriend == null)
-        {
-            return;
-        }
+        if (senderAsFriend == null) return;
 
         if (senderAsFriend.FriendTenancyName == senderTenancyName &&
             senderAsFriend.FriendUserName == senderUserName &&
             senderAsFriend.FriendProfilePictureId == senderProfilePictureId)
-        {
             return;
-        }
 
-        var friendship = (await _friendshipManager.GetFriendshipOrNullAsync(receiver, sender));
-        if (friendship == null)
-        {
-            return;
-        }
+        var friendship = await _friendshipManager.GetFriendshipOrNullAsync(receiver, sender);
+        if (friendship == null) return;
 
         friendship.FriendTenancyName = senderTenancyName;
         friendship.FriendUserName = senderUserName;
@@ -267,4 +249,3 @@ public class ChatMessageManager : LotteryDetectionDomainServiceBase, IChatMessag
         return null;
     }
 }
-

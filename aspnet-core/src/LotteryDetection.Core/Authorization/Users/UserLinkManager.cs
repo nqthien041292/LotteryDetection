@@ -17,13 +17,11 @@ namespace LotteryDetection.Authorization.Users;
 
 public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManager
 {
-    private readonly IRepository<UserAccount, long> _userAccountRepository;
     private readonly ICacheManager _cacheManager;
-    private readonly UserManager _userManager;
     private readonly UserClaimsPrincipalFactory _principalFactory;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
-
-    public IAbpSession AbpSession { get; set; }
+    private readonly IRepository<UserAccount, long> _userAccountRepository;
+    private readonly UserManager _userManager;
 
     public UserLinkManager(
         IRepository<UserAccount, long> userAccountRepository,
@@ -41,6 +39,8 @@ public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManag
         AbpSession = NullAbpSession.Instance;
     }
 
+    public IAbpSession AbpSession { get; set; }
+
     public virtual async Task Link(User firstUser, User secondUser)
     {
         await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
@@ -52,29 +52,25 @@ public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManag
             firstUserAccount.UserLinkId = userLinkId;
 
             var userAccountsToLink = secondUserAccount.UserLinkId.HasValue
-                ? await _userAccountRepository.GetAllListAsync(ua => ua.UserLinkId == secondUserAccount.UserLinkId.Value)
+                ? await _userAccountRepository.GetAllListAsync(ua =>
+                    ua.UserLinkId == secondUserAccount.UserLinkId.Value)
                 : new List<UserAccount> { secondUserAccount };
 
-            userAccountsToLink.ForEach(u =>
-            {
-                u.UserLinkId = userLinkId;
-            });
+            userAccountsToLink.ForEach(u => { u.UserLinkId = userLinkId; });
 
             await CurrentUnitOfWork.SaveChangesAsync();
         });
     }
 
-    public virtual async Task<bool> AreUsersLinked(UserIdentifier firstUserIdentifier, UserIdentifier secondUserIdentifier)
+    public virtual async Task<bool> AreUsersLinked(UserIdentifier firstUserIdentifier,
+        UserIdentifier secondUserIdentifier)
     {
         return await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
         {
             var firstUserAccount = await GetUserAccountAsync(firstUserIdentifier);
             var secondUserAccount = await GetUserAccountAsync(secondUserIdentifier);
 
-            if (!firstUserAccount.UserLinkId.HasValue || !secondUserAccount.UserLinkId.HasValue)
-            {
-                return false;
-            }
+            if (!firstUserAccount.UserLinkId.HasValue || !secondUserAccount.UserLinkId.HasValue) return false;
 
             return firstUserAccount.UserLinkId == secondUserAccount.UserLinkId;
         });
@@ -95,8 +91,8 @@ public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManag
     {
         return await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
         {
-            return await _userAccountRepository.FirstOrDefaultAsync(
-                ua => ua.TenantId == userIdentifier.TenantId && ua.UserId == userIdentifier.UserId
+            return await _userAccountRepository.FirstOrDefaultAsync(ua =>
+                ua.TenantId == userIdentifier.TenantId && ua.UserId == userIdentifier.UserId
             );
         });
     }
@@ -124,10 +120,7 @@ public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManag
     public async Task<UserAndIdentity> GetSwitchedUserAndIdentity(string switchAccountToken)
     {
         var cacheItem = await _cacheManager.GetSwitchToLinkedAccountCache().GetOrDefaultAsync(switchAccountToken);
-        if (cacheItem == null)
-        {
-            throw new UserFriendlyException(L("SwitchToLinkedAccountTokenErrorMessage"));
-        }
+        if (cacheItem == null) throw new UserFriendlyException(L("SwitchToLinkedAccountTokenErrorMessage"));
 
         //Get the user from tenant
         var user = await _userManager.FindByIdAsync(cacheItem.TargetUserId.ToString());
@@ -137,14 +130,12 @@ public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManag
 
         //Add claims for audit logging
         if (cacheItem.ImpersonatorTenantId.HasValue)
-        {
-            identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorTenantId, cacheItem.ImpersonatorTenantId.Value.ToString(CultureInfo.InvariantCulture)));
-        }
+            identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorTenantId,
+                cacheItem.ImpersonatorTenantId.Value.ToString(CultureInfo.InvariantCulture)));
 
         if (cacheItem.ImpersonatorUserId.HasValue)
-        {
-            identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorUserId, cacheItem.ImpersonatorUserId.Value.ToString(CultureInfo.InvariantCulture)));
-        }
+            identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorUserId,
+                cacheItem.ImpersonatorUserId.Value.ToString(CultureInfo.InvariantCulture)));
 
         //Remove the cache item to prevent re-use
         await _cacheManager.GetSwitchToLinkedAccountCache().RemoveAsync(switchAccountToken);
@@ -152,4 +143,3 @@ public class UserLinkManager : LotteryDetectionDomainServiceBase, IUserLinkManag
         return new UserAndIdentity(user, identity);
     }
 }
-

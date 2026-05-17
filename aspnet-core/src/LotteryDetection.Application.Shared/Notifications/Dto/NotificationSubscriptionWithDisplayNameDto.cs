@@ -6,4 +6,3 @@ public class NotificationSubscriptionWithDisplayNameDto : NotificationSubscripti
 
     public string Description { get; set; }
 }
-

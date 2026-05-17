@@ -3,7 +3,6 @@ using Abp.Auditing;
 using Abp.Authorization.Users;
 using Abp.MultiTenancy;
 using LotteryDetection.MultiTenancy.Payments;
-using LotteryDetection.MultiTenancy.Payments.Dto;
 
 namespace LotteryDetection.MultiTenancy.Dto;
 
@@ -32,8 +31,7 @@ public class RegisterTenantInput
     [DisableAuditing]
     public string AdminPassword { get; set; }
 
-    [DisableAuditing]
-    public string CaptchaResponse { get; set; }
+    [DisableAuditing] public string CaptchaResponse { get; set; }
 
     public SubscriptionStartType SubscriptionStartType { get; set; }
 
@@ -45,4 +43,3 @@ public class RegisterTenantInput
 
     public string ErrorUrl { get; set; }
 }
-

@@ -6,17 +6,14 @@ using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.Notifications;
 using Castle.Core.Logging;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Net.Sms;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Notifications;
 
 public class SmsRealTimeNotifier : IRealTimeNotifier, ITransientDependency
 {
-    public bool UseOnlyIfRequestedAsTarget => true;
-
-    public ILogger Logger { get; set; }
     private readonly ISmsSender _smsSender;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly IRepository<User, long> _userRepository;
@@ -32,22 +29,24 @@ public class SmsRealTimeNotifier : IRealTimeNotifier, ITransientDependency
         Logger = NullLogger.Instance;
     }
 
+    public ILogger Logger { get; set; }
+    public bool UseOnlyIfRequestedAsTarget => true;
+
     public async Task SendNotificationsAsync(UserNotification[] userNotifications)
     {
         var userNotificationsGroupedByTenant = userNotifications.GroupBy(un => un.TenantId);
         foreach (var userNotificationByTenant in userNotificationsGroupedByTenant)
-        {
             using (_unitOfWorkManager.Current.SetTenantId(userNotificationByTenant.First().TenantId))
             {
                 var allUserIds = userNotificationByTenant.ToList().Select(x => x.UserId).Distinct().ToList();
                 var usersToNotify = await _userRepository.GetAll()
                     .Where(x => allUserIds.Contains(x.Id))
                     .Select(u => new
-                    {
-                        u.Id,
-                        u.PhoneNumber,
-                        u.Name
-                    }
+                        {
+                            u.Id,
+                            u.PhoneNumber,
+                            u.Name
+                        }
                     )
                     .ToListAsync();
 
@@ -79,7 +78,5 @@ public class SmsRealTimeNotifier : IRealTimeNotifier, ITransientDependency
                     );
                 }
             }
-        }
     }
 }
-

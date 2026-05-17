@@ -4,11 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp;
-using Abp.Authorization.Users;
 using Abp.Dependency;
 using Abp.Domain.Repositories;
 using Abp.Organizations;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
@@ -16,32 +14,26 @@ using LotteryDetection.Chat;
 using LotteryDetection.Configuration;
 using LotteryDetection.Friendships;
 using LotteryDetection.Storage;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.MultiTenancy.Demo;
 
 /// <summary>
-/// Used to build demo data for new tenants.
-/// Creates sample organization units, users... etc.
-/// It works only if in DEMO mode ("App.DemoMode" should be "true" in web.config). Otherwise, does nothing.
+///     Used to build demo data for new tenants.
+///     Creates sample organization units, users... etc.
+///     It works only if in DEMO mode ("App.DemoMode" should be "true" in web.config). Otherwise, does nothing.
 /// </summary>
 public class TenantDemoDataBuilder : LotteryDetectionServiceBase, ITransientDependency
 {
-    public bool IsInDemoMode
-    {
-        get
-        {
-            return string.Equals(_appConfiguration["App:DemoMode"], "true", StringComparison.OrdinalIgnoreCase);
-        }
-    }
+    private readonly IConfigurationRoot _appConfiguration;
+    private readonly IAppFolders _appFolders;
+    private readonly IBinaryObjectManager _binaryObjectManager;
+    private readonly IRepository<ChatMessage, long> _chatMessageRepository;
+    private readonly IFriendshipManager _friendshipManager;
 
     private readonly OrganizationUnitManager _organizationUnitManager;
-    private readonly UserManager _userManager;
     private readonly RandomUserGenerator _randomUserGenerator;
-    private readonly IBinaryObjectManager _binaryObjectManager;
-    private readonly IAppFolders _appFolders;
-    private readonly IFriendshipManager _friendshipManager;
-    private readonly IRepository<ChatMessage, long> _chatMessageRepository;
-    private readonly IConfigurationRoot _appConfiguration;
+    private readonly UserManager _userManager;
 
     public TenantDemoDataBuilder(
         OrganizationUnitManager organizationUnitManager,
@@ -64,12 +56,12 @@ public class TenantDemoDataBuilder : LotteryDetectionServiceBase, ITransientDepe
         _appConfiguration = configurationAccessor.Configuration;
     }
 
+    public bool IsInDemoMode =>
+        string.Equals(_appConfiguration["App:DemoMode"], "true", StringComparison.OrdinalIgnoreCase);
+
     public async Task BuildForAsync(Tenant tenant)
     {
-        if (!IsInDemoMode)
-        {
-            return;
-        }
+        if (!IsInDemoMode) return;
 
         using (CurrentUnitOfWork.SetTenantId(tenant.Id))
         {
@@ -88,25 +80,33 @@ public class TenantDemoDataBuilder : LotteryDetectionServiceBase, ITransientDepe
 
         var producing = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Producing");
 
-        var researchAndDevelopment = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Research & Development", producing);
+        var researchAndDevelopment =
+            await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Research & Development", producing);
 
-        var ivrProducts = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "IVR Related Products", researchAndDevelopment);
-        var voiceTech = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Voice Technologies", researchAndDevelopment);
-        var inhouseProjects = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Inhouse Projects", researchAndDevelopment);
+        var ivrProducts = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "IVR Related Products",
+            researchAndDevelopment);
+        var voiceTech =
+            await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Voice Technologies",
+                researchAndDevelopment);
+        var inhouseProjects =
+            await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Inhouse Projects", researchAndDevelopment);
 
-        var qualityManagement = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Quality Management", producing);
+        var qualityManagement =
+            await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Quality Management", producing);
         var testing = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Testing", producing);
 
         var selling = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Selling");
 
         var marketing = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Marketing", selling);
         var sales = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Sales", selling);
-        var custRelations = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Customer Relations", selling);
+        var custRelations =
+            await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Customer Relations", selling);
 
         var supporting = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Supporting");
 
         var buying = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Buying", supporting);
-        var humanResources = await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Human Resources", supporting);
+        var humanResources =
+            await CreateAndSaveOrganizationUnit(organizationUnits, tenant, "Human Resources", supporting);
 
         //Create users
 
@@ -122,16 +122,11 @@ public class TenantDemoDataBuilder : LotteryDetectionServiceBase, ITransientDepe
 
             //Add to OUs
             var randomOus = RandomHelper.GenerateRandomizedList(organizationUnits).Take(RandomHelper.GetRandom(0, 3));
-            foreach (var ou in randomOus)
-            {
-                await _userManager.AddToOrganizationUnitAsync(user, ou);
-            }
+            foreach (var ou in randomOus) await _userManager.AddToOrganizationUnitAsync(user, ou);
 
             //Set profile picture
             if (RandomHelper.GetRandom(100) < 70) //A user will have a profile picture in 70% probability.
-            {
                 await SetRandomProfilePictureAsync(user);
-            }
         }
 
         //Set a picture to admin!
@@ -193,12 +188,14 @@ public class TenantDemoDataBuilder : LotteryDetectionServiceBase, ITransientDepe
 
     private async Task EnableIsNewRegisteredUserActiveByDefaultAsync(Tenant tenant)
     {
-        await SettingManager.ChangeSettingForTenantAsync(tenant.Id, AppSettings.UserManagement.IsNewRegisteredUserActiveByDefault, "true");
+        await SettingManager.ChangeSettingForTenantAsync(tenant.Id,
+            AppSettings.UserManagement.IsNewRegisteredUserActiveByDefault, "true");
     }
 
-    private async Task<OrganizationUnit> CreateAndSaveOrganizationUnit(List<OrganizationUnit> organizationUnits, Tenant tenant, string displayName, OrganizationUnit parent = null)
+    private async Task<OrganizationUnit> CreateAndSaveOrganizationUnit(List<OrganizationUnit> organizationUnits,
+        Tenant tenant, string displayName, OrganizationUnit parent = null)
     {
-        var organizationUnit = new OrganizationUnit(tenant.Id, displayName, parent == null ? (long?)null : parent.Id);
+        var organizationUnit = new OrganizationUnit(tenant.Id, displayName, parent == null ? null : parent.Id);
 
         await _organizationUnitManager.CreateAsync(organizationUnit);
         await CurrentUnitOfWork.SaveChangesAsync();
@@ -229,15 +226,11 @@ public class TenantDemoDataBuilder : LotteryDetectionServiceBase, ITransientDepe
 
     private (byte[], string fileName) GetRandomProfilePictureBytes()
     {
-        var fileName = string.Format("sample-profile-{0}.jpg", (RandomHelper.GetRandom(1, 11)).ToString("00"));
+        var fileName = string.Format("sample-profile-{0}.jpg", RandomHelper.GetRandom(1, 11).ToString("00"));
         var fullPath = Path.Combine(_appFolders.SampleProfileImagesFolder, fileName);
 
-        if (!File.Exists(fullPath))
-        {
-            throw new Exception("Could not find sample profile picture on " + fullPath);
-        }
+        if (!File.Exists(fullPath)) throw new Exception("Could not find sample profile picture on " + fullPath);
 
         return (File.ReadAllBytes(fullPath), fileName);
     }
 }
-

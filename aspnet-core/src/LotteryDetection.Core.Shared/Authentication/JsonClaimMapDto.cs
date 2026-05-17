@@ -6,4 +6,3 @@ public class JsonClaimMapDto
 
     public string Key { get; set; }
 }
-

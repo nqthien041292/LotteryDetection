@@ -14,4 +14,3 @@ public static class StaticRoleNames
         public const string User = "User";
     }
 }
-

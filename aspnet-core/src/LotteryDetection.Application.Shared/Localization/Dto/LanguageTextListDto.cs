@@ -8,4 +8,3 @@ public class LanguageTextListDto
 
     public string TargetValue { get; set; }
 }
-

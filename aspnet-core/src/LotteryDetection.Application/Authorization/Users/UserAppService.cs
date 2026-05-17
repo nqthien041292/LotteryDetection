@@ -1,4 +1,11 @@
-﻿using Abp;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using Abp;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Authorization.Roles;
@@ -12,10 +19,6 @@ using Abp.Organizations;
 using Abp.Runtime.Session;
 using Abp.UI;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using LotteryDetection.Authorization.Permissions;
 using LotteryDetection.Authorization.Permissions.Dto;
 using LotteryDetection.Authorization.Roles;
@@ -27,40 +30,36 @@ using LotteryDetection.Net.Emailing;
 using LotteryDetection.Notifications;
 using LotteryDetection.Organizations.Dto;
 using LotteryDetection.Url;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace LotteryDetection.Authorization.Users;
 
 [AbpAuthorize(AppPermissions.Pages_Administration_Users)]
 public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
 {
-    public IAppUrlService AppUrlService { get; set; }
+    private readonly IAppNotifier _appNotifier;
+    private readonly IEmailSettingsChecker _emailSettingsChecker;
+    private readonly INotificationSubscriptionManager _notificationSubscriptionManager;
+    private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
+    private readonly IRepository<OrganizationUnitRole, long> _organizationUnitRoleRepository;
+    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IEnumerable<IPasswordValidator<User>> _passwordValidators;
+    private readonly IRoleManagementConfig _roleManagementConfig;
 
     private readonly RoleManager _roleManager;
+    private readonly IRepository<RolePermissionSetting, long> _rolePermissionRepository;
+    private readonly IRepository<Role> _roleRepository;
     private readonly IUserEmailer _userEmailer;
     private readonly IUserListExcelExporter _userListExcelExporter;
-    private readonly INotificationSubscriptionManager _notificationSubscriptionManager;
-    private readonly IAppNotifier _appNotifier;
-    private readonly IRepository<RolePermissionSetting, long> _rolePermissionRepository;
-    private readonly IRepository<UserPermissionSetting, long> _userPermissionRepository;
-    private readonly IRepository<UserRole, long> _userRoleRepository;
-    private readonly IRepository<Role> _roleRepository;
-    private readonly IUserPolicy _userPolicy;
-    private readonly IEnumerable<IPasswordValidator<User>> _passwordValidators;
-    private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
-    private readonly IRoleManagementConfig _roleManagementConfig;
     private readonly UserManager _userManager;
-    private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
-    private readonly IRepository<OrganizationUnitRole, long> _organizationUnitRoleRepository;
     private readonly IOptions<UserOptions> _userOptions;
-    private readonly IEmailSettingsChecker _emailSettingsChecker;
+    private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
+    private readonly IRepository<UserPermissionSetting, long> _userPermissionRepository;
+    private readonly IUserPolicy _userPolicy;
+    private readonly IRepository<UserRole, long> _userRoleRepository;
 
     public UserAppService(
         RoleManager roleManager,
@@ -104,6 +103,8 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
 
         AppUrlService = NullAppUrlService.Instance;
     }
+
+    public IAppUrlService AppUrlService { get; set; }
 
     [HttpPost]
     public async Task<PagedResultDto<UserListDto>> GetUsers(GetUsersInput input)
@@ -178,8 +179,8 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
                 IsActive = true,
                 ShouldChangePasswordOnNextLogin = true,
                 IsTwoFactorEnabled =
-                    await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                        .TwoFactorLogin.IsEnabled),
+                    await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.TwoFactorLogin
+                        .IsEnabled),
                 IsLockoutEnabled =
                     await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.UserLockOut
                         .IsEnabled)
@@ -188,10 +189,7 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
             foreach (var defaultRole in await _roleManager.Roles.Where(r => r.IsDefault).ToListAsync())
             {
                 var defaultUserRole = userRoleDtos.FirstOrDefault(ur => ur.RoleName == defaultRole.Name);
-                if (defaultUserRole != null)
-                {
-                    defaultUserRole.IsAssigned = true;
-                }
+                if (defaultUserRole != null) defaultUserRole.IsAssigned = true;
             }
         }
         else
@@ -216,16 +214,6 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
         }
 
         return output;
-    }
-
-    private List<string> GetAllRoleNamesOfUsersOrganizationUnits(long userId)
-    {
-        return (from userOu in _userOrganizationUnitRepository.GetAll()
-            join roleOu in _organizationUnitRoleRepository.GetAll() on userOu.OrganizationUnitId equals roleOu
-                .OrganizationUnitId
-            join userOuRoles in _roleRepository.GetAll() on roleOu.RoleId equals userOuRoles.Id
-            where userOu.UserId == userId
-            select userOuRoles.Name).ToList();
     }
 
     [AbpAuthorize(AppPermissions.Pages_Administration_Users_ChangePermissions)]
@@ -262,22 +250,15 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
     public async Task CreateOrUpdateUser(CreateOrUpdateUserInput input)
     {
         if (input.User.Id.HasValue)
-        {
             await UpdateUserAsync(input);
-        }
         else
-        {
             await CreateUserAsync(input);
-        }
     }
 
     [AbpAuthorize(AppPermissions.Pages_Administration_Users_Delete)]
     public async Task DeleteUser(EntityDto<long> input)
     {
-        if (input.Id == AbpSession.GetUserId())
-        {
-            throw new UserFriendlyException(L("YouCanNotDeleteOwnAccount"));
-        }
+        if (input.Id == AbpSession.GetUserId()) throw new UserFriendlyException(L("YouCanNotDeleteOwnAccount"));
 
         var user = await UserManager.GetUserByIdAsync(input.Id);
         CheckErrors(await UserManager.DeleteAsync(user));
@@ -290,6 +271,16 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
         user.Unlock();
     }
 
+    private List<string> GetAllRoleNamesOfUsersOrganizationUnits(long userId)
+    {
+        return (from userOu in _userOrganizationUnitRepository.GetAll()
+            join roleOu in _organizationUnitRoleRepository.GetAll() on userOu.OrganizationUnitId equals roleOu
+                .OrganizationUnitId
+            join userOuRoles in _roleRepository.GetAll() on roleOu.RoleId equals userOuRoles.Id
+            where userOu.UserId == userId
+            select userOuRoles.Name).ToList();
+    }
+
     [AbpAuthorize(AppPermissions.Pages_Administration_Users_Edit)]
     protected virtual async Task UpdateUserAsync(CreateOrUpdateUserInput input)
     {
@@ -297,17 +288,11 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
 
         var user = await UserManager.FindByIdAsync(input.User.Id.Value.ToString());
 
-        if (user is null)
-        {
-            throw new AbpException(L("UserNotFound"));
-        }
+        if (user is null) throw new AbpException(L("UserNotFound"));
 
         var isEmailChanged = user.EmailAddress != input.User.EmailAddress;
 
-        if (isEmailChanged)
-        {
-            user.IsEmailConfirmed = false;
-        }
+        if (isEmailChanged) user.IsEmailConfirmed = false;
 
         //Update user properties
         ObjectMapper.Map(input.User, user); //Passwords is not mapped (see mapping configuration)
@@ -346,10 +331,7 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
     [AbpAuthorize(AppPermissions.Pages_Administration_Users_Create)]
     protected virtual async Task CreateUserAsync(CreateOrUpdateUserInput input)
     {
-        if (AbpSession.TenantId.HasValue)
-        {
-            await _userPolicy.CheckMaxUserCountAsync(AbpSession.GetTenantId());
-        }
+        if (AbpSession.TenantId.HasValue) await _userPolicy.CheckMaxUserCountAsync(AbpSession.GetTenantId());
 
         var user = ObjectMapper.Map<User>(input.User); //Passwords is not mapped (see mapping configuration)
         user.TenantId = AbpSession.TenantId;
@@ -365,9 +347,7 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
         {
             await UserManager.InitializeOptionsAsync(AbpSession.TenantId);
             foreach (var validator in _passwordValidators)
-            {
                 CheckErrors(await validator.ValidateAsync(UserManager, user, input.User.Password));
-            }
 
             user.Password = _passwordHasher.HashPassword(user, input.User.Password);
         }
@@ -425,21 +405,14 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
         foreach (var roleId in distinctRoleIds)
         {
             var role = await _roleManager.FindByIdAsync(roleId.ToString());
-            if (role != null)
-            {
-                roleNames[roleId] = role.DisplayName;
-            }
+            if (role != null) roleNames[roleId] = role.DisplayName;
         }
 
         foreach (var userListDto in userListDtos)
         {
             foreach (var userListRoleDto in userListDto.Roles)
-            {
                 if (roleNames.ContainsKey(userListRoleDto.RoleId))
-                {
                     userListRoleDto.RoleName = roleNames[userListRoleDto.RoleId];
-                }
-            }
 
             userListDto.Roles = userListDto.Roles.Where(r => r.RoleName != null).OrderBy(r => r.RoleName).ToList();
         }
@@ -462,9 +435,8 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
 
         if (input.Permissions != null && input.Permissions.Any(p => !p.IsNullOrWhiteSpace()))
         {
-            var staticRoleNames = _roleManagementConfig.StaticRoles.Where(
-                r => r.GrantAllPermissionsByDefault &&
-                     r.Side == AbpSession.MultiTenancySide
+            var staticRoleNames = _roleManagementConfig.StaticRoles.Where(r => r.GrantAllPermissionsByDefault &&
+                                                                               r.Side == AbpSession.MultiTenancySide
             ).Select(r => r.RoleName).ToList();
 
             input.Permissions = input.Permissions.Where(p => !string.IsNullOrEmpty(p)).ToList();
@@ -480,7 +452,7 @@ public class UserAppService : LotteryDetectionAppServiceBase, IUserAppService
                 from up in upJoined.DefaultIfEmpty()
                 join rp in _rolePermissionRepository.GetAll()
                         .Where(rolePermission => input.Permissions.Contains(rolePermission.Name)) on
-                    new {RoleId = ur == null ? 0 : ur.RoleId} equals new {rp.RoleId} into rpJoined
+                    new { RoleId = ur == null ? 0 : ur.RoleId } equals new { rp.RoleId } into rpJoined
                 from rp in rpJoined.DefaultIfEmpty()
                 where (up != null && up.IsGranted) ||
                       (up == null && rp != null && rp.IsGranted) ||

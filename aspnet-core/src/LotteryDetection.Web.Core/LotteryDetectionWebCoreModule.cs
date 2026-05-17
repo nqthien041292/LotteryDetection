@@ -8,23 +8,23 @@ using Abp.AspNetZeroCore.Web;
 using Abp.Configuration.Startup;
 using Abp.Hangfire;
 using Abp.Hangfire.Configuration;
+using Abp.HtmlSanitizer;
+using Abp.HtmlSanitizer.Configuration;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Abp.Runtime.Caching.Redis;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using LotteryDetection.Authorization.Accounts;
 using LotteryDetection.Configuration;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Startup;
 using LotteryDetection.Web.Authentication.JwtBearer;
 using LotteryDetection.Web.Common;
 using LotteryDetection.Web.Configuration;
-using Abp.HtmlSanitizer;
-using Abp.HtmlSanitizer.Configuration;
-using LotteryDetection.Authorization.Accounts;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LotteryDetection.Web;
 
@@ -41,8 +41,8 @@ namespace LotteryDetection.Web;
 )]
 public class LotteryDetectionWebCoreModule : AbpModule
 {
-    private readonly IWebHostEnvironment _env;
     private readonly IConfigurationRoot _appConfiguration;
+    private readonly IWebHostEnvironment _env;
 
     public LotteryDetectionWebCoreModule(IWebHostEnvironment env)
     {
@@ -64,21 +64,16 @@ public class LotteryDetectionWebCoreModule : AbpModule
             .CreateControllersForAppServices(
                 typeof(LotteryDetectionApplicationModule).GetAssembly()
             );
-        
+
         if (_appConfiguration["Authentication:JwtBearer:IsEnabled"] != null &&
             bool.Parse(_appConfiguration["Authentication:JwtBearer:IsEnabled"]))
-        {
             ConfigureTokenAuth();
-        }
 
         Configuration.ReplaceService<IAppConfigurationAccessor, AppConfigurationAccessor>();
 
         Configuration.ReplaceService<IAppConfigurationWriter, AppConfigurationWriter>();
 
-        if (WebConsts.HangfireDashboardEnabled)
-        {
-            Configuration.BackgroundJobs.UseHangfire();
-        }
+        if (WebConsts.HangfireDashboardEnabled) Configuration.BackgroundJobs.UseHangfire();
 
         //Uncomment this line to use Redis cache instead of in-memory cache.
         //See app.config for Redis configuration and connection string
@@ -134,4 +129,3 @@ public class LotteryDetectionWebCoreModule : AbpModule
         appFolders.WebLogsFolder = Path.Combine(_env.ContentRootPath, $"App_Data{Path.DirectorySeparatorChar}Logs");
     }
 }
-

@@ -15,30 +15,30 @@ using Abp.Runtime.Caching;
 using Abp.Threading;
 using Abp.UI;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users.DataCleaners;
 using LotteryDetection.Configuration;
 using LotteryDetection.Security;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LotteryDetection.Authorization.Users;
 
 /// <summary>
-/// User manager.
-/// Used to implement domain logic for users.
-/// Extends <see cref="AbpUserManager{TRole,TUser}"/>.
+///     User manager.
+///     Used to implement domain logic for users.
+///     Extends <see cref="AbpUserManager{TRole,TUser}" />.
 /// </summary>
 public class UserManager : AbpUserManager<Role, User>
 {
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IBackgroundJobManager _backgroundJobManager;
     private readonly ILocalizationManager _localizationManager;
-    private readonly ISettingManager _settingManager;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IRepository<RecentPassword, Guid> _recentPasswords;
-    private readonly IBackgroundJobManager _backgroundJobManager;
+    private readonly ISettingManager _settingManager;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     public UserManager(
         UserStore userStore,
@@ -109,10 +109,7 @@ public class UserManager : AbpUserManager<Role, User>
     public async Task<User> GetUserAsync(UserIdentifier userIdentifier)
     {
         var user = await GetUserOrNullAsync(userIdentifier);
-        if (user == null)
-        {
-            throw new UserFriendlyException("Unknown user or user identifier");
-        }
+        if (user == null) throw new UserFriendlyException("Unknown user or user identifier");
 
         return user;
     }
@@ -124,10 +121,7 @@ public class UserManager : AbpUserManager<Role, User>
 
     public override Task<IdentityResult> SetRolesAsync(User user, string[] roleNames)
     {
-        if (user.UserName != AbpUserBase.AdminUserName)
-        {
-            return base.SetRolesAsync(user, roleNames);
-        }
+        if (user.UserName != AbpUserBase.AdminUserName) return base.SetRolesAsync(user, roleNames);
 
         // Always keep admin role for admin user
         var roles = roleNames.ToList();
@@ -148,11 +142,9 @@ public class UserManager : AbpUserManager<Role, User>
     {
         var identityResult = await base.DeleteAsync(user);
         if (identityResult == IdentityResult.Success)
-        {
             await _backgroundJobManager.EnqueueAsync<UserDataCleaningJob, UserIdentifier>(
                 user.ToUserIdentifier()
             );
-        }
 
         return identityResult;
     }
@@ -185,42 +177,34 @@ public class UserManager : AbpUserManager<Role, User>
 
         string[] randomChars =
         {
-                upperCaseLetters,
-                lowerCaseLetters,
-                digits,
-                nonAlphanumerics
-            };
+            upperCaseLetters,
+            lowerCaseLetters,
+            digits,
+            nonAlphanumerics
+        };
 
         var rand = new Random(Environment.TickCount);
         var chars = new List<char>();
 
         if (passwordComplexitySetting.RequireUppercase)
-        {
             chars.Insert(rand.Next(0, chars.Count),
                 upperCaseLetters[rand.Next(0, upperCaseLetters.Length)]
             );
-        }
 
         if (passwordComplexitySetting.RequireLowercase)
-        {
             chars.Insert(rand.Next(0, chars.Count),
                 lowerCaseLetters[rand.Next(0, lowerCaseLetters.Length)]
             );
-        }
 
         if (passwordComplexitySetting.RequireDigit)
-        {
             chars.Insert(rand.Next(0, chars.Count),
                 digits[rand.Next(0, digits.Length)]
             );
-        }
 
         if (passwordComplexitySetting.RequireNonAlphanumeric)
-        {
             chars.Insert(rand.Next(0, chars.Count),
                 nonAlphanumerics[rand.Next(0, nonAlphanumerics.Length)]
             );
-        }
 
         for (var i = chars.Count; i < passwordComplexitySetting.RequiredLength; i++)
         {
@@ -238,9 +222,7 @@ public class UserManager : AbpUserManager<Role, User>
         if (user.Name == AbpUserBase.AdminUserName &&
             (!permissions.Any(p => p.Name == AppPermissions.Pages_Administration_Roles_Edit) ||
              !permissions.Any(p => p.Name == AppPermissions.Pages_Administration_Users_ChangePermissions)))
-        {
             throw new UserFriendlyException(L("YouCannotRemoveUserRolePermissionsFromAdminUser"));
-        }
     }
 
     private new string L(string name)
@@ -248,7 +230,10 @@ public class UserManager : AbpUserManager<Role, User>
         return _localizationManager.GetString(LotteryDetectionConsts.LocalizationSourceName, name);
     }
 
-    protected string L(string name, params object[] args) => string.Format(L(name), args);
+    protected string L(string name, params object[] args)
+    {
+        return string.Format(L(name), args);
+    }
 
     public override async Task<IdentityResult> ChangePasswordAsync(User user, string newPassword)
     {
@@ -294,10 +279,7 @@ public class UserManager : AbpUserManager<Role, User>
             AppSettings.UserManagement.Password.EnableCheckingLastXPasswordWhenPasswordChange
         );
 
-        if (!isCheckingLastXPasswordEnabled)
-        {
-            return;
-        }
+        if (!isCheckingLastXPasswordEnabled) return;
 
         var newPasswordAndCurrentPasswordVerificationResult = _passwordHasher.VerifyHashedPassword(
             user,
@@ -311,11 +293,9 @@ public class UserManager : AbpUserManager<Role, User>
         );
 
         if (newPasswordAndCurrentPasswordVerificationResult != PasswordVerificationResult.Failed)
-        {
             throw new UserFriendlyException(
                 L("NewPasswordMustBeDifferentThenLastXPassword", checkingLastXPasswordCount)
             );
-        }
 
         var recentPasswords = await _recentPasswords.GetAll()
             .Where(rp => rp.UserId == user.Id)
@@ -332,29 +312,21 @@ public class UserManager : AbpUserManager<Role, User>
             );
 
             if (recentPasswordVerificationResult != PasswordVerificationResult.Failed)
-            {
                 throw new UserFriendlyException(
                     L("NewPasswordMustBeDifferentThenLastXPassword", checkingLastXPasswordCount)
                 );
-            }
         }
     }
 
     private async Task StoreRecentPasswordIfNeeded(User user, IdentityResult result)
     {
-        if (!result.Succeeded)
-        {
-            return;
-        }
+        if (!result.Succeeded) return;
 
         var isCheckingLastXPasswordEnabled = await _settingManager.GetSettingValueAsync<bool>(
             AppSettings.UserManagement.Password.EnableCheckingLastXPasswordWhenPasswordChange
         );
 
-        if (!isCheckingLastXPasswordEnabled)
-        {
-            return;
-        }
+        if (!isCheckingLastXPasswordEnabled) return;
 
         var recentPassword = new RecentPassword
         {
@@ -366,4 +338,3 @@ public class UserManager : AbpUserManager<Role, User>
         await _recentPasswords.InsertAsync(recentPassword);
     }
 }
-

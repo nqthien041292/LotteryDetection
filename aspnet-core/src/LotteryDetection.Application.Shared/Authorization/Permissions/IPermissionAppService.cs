@@ -8,4 +8,3 @@ public interface IPermissionAppService : IApplicationService
 {
     ListResultDto<FlatPermissionWithLevelDto> GetAllPermissions();
 }
-

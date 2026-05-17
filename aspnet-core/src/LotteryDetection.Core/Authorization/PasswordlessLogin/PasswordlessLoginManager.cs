@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using Abp;
 using Abp.Runtime.Caching;
 using Abp.UI;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using LotteryDetection.Authentication.PasswordlessLogin;
 using LotteryDetection.Authorization.Users;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LotteryDetection.Authorization.PasswordlessLogin;
 
 public class PasswordlessLoginManager : LotteryDetectionDomainServiceBase, IPasswordlessLoginManager
 {
-    private readonly IUserRepository _userRepository;
-    private readonly UserManager _userManager;
     private readonly ICacheManager _cacheManager;
+    private readonly UserManager _userManager;
+    private readonly IUserRepository _userRepository;
 
     public PasswordlessLoginManager(
         IUserRepository userRepository,
@@ -30,14 +30,10 @@ public class PasswordlessLoginManager : LotteryDetectionDomainServiceBase, IPass
     public async Task<User> GetUserByPasswordlessProviderAndKeyAsync(string provider, string providerKey)
     {
         if (provider == PasswordlessLoginProviderType.Email.ToString())
-        {
             return await _userManager.FindByEmailAsync(providerKey);
-        }
 
         if (provider == PasswordlessLoginProviderType.Sms.ToString())
-        {
             return await _userRepository.FindByPhoneNumberAsync(providerKey);
-        }
 
         throw new AbpException(L("UserNotFound"));
     }
@@ -47,15 +43,9 @@ public class PasswordlessLoginManager : LotteryDetectionDomainServiceBase, IPass
         var cacheKey = GetPasswordlessLoginCodeCacheKey(tenantId, providerValue);
         var cache = await _cacheManager.GetPasswordlessVerificationCodeCache().GetOrDefaultAsync(cacheKey);
 
-        if (cache == null)
-        {
-            throw new Exception(L("PasswordlessCodeNotFoundCache"));
-        }
+        if (cache == null) throw new Exception(L("PasswordlessCodeNotFoundCache"));
 
-        if (code != cache.Code)
-        {
-            throw new UserFriendlyException(L("WrongPasswordlessVerificationCode"));
-        }
+        if (code != cache.Code) throw new UserFriendlyException(L("WrongPasswordlessVerificationCode"));
     }
 
     public async Task<string> GeneratePasswordlessLoginCode(int? tenantId, string providerKey)
@@ -101,12 +91,8 @@ public class PasswordlessLoginManager : LotteryDetectionDomainServiceBase, IPass
 
     private string GetPasswordlessLoginCodeCacheKey(int? tenantId, string providerKey)
     {
-        if (tenantId.HasValue)
-        {
-            return tenantId.Value + "|" + providerKey;
-        }
+        if (tenantId.HasValue) return tenantId.Value + "|" + providerKey;
 
         return providerKey;
     }
 }
-

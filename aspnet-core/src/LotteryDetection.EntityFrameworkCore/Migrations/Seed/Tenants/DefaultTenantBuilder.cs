@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using Abp.MultiTenancy;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Editions;
 using LotteryDetection.EntityFrameworkCore;
+using LotteryDetection.MultiTenancy;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Migrations.Seed.Tenants;
 
@@ -24,20 +25,18 @@ public class DefaultTenantBuilder
     {
         //Default tenant
 
-        var defaultTenant = _context.Tenants.IgnoreQueryFilters().FirstOrDefault(t => t.TenancyName == MultiTenancy.Tenant.DefaultTenantName);
+        var defaultTenant = _context.Tenants.IgnoreQueryFilters()
+            .FirstOrDefault(t => t.TenancyName == Tenant.DefaultTenantName);
         if (defaultTenant == null)
         {
-            defaultTenant = new MultiTenancy.Tenant(AbpTenantBase.DefaultTenantName, AbpTenantBase.DefaultTenantName);
+            defaultTenant = new Tenant(AbpTenantBase.DefaultTenantName, AbpTenantBase.DefaultTenantName);
 
-            var defaultEdition = _context.Editions.IgnoreQueryFilters().FirstOrDefault(e => e.Name == EditionManager.DefaultEditionName);
-            if (defaultEdition != null)
-            {
-                defaultTenant.EditionId = defaultEdition.Id;
-            }
+            var defaultEdition = _context.Editions.IgnoreQueryFilters()
+                .FirstOrDefault(e => e.Name == EditionManager.DefaultEditionName);
+            if (defaultEdition != null) defaultTenant.EditionId = defaultEdition.Id;
 
             _context.Tenants.Add(defaultTenant);
             _context.SaveChanges();
         }
     }
 }
-

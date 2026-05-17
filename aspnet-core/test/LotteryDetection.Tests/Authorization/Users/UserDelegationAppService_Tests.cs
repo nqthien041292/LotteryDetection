@@ -12,203 +12,191 @@ using LotteryDetection.Authorization.Users.Delegation.Dto;
 using Shouldly;
 using Xunit;
 
-namespace LotteryDetection.Tests.Authorization.Users
+namespace LotteryDetection.Tests.Authorization.Users;
+
+public class UserDelegationAppService_Tests : UserDelegationTestBase
 {
-    public class UserDelegationAppService_Tests : UserDelegationTestBase
+    private readonly IUserDelegationAppService _userDelegationAppService;
+    private readonly IUserDelegationConfiguration _userDelegationConfiguration;
+
+    // Existing User Delegations
+    // admin -> alex
+    // george -> admin
+
+    public UserDelegationAppService_Tests()
     {
-        private readonly IUserDelegationAppService _userDelegationAppService;
-        private readonly IUserDelegationConfiguration _userDelegationConfiguration;
+        _userDelegationAppService = Resolve<IUserDelegationAppService>();
+        _userDelegationConfiguration = Resolve<IUserDelegationConfiguration>();
+    }
 
-        // Existing User Delegations
-        // admin -> alex
-        // george -> admin
+    [Fact]
+    public async Task GetActiveUserDelegations_For_Tenant_Tests()
+    {
+        LoginAsDefaultTenantAdmin();
 
-        public UserDelegationAppService_Tests()
+        var delegations = await _userDelegationAppService.GetActiveUserDelegations();
+        delegations.Count.ShouldBe(1);
+    }
+
+    [MultiTenantFact]
+    public async Task GetActiveUserDelegations_For_Host_Tests()
+    {
+        LoginAsHostAdmin();
+        var delegations = await _userDelegationAppService.GetActiveUserDelegations();
+        delegations.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task DelegateNewUser_Tests()
+    {
+        if (!_userDelegationConfiguration.IsEnabled) return;
+
+        LoginAsDefaultTenantAdmin();
+
+        var delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
         {
-            _userDelegationAppService = Resolve<IUserDelegationAppService>();
-            _userDelegationConfiguration = Resolve<IUserDelegationConfiguration>();
-        }
+            MaxResultCount = 10
+        });
 
-        [Fact]
-        public async Task GetActiveUserDelegations_For_Tenant_Tests()
+        delegations.TotalCount.ShouldBe(1);
+
+        var george = UsingDbContext(context => { return context.Users.FirstOrDefault(u => u.UserName == "george"); });
+        await _userDelegationAppService.DelegateNewUser(new CreateUserDelegationDto
         {
-            LoginAsDefaultTenantAdmin();
+            TargetUserId = george.Id,
+            StartTime = Clock.Now,
+            EndTime = Clock.Now.AddDays(7)
+        });
 
-            var delegations = await _userDelegationAppService.GetActiveUserDelegations();
-            delegations.Count.ShouldBe(1);
-        }
-        
-        [MultiTenantFact]
-        public async Task GetActiveUserDelegations_For_Host_Tests()
+        delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
         {
-            LoginAsHostAdmin();
-            var delegations = await _userDelegationAppService.GetActiveUserDelegations();
-            delegations.Count.ShouldBe(0);
-        }
+            MaxResultCount = 10
+        });
 
-        [Fact]
-        public async Task DelegateNewUser_Tests()
-        {
-            if (!_userDelegationConfiguration.IsEnabled)
-            {
-                return;
-            }
-            
-            LoginAsDefaultTenantAdmin();
+        delegations.TotalCount.ShouldBe(2);
+    }
 
-            var delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
-            {
-                MaxResultCount = 10
-            });
+    [Fact]
+    public async Task SelfDelegation_Tests()
+    {
+        if (!_userDelegationConfiguration.IsEnabled) return;
 
-            delegations.TotalCount.ShouldBe(1);
+        LoginAsDefaultTenantAdmin();
 
-            var george = UsingDbContext(context => { return context.Users.FirstOrDefault(u => u.UserName == "george"); });
+        var exception = await Assert.ThrowsAsync<UserFriendlyException>(async () =>
             await _userDelegationAppService.DelegateNewUser(new CreateUserDelegationDto
-            {
-                TargetUserId = george.Id,
-                StartTime = Clock.Now,
-                EndTime = Clock.Now.AddDays(7)
-            });
-
-            delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
-            {
-                MaxResultCount = 10
-            });
-
-            delegations.TotalCount.ShouldBe(2);
-        }
-
-        [Fact]
-        public async Task SelfDelegation_Tests()
-        {
-            if (!_userDelegationConfiguration.IsEnabled)
-            {
-                return;
-            }
-            
-            LoginAsDefaultTenantAdmin();
-
-            var exception = await Assert.ThrowsAsync<UserFriendlyException>(async () => await _userDelegationAppService.DelegateNewUser(new CreateUserDelegationDto
             {
                 TargetUserId = AbpSession.GetUserId(),
                 StartTime = Clock.Now,
                 EndTime = Clock.Now.AddDays(7)
             }));
 
-            exception.Message.ShouldBe("You can't delegate authorization to yourself !");
-        }
-
-        [Fact]
-        public async Task RemoveDelegation_Test()
-        {
-            if (!_userDelegationConfiguration.IsEnabled)
-            {
-                return;
-            }
-            
-            LoginAsDefaultTenantAdmin();
-
-            var delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
-            {
-                MaxResultCount = 10
-            });
-
-            delegations.TotalCount.ShouldBe(1);
-
-            var delegationId = delegations.Items[0].Id;
-            await _userDelegationAppService.RemoveDelegation(new EntityDto<long>(delegationId));
-
-            delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
-            {
-                MaxResultCount = 10
-            });
-
-            delegations.TotalCount.ShouldBe(0);
-        }
-
-        [Fact]
-        public async Task Remove_Different_Users_Delegation_Test()
-        {
-            if (!_userDelegationConfiguration.IsEnabled)
-            {
-                return;
-            }
-            
-            LoginAsDefaultTenantAdmin();
-
-            var differentUsersDelegation = UsingDbContext(context =>
-            {
-                var george = context.Users.FirstOrDefault(e => e.UserName == "george");
-                return context.UserDelegations.FirstOrDefault(e => e.SourceUserId == george.Id);
-            });
-            
-            var exception = await Assert.ThrowsAsync<Exception>(async () => await _userDelegationAppService.RemoveDelegation(new EntityDto<long>(differentUsersDelegation.Id)));
-            exception.Message.ShouldBe("Only source user can delete a user delegation !");
-        }
+        exception.Message.ShouldBe("You can't delegate authorization to yourself !");
     }
 
-    public abstract class UserDelegationTestBase : AppTestBase
+    [Fact]
+    public async Task RemoveDelegation_Test()
     {
-        protected UserDelegationTestBase()
+        if (!_userDelegationConfiguration.IsEnabled) return;
+
+        LoginAsDefaultTenantAdmin();
+
+        var delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
         {
-            CreateTestUsers();
-        }
+            MaxResultCount = 10
+        });
 
-        protected void CreateTestUsers()
+        delegations.TotalCount.ShouldBe(1);
+
+        var delegationId = delegations.Items[0].Id;
+        await _userDelegationAppService.RemoveDelegation(new EntityDto<long>(delegationId));
+
+        delegations = await _userDelegationAppService.GetDelegatedUsers(new GetUserDelegationsInput
         {
-            //Note: There is a default "admin" user also
+            MaxResultCount = 10
+        });
 
-            UsingDbContext(
-                context =>
-                {
-                    context.Users.Add(CreateUserEntity("alex", "Alex", "Nash", "alex@nash.com"));
-                    context.Users.Add(CreateUserEntity("george", "George", "Adams", "george@adams.com"));
+        delegations.TotalCount.ShouldBe(0);
+    }
 
-                    context.SaveChanges();
+    [Fact]
+    public async Task Remove_Different_Users_Delegation_Test()
+    {
+        if (!_userDelegationConfiguration.IsEnabled) return;
 
-                    var george = context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == "george");
-                    var alex = context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == "alex");
-                    var admin = context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == "admin");
+        LoginAsDefaultTenantAdmin();
 
-                    context.UserDelegations.Add(new UserDelegation
-                    {
-                        TenantId = AbpSession.TenantId,
-                        SourceUserId = admin.Id,
-                        TargetUserId = alex.Id,
-                        StartTime = Clock.Now,
-                        EndTime = Clock.Now.AddDays(7)
-                    });
-
-                    context.UserDelegations.Add(new UserDelegation
-                    {
-                        TenantId = AbpSession.TenantId,
-                        SourceUserId = george.Id,
-                        TargetUserId = admin.Id,
-                        StartTime = Clock.Now,
-                        EndTime = Clock.Now.AddDays(7)
-                    });
-
-                    context.SaveChanges();
-                });
-        }
-
-        protected User CreateUserEntity(string userName, string name, string surname, string emailAddress)
+        var differentUsersDelegation = UsingDbContext(context =>
         {
-            var user = new User
+            var george = context.Users.FirstOrDefault(e => e.UserName == "george");
+            return context.UserDelegations.FirstOrDefault(e => e.SourceUserId == george.Id);
+        });
+
+        var exception = await Assert.ThrowsAsync<Exception>(async () =>
+            await _userDelegationAppService.RemoveDelegation(new EntityDto<long>(differentUsersDelegation.Id)));
+        exception.Message.ShouldBe("Only source user can delete a user delegation !");
+    }
+}
+
+public abstract class UserDelegationTestBase : AppTestBase
+{
+    protected UserDelegationTestBase()
+    {
+        CreateTestUsers();
+    }
+
+    protected void CreateTestUsers()
+    {
+        //Note: There is a default "admin" user also
+
+        UsingDbContext(context =>
+        {
+            context.Users.Add(CreateUserEntity("alex", "Alex", "Nash", "alex@nash.com"));
+            context.Users.Add(CreateUserEntity("george", "George", "Adams", "george@adams.com"));
+
+            context.SaveChanges();
+
+            var george = context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == "george");
+            var alex = context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == "alex");
+            var admin = context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == "admin");
+
+            context.UserDelegations.Add(new UserDelegation
             {
-                EmailAddress = emailAddress,
-                IsEmailConfirmed = true,
-                Name = name,
-                Surname = surname,
-                UserName = userName,
-                Password = "AM4OLBpptxBYmM79lGOX9egzZk3vIQU3d/gFCJzaBjAPXzYIK3tQ2N7X4fcrHtElTw==", //123qwe
                 TenantId = AbpSession.TenantId,
-            };
+                SourceUserId = admin.Id,
+                TargetUserId = alex.Id,
+                StartTime = Clock.Now,
+                EndTime = Clock.Now.AddDays(7)
+            });
 
-            user.SetNormalizedNames();
+            context.UserDelegations.Add(new UserDelegation
+            {
+                TenantId = AbpSession.TenantId,
+                SourceUserId = george.Id,
+                TargetUserId = admin.Id,
+                StartTime = Clock.Now,
+                EndTime = Clock.Now.AddDays(7)
+            });
 
-            return user;
-        }
+            context.SaveChanges();
+        });
+    }
+
+    protected User CreateUserEntity(string userName, string name, string surname, string emailAddress)
+    {
+        var user = new User
+        {
+            EmailAddress = emailAddress,
+            IsEmailConfirmed = true,
+            Name = name,
+            Surname = surname,
+            UserName = userName,
+            Password = "AM4OLBpptxBYmM79lGOX9egzZk3vIQU3d/gFCJzaBjAPXzYIK3tQ2N7X4fcrHtElTw==", //123qwe
+            TenantId = AbpSession.TenantId
+        };
+
+        user.SetNormalizedNames();
+
+        return user;
     }
 }

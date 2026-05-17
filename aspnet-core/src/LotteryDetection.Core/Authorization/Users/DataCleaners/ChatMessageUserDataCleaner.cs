@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Abp;
 using Abp.Dependency;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Chat;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Authorization.Users.DataCleaners;
 
 public class ChatMessageUserDataCleaner : IUserDataCleaner, ITransientDependency
 {
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly IRepository<ChatMessage, long> _chatMessageRepository;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     public ChatMessageUserDataCleaner(
         IUnitOfWorkManager unitOfWorkManager,
@@ -25,7 +25,7 @@ public class ChatMessageUserDataCleaner : IUserDataCleaner, ITransientDependency
 
     public async Task CleanUserData(UserIdentifier userIdentifier)
     {
-        List<ChatMessage> chatMessages = new List<ChatMessage>();
+        var chatMessages = new List<ChatMessage>();
         await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
         {
             // Delete all messages of the user
@@ -40,14 +40,10 @@ public class ChatMessageUserDataCleaner : IUserDataCleaner, ITransientDependency
                 await DeleteChatMessages(chatMessages);
             }
 
-            if (!chatMessages.Any())
-            {
-                return;
-            }
+            if (!chatMessages.Any()) return;
 
             // Delete all reverse friendships of a friendship
             foreach (var chatMessage in chatMessages)
-            {
                 using (_unitOfWorkManager.Current.SetTenantId(chatMessage.TargetTenantId))
                 {
                     var targetChatMessagesQuery = await _chatMessageRepository.GetAllAsync();
@@ -61,16 +57,11 @@ public class ChatMessageUserDataCleaner : IUserDataCleaner, ITransientDependency
 
                     await DeleteChatMessages(targetChatMessages);
                 }
-            }
         });
     }
 
     private async Task DeleteChatMessages(List<ChatMessage> chatMessages)
     {
-        foreach (var chatMessage in chatMessages)
-        {
-            await _chatMessageRepository.DeleteAsync(chatMessage);
-        }
+        foreach (var chatMessage in chatMessages) await _chatMessageRepository.DeleteAsync(chatMessage);
     }
 }
-

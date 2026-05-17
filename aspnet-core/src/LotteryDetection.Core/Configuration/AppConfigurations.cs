@@ -28,19 +28,14 @@ public static class AppConfigurations
     {
         var builder = new ConfigurationBuilder()
             .SetBasePath(path)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            .AddJsonFile("appsettings.json", true, true);
 
         if (!environmentName.IsNullOrWhiteSpace())
-        {
-            builder = builder.AddJsonFile($"appsettings.{environmentName}.json", optional: true);
-        }
+            builder = builder.AddJsonFile($"appsettings.{environmentName}.json", true);
 
         builder = builder.AddEnvironmentVariables();
 
-        if (addUserSecrets)
-        {
-            builder.AddUserSecrets(typeof(AppConfigurations).GetAssembly(), true);
-        }
+        if (addUserSecrets) builder.AddUserSecrets(typeof(AppConfigurations).GetAssembly(), true);
 
         var builtConfig = builder.Build();
         new AppAzureKeyVaultConfigurer().Configure(builder, builtConfig);
@@ -48,4 +43,3 @@ public static class AppConfigurations
         return builder.Build();
     }
 }
-

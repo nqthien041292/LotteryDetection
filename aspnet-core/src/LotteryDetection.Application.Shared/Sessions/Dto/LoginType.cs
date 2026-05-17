@@ -5,4 +5,3 @@ public enum LoginType
     Local,
     External
 }
-

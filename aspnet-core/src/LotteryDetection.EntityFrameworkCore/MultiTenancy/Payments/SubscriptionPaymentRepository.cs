@@ -3,10 +3,9 @@ using System.Threading.Tasks;
 using Abp.Domain.Entities;
 using Abp.EntityFrameworkCore;
 using Abp.Linq.Extensions;
-using Abp.UI;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.MultiTenancy.Payments;
 
@@ -23,10 +22,7 @@ public class SubscriptionPaymentRepository : LotteryDetectionRepositoryBase<Subs
         var entity = await (await GetAllIncludingAsync(sp => sp.SubscriptionPaymentProducts))
             .FirstOrDefaultAsync(sp => sp.Id == id);
 
-        if (entity == null)
-        {
-            throw new EntityNotFoundException(typeof(SubscriptionPayment), id);
-        }
+        if (entity == null) throw new EntityNotFoundException(typeof(SubscriptionPayment), id);
 
         return entity;
     }
@@ -65,4 +61,3 @@ public class SubscriptionPaymentRepository : LotteryDetectionRepositoryBase<Subs
             .FirstOrDefault();
     }
 }
-

@@ -3,20 +3,6 @@
 public class PasswordComplexitySetting
 {
     public int AllowedMinimumLength { get; private set; } = 3;
-    public bool Equals(PasswordComplexitySetting other)
-    {
-        if (other == null)
-        {
-            return false;
-        }
-
-        return
-            RequireDigit == other.RequireDigit &&
-            RequireLowercase == other.RequireLowercase &&
-            RequireNonAlphanumeric == other.RequireNonAlphanumeric &&
-            RequireUppercase == other.RequireUppercase &&
-            RequiredLength == other.RequiredLength;
-    }
 
     public bool RequireDigit { get; set; }
 
@@ -27,5 +13,16 @@ public class PasswordComplexitySetting
     public bool RequireUppercase { get; set; }
 
     public int RequiredLength { get; set; }
-}
 
+    public bool Equals(PasswordComplexitySetting other)
+    {
+        if (other == null) return false;
+
+        return
+            RequireDigit == other.RequireDigit &&
+            RequireLowercase == other.RequireLowercase &&
+            RequireNonAlphanumeric == other.RequireNonAlphanumeric &&
+            RequireUppercase == other.RequireUppercase &&
+            RequiredLength == other.RequiredLength;
+    }
+}

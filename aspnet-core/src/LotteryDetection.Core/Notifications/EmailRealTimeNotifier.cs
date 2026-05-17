@@ -8,18 +8,15 @@ using Abp.Extensions;
 using Abp.Net.Mail;
 using Abp.Notifications;
 using Castle.Core.Logging;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Notifications;
 
 public class EmailRealTimeNotifier : IRealTimeNotifier, ITransientDependency
 {
-    public bool UseOnlyIfRequestedAsTarget => true;
-
-    public ILogger Logger { get; set; }
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly IEmailSender _emailSender;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly IRepository<User, long> _userRepository;
 
     public EmailRealTimeNotifier(
@@ -33,22 +30,24 @@ public class EmailRealTimeNotifier : IRealTimeNotifier, ITransientDependency
         Logger = NullLogger.Instance;
     }
 
+    public ILogger Logger { get; set; }
+    public bool UseOnlyIfRequestedAsTarget => true;
+
     public async Task SendNotificationsAsync(UserNotification[] userNotifications)
     {
         var userNotificationsGroupedByTenant = userNotifications.GroupBy(un => un.TenantId);
         foreach (var userNotificationByTenant in userNotificationsGroupedByTenant)
-        {
             using (_unitOfWorkManager.Current.SetTenantId(userNotificationByTenant.First().TenantId))
             {
                 var allUserIds = userNotificationByTenant.ToList().Select(x => x.UserId).Distinct().ToList();
                 var usersToNotify = await _userRepository.GetAll()
                     .Where(x => allUserIds.Contains(x.Id))
                     .Select(u => new
-                    {
-                        u.Id,
-                        u.EmailAddress,
-                        u.Name
-                    }
+                        {
+                            u.Id,
+                            u.EmailAddress,
+                            u.Name
+                        }
                     ).ToListAsync();
 
                 foreach (var userNotification in userNotificationByTenant)
@@ -82,7 +81,5 @@ public class EmailRealTimeNotifier : IRealTimeNotifier, ITransientDependency
                     });
                 }
             }
-        }
     }
 }
-

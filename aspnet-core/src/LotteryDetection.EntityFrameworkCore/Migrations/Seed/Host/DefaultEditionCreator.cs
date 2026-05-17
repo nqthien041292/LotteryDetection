@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using Abp.Application.Features;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Editions;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Features;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Migrations.Seed.Host;
 
@@ -23,10 +23,12 @@ public class DefaultEditionCreator
 
     private void CreateEditions()
     {
-        var defaultEdition = _context.Editions.IgnoreQueryFilters().FirstOrDefault(e => e.Name == EditionManager.DefaultEditionName);
+        var defaultEdition = _context.Editions.IgnoreQueryFilters()
+            .FirstOrDefault(e => e.Name == EditionManager.DefaultEditionName);
         if (defaultEdition == null)
         {
-            defaultEdition = new SubscribableEdition { Name = EditionManager.DefaultEditionName, DisplayName = EditionManager.DefaultEditionName };
+            defaultEdition = new SubscribableEdition
+                { Name = EditionManager.DefaultEditionName, DisplayName = EditionManager.DefaultEditionName };
             _context.Editions.Add(defaultEdition);
             _context.SaveChanges();
 
@@ -44,17 +46,14 @@ public class DefaultEditionCreator
     private void CreateFeatureIfNotExists(int editionId, string featureName, bool isEnabled)
     {
         var defaultEditionChatFeature = _context.EditionFeatureSettings.IgnoreQueryFilters()
-                                                    .FirstOrDefault(ef => ef.EditionId == editionId && ef.Name == featureName);
+            .FirstOrDefault(ef => ef.EditionId == editionId && ef.Name == featureName);
 
         if (defaultEditionChatFeature == null)
-        {
             _context.EditionFeatureSettings.Add(new EditionFeatureSetting
             {
                 Name = featureName,
                 Value = isEnabled.ToString().ToLower(),
                 EditionId = editionId
             });
-        }
     }
 }
-

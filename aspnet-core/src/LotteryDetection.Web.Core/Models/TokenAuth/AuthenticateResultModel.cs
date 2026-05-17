@@ -29,4 +29,3 @@ public class AuthenticateResultModel
     public int RefreshTokenExpireInSeconds { get; set; }
     public string c { get; set; }
 }
-

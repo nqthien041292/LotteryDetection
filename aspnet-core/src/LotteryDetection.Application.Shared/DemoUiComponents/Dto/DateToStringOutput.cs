@@ -13,4 +13,3 @@ public class DateRangeFieldOutput
 
     public DateTime EndDate { get; set; }
 }
-

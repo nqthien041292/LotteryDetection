@@ -20,4 +20,3 @@ public class AuthorizeController : AuthorizeController<Tenant, Role, User>
     {
     }
 }
-

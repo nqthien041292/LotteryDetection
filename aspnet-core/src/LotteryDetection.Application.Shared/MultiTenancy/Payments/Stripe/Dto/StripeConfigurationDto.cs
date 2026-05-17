@@ -4,4 +4,3 @@ public class StripeConfigurationDto
 {
     public string PublishableKey { get; set; }
 }
-

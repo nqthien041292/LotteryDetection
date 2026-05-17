@@ -16,4 +16,3 @@ public interface IHostDashboardAppService : IApplicationService
 
     Task<GetEditionTenantStatisticsOutput> GetEditionTenantStatistics(GetEditionTenantStatisticsInput input);
 }
-

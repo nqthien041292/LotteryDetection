@@ -2,6 +2,7 @@
  *  Coppied from https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/JwtBearer/src/LoggingExtensions.cs
  *  Used in LotteryDetectionAsyncJwtBearerHandler. Since it is internal in "Microsoft.Extensions.Logging", we need to copy it here.
  */
+
 #nullable enable
 using System;
 using Microsoft.Extensions.Logging;
@@ -26,12 +27,17 @@ internal static class LoggingExtensions
         formatString: "Exception occurred while processing message.");
 
     public static void TokenValidationFailed(this ILogger logger, Exception ex)
-        => _tokenValidationFailed(logger, ex);
+    {
+        _tokenValidationFailed(logger, ex);
+    }
 
     public static void TokenValidationSucceeded(this ILogger logger)
-        => _tokenValidationSucceeded(logger, null);
+    {
+        _tokenValidationSucceeded(logger, null);
+    }
 
     public static void ErrorProcessingMessage(this ILogger logger, Exception ex)
-        => _errorProcessingMessage(logger, ex);
+    {
+        _errorProcessingMessage(logger, ex);
+    }
 }
-

@@ -6,4 +6,3 @@ public enum SubscriptionStartType
     Trial = 2,
     Paid = 3
 }
-

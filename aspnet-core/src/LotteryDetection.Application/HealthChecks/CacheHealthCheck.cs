@@ -17,7 +17,8 @@ public class CacheHealthCheck : IHealthCheck
 
     // This function tries to set and get data from cache.
     // If redis cache is enabled this will try to connect to redis to set and get cache data. If it will not throw an exception it means redis is up and healthy.
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+        CancellationToken cancellationToken = new())
     {
         try
         {
@@ -29,11 +30,13 @@ public class CacheHealthCheck : IHealthCheck
 
             await cacheManager.GetOrDefaultAsync(testKey);
 
-            return HealthCheckResult.Healthy("The cache check is healthy. (If you are using Redis, Redis is also checked)");
+            return HealthCheckResult.Healthy(
+                "The cache check is healthy. (If you are using Redis, Redis is also checked)");
         }
         catch (Exception e)
         {
-            return HealthCheckResult.Unhealthy("The cache check is unhealthy. (If you are using Redis, Redis is also checked)" + e.Message);
+            return HealthCheckResult.Unhealthy(
+                "The cache check is unhealthy. (If you are using Redis, Redis is also checked)" + e.Message);
         }
     }
 }

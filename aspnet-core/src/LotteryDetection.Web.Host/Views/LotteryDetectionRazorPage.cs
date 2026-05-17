@@ -9,4 +9,3 @@ public abstract class LotteryDetectionRazorPage<TModel> : AbpRazorPage<TModel>
         LocalizationSourceName = LotteryDetectionConsts.LocalizationSourceName;
     }
 }
-

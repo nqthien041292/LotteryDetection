@@ -6,33 +6,27 @@ using Abp.Auditing;
 using Abp.Dependency;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.EntityFrameworkCore.Repositories;
 using Abp.Logging;
 using Abp.Threading;
 using Abp.Threading.BackgroundWorkers;
 using Abp.Threading.Timers;
 using Abp.Timing;
-using Abp.EntityFrameworkCore.Repositories;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Configuration;
 using LotteryDetection.MultiTenancy;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Auditing;
 
 public class ExpiredAuditLogDeleterWorker : PeriodicBackgroundWorkerBase, ISingletonDependency
 {
-    /// <summary>
-    /// Set this const field to true if you want to enable ExpiredAuditLogDeleterWorker.
-    /// Be careful, If you enable this, all expired logs will be permanently deleted.
-    /// </summary>
-    public bool IsEnabled { get; }
-
     private const int CheckPeriodAsMilliseconds = 1 * 1000 * 60 * 3; // 3min
     private const int MaxDeletionCount = 10000;
+    private readonly IRepository<AuditLog, long> _auditLogRepository;
+    private readonly IExpiredAndDeletedAuditLogBackupService _expiredAndDeletedAuditLogBackupService;
 
     private readonly TimeSpan _logExpireTime = TimeSpan.FromDays(7);
-    private readonly IRepository<AuditLog, long> _auditLogRepository;
     private readonly IRepository<Tenant> _tenantRepository;
-    private readonly IExpiredAndDeletedAuditLogBackupService _expiredAndDeletedAuditLogBackupService;
 
     public ExpiredAuditLogDeleterWorker(
         AbpTimer timer,
@@ -56,12 +50,15 @@ public class ExpiredAuditLogDeleterWorker : PeriodicBackgroundWorkerBase, ISingl
                     true.ToString();
     }
 
+    /// <summary>
+    ///     Set this const field to true if you want to enable ExpiredAuditLogDeleterWorker.
+    ///     Be careful, If you enable this, all expired logs will be permanently deleted.
+    /// </summary>
+    public bool IsEnabled { get; }
+
     protected override void DoWork()
     {
-        if (!IsEnabled)
-        {
-            return;
-        }
+        if (!IsEnabled) return;
 
         var expireDate = Clock.Now - _logExpireTime;
 
@@ -78,10 +75,7 @@ public class ExpiredAuditLogDeleterWorker : PeriodicBackgroundWorkerBase, ISingl
 
         DeleteAuditLogsOnHostDatabase(expireDate);
 
-        foreach (var tenantId in tenantIds)
-        {
-            DeleteAuditLogsOnTenantDatabase(tenantId, expireDate);
-        }
+        foreach (var tenantId in tenantIds) DeleteAuditLogsOnTenantDatabase(tenantId, expireDate);
     }
 
     protected virtual void DeleteAuditLogsOnHostDatabase(DateTime expireDate)
@@ -102,7 +96,7 @@ public class ExpiredAuditLogDeleterWorker : PeriodicBackgroundWorkerBase, ISingl
         }
         catch (Exception e)
         {
-            Logger.Log(LogSeverity.Error, $"An error occured while deleting audit logs on host database", e);
+            Logger.Log(LogSeverity.Error, "An error occured while deleting audit logs on host database", e);
         }
     }
 
@@ -130,10 +124,7 @@ public class ExpiredAuditLogDeleterWorker : PeriodicBackgroundWorkerBase, ISingl
     {
         var expiredEntryCount = _auditLogRepository.LongCount(l => l.ExecutionTime < expireDate);
 
-        if (expiredEntryCount == 0)
-        {
-            return;
-        }
+        if (expiredEntryCount == 0) return;
 
         void BatchDelete(Expression<Func<AuditLog, bool>> expression)
         {

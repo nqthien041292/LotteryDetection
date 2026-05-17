@@ -2,26 +2,25 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Authorization;
-using Abp.Authorization.Users;
 using Abp.Configuration;
 using Abp.Domain.Uow;
 using Abp.Runtime.Session;
+using LotteryDetection.Authorization.Roles;
+using LotteryDetection.Authorization.Users;
+using LotteryDetection.Configuration;
+using LotteryDetection.MultiTenancy;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using LotteryDetection.Authorization.Roles;
-using LotteryDetection.Authorization.Users;
-using LotteryDetection.Configuration;
-using LotteryDetection.MultiTenancy;
 
 namespace LotteryDetection.Identity;
 
 public class SignInManager : AbpSignInManager<Tenant, Role, User>
 {
-    private readonly ISettingManager _settingManager;
     private readonly IAbpSession _abpSession;
+    private readonly ISettingManager _settingManager;
 
     public SignInManager(
         UserManager userManager,
@@ -34,7 +33,8 @@ public class SignInManager : AbpSignInManager<Tenant, Role, User>
         IAuthenticationSchemeProvider schemes,
         IUserConfirmation<User> userConfirmation,
         IAbpSession abpSession)
-        : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, unitOfWorkManager, settingManager, schemes, userConfirmation)
+        : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, unitOfWorkManager, settingManager,
+            schemes, userConfirmation)
     {
         _settingManager = settingManager;
         _abpSession = abpSession;
@@ -44,10 +44,7 @@ public class SignInManager : AbpSignInManager<Tenant, Role, User>
     {
         var schemes = await base.GetExternalAuthenticationSchemesAsync();
 
-        if (_abpSession.TenantId.HasValue)
-        {
-            schemes = schemes.Where(IsSchemeEnabledOnTenant);
-        }
+        if (_abpSession.TenantId.HasValue) schemes = schemes.Where(IsSchemeEnabledOnTenant);
 
         return schemes;
     }
@@ -57,19 +54,24 @@ public class SignInManager : AbpSignInManager<Tenant, Role, User>
         switch (scheme.Name)
         {
             case "OpenIdConnect":
-                return !_settingManager.GetSettingValueForTenant<bool>(AppSettings.ExternalLoginProvider.Tenant.OpenIdConnect_IsDeactivated, _abpSession.GetTenantId());
+                return !_settingManager.GetSettingValueForTenant<bool>(
+                    AppSettings.ExternalLoginProvider.Tenant.OpenIdConnect_IsDeactivated, _abpSession.GetTenantId());
             case "Microsoft":
-                return !_settingManager.GetSettingValueForTenant<bool>(AppSettings.ExternalLoginProvider.Tenant.Microsoft_IsDeactivated, _abpSession.GetTenantId());
+                return !_settingManager.GetSettingValueForTenant<bool>(
+                    AppSettings.ExternalLoginProvider.Tenant.Microsoft_IsDeactivated, _abpSession.GetTenantId());
             case "Google":
-                return !_settingManager.GetSettingValueForTenant<bool>(AppSettings.ExternalLoginProvider.Tenant.Google_IsDeactivated, _abpSession.GetTenantId());
+                return !_settingManager.GetSettingValueForTenant<bool>(
+                    AppSettings.ExternalLoginProvider.Tenant.Google_IsDeactivated, _abpSession.GetTenantId());
             case "Twitter":
-                return !_settingManager.GetSettingValueForTenant<bool>(AppSettings.ExternalLoginProvider.Tenant.Twitter_IsDeactivated, _abpSession.GetTenantId());
+                return !_settingManager.GetSettingValueForTenant<bool>(
+                    AppSettings.ExternalLoginProvider.Tenant.Twitter_IsDeactivated, _abpSession.GetTenantId());
             case "Facebook":
-                return !_settingManager.GetSettingValueForTenant<bool>(AppSettings.ExternalLoginProvider.Tenant.Facebook_IsDeactivated, _abpSession.GetTenantId());
+                return !_settingManager.GetSettingValueForTenant<bool>(
+                    AppSettings.ExternalLoginProvider.Tenant.Facebook_IsDeactivated, _abpSession.GetTenantId());
             case "WsFederation":
-                return !_settingManager.GetSettingValueForTenant<bool>(AppSettings.ExternalLoginProvider.Tenant.WsFederation_IsDeactivated, _abpSession.GetTenantId());
+                return !_settingManager.GetSettingValueForTenant<bool>(
+                    AppSettings.ExternalLoginProvider.Tenant.WsFederation_IsDeactivated, _abpSession.GetTenantId());
             default: return true;
         }
     }
 }
-

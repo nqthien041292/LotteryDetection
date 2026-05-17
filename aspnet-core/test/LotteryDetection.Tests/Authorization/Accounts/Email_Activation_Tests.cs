@@ -4,68 +4,67 @@ using Castle.MicroKernel.Registration;
 using LotteryDetection.Authorization.Accounts;
 using LotteryDetection.Authorization.Accounts.Dto;
 using LotteryDetection.Authorization.Users;
-using LotteryDetection.Test.Base;
 using NSubstitute;
 using Shouldly;
 using Xunit;
 
-namespace LotteryDetection.Tests.Authorization.Accounts
+namespace LotteryDetection.Tests.Authorization.Accounts;
+
+// ReSharper disable once InconsistentNaming
+public class Email_Activation_Tests : AppTestBase
 {
-    // ReSharper disable once InconsistentNaming
-    public class Email_Activation_Tests : AppTestBase
+    [Fact]
+    public async Task Should_Activate_Email()
     {
-        [Fact]
-        public async Task Should_Activate_Email()
+        //Arrange
+
+        UsingDbContext(context =>
         {
-            //Arrange
+            //Set IsEmailConfirmed to false to provide initial test case
+            var currentUser = context.Users.Single(u => u.Id == AbpSession.UserId.Value);
+            currentUser.IsEmailConfirmed = false;
+        });
 
-            UsingDbContext(context =>
+        var user = await GetCurrentUserAsync();
+        user.IsEmailConfirmed.ShouldBeFalse();
+
+        string confirmationCode = null;
+
+        var fakeUserEmailer = Substitute.For<IUserEmailer>();
+        var localUser = user;
+        fakeUserEmailer.SendEmailActivationLinkAsync(Arg.Any<User>(), Arg.Any<string>()).Returns(callInfo =>
+        {
+            var calledUser = callInfo.Arg<User>();
+            calledUser.EmailAddress.ShouldBe(localUser.EmailAddress);
+            confirmationCode =
+                calledUser.EmailConfirmationCode; //Getting the confirmation code sent to the email address
+            return Task.CompletedTask;
+        });
+
+        LocalIocManager.IocContainer.Register(Component.For<IUserEmailer>().Instance(fakeUserEmailer).IsDefault());
+
+        var accountAppService = Resolve<IAccountAppService>();
+
+        //Act
+
+        await accountAppService.SendEmailActivationLink(
+            new SendEmailActivationLinkInput
             {
-                //Set IsEmailConfirmed to false to provide initial test case
-                var currentUser = context.Users.Single(u => u.Id == AbpSession.UserId.Value);
-                currentUser.IsEmailConfirmed = false;
-            });
+                EmailAddress = user.EmailAddress
+            }
+        );
 
-            var user = await GetCurrentUserAsync();
-            user.IsEmailConfirmed.ShouldBeFalse();
-
-            string confirmationCode = null;
-
-            var fakeUserEmailer = Substitute.For<IUserEmailer>();
-            var localUser = user;
-            fakeUserEmailer.SendEmailActivationLinkAsync(Arg.Any<User>(), Arg.Any<string>()).Returns(callInfo =>
+        await accountAppService.ActivateEmail(
+            new ActivateEmailInput
             {
-                var calledUser = callInfo.Arg<User>();
-                calledUser.EmailAddress.ShouldBe(localUser.EmailAddress);
-                confirmationCode = calledUser.EmailConfirmationCode; //Getting the confirmation code sent to the email address
-                return Task.CompletedTask;
-            });
+                UserId = user.Id,
+                ConfirmationCode = confirmationCode
+            }
+        );
 
-            LocalIocManager.IocContainer.Register(Component.For<IUserEmailer>().Instance(fakeUserEmailer).IsDefault());
+        //Assert
 
-            var accountAppService = Resolve<IAccountAppService>();
-
-            //Act
-
-            await accountAppService.SendEmailActivationLink(
-                new SendEmailActivationLinkInput
-                {
-                    EmailAddress = user.EmailAddress
-                }
-            );
-
-            await accountAppService.ActivateEmail(
-                new ActivateEmailInput
-                {
-                    UserId = user.Id,
-                    ConfirmationCode = confirmationCode
-                }
-            );
-
-            //Assert
-
-            user = await GetCurrentUserAsync();
-            user.IsEmailConfirmed.ShouldBeTrue();
-        }
+        user = await GetCurrentUserAsync();
+        user.IsEmailConfirmed.ShouldBeTrue();
     }
 }

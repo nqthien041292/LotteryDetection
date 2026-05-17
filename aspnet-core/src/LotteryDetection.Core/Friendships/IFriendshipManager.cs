@@ -17,4 +17,3 @@ public interface IFriendshipManager : IDomainService
 
     Task AcceptFriendshipRequestAsync(UserIdentifier userIdentifier, UserIdentifier probableFriend);
 }
-

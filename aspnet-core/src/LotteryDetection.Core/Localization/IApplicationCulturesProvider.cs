@@ -6,4 +6,3 @@ public interface IApplicationCulturesProvider
 {
     CultureInfo[] GetAllCultures();
 }
-

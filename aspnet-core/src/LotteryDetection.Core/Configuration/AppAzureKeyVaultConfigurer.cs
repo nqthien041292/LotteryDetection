@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.Extensions.Configuration;
 using Azure.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Configuration;
 
@@ -11,10 +11,7 @@ public class AppAzureKeyVaultConfigurer
         var azureKeyVaultConfiguration = config.GetSection("Configuration:AzureKeyVault")
             .Get<AzureKeyVaultConfiguration>();
 
-        if (azureKeyVaultConfiguration == null || !azureKeyVaultConfiguration.IsEnabled)
-        {
-            return;
-        }
+        if (azureKeyVaultConfiguration == null || !azureKeyVaultConfiguration.IsEnabled) return;
 
         var azureKeyVaultUrl = $"https://{azureKeyVaultConfiguration.KeyVaultName}.vault.azure.net/";
         builder.AddAzureKeyVault(new Uri(azureKeyVaultUrl), new ClientSecretCredential(
@@ -24,4 +21,3 @@ public class AppAzureKeyVaultConfigurer
         );
     }
 }
-

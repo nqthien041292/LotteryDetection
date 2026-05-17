@@ -14,4 +14,3 @@ public class EditionWithFeaturesDto
 
     public List<NameValueDto> FeatureValues { get; set; }
 }
-

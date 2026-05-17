@@ -4,4 +4,3 @@ public class GetDailySalesOutput
 {
     public int[] DailySales { get; set; }
 }
-

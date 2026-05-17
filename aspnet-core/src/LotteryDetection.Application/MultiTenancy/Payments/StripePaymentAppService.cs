@@ -15,9 +15,9 @@ namespace LotteryDetection.MultiTenancy.Payments;
 
 public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePaymentAppService
 {
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
     private readonly StripeGatewayManager _stripeGatewayManager;
     private readonly StripePaymentGatewayConfiguration _stripePaymentGatewayConfiguration;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
 
     public StripePaymentAppService(
         StripeGatewayManager stripeGatewayManager,
@@ -40,17 +40,13 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
         ].ToString();
 
         if (sessionId.IsNullOrEmpty())
-        {
             throw new ApplicationException(
                 $"Could not find StripeSessionId in SubscriptionPayment.ExtraProperties for PaymentId {input.PaymentId}");
-        }
 
         if (payment.Status != SubscriptionPaymentStatus.NotPaid)
-        {
             throw new ApplicationException(
                 $"Invalid payment status {payment.Status}, cannot create a charge on stripe !"
             );
-        }
 
         payment.Gateway = SubscriptionPaymentGatewayType.Stripe;
 
@@ -58,18 +54,12 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
         var session = await service.GetAsync(sessionId);
 
         if (session.Mode == "payment")
-        {
             payment.ExternalPaymentId = session.PaymentIntentId;
-        }
         else if (session.Mode == "subscription")
-        {
             payment.ExternalPaymentId = session.SubscriptionId;
-        }
         else
-        {
             throw new ApplicationException(
                 $"Unexpected session mode {session.Mode}. 'payment' or 'subscription' expected");
-        }
 
         payment.SetAsPaid();
 
@@ -82,15 +72,7 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
 
         await CurrentUnitOfWork.SaveChangesAsync();
 
-        if (payment.IsProrationPayment)
-        {
-            await ConfirmSubscriptionUpgradeProrationPayment(payment);
-        }
-    }
-
-    private async Task ConfirmSubscriptionUpgradeProrationPayment(SubscriptionPayment payment)
-    {
-        await _stripeGatewayManager.UpdateSubscription(payment, true);
+        if (payment.IsProrationPayment) await ConfirmSubscriptionUpgradeProrationPayment(payment);
     }
 
     public StripeConfigurationDto GetConfiguration()
@@ -113,9 +95,9 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
                          $"paymentId={input.PaymentId.ToString()}",
             CancelUrl = input.CancelUrl,
             Metadata = new Dictionary<string, string>
-                {
-                    {"PaymentId", input.PaymentId.ToString()}
-                }
+            {
+                { "PaymentId", input.PaymentId.ToString() }
+            }
         };
 
         if (payment.RecurringPaymentEnabled() && !payment.IsProrationPayment)
@@ -124,13 +106,13 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
 
             sessionCreateOptions.Mode = "subscription";
             sessionCreateOptions.LineItems = new List<SessionLineItemOptions>
+            {
+                new()
                 {
-                    new()
-                    {
-                        Price = plan.Id,
-                        Quantity = 1
-                    }
-                };
+                    Price = plan.Id,
+                    Quantity = 1
+                }
+            };
         }
         else
         {
@@ -160,24 +142,25 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
         return session.Id;
     }
 
+    private async Task ConfirmSubscriptionUpgradeProrationPayment(SubscriptionPayment payment)
+    {
+        await _stripeGatewayManager.UpdateSubscription(payment, true);
+    }
+
     public async Task<StripePaymentResultOutput> GetPaymentResult(StripePaymentResultInput input)
     {
         var payment = await _subscriptionPaymentRepository
             .FirstOrDefaultAsync(x => x.Id == input.PaymentId);
 
         if (payment is null)
-        {
             throw new ApplicationException(
                 $"Could not find payment with PaymentId {input.PaymentId}");
-        }
 
         var sessionId =
             payment.GetProperty<string>(StripeGatewayManager.StripeSessionIdSubscriptionPaymentExtensionDataKey);
 
         if (string.IsNullOrEmpty(sessionId))
-        {
             throw new UserFriendlyException(L("ThereIsNoStripeSessionIdOnPayment", input.PaymentId));
-        }
 
         using (CurrentUnitOfWork.SetTenantId(null))
         {
@@ -186,13 +169,11 @@ public class StripePaymentAppService : LotteryDetectionAppServiceBase, IStripePa
         }
 
         if (payment.Status == SubscriptionPaymentStatus.Paid)
-        {
             return new StripePaymentResultOutput
             {
                 PaymentDone = true,
                 CallbackUrl = payment.SuccessUrl
             };
-        }
 
         return new StripePaymentResultOutput
         {

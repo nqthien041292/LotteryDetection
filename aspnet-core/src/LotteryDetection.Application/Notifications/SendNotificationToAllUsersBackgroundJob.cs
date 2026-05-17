@@ -14,9 +14,9 @@ public class SendNotificationToAllUsersBackgroundJob : AsyncBackgroundJob<SendNo
     ITransientDependency
 {
     private const int MaxUserCount = 1000;
+    private readonly IAppNotifier _appNotifier;
 
     private readonly IRepository<UserAccount, long> _userAccountRepository;
-    private readonly IAppNotifier _appNotifier;
 
     public SendNotificationToAllUsersBackgroundJob(IRepository<UserAccount, long> userAccountRepository,
         IAppNotifier appNotifier)
@@ -31,10 +31,7 @@ public class SendNotificationToAllUsersBackgroundJob : AsyncBackgroundJob<SendNo
             await _userAccountRepository.GetAll().LongCountAsync()
         );
 
-        if (userCount == 0)
-        {
-            return;
-        }
+        if (userCount == 0) return;
 
         var loopCount = userCount / MaxUserCount + 1;
 

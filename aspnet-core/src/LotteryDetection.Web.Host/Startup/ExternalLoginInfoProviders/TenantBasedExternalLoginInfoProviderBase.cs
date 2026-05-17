@@ -1,13 +1,13 @@
 ﻿using Abp.AspNetZeroCore.Web.Authentication.External;
 using Abp.Runtime.Caching;
 using Abp.Runtime.Session;
+
 namespace LotteryDetection.Web.Startup.ExternalLoginInfoProviders;
 
 public abstract class TenantBasedExternalLoginInfoProviderBase : IExternalLoginInfoProvider
 {
     private readonly IAbpSession _abpSession;
     private readonly ICacheManager _cacheManager;
-    public abstract string Name { get; }
 
     protected TenantBasedExternalLoginInfoProviderBase(
         IAbpSession abpSession,
@@ -17,32 +17,28 @@ public abstract class TenantBasedExternalLoginInfoProviderBase : IExternalLoginI
         _cacheManager = cacheManager;
     }
 
+    public abstract string Name { get; }
+
+    public virtual ExternalLoginProviderInfo GetExternalLoginInfo()
+    {
+        if (_abpSession.TenantId.HasValue && TenantHasSettings())
+            return _cacheManager.GetExternalLoginInfoProviderCache()
+                .Get(GetCacheKey(), GetTenantInformation);
+
+        return _cacheManager.GetExternalLoginInfoProviderCache()
+            .Get(GetCacheKey(), GetHostInformation);
+    }
+
     protected abstract bool TenantHasSettings();
 
     protected abstract ExternalLoginProviderInfo GetTenantInformation();
 
     protected abstract ExternalLoginProviderInfo GetHostInformation();
 
-    public virtual ExternalLoginProviderInfo GetExternalLoginInfo()
-    {
-        if (_abpSession.TenantId.HasValue && TenantHasSettings())
-        {
-            return _cacheManager.GetExternalLoginInfoProviderCache()
-                .Get(GetCacheKey(), GetTenantInformation);
-        }
-
-        return _cacheManager.GetExternalLoginInfoProviderCache()
-                .Get(GetCacheKey(), GetHostInformation);
-    }
-
     private string GetCacheKey()
     {
-        if (_abpSession.TenantId.HasValue)
-        {
-            return $"{Name}-{_abpSession.TenantId.Value}";
-        }
+        if (_abpSession.TenantId.HasValue) return $"{Name}-{_abpSession.TenantId.Value}";
 
         return $"{Name}";
     }
 }
-

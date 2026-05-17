@@ -3,15 +3,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Authorization.Users;
 using Abp.Domain.Uow;
-using Abp.IdentityFramework;
 using Abp.Extensions;
+using Abp.IdentityFramework;
 using Abp.ObjectMapping;
-using Microsoft.AspNetCore.Identity;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users.Importing.Dto;
 using LotteryDetection.DataImporting.Excel;
 using LotteryDetection.Notifications;
 using LotteryDetection.Storage;
+using Microsoft.AspNetCore.Identity;
 
 namespace LotteryDetection.Authorization.Users.Importing;
 
@@ -39,10 +39,7 @@ public class ImportUsersToExcelJob(
     {
         var tenantId = CurrentUnitOfWork.GetTenantId();
 
-        if (tenantId.HasValue)
-        {
-            await userPolicy.CheckMaxUserCountAsync(tenantId.Value);
-        }
+        if (tenantId.HasValue) await userPolicy.CheckMaxUserCountAsync(tenantId.Value);
 
         var user = objectMapper.Map<User>(entity); //Passwords is not mapped (see mapping configuration)
         user.Password = entity.Password;
@@ -52,9 +49,7 @@ public class ImportUsersToExcelJob(
         {
             await UserManager.InitializeOptionsAsync(tenantId);
             foreach (var validator in passwordValidators)
-            {
                 (await validator.ValidateAsync(UserManager, user, entity.Password)).CheckErrors();
-            }
 
             user.Password = passwordHasher.HashPassword(user, entity.Password);
         }
@@ -74,8 +69,7 @@ public class ImportUsersToExcelJob(
 
     private string GetRoleNameFromDisplayName(string displayName, List<Role> roleList)
     {
-        return roleList.FirstOrDefault(
-            r => r.DisplayName?.ToLowerInvariant() == displayName?.ToLowerInvariant()
+        return roleList.FirstOrDefault(r => r.DisplayName?.ToLowerInvariant() == displayName?.ToLowerInvariant()
         )?.Name;
     }
 }

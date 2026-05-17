@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Abp.Application.Navigation;
 using Abp.Extensions;
 using Abp.Localization;
 using LotteryDetection.Sessions.Dto;
-using LotteryDetection.UiCustomization.Dto;
 
 namespace LotteryDetection.Web.Public.Views.Shared.Components.Header;
 
@@ -32,10 +29,7 @@ public class HeaderViewModel
 
     public string GetShownLoginName()
     {
-        if (!IsMultiTenancyEnabled)
-        {
-            return LoginInformations.User.UserName;
-        }
+        if (!IsMultiTenancyEnabled) return LoginInformations.User.UserName;
 
         return LoginInformations.Tenant == null
             ? ".\\" + LoginInformations.User.UserName
@@ -45,11 +39,9 @@ public class HeaderViewModel
     public string GetLogoUrl(string appPath, string logoSkin)
     {
         if (!IsMultiTenancyEnabled || LoginInformations?.Tenant == null || !LoginInformations.Tenant.HasLogo())
-        {
             return appPath + "Common/Images/app-logo-on-" + logoSkin + ".svg";
-        }
 
-        return AdminWebSiteRootAddress.EnsureEndsWith('/') + "TenantCustomization/GetTenantLogo?tenantId=" + LoginInformations?.Tenant?.Id + "&skin=" + logoSkin;
+        return AdminWebSiteRootAddress.EnsureEndsWith('/') + "TenantCustomization/GetTenantLogo?tenantId=" +
+               LoginInformations?.Tenant?.Id + "&skin=" + logoSkin;
     }
 }
-

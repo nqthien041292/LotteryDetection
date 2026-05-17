@@ -11,4 +11,3 @@ public static class PasswordlessVerificationcodeCacheExtensions
             .CacheName);
     }
 }
-

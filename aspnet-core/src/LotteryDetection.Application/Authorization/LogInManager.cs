@@ -1,4 +1,5 @@
-﻿using Abp.Authorization;
+﻿using System.Threading.Tasks;
+using Abp.Authorization;
 using Abp.Authorization.Users;
 using Abp.Configuration;
 using Abp.Configuration.Startup;
@@ -6,12 +7,10 @@ using Abp.Dependency;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Identity;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.MultiTenancy;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace LotteryDetection.Authorization;
 
@@ -30,23 +29,22 @@ public class LogInManager : AbpLogInManager<Tenant, Role, User>
         IPasswordHasher<User> passwordHasher,
         UserClaimsPrincipalFactory claimsPrincipalFactory)
         : base(
-              userManager,
-              multiTenancyConfig,
-              tenantRepository,
-              unitOfWorkManager,
-              settingManager,
-              userLoginAttemptRepository,
-              userManagementConfig,
-              iocResolver,
-              passwordHasher,
-              roleManager,
-              claimsPrincipalFactory)
+            userManager,
+            multiTenancyConfig,
+            tenantRepository,
+            unitOfWorkManager,
+            settingManager,
+            userLoginAttemptRepository,
+            userManagementConfig,
+            iocResolver,
+            passwordHasher,
+            roleManager,
+            claimsPrincipalFactory)
     {
-
     }
 
     /// <summary>
-    /// Exposes protected method CreateLoginResultAsync
+    ///     Exposes protected method CreateLoginResultAsync
     /// </summary>
     /// <param name="user">User to create login result</param>
     /// <param name="tenant">Tenant of the given user</param>

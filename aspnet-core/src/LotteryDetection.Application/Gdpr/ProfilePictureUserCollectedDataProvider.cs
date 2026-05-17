@@ -11,9 +11,9 @@ namespace LotteryDetection.Gdpr;
 
 public class ProfilePictureUserCollectedDataProvider : IUserCollectedDataProvider, ITransientDependency
 {
-    private readonly UserManager _userManager;
     private readonly IBinaryObjectManager _binaryObjectManager;
     private readonly ITempFileCacheManager _tempFileCacheManager;
+    private readonly UserManager _userManager;
 
     public ProfilePictureUserCollectedDataProvider(
         UserManager userManager,
@@ -29,16 +29,10 @@ public class ProfilePictureUserCollectedDataProvider : IUserCollectedDataProvide
     public async Task<List<FileDto>> GetFiles(UserIdentifier user)
     {
         var profilePictureId = (await _userManager.GetUserByIdAsync(user.UserId)).ProfilePictureId;
-        if (!profilePictureId.HasValue)
-        {
-            return new List<FileDto>();
-        }
+        if (!profilePictureId.HasValue) return new List<FileDto>();
 
         var profilePicture = await _binaryObjectManager.GetOrNullAsync(profilePictureId.Value);
-        if (profilePicture == null)
-        {
-            return new List<FileDto>();
-        }
+        if (profilePicture == null) return new List<FileDto>();
 
         var file = new FileDto("ProfilePicture.png", MimeTypeNames.ImagePng);
         _tempFileCacheManager.SetFile(file.FileToken, profilePicture.Bytes);

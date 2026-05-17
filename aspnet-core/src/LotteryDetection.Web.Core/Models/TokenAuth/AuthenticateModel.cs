@@ -25,7 +25,5 @@ public class AuthenticateModel
 
     public string ReturnUrl { get; set; }
 
-    [DisableAuditing]
-    public string CaptchaResponse { get; set; }
+    [DisableAuditing] public string CaptchaResponse { get; set; }
 }
-

@@ -16,8 +16,7 @@ public class TenantEditDto : EntityDto
     [StringLength(TenantConsts.MaxNameLength)]
     public string Name { get; set; }
 
-    [DisableAuditing]
-    public string ConnectionString { get; set; }
+    [DisableAuditing] public string ConnectionString { get; set; }
 
     public int? EditionId { get; set; }
 
@@ -27,4 +26,3 @@ public class TenantEditDto : EntityDto
 
     public bool IsInTrialPeriod { get; set; }
 }
-

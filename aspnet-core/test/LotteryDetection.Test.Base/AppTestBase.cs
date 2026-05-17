@@ -11,331 +11,322 @@ using Abp.Modules;
 using Abp.MultiTenancy;
 using Abp.Runtime.Session;
 using Abp.TestBase;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.MultiTenancy;
 using LotteryDetection.Test.Base.TestData;
+using Microsoft.EntityFrameworkCore;
 
-namespace LotteryDetection.Test.Base
+namespace LotteryDetection.Test.Base;
+
+/// <summary>
+///     This is base class for all our test classes.
+///     It prepares ABP system, modules and a fake, in-memory database.
+///     Seeds database with initial data.
+///     Provides methods to easily work with <see cref="LotteryDetectionDbContext" />.
+/// </summary>
+public abstract class AppTestBase<T> : AbpIntegratedTestBase<T> where T : AbpModule
 {
-    /// <summary>
-    /// This is base class for all our test classes.
-    /// It prepares ABP system, modules and a fake, in-memory database.
-    /// Seeds database with initial data.
-    /// Provides methods to easily work with <see cref="LotteryDetectionDbContext"/>.
-    /// </summary>
-    public abstract class AppTestBase<T> : AbpIntegratedTestBase<T> where T : AbpModule
+    private const string DefaultStringChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    protected AppTestBase()
     {
-        private const string DefaultStringChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        
-        protected AppTestBase()
+        SeedTestData();
+        LoginAsDefaultTenantAdmin();
+    }
+
+    private void SeedTestData()
+    {
+        void NormalizeDbContext(LotteryDetectionDbContext context)
         {
-            SeedTestData();
-            LoginAsDefaultTenantAdmin();
+            context.EntityChangeEventHelper = NullEntityChangeEventHelper.Instance;
+            context.EventBus = NullEventBus.Instance;
+            context.SuppressAutoSetTenantId = true;
         }
 
-        private void SeedTestData()
+        //Seed initial data for default tenant
+        AbpSession.TenantId = 1;
+
+        UsingDbContext(context =>
         {
-            void NormalizeDbContext(LotteryDetectionDbContext context)
+            NormalizeDbContext(context);
+            new TestDataBuilder(context, 1).Create();
+        });
+    }
+
+    protected IDisposable UsingTenantId(int? tenantId)
+    {
+        var previousTenantId = AbpSession.TenantId;
+        AbpSession.TenantId = tenantId;
+        return new DisposeAction(() => AbpSession.TenantId = previousTenantId);
+    }
+
+    protected void UsingDbContext(Action<LotteryDetectionDbContext> action)
+    {
+        UsingDbContext(AbpSession.TenantId, action);
+    }
+
+    protected Task UsingDbContextAsync(Func<LotteryDetectionDbContext, Task> action)
+    {
+        return UsingDbContextAsync(AbpSession.TenantId, action);
+    }
+
+    protected TResult UsingDbContext<TResult>(Func<LotteryDetectionDbContext, TResult> func)
+    {
+        return UsingDbContext(AbpSession.TenantId, func);
+    }
+
+    protected Task<TResult> UsingDbContextAsync<TResult>(Func<LotteryDetectionDbContext, Task<TResult>> func)
+    {
+        return UsingDbContextAsync(AbpSession.TenantId, func);
+    }
+
+    protected void UsingDbContext(int? tenantId, Action<LotteryDetectionDbContext> action)
+    {
+        using (UsingTenantId(tenantId))
+        {
+            using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
             {
-                context.EntityChangeEventHelper = NullEntityChangeEventHelper.Instance;
-                context.EventBus = NullEventBus.Instance;
-                context.SuppressAutoSetTenantId = true;
-            }
-
-            //Seed initial data for default tenant
-            AbpSession.TenantId = 1;
-
-            UsingDbContext(context =>
-            {
-                NormalizeDbContext(context);
-                new TestDataBuilder(context, 1).Create();
-            });
-        }
-
-        protected IDisposable UsingTenantId(int? tenantId)
-        {
-            var previousTenantId = AbpSession.TenantId;
-            AbpSession.TenantId = tenantId;
-            return new DisposeAction(() => AbpSession.TenantId = previousTenantId);
-        }
-
-        protected void UsingDbContext(Action<LotteryDetectionDbContext> action)
-        {
-            UsingDbContext(AbpSession.TenantId, action);
-        }
-
-        protected Task UsingDbContextAsync(Func<LotteryDetectionDbContext, Task> action)
-        {
-            return UsingDbContextAsync(AbpSession.TenantId, action);
-        }
-
-        protected TResult UsingDbContext<TResult>(Func<LotteryDetectionDbContext, TResult> func)
-        {
-            return UsingDbContext(AbpSession.TenantId, func);
-        }
-
-        protected Task<TResult> UsingDbContextAsync<TResult>(Func<LotteryDetectionDbContext, Task<TResult>> func)
-        {
-            return UsingDbContextAsync(AbpSession.TenantId, func);
-        }
-
-        protected void UsingDbContext(int? tenantId, Action<LotteryDetectionDbContext> action)
-        {
-            using (UsingTenantId(tenantId))
-            {
-                using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
-                {
-                    action(context);
-                    context.SaveChanges();
-                }
+                action(context);
+                context.SaveChanges();
             }
         }
+    }
 
-        protected async Task UsingDbContextAsync(int? tenantId, Func<LotteryDetectionDbContext, Task> action)
+    protected async Task UsingDbContextAsync(int? tenantId, Func<LotteryDetectionDbContext, Task> action)
+    {
+        using (UsingTenantId(tenantId))
         {
-            using (UsingTenantId(tenantId))
+            using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
             {
-                using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
-                {
-                    await action(context);
-                    await context.SaveChangesAsync();
-                }
+                await action(context);
+                await context.SaveChangesAsync();
+            }
+        }
+    }
+
+    protected TResult UsingDbContext<TResult>(int? tenantId, Func<LotteryDetectionDbContext, TResult> func)
+    {
+        TResult result;
+
+        using (UsingTenantId(tenantId))
+        {
+            using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
+            {
+                result = func(context);
+                context.SaveChanges();
             }
         }
 
-        protected TResult UsingDbContext<TResult>(int? tenantId, Func<LotteryDetectionDbContext, TResult> func)
-        {
-            TResult result;
+        return result;
+    }
 
-            using (UsingTenantId(tenantId))
+    protected async Task<TResult> UsingDbContextAsync<TResult>(int? tenantId,
+        Func<LotteryDetectionDbContext, Task<TResult>> func)
+    {
+        TResult result;
+
+        using (UsingTenantId(tenantId))
+        {
+            using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
             {
-                using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
-                {
-                    result = func(context);
-                    context.SaveChanges();
-                }
+                result = await func(context);
+                await context.SaveChangesAsync();
             }
-
-            return result;
         }
 
-        protected async Task<TResult> UsingDbContextAsync<TResult>(int? tenantId, Func<LotteryDetectionDbContext, Task<TResult>> func)
-        {
-            TResult result;
+        return result;
+    }
 
-            using (UsingTenantId(tenantId))
-            {
-                using (var context = LocalIocManager.Resolve<LotteryDetectionDbContext>())
-                {
-                    result = await func(context);
-                    await context.SaveChangesAsync();
-                }
-            }
+    #region GetRandomString
 
-            return result;
-        }
-        
-        #region Login
+    protected string GetRandomString(int maxLength = 13, int minLength = 0, string regexPattern = "[^A-Za-z0-9]")
+    {
+        if (minLength < 0 || maxLength < 0 || minLength > maxLength)
+            throw new AbpException("Invalid minLength or maxLength parameters");
 
-        protected void LoginAsHostAdmin()
-        {
-            LoginAsHost(AbpUserBase.AdminUserName);
-        }
+        var random = new Random();
+        var regex = new Regex(regexPattern);
 
-        protected void LoginAsDefaultTenantAdmin()
-        {
-            LoginAsTenant(AbpTenantBase.DefaultTenantName, AbpUserBase.AdminUserName);
-        }
+        var length = random.Next(minLength, maxLength + 1);
 
-        protected void LoginAsHost(string userName)
-        {
-            AbpSession.TenantId = null;
+        var filteredChars = new string(DefaultStringChars.Where(c => !regex.IsMatch(c.ToString())).ToArray());
 
-            var user = UsingDbContext(context => context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == userName));
-            if (user == null)
-            {
-                throw new Exception("There is no user: " + userName + " for host.");
-            }
+        return new string(Enumerable.Repeat(filteredChars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
 
-            AbpSession.UserId = user.Id;
-        }
+    #endregion
 
-        protected void LoginAsTenant(string tenancyName, string userName)
-        {
-            AbpSession.TenantId = null;
+    #region Login
 
-            var tenant = UsingDbContext(context => context.Tenants.FirstOrDefault(t => t.TenancyName == tenancyName));
-            if (tenant == null)
-            {
-                throw new Exception("There is no tenant: " + tenancyName);
-            }
+    protected void LoginAsHostAdmin()
+    {
+        LoginAsHost(AbpUserBase.AdminUserName);
+    }
 
-            AbpSession.TenantId = tenant.Id;
+    protected void LoginAsDefaultTenantAdmin()
+    {
+        LoginAsTenant(AbpTenantBase.DefaultTenantName, AbpUserBase.AdminUserName);
+    }
 
-            var user = UsingDbContext(context => context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == userName));
-            if (user == null)
-            {
-                throw new Exception("There is no user: " + userName + " for tenant: " + tenancyName);
-            }
+    protected void LoginAsHost(string userName)
+    {
+        AbpSession.TenantId = null;
 
-            AbpSession.UserId = user.Id;
-        }
+        var user = UsingDbContext(context =>
+            context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == userName));
+        if (user == null) throw new Exception("There is no user: " + userName + " for host.");
 
-        #endregion
+        AbpSession.UserId = user.Id;
+    }
 
-        #region GetCurrentUser
+    protected void LoginAsTenant(string tenancyName, string userName)
+    {
+        AbpSession.TenantId = null;
 
-        /// <summary>
-        /// Gets current user if <see cref="IAbpSession.UserId"/> is not null.
-        /// Throws exception if it's null.
-        /// </summary>
-        protected User GetCurrentUser()
-        {
-            var userId = AbpSession.GetUserId();
-            return UsingDbContext(context => context.Users.Single(u => u.Id == userId));
-        }
+        var tenant = UsingDbContext(context => context.Tenants.FirstOrDefault(t => t.TenancyName == tenancyName));
+        if (tenant == null) throw new Exception("There is no tenant: " + tenancyName);
 
-        /// <summary>
-        /// Gets current user if <see cref="IAbpSession.UserId"/> is not null.
-        /// Throws exception if it's null.
-        /// </summary>
-        protected async Task<User> GetCurrentUserAsync()
-        {
-            var userId = AbpSession.GetUserId();
-            return await UsingDbContext(context => context.Users.SingleAsync(u => u.Id == userId));
-        }
+        AbpSession.TenantId = tenant.Id;
 
-        #endregion
+        var user = UsingDbContext(context =>
+            context.Users.FirstOrDefault(u => u.TenantId == AbpSession.TenantId && u.UserName == userName));
+        if (user == null) throw new Exception("There is no user: " + userName + " for tenant: " + tenancyName);
 
-        #region GetCurrentTenant
+        AbpSession.UserId = user.Id;
+    }
 
-        /// <summary>
-        /// Gets current tenant if <see cref="IAbpSession.TenantId"/> is not null.
-        /// Throws exception if there is no current tenant.
-        /// </summary>
-        protected Tenant GetCurrentTenant()
-        {
-            var tenantId = AbpSession.GetTenantId();
-            return UsingDbContext(null, context => context.Tenants.Single(t => t.Id == tenantId));
-        }
+    #endregion
 
-        /// <summary>
-        /// Gets current tenant if <see cref="IAbpSession.TenantId"/> is not null.
-        /// Throws exception if there is no current tenant.
-        /// </summary>
-        protected async Task<Tenant> GetCurrentTenantAsync()
-        {
-            var tenantId = AbpSession.GetTenantId();
-            return await UsingDbContext(null, context => context.Tenants.SingleAsync(t => t.Id == tenantId));
-        }
+    #region GetCurrentUser
 
-        #endregion
+    /// <summary>
+    ///     Gets current user if <see cref="IAbpSession.UserId" /> is not null.
+    ///     Throws exception if it's null.
+    /// </summary>
+    protected User GetCurrentUser()
+    {
+        var userId = AbpSession.GetUserId();
+        return UsingDbContext(context => context.Users.Single(u => u.Id == userId));
+    }
 
-        #region GetTenant / GetTenantOrNull
+    /// <summary>
+    ///     Gets current user if <see cref="IAbpSession.UserId" /> is not null.
+    ///     Throws exception if it's null.
+    /// </summary>
+    protected async Task<User> GetCurrentUserAsync()
+    {
+        var userId = AbpSession.GetUserId();
+        return await UsingDbContext(context => context.Users.SingleAsync(u => u.Id == userId));
+    }
 
-        protected Tenant GetTenant(string tenancyName)
-        {
-            return UsingDbContext(null, context => context.Tenants.Single(t => t.TenancyName == tenancyName));
-        }
+    #endregion
 
-        protected async Task<Tenant> GetTenantAsync(string tenancyName)
-        {
-            return await UsingDbContext(null, async context => await context.Tenants.SingleAsync(t => t.TenancyName == tenancyName));
-        }
+    #region GetCurrentTenant
 
-        protected Tenant GetTenantOrNull(string tenancyName)
-        {
-            return UsingDbContext(null, context => context.Tenants.FirstOrDefault(t => t.TenancyName == tenancyName));
-        }
+    /// <summary>
+    ///     Gets current tenant if <see cref="IAbpSession.TenantId" /> is not null.
+    ///     Throws exception if there is no current tenant.
+    /// </summary>
+    protected Tenant GetCurrentTenant()
+    {
+        var tenantId = AbpSession.GetTenantId();
+        return UsingDbContext(null, context => context.Tenants.Single(t => t.Id == tenantId));
+    }
 
-        protected async Task<Tenant> GetTenantOrNullAsync(string tenancyName)
-        {
-            return await UsingDbContext(null, async context => await context.Tenants.FirstOrDefaultAsync(t => t.TenancyName == tenancyName));
-        }
+    /// <summary>
+    ///     Gets current tenant if <see cref="IAbpSession.TenantId" /> is not null.
+    ///     Throws exception if there is no current tenant.
+    /// </summary>
+    protected async Task<Tenant> GetCurrentTenantAsync()
+    {
+        var tenantId = AbpSession.GetTenantId();
+        return await UsingDbContext(null, context => context.Tenants.SingleAsync(t => t.Id == tenantId));
+    }
 
-        #endregion
+    #endregion
 
-        #region GetRole
+    #region GetTenant / GetTenantOrNull
 
-        protected Role GetRole(string roleName)
-        {
-            return UsingDbContext(context => context.Roles.Single(r => r.Name == roleName && r.TenantId == AbpSession.TenantId));
-        }
+    protected Tenant GetTenant(string tenancyName)
+    {
+        return UsingDbContext(null, context => context.Tenants.Single(t => t.TenancyName == tenancyName));
+    }
 
-        protected async Task<Role> GetRoleAsync(string roleName)
-        {
-            return await UsingDbContext(async context => await context.Roles.SingleAsync(r => r.Name == roleName && r.TenantId == AbpSession.TenantId));
-        }
+    protected async Task<Tenant> GetTenantAsync(string tenancyName)
+    {
+        return await UsingDbContext(null,
+            async context => await context.Tenants.SingleAsync(t => t.TenancyName == tenancyName));
+    }
 
-        #endregion
+    protected Tenant GetTenantOrNull(string tenancyName)
+    {
+        return UsingDbContext(null, context => context.Tenants.FirstOrDefault(t => t.TenancyName == tenancyName));
+    }
 
-        #region GetUserByUserName
+    protected async Task<Tenant> GetTenantOrNullAsync(string tenancyName)
+    {
+        return await UsingDbContext(null,
+            async context => await context.Tenants.FirstOrDefaultAsync(t => t.TenancyName == tenancyName));
+    }
 
-        protected User GetUserByUserName(string userName)
-        {
-            var user = GetUserByUserNameOrNull(userName);
-            if (user == null)
-            {
-                throw new Exception("Can not find a user with username: " + userName);
-            }
+    #endregion
 
-            return user;
-        }
+    #region GetRole
 
-        protected async Task<User> GetUserByUserNameAsync(string userName)
-        {
-            var user = await GetUserByUserNameOrNullAsync(userName);
-            if (user == null)
-            {
-                throw new Exception("Can not find a user with username: " + userName);
-            }
+    protected Role GetRole(string roleName)
+    {
+        return UsingDbContext(context =>
+            context.Roles.Single(r => r.Name == roleName && r.TenantId == AbpSession.TenantId));
+    }
 
-            return user;
-        }
+    protected async Task<Role> GetRoleAsync(string roleName)
+    {
+        return await UsingDbContext(async context =>
+            await context.Roles.SingleAsync(r => r.Name == roleName && r.TenantId == AbpSession.TenantId));
+    }
 
-        protected User GetUserByUserNameOrNull(string userName)
-        {
-            return UsingDbContext(context =>
-                context.Users.FirstOrDefault(u =>
+    #endregion
+
+    #region GetUserByUserName
+
+    protected User GetUserByUserName(string userName)
+    {
+        var user = GetUserByUserNameOrNull(userName);
+        if (user == null) throw new Exception("Can not find a user with username: " + userName);
+
+        return user;
+    }
+
+    protected async Task<User> GetUserByUserNameAsync(string userName)
+    {
+        var user = await GetUserByUserNameOrNullAsync(userName);
+        if (user == null) throw new Exception("Can not find a user with username: " + userName);
+
+        return user;
+    }
+
+    protected User GetUserByUserNameOrNull(string userName)
+    {
+        return UsingDbContext(context =>
+            context.Users.FirstOrDefault(u =>
+                u.UserName == userName &&
+                u.TenantId == AbpSession.TenantId
+            ));
+    }
+
+    protected async Task<User> GetUserByUserNameOrNullAsync(string userName, bool includeRoles = false)
+    {
+        return await UsingDbContextAsync(async context =>
+            await context.Users
+                .IncludeIf(includeRoles, u => u.Roles)
+                .FirstOrDefaultAsync(u =>
                     u.UserName == userName &&
                     u.TenantId == AbpSession.TenantId
-                    ));
-        }
-
-        protected async Task<User> GetUserByUserNameOrNullAsync(string userName, bool includeRoles = false)
-        {
-            return await UsingDbContextAsync(async context =>
-                await context.Users
-                    .IncludeIf(includeRoles, u => u.Roles)
-                    .FirstOrDefaultAsync(u =>
-                            u.UserName == userName &&
-                            u.TenantId == AbpSession.TenantId
-                    ));
-        }
-
-        #endregion
-        
-        #region GetRandomString
-        protected string GetRandomString(int maxLength = 13, int minLength = 0, string regexPattern = "[^A-Za-z0-9]")
-        {
-            if (minLength < 0 || maxLength < 0 || minLength > maxLength)
-            {
-                throw new AbpException("Invalid minLength or maxLength parameters");
-            }
-            
-            var random = new Random();
-            var regex = new Regex(regexPattern);
-            
-            var length = random.Next(minLength, maxLength + 1);
-
-            var filteredChars = new string(DefaultStringChars.Where(c => !regex.IsMatch(c.ToString())).ToArray());
-
-            return new string(Enumerable.Repeat(filteredChars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-        #endregion
+                ));
     }
+
+    #endregion
 }

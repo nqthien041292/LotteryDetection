@@ -8,8 +8,8 @@ namespace LotteryDetection.Authorization.Users.Profile;
 
 public class ProfileImageServiceFactory : ITransientDependency
 {
-    private readonly ISettingManager _settingManager;
     private readonly IIocResolver _iocResolver;
+    private readonly ISettingManager _settingManager;
 
     public ProfileImageServiceFactory(
         ISettingManager settingManager,
@@ -21,12 +21,10 @@ public class ProfileImageServiceFactory : ITransientDependency
 
     public async Task<IDisposableDependencyObjectWrapper<IProfileImageService>> Get(UserIdentifier userIdentifier)
     {
-        if (await _settingManager.GetSettingValueForUserAsync<bool>(AppSettings.UserManagement.UseGravatarProfilePicture, userIdentifier))
-        {
+        if (await _settingManager.GetSettingValueForUserAsync<bool>(
+                AppSettings.UserManagement.UseGravatarProfilePicture, userIdentifier))
             return _iocResolver.ResolveAsDisposable<GravatarProfileImageService>();
-        }
 
         return _iocResolver.ResolveAsDisposable<LocalProfileImageService>();
     }
 }
-

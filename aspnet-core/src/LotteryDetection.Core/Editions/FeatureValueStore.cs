@@ -18,12 +18,11 @@ public class FeatureValueStore : AbpFeatureValueStore<Tenant, User>
         IFeatureManager featureManager,
         IUnitOfWorkManager unitOfWorkManager)
         : base(cacheManager,
-              tenantFeatureSettingRepository,
-              tenantRepository,
-              editionFeatureSettingRepository,
-              featureManager,
-              unitOfWorkManager)
+            tenantFeatureSettingRepository,
+            tenantRepository,
+            editionFeatureSettingRepository,
+            featureManager,
+            unitOfWorkManager)
     {
     }
 }
-

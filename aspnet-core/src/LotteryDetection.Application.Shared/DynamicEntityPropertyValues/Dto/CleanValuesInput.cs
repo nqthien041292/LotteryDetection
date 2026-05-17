@@ -6,4 +6,3 @@ public class CleanValuesInput
 
     public string EntityId { get; set; }
 }
-

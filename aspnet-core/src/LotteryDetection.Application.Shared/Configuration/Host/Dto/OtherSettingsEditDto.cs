@@ -4,4 +4,3 @@ public class OtherSettingsEditDto
 {
     public bool IsQuickThemeSelectEnabled { get; set; }
 }
-

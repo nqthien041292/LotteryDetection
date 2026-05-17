@@ -21,16 +21,11 @@ public class UserPolicy : LotteryDetectionServiceBase, IUserPolicy
     public async Task CheckMaxUserCountAsync(int tenantId)
     {
         var maxUserCount = (await _featureChecker.GetValueAsync(tenantId, AppFeatures.MaxUserCount)).To<int>();
-        if (maxUserCount <= 0)
-        {
-            return;
-        }
+        if (maxUserCount <= 0) return;
 
         var currentUserCount = await _userRepository.CountAsync();
         if (currentUserCount >= maxUserCount)
-        {
-            throw new UserFriendlyException(L("MaximumUserCount_Error_Message"), L("MaximumUserCount_Error_Detail", maxUserCount));
-        }
+            throw new UserFriendlyException(L("MaximumUserCount_Error_Message"),
+                L("MaximumUserCount_Error_Detail", maxUserCount));
     }
 }
-

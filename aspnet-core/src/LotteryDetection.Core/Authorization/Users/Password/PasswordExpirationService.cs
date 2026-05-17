@@ -11,8 +11,8 @@ namespace LotteryDetection.Authorization.Users.Password;
 public class PasswordExpirationService : LotteryDetectionDomainServiceBase, IPasswordExpirationService
 {
     private readonly IRepository<RecentPassword, Guid> _recentPasswordRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IRepository<Tenant> _tenantRepository;
+    private readonly IUserRepository _userRepository;
 
     public PasswordExpirationService(
         IRepository<RecentPassword, Guid> recentPasswordRepository,
@@ -30,20 +30,14 @@ public class PasswordExpirationService : LotteryDetectionDomainServiceBase, IPas
             AppSettings.UserManagement.Password.EnablePasswordExpiration
         );
 
-        if (!isEnabled)
-        {
-            return;
-        }
+        if (!isEnabled) return;
 
         // check host users 
         ForcePasswordExpiredUsersToChangeTheirPasswordInternal(null);
 
         // check tenants
         var tenantIds = _tenantRepository.GetAll().Select(tenant => tenant.Id).ToList();
-        foreach (var tenantId in tenantIds)
-        {
-            ForcePasswordExpiredUsersToChangeTheirPasswordInternal(tenantId);
-        }
+        foreach (var tenantId in tenantIds) ForcePasswordExpiredUsersToChangeTheirPasswordInternal(tenantId);
     }
 
     private void ForcePasswordExpiredUsersToChangeTheirPasswordInternal(int? tenantId)
@@ -62,15 +56,11 @@ public class PasswordExpirationService : LotteryDetectionDomainServiceBase, IPas
             var separationCount = 1000;
             var separationLoopCount = passwordExpiredUsers.Count / separationCount + 1;
 
-            for (int i = 0; i < separationLoopCount; i++)
+            for (var i = 0; i < separationLoopCount; i++)
             {
                 var userIdsToUpdate = passwordExpiredUsers.Skip(i * separationCount).Take(separationCount).ToList();
-                if (userIdsToUpdate.Count > 0)
-                {
-                    _userRepository.UpdateUsersToChangePasswordOnNextLogin(userIdsToUpdate);
-                }
+                if (userIdsToUpdate.Count > 0) _userRepository.UpdateUsersToChangePasswordOnNextLogin(userIdsToUpdate);
             }
         }
     }
 }
-

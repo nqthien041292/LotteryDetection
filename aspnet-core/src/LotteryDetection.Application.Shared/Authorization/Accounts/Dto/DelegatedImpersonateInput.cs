@@ -4,4 +4,3 @@ public class DelegatedImpersonateInput
 {
     public long UserDelegationId { get; set; }
 }
-

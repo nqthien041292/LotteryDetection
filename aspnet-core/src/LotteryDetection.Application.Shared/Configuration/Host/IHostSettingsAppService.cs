@@ -12,4 +12,3 @@ public interface IHostSettingsAppService : IApplicationService
 
     Task SendTestEmail(SendTestEmailInput input);
 }
-

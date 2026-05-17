@@ -12,4 +12,3 @@ public class WidgetFilter
 
     public byte PositionY { get; set; }
 }
-

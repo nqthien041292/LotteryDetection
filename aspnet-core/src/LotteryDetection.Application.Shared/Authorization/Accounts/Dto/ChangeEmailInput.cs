@@ -8,17 +8,14 @@ namespace LotteryDetection.Authorization.Accounts.Dto;
 
 public class ChangeEmailInput : IShouldNormalize
 {
-    [JsonIgnore]
-    public long UserId { get; set; }
+    [JsonIgnore] public long UserId { get; set; }
 
-    [JsonIgnore]
-    public string EmailAddress { get; set; }
+    [JsonIgnore] public string EmailAddress { get; set; }
 
-    [JsonIgnore]
-    public string OldEmailAddress { get; set; }
+    [JsonIgnore] public string OldEmailAddress { get; set; }
 
     /// <summary>
-    /// Encrypted values for {TenantId}, {UserId} and {ConfirmationCode}
+    ///     Encrypted values for {TenantId}, {UserId} and {ConfirmationCode}
     /// </summary>
     public string c { get; set; }
 
@@ -34,21 +31,11 @@ public class ChangeEmailInput : IShouldNormalize
             var parameters = SimpleStringCipher.Instance.Decrypt(c);
             var query = HttpUtility.ParseQueryString(parameters);
 
-            if (query["userId"] != null)
-            {
-                UserId = Convert.ToInt32(query["userId"]);
-            }
+            if (query["userId"] != null) UserId = Convert.ToInt32(query["userId"]);
 
-            if (query["emailAddress"] != null)
-            {
-                EmailAddress = query["emailAddress"];
-            }
+            if (query["emailAddress"] != null) EmailAddress = query["emailAddress"];
 
-            if (query["old"] != null)
-            {
-                OldEmailAddress = query["old"];
-            }
+            if (query["old"] != null) OldEmailAddress = query["old"];
         }
     }
 }
-

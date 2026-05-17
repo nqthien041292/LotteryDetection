@@ -1,6 +1,6 @@
-﻿using Abp.EntityHistory;
+﻿using System.Collections.Generic;
+using Abp.EntityHistory;
 using LotteryDetection.Authorization.Users;
-using System.Collections.Generic;
 
 namespace LotteryDetection.EntityChanges;
 

@@ -1,5 +1,4 @@
-﻿using System;
-using Abp.Extensions;
+﻿using Abp.Extensions;
 
 namespace LotteryDetection.Authentication;
 
@@ -20,4 +19,3 @@ public class WsFederationExternalLoginProviderSettings
         return !ClientId.IsNullOrEmpty();
     }
 }
-

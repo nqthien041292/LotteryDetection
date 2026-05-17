@@ -9,13 +9,9 @@ public static class ValidationHelper
 
     public static bool IsEmail(string value)
     {
-        if (value.IsNullOrEmpty())
-        {
-            return false;
-        }
+        if (value.IsNullOrEmpty()) return false;
 
         var regex = new Regex(EmailRegex);
         return regex.IsMatch(value);
     }
 }
-

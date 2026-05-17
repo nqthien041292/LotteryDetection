@@ -29,12 +29,11 @@ namespace LotteryDetection.Configuration.Tenants;
 [AbpAuthorize(AppPermissions.Pages_Administration_Tenant_Settings)]
 public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsAppService
 {
-    public IExternalLoginOptionsCacheManager ExternalLoginOptionsCacheManager { get; set; }
+    private readonly IBinaryObjectManager _binaryObjectManager;
+    private readonly IAbpZeroLdapModuleConfig _ldapModuleConfig;
 
     private readonly IMultiTenancyConfig _multiTenancyConfig;
     private readonly ITimeZoneService _timeZoneService;
-    private readonly IBinaryObjectManager _binaryObjectManager;
-    private readonly IAbpZeroLdapModuleConfig _ldapModuleConfig;
 
     public TenantSettingsAppService(
         IAbpZeroLdapModuleConfig ldapModuleConfig,
@@ -53,6 +52,8 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         _binaryObjectManager = binaryObjectManager;
     }
 
+    public IExternalLoginOptionsCacheManager ExternalLoginOptionsCacheManager { get; set; }
+
     #region Get Settings
 
     public async Task<TenantSettingsEditDto> GetAllSettings()
@@ -68,18 +69,12 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         };
 
         if (!_multiTenancyConfig.IsEnabled || Clock.SupportsMultipleTimezone)
-        {
             settings.General = await GetGeneralSettingsAsync();
-        }
 
         if (_ldapModuleConfig.IsEnabled)
-        {
             settings.Ldap = await GetLdapSettingsAsync();
-        }
         else
-        {
-            settings.Ldap = new LdapSettingsEditDto {IsModuleEnabled = false};
-        }
+            settings.Ldap = new LdapSettingsEditDto { IsModuleEnabled = false };
 
         return settings;
     }
@@ -99,7 +94,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             Password = await SettingManager.GetSettingValueForTenantAsync(LdapSettingNames.Password,
                 tenantId),
             UseSsl = await SettingManager.GetSettingValueForTenantAsync<bool>(LdapSettingNames.UseSsl,
-                tenantId),
+                tenantId)
         };
     }
 
@@ -112,12 +107,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         );
 
         if (useHostDefaultEmailSettings)
-        {
             return new TenantEmailSettingsEditDto
             {
                 UseHostDefaultEmailSettings = true
             };
-        }
 
         var smtpPassword = await SettingManager.GetSettingValueForTenantAsync(
             EmailSettingNames.Smtp.Password,
@@ -178,10 +171,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             AbpSession.TenantId
         );
 
-        if (settings.Timezone == defaultTimeZoneId)
-        {
-            settings.Timezone = string.Empty;
-        }
+        if (settings.Timezone == defaultTimeZoneId) settings.Timezone = string.Empty;
 
         return settings;
     }
@@ -222,10 +212,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
                 ),
                 UseCaptchaOnLogin = await SettingManager.GetSettingValueAsync<bool>(
                     AppSettings.UserManagement.UseCaptchaOnLogin
-                ),
+                )
             },
 
-            SessionTimeOutSettings = new SessionTimeOutSettingsEditDto()
+            SessionTimeOutSettings = new SessionTimeOutSettingsEditDto
             {
                 IsEnabled = await SettingManager.GetSettingValueAsync<bool>(
                     AppSettings.UserManagement.SessionTimeOut.IsEnabled
@@ -252,7 +242,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             ),
 
             IsRestrictedEmailDomainEnabledForApplication = await IsRestrictedEmailDomainEnabledForApplicationAsync(),
-            
+
             IsQrLoginEnabled = await SettingManager.GetSettingValueAsync<bool>(
                 AppSettings.UserManagement.IsQrLoginEnabled
             ),
@@ -317,7 +307,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
 
     private async Task<TenantBillingSettingsEditDto> GetBillingSettingsAsync()
     {
-        return new TenantBillingSettingsEditDto()
+        return new TenantBillingSettingsEditDto
         {
             LegalName = await SettingManager.GetSettingValueAsync(AppSettings.TenantManagement.BillingLegalName),
             Address = await SettingManager.GetSettingValueAsync(AppSettings.TenantManagement.BillingAddress),
@@ -327,7 +317,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
 
     private async Task<TenantOtherSettingsEditDto> GetOtherSettingsAsync()
     {
-        return new TenantOtherSettingsEditDto()
+        return new TenantOtherSettingsEditDto
         {
             IsQuickThemeSelectEnabled = await SettingManager.GetSettingValueAsync<bool>(
                 AppSettings.UserManagement.IsQuickThemeSelectEnabled
@@ -365,10 +355,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             IsEnabledForApplication = await IsTwoFactorLoginEnabledForApplicationAsync()
         };
 
-        if (_multiTenancyConfig.IsEnabled && !settings.IsEnabledForApplication)
-        {
-            return settings;
-        }
+        if (_multiTenancyConfig.IsEnabled && !settings.IsEnabledForApplication) return settings;
 
         settings.IsEnabled = await SettingManager.GetSettingValueAsync<bool>(
             AbpZeroSettingNames.UserManagement.TwoFactorLogin.IsEnabled
@@ -423,10 +410,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             )
         };
 
-        if (_multiTenancyConfig.IsEnabled && !settings.IsEnabledForApplication)
-        {
-            return settings;
-        }
+        if (_multiTenancyConfig.IsEnabled && !settings.IsEnabledForApplication) return settings;
 
         settings.IsEmailProviderEnabled = await SettingManager.GetSettingValueAsync<bool>(
             AppSettings.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled
@@ -577,10 +561,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             ),
             PasswordExpirationDayCount = await SettingManager.GetSettingValueAsync<int>(
                 AppSettings.UserManagement.Password.PasswordExpirationDayCount
-            ),
+            )
         };
     }
-    
+
     #endregion
 
     #region Update Settings
@@ -626,10 +610,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             input.ValidateHostSettings();
         }
 
-        if (_ldapModuleConfig.IsEnabled)
-        {
-            await UpdateLdapSettingsAsync(input.Ldap);
-        }
+        if (_ldapModuleConfig.IsEnabled) await UpdateLdapSettingsAsync(input.Ldap);
     }
 
     private async Task UpdateOtherSettingsAsync(TenantOtherSettingsEditDto input)
@@ -699,10 +680,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
 
     private async Task UpdateEmailSettingsAsync(TenantEmailSettingsEditDto input)
     {
-        if (_multiTenancyConfig.IsEnabled && !LotteryDetectionConsts.AllowTenantsToChangeEmailSettings)
-        {
-            return;
-        }
+        if (_multiTenancyConfig.IsEnabled && !LotteryDetectionConsts.AllowTenantsToChangeEmailSettings) return;
 
         var useHostDefaultEmailSettings = _multiTenancyConfig.IsEnabled && input.UseHostDefaultEmailSettings;
 
@@ -885,7 +863,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             AppSettings.UserManagement.IsRestrictedEmailDomainEnabled,
             settings.IsRestrictedEmailDomainEnabled.ToString().ToLowerInvariant()
         );
-        
+
         await SettingManager.ChangeSettingForTenantAsync(
             tenantId,
             AppSettings.UserManagement.IsQrLoginEnabled,
@@ -898,9 +876,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         var user = await GetCurrentUserAsync();
 
         if (!user.IsEmailConfirmed && settings.IsEmailConfirmationRequiredForLogin)
-        {
             throw new UserFriendlyException(L("CurrentUsersEmailIsNotConfirmed"));
-        }
     }
 
     private async Task UpdateUserManagementSessionTimeOutSettingsAsync(SessionTimeOutSettingsEditDto settings)
@@ -940,10 +916,8 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         else
         {
             if (settings.PasswordComplexity.RequiredLength < settings.PasswordComplexity.AllowedMinimumLength)
-            {
                 throw new UserFriendlyException(L("AllowedMinimumLength",
                     settings.PasswordComplexity.AllowedMinimumLength));
-            }
 
             await UpdatePasswordComplexitySettingsAsync(settings.PasswordComplexity);
         }
@@ -999,31 +973,25 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         );
 
         if (settings.DefaultAccountLockoutSeconds.HasValue)
-        {
             await SettingManager.ChangeSettingForTenantAsync(
                 tenantId,
                 AbpZeroSettingNames.UserManagement.UserLockOut.DefaultAccountLockoutSeconds,
                 settings.DefaultAccountLockoutSeconds.ToString()
             );
-        }
 
         if (settings.MaxFailedAccessAttemptsBeforeLockout.HasValue)
-        {
             await SettingManager.ChangeSettingForTenantAsync(
                 tenantId,
                 AbpZeroSettingNames.UserManagement.UserLockOut.MaxFailedAccessAttemptsBeforeLockout,
                 settings.MaxFailedAccessAttemptsBeforeLockout.ToString()
             );
-        }
     }
 
     private async Task UpdateTwoFactorLoginSettingsAsync(TwoFactorLoginSettingsEditDto settings)
     {
         if (_multiTenancyConfig.IsEnabled &&
             !await IsTwoFactorLoginEnabledForApplicationAsync()) //Two factor login can not be used by tenants if disabled by the host
-        {
             return;
-        }
 
         var tenantId = AbpSession.GetTenantId();
 
@@ -1062,9 +1030,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
     {
         if (_multiTenancyConfig.IsEnabled &&
             !await IsPasswordlessLoginEnabledForApplicationAsync()) //Passwordless login can not be used by tenants if disabled by the host
-        {
             return;
-        }
 
         var tenantId = AbpSession.GetTenantId();
 
@@ -1083,10 +1049,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
 
     private async Task UpdateOneConcurrentLoginPerUserSettingAsync(bool allowOneConcurrentLoginPerUser)
     {
-        if (_multiTenancyConfig.IsEnabled)
-        {
-            return;
-        }
+        if (_multiTenancyConfig.IsEnabled) return;
 
         await SettingManager.ChangeSettingForApplicationAsync(
             AppSettings.UserManagement.AllowOneConcurrentLoginPerUser,
@@ -1161,15 +1124,11 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         var openIdConnectMappedClaimsValue = "";
         if (input.OpenIdConnect == null || !input.OpenIdConnect.IsValid() ||
             input.OpenIdConnectClaimsMapping.IsNullOrEmpty())
-        {
             openIdConnectMappedClaimsValue = await SettingManager.GetSettingValueForApplicationAsync(
                 AppSettings.ExternalLoginProvider.OpenIdConnectMappedClaims
             ); //set default value
-        }
         else
-        {
             openIdConnectMappedClaimsValue = input.OpenIdConnectClaimsMapping.ToJsonString();
-        }
 
         await SettingManager.ChangeSettingForTenantAsync(
             tenantId,
@@ -1192,15 +1151,11 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
         var wsFederationMappedClaimsValue = "";
         if (input.WsFederation == null || !input.WsFederation.IsValid() ||
             input.WsFederationClaimsMapping.IsNullOrEmpty())
-        {
             wsFederationMappedClaimsValue = await SettingManager.GetSettingValueForApplicationAsync(
                 AppSettings.ExternalLoginProvider.WsFederationMappedClaims
             ); //set default value
-        }
         else
-        {
             wsFederationMappedClaimsValue = input.WsFederationClaimsMapping.ToJsonString();
-        }
 
         await SettingManager.ChangeSettingForTenantAsync(
             tenantId,
@@ -1213,26 +1168,19 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
 
     private void CheckRestrictedEmailDomain(TenantUserManagementSettingsEditDto settings)
     {
-        string emailDomainPattern = @"^[a-zA-Z0-9._%+-]+(?<!@)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        var emailDomainPattern = @"^[a-zA-Z0-9._%+-]+(?<!@)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
 
         if (settings.RestrictedEmailDomain.IsNullOrEmpty() && settings.IsRestrictedEmailDomainEnabled)
-        {
             throw new UserFriendlyException(L("RestrictedEmailDomain_NullError"));
-        }
 
         if (!settings.RestrictedEmailDomain.IsNullOrEmpty() &&
             !Regex.IsMatch(settings.RestrictedEmailDomain, emailDomainPattern))
-        {
             throw new UserFriendlyException(L("RestrictedEmailDomain_InvalidError"));
-        }
     }
 
     private async Task UpdateUserPasswordSettings(UserPasswordSettingsEditDto settings)
     {
-        if (_multiTenancyConfig.IsEnabled)
-        {
-            return;
-        }
+        if (_multiTenancyConfig.IsEnabled) return;
 
         var tenantId = AbpSession.GetTenantId();
 
@@ -1266,6 +1214,7 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
             settings.PasswordResetCodeExpirationHours.ToString()
         );
     }
+
     #endregion
 
     #region Logo & Css
@@ -1274,16 +1223,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
     {
         var tenant = await GetCurrentTenantAsync();
 
-        if (!tenant.HasDarkLogo())
-        {
-            return;
-        }
+        if (!tenant.HasDarkLogo()) return;
 
         var logoObject = await _binaryObjectManager.GetOrNullAsync(tenant.DarkLogoId.Value);
-        if (logoObject != null)
-        {
-            await _binaryObjectManager.DeleteAsync(tenant.DarkLogoId.Value);
-        }
+        if (logoObject != null) await _binaryObjectManager.DeleteAsync(tenant.DarkLogoId.Value);
 
         tenant.ClearDarkLogo();
     }
@@ -1292,16 +1235,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
     {
         var tenant = await GetCurrentTenantAsync();
 
-        if (!tenant.HasDarkLogoMinimal())
-        {
-            return;
-        }
+        if (!tenant.HasDarkLogoMinimal()) return;
 
         var logoObject = await _binaryObjectManager.GetOrNullAsync(tenant.DarkLogoMinimalId.Value);
-        if (logoObject != null)
-        {
-            await _binaryObjectManager.DeleteAsync(tenant.DarkLogoMinimalId.Value);
-        }
+        if (logoObject != null) await _binaryObjectManager.DeleteAsync(tenant.DarkLogoMinimalId.Value);
 
         tenant.ClearDarkLogoMinimal();
     }
@@ -1310,16 +1247,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
     {
         var tenant = await GetCurrentTenantAsync();
 
-        if (!tenant.HasLightLogo())
-        {
-            return;
-        }
+        if (!tenant.HasLightLogo()) return;
 
         var logoObject = await _binaryObjectManager.GetOrNullAsync(tenant.LightLogoId.Value);
-        if (logoObject != null)
-        {
-            await _binaryObjectManager.DeleteAsync(tenant.LightLogoId.Value);
-        }
+        if (logoObject != null) await _binaryObjectManager.DeleteAsync(tenant.LightLogoId.Value);
 
         tenant.ClearLightLogo();
     }
@@ -1328,16 +1259,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
     {
         var tenant = await GetCurrentTenantAsync();
 
-        if (!tenant.HasLightLogoMinimal())
-        {
-            return;
-        }
+        if (!tenant.HasLightLogoMinimal()) return;
 
         var logoObject = await _binaryObjectManager.GetOrNullAsync(tenant.LightLogoMinimalId.Value);
-        if (logoObject != null)
-        {
-            await _binaryObjectManager.DeleteAsync(tenant.LightLogoMinimalId.Value);
-        }
+        if (logoObject != null) await _binaryObjectManager.DeleteAsync(tenant.LightLogoMinimalId.Value);
 
         tenant.ClearLightLogoMinimal();
     }
@@ -1346,16 +1271,10 @@ public class TenantSettingsAppService : SettingsAppServiceBase, ITenantSettingsA
     {
         var tenant = await GetCurrentTenantAsync();
 
-        if (!tenant.CustomCssId.HasValue)
-        {
-            return;
-        }
+        if (!tenant.CustomCssId.HasValue) return;
 
         var cssObject = await _binaryObjectManager.GetOrNullAsync(tenant.CustomCssId.Value);
-        if (cssObject != null)
-        {
-            await _binaryObjectManager.DeleteAsync(tenant.CustomCssId.Value);
-        }
+        if (cssObject != null) await _binaryObjectManager.DeleteAsync(tenant.CustomCssId.Value);
 
         tenant.CustomCssId = null;
     }

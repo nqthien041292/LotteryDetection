@@ -13,4 +13,3 @@ public class GetRecentTenantsOutput
 
     public List<RecentTenant> RecentTenants { get; set; }
 }
-

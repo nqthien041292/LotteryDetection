@@ -34,4 +34,3 @@ public class AuditLogListDto : EntityDto<long>
 
     public string CustomData { get; set; }
 }
-

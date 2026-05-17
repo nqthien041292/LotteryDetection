@@ -5,6 +5,7 @@ using Abp.BackgroundJobs;
 using Abp.Dependency;
 using Abp.Domain.Uow;
 using Abp.Localization;
+using Abp.Notifications;
 using Abp.UI;
 using LotteryDetection.Notifications;
 using LotteryDetection.Storage;
@@ -70,7 +71,6 @@ public abstract class ImportToExcelJobBase<TEntityDto, TDataReader, TInvalidEnti
             using (CurrentUnitOfWork.SetTenantId(args.TenantId))
             {
                 if (CanBeImported(row))
-                {
                     try
                     {
                         row.TenantId = args.TenantId;
@@ -86,11 +86,8 @@ public abstract class ImportToExcelJobBase<TEntityDto, TDataReader, TInvalidEnti
                         row.Exception = exception.ToString();
                         invalidEntities.Add(row);
                     }
-                }
                 else
-                {
                     invalidEntities.Add(row);
-                }
             }
 
             await uow.CompleteAsync();
@@ -131,7 +128,7 @@ public abstract class ImportToExcelJobBase<TEntityDto, TDataReader, TInvalidEnti
                     LotteryDetectionConsts.LocalizationSourceName
                 ),
                 null,
-                Abp.Notifications.NotificationSeverity.Success
+                NotificationSeverity.Success
             );
         }
     }
@@ -149,7 +146,7 @@ public abstract class ImportToExcelJobBase<TEntityDto, TDataReader, TInvalidEnti
                     LotteryDetectionConsts.LocalizationSourceName
                 ),
                 null,
-                Abp.Notifications.NotificationSeverity.Warn
+                NotificationSeverity.Warn
             );
         }
 

@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.Collections.Extensions;
+using Abp.Linq.Extensions;
 using Abp.Runtime.Session;
 using LotteryDetection.Authorization;
 using LotteryDetection.MultiTenancy.Payments.Dto;
-using Abp.Application.Services.Dto;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
-using Abp.Collections.Extensions;
-using Abp.Linq.Extensions;
 
 namespace LotteryDetection.MultiTenancy.Payments;
 
 public class PaymentAppService : LotteryDetectionAppServiceBase, IPaymentAppService
 {
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
     private readonly IPaymentGatewayStore _paymentGatewayStore;
     private readonly IPaymentManager _paymentManager;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
 
     public PaymentAppService(
         ISubscriptionPaymentRepository subscriptionPaymentRepository,
@@ -45,7 +45,6 @@ public class PaymentAppService : LotteryDetectionAppServiceBase, IPaymentAppServ
         };
 
         foreach (var product in input.Products)
-        {
             payment.SubscriptionPaymentProducts.Add(new SubscriptionPaymentProduct(
                 product.Description,
                 product.Amount,
@@ -53,7 +52,6 @@ public class PaymentAppService : LotteryDetectionAppServiceBase, IPaymentAppServ
                 product.Amount * product.Count,
                 product.ExtraProperties
             ));
-        }
 
         return await _paymentManager.CreatePayment(payment);
     }
@@ -110,9 +108,9 @@ public class PaymentAppService : LotteryDetectionAppServiceBase, IPaymentAppServ
     public async Task<SubscriptionPaymentDto> GetLastCompletedPayment()
     {
         var payment = await _subscriptionPaymentRepository.GetLastCompletedPaymentOrDefaultAsync(
-            tenantId: AbpSession.GetTenantId(),
-            gateway: null,
-            isRecurring: null);
+            AbpSession.GetTenantId(),
+            null,
+            null);
 
         return ObjectMapper.Map<SubscriptionPaymentDto>(payment);
     }

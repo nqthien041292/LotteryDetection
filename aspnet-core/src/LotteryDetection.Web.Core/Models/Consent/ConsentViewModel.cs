@@ -16,4 +16,3 @@ public class ConsentViewModel : ConsentInputModel
 
     public IEnumerable<ScopeViewModel> ApiScopes { get; set; }
 }
-

@@ -12,5 +12,3 @@ public class TwitterExternalLoginProviderSettings
         return !ConsumerKey.IsNullOrWhiteSpace() && !ConsumerSecret.IsNullOrWhiteSpace();
     }
 }
-
-

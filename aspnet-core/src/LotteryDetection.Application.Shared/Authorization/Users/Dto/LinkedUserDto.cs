@@ -1,5 +1,4 @@
-﻿using System;
-using Abp.Application.Services.Dto;
+﻿using Abp.Application.Services.Dto;
 
 namespace LotteryDetection.Authorization.Users.Dto;
 
@@ -13,14 +12,10 @@ public class LinkedUserDto : EntityDto<long>
 
     public object GetShownLoginName(bool multiTenancyEnabled)
     {
-        if (!multiTenancyEnabled)
-        {
-            return Username;
-        }
+        if (!multiTenancyEnabled) return Username;
 
         return string.IsNullOrEmpty(TenancyName)
             ? ".\\" + Username
             : TenancyName + "\\" + Username;
     }
 }
-

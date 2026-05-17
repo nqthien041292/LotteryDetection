@@ -1,65 +1,60 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Abp;
 using Abp.MultiTenancy;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Authorization.Users.Dto;
-using System.Threading.Tasks;
 
-namespace LotteryDetection.Tests.Authorization.PasswordlessLogin
+namespace LotteryDetection.Tests.Authorization.PasswordlessLogin;
+
+public class PasswordlessLognTestBase : AppTestBase
 {
-    public class PasswordlessLognTestBase : AppTestBase
+    private readonly IUserAppService _userAppService;
+    protected int DefaultTenantId;
+    protected string MockCode;
+    protected string ProviderKeyEmail;
+    protected string ProviderKeyPhoneNumber;
+
+    public PasswordlessLognTestBase()
     {
-        protected int DefaultTenantId;
-        protected string ProviderKeyEmail;
-        protected string ProviderKeyPhoneNumber;
-        protected string MockCode;
+        _userAppService = Resolve<IUserAppService>();
+    }
 
-        private readonly IUserAppService _userAppService;
+    protected async Task CreateAndSetUser()
+    {
+        DefaultTenantId = (await GetTenantAsync(AbpTenantBase.DefaultTenantName)).Id;
+        ProviderKeyEmail = "admin@aspnetzero.com";
+        ProviderKeyPhoneNumber = "05554443322";
 
-        public PasswordlessLognTestBase()
+        await CreateUser();
+    }
+
+    private async Task CreateUser()
+    {
+        await _userAppService.CreateOrUpdateUser(new CreateOrUpdateUserInput
         {
-            _userAppService = Resolve<IUserAppService>();
-        }
-
-        protected async Task CreateAndSetUser()
-        {
-            DefaultTenantId = (await GetTenantAsync(AbpTenantBase.DefaultTenantName)).Id;
-            ProviderKeyEmail = "admin@aspnetzero.com";
-            ProviderKeyPhoneNumber = "05554443322";
-
-            await CreateUser();
-        }
-
-        private async Task CreateUser()
-        {
-            await _userAppService.CreateOrUpdateUser(new CreateOrUpdateUserInput
+            User = new UserEditDto
             {
-                User = new UserEditDto
-                {
-                    EmailAddress = ProviderKeyEmail,
-                    Name = "admin",
-                    Surname = "aspnetzero",
-                    UserName = "adminaspnetzero",
-                    Password = "123qwe",
-                    PhoneNumber = ProviderKeyPhoneNumber
-                },
-                AssignedRoleNames = Array.Empty<string>()
-            });
-        }
+                EmailAddress = ProviderKeyEmail,
+                Name = "admin",
+                Surname = "aspnetzero",
+                UserName = "adminaspnetzero",
+                Password = "123qwe",
+                PhoneNumber = ProviderKeyPhoneNumber
+            },
+            AssignedRoleNames = Array.Empty<string>()
+        });
+    }
 
-        protected void SetMockCode()
-        {
-            MockCode = RandomHelper.GetRandom(100000, 999999).ToString();
-        }
+    protected void SetMockCode()
+    {
+        MockCode = RandomHelper.GetRandom(100000, 999999).ToString();
+    }
 
-        protected string GetPasswordlessLoginCodeCacheKey(int? tenantId, string providerKey)
-        {
-            if (tenantId.HasValue)
-            {
-                return tenantId.Value + "|" + providerKey;
-            }
+    protected string GetPasswordlessLoginCodeCacheKey(int? tenantId, string providerKey)
+    {
+        if (tenantId.HasValue) return tenantId.Value + "|" + providerKey;
 
-            return providerKey;
-        }
+        return providerKey;
     }
 }

@@ -6,4 +6,3 @@ public class CancelPaymentDto
 
     public SubscriptionPaymentGatewayType Gateway { get; set; }
 }
-

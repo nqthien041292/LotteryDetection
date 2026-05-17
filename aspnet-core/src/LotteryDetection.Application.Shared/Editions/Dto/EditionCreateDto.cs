@@ -6,8 +6,7 @@ public class EditionCreateDto
 {
     public int? Id { get; set; }
 
-    [Required]
-    public string DisplayName { get; set; }
+    [Required] public string DisplayName { get; set; }
 
     public decimal? MonthlyPrice { get; set; }
 
@@ -19,4 +18,3 @@ public class EditionCreateDto
 
     public int? ExpiringEditionId { get; set; }
 }
-

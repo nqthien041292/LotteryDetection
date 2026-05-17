@@ -5,17 +5,8 @@ namespace LotteryDetection.Dto;
 
 public class FileDto
 {
-    [Required]
-    public string FileName { get; set; }
-
-    public string FileType { get; set; }
-
-    [Required]
-    public string FileToken { get; set; }
-
     public FileDto()
     {
-
     }
 
     public FileDto(string fileName, string fileType)
@@ -24,5 +15,10 @@ public class FileDto
         FileType = fileType;
         FileToken = Guid.NewGuid().ToString("N");
     }
-}
 
+    [Required] public string FileName { get; set; }
+
+    public string FileType { get; set; }
+
+    [Required] public string FileToken { get; set; }
+}

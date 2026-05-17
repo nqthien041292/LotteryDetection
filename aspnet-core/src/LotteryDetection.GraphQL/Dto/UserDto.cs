@@ -12,6 +12,12 @@ namespace LotteryDetection.Dto;
 /*Mapped in CustomDtoMapper.cs*/
 public class UserDto : EntityDto<long>, IPassivable, IHasCreationTime
 {
+    public UserDto()
+    {
+        Roles = new List<RoleDto>();
+        OrganizationUnits = new List<OrganizationUnitDto>();
+    }
+
     public string Name { get; set; }
 
     public string Surname { get; set; }
@@ -26,21 +32,15 @@ public class UserDto : EntityDto<long>, IPassivable, IHasCreationTime
 
     public bool IsEmailConfirmed { get; set; }
 
-    public bool IsActive { get; set; }
-
-    public DateTime CreationTime { get; set; }
-
     public int? TenantId { get; set; }
 
     public IEnumerable<RoleDto> Roles { get; set; }
 
     public IEnumerable<OrganizationUnitDto> OrganizationUnits { get; set; }
 
-    public UserDto()
-    {
-        Roles = new List<RoleDto>();
-        OrganizationUnits = new List<OrganizationUnitDto>();
-    }
+    public DateTime CreationTime { get; set; }
+
+    public bool IsActive { get; set; }
 
 
     [AutoMapFrom(typeof(Role))]
@@ -63,4 +63,3 @@ public class UserDto : EntityDto<long>, IPassivable, IHasCreationTime
         public string DisplayName { get; set; }
     }
 }
-

@@ -12,4 +12,3 @@ public class MicrosoftExternalLoginProviderSettings
         return !ClientId.IsNullOrWhiteSpace() && !ClientSecret.IsNullOrWhiteSpace();
     }
 }
-

@@ -14,4 +14,3 @@ public class FlatFeatureDto
 
     public FeatureInputTypeDto InputType { get; set; }
 }
-

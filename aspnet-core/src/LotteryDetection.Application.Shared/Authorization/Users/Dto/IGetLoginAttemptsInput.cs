@@ -6,4 +6,3 @@ public interface IGetLoginAttemptsInput : ISortedResultRequest
 {
     string Filter { get; set; }
 }
-

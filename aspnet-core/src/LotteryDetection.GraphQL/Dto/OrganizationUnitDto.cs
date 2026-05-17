@@ -14,4 +14,3 @@ public class OrganizationUnitDto
 
     public int? TenantId { get; set; }
 }
-

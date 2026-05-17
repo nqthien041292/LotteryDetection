@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Abp.OpenIddict.Applications;
 using Abp.OpenIddict.Authorizations;
 using Abp.OpenIddict.EntityFrameworkCore;
 using Abp.OpenIddict.Scopes;
 using Abp.OpenIddict.Tokens;
 using Abp.Zero.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Delegation;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
@@ -18,20 +16,17 @@ using LotteryDetection.MultiTenancy;
 using LotteryDetection.MultiTenancy.Accounting;
 using LotteryDetection.MultiTenancy.Payments;
 using LotteryDetection.Storage;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.EntityFrameworkCore;
 
-public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, LotteryDetectionDbContext>, IOpenIddictDbContext
+public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, LotteryDetectionDbContext>,
+    IOpenIddictDbContext
 {
-    /* Define an IDbSet for each entity of the application */
-
-    public virtual DbSet<OpenIddictApplication> Applications { get; }
-
-    public virtual DbSet<OpenIddictAuthorization> Authorizations { get; }
-
-    public virtual DbSet<OpenIddictScope> Scopes { get; }
-
-    public virtual DbSet<OpenIddictToken> Tokens { get; }
+    public LotteryDetectionDbContext(DbContextOptions<LotteryDetectionDbContext> options)
+        : base(options)
+    {
+    }
 
     public virtual DbSet<BinaryObject> BinaryObjects { get; set; }
 
@@ -50,11 +45,15 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
     public virtual DbSet<UserDelegation> UserDelegations { get; set; }
 
     public virtual DbSet<RecentPassword> RecentPasswords { get; set; }
+    /* Define an IDbSet for each entity of the application */
 
-    public LotteryDetectionDbContext(DbContextOptions<LotteryDetectionDbContext> options)
-        : base(options)
-    {
-    }
+    public virtual DbSet<OpenIddictApplication> Applications { get; }
+
+    public virtual DbSet<OpenIddictAuthorization> Authorizations { get; }
+
+    public virtual DbSet<OpenIddictScope> Scopes { get; }
+
+    public virtual DbSet<OpenIddictToken> Tokens { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,11 +65,11 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
         {
             x.Property(u => u.ExtraProperties)
                 .HasConversion(
-                    d => JsonSerializer.Serialize(d, new JsonSerializerOptions()
+                    d => JsonSerializer.Serialize(d, new JsonSerializerOptions
                     {
                         WriteIndented = false
                     }),
-                    s => JsonSerializer.Deserialize<ExtraPropertyDictionary>(s, new JsonSerializerOptions()
+                    s => JsonSerializer.Deserialize<ExtraPropertyDictionary>(s, new JsonSerializerOptions
                     {
                         WriteIndented = false
                     })
@@ -81,11 +80,11 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
         {
             x.Property(u => u.ExtraProperties)
                 .HasConversion(
-                    d => JsonSerializer.Serialize(d, new JsonSerializerOptions()
+                    d => JsonSerializer.Serialize(d, new JsonSerializerOptions
                     {
                         WriteIndented = false
                     }),
-                    s => JsonSerializer.Deserialize<ExtraPropertyDictionary>(s, new JsonSerializerOptions()
+                    s => JsonSerializer.Deserialize<ExtraPropertyDictionary>(s, new JsonSerializerOptions
                     {
                         WriteIndented = false
                     })
@@ -129,4 +128,3 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
         modelBuilder.ConfigureOpenIddict();
     }
 }
-

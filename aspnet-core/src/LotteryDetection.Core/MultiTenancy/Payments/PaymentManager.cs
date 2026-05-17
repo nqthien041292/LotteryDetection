@@ -21,14 +21,10 @@ public class PaymentManager : IPaymentManager
         if (payment.RecurringPaymentEnabled())
         {
             if (payment.GetPlanId().IsNullOrEmpty())
-            {
                 throw new ApplicationException($"{PaymentConsts.PlanId} is required for recurring payments!");
-            }
 
             if (payment.GetPlanType().IsNullOrEmpty())
-            {
                 throw new ApplicationException($"{PaymentConsts.PlanType} is required for recurring payments!");
-            }
         }
 
         var paymentId = await _subscriptionPaymentRepository.InsertAndGetIdAsync(payment);
@@ -38,9 +34,9 @@ public class PaymentManager : IPaymentManager
     public async Task<bool> HasAnyPayment(int tenantId)
     {
         return await _subscriptionPaymentRepository.GetLastCompletedPaymentOrDefaultAsync(
-            tenantId: tenantId,
-            gateway: null,
-            isRecurring: null) != default;
+            tenantId,
+            null,
+            null) != default;
     }
 
     public SubscriptionPayment GetLastCompletedSubscriptionPayment(int tenantId)
@@ -63,4 +59,3 @@ public class PaymentManager : IPaymentManager
         return _subscriptionPaymentRepository.UpdateAsync(payment);
     }
 }
-

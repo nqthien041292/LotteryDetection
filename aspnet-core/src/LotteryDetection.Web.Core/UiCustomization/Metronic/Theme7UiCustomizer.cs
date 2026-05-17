@@ -21,18 +21,19 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         {
             BaseSettings = new ThemeSettingsDto
             {
-                Layout = new ThemeLayoutSettingsDto()
+                Layout = new ThemeLayoutSettingsDto
                 {
                     LayoutType = await GetSettingValueAsync(AppSettings.UiManagement.LayoutType),
                     DarkMode = await GetSettingValueAsync<bool>(AppSettings.UiManagement.DarkMode)
                 },
                 Footer = new ThemeFooterSettingsDto
                 {
-                    DesktopFixedFooter = await GetSettingValueAsync<bool>(AppSettings.UiManagement.Footer.DesktopFixedFooter),
-                    MobileFixedFooter = await GetSettingValueAsync<bool>(AppSettings.UiManagement.Footer.MobileFixedFooter),
-
+                    DesktopFixedFooter =
+                        await GetSettingValueAsync<bool>(AppSettings.UiManagement.Footer.DesktopFixedFooter),
+                    MobileFixedFooter =
+                        await GetSettingValueAsync<bool>(AppSettings.UiManagement.Footer.MobileFixedFooter)
                 },
-                Menu = new ThemeMenuSettingsDto()
+                Menu = new ThemeMenuSettingsDto
                 {
                     SearchActive = await GetSettingValueAsync<bool>(AppSettings.UiManagement.SearchActive),
                     EnableSecondary = true,
@@ -83,7 +84,8 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
             settings.Menu.SearchActive.ToString());
     }
 
-    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings, UserIdentifier changerUser)
+    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings,
+        UserIdentifier changerUser)
     {
         await SettingManager.ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Theme, ThemeName);
 
@@ -142,10 +144,10 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         return new ThemeSettingsDto
         {
             Theme = theme,
-            Layout = new ThemeLayoutSettingsDto()
+            Layout = new ThemeLayoutSettingsDto
             {
                 LayoutType = await GetSettingValueForApplicationAsync(AppSettings.UiManagement.LayoutType),
-                DarkMode = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.DarkMode),
+                DarkMode = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.DarkMode)
             },
             Header = new ThemeHeaderSettingsDto(),
             SubHeader = new ThemeSubHeaderSettingsDto
@@ -161,7 +163,7 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                 MobileFixedFooter =
                     await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.Footer.MobileFixedFooter)
             },
-            Menu = new ThemeMenuSettingsDto()
+            Menu = new ThemeMenuSettingsDto
             {
                 SearchActive = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.SearchActive)
             }
@@ -175,7 +177,7 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         return new ThemeSettingsDto
         {
             Theme = theme,
-            Layout = new ThemeLayoutSettingsDto()
+            Layout = new ThemeLayoutSettingsDto
             {
                 LayoutType = await GetSettingValueForTenantAsync(AppSettings.UiManagement.LayoutType, tenantId),
                 DarkMode = await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.DarkMode, tenantId)
@@ -202,7 +204,7 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                     tenantId
                 )
             },
-            Menu = new ThemeMenuSettingsDto()
+            Menu = new ThemeMenuSettingsDto
             {
                 SearchActive =
                     await GetSettingValueForTenantAsync<bool>(
@@ -219,15 +221,10 @@ public class Theme7UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
 
 
         if (await GetSettingValueAsync<bool>(AppSettings.UiManagement.Footer.DesktopFixedFooter))
-        {
             defaultBodyClass += " " + "footer-fixed";
-        }
         if (await GetSettingValueAsync<bool>(AppSettings.UiManagement.Footer.MobileFixedFooter))
-        {
             defaultBodyClass += " " + "footer-tablet-and-mobile-fixed";
-        }
 
         return await Task.FromResult(defaultBodyClass);
     }
 }
-

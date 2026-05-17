@@ -10,4 +10,3 @@ public static class TwoFactorCodeCacheExtensions
         return cacheManager.GetCache<string, TwoFactorCodeCacheItem>(TwoFactorCodeCacheItem.CacheName);
     }
 }
-

@@ -16,7 +16,5 @@ public class AbpZeroDbMigrator : AbpZeroDbMigrator<LotteryDetectionDbContext>
             connectionStringResolver,
             dbContextResolver)
     {
-
     }
 }
-

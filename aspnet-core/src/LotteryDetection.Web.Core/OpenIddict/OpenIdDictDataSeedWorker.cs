@@ -3,18 +3,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abp.Domain.Uow;
+using LotteryDetection.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using LotteryDetection.Configuration;
 using OpenIddict.Abstractions;
 
 namespace LotteryDetection.Web.OpenIddict;
 
 public class OpenIdDictDataSeedWorker : IHostedService
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly IAppConfigurationAccessor _configuration;
+    private readonly IServiceProvider _serviceProvider;
 
     public OpenIdDictDataSeedWorker(IServiceProvider serviceProvider, IAppConfigurationAccessor configuration)
     {
@@ -24,16 +24,18 @@ public class OpenIdDictDataSeedWorker : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_configuration.Configuration["OpenIddict:IsEnabled"] == "false")
-        {
-            return;
-        }
+        if (_configuration.Configuration["OpenIddict:IsEnabled"] == "false") return;
 
         foreach (var child in _configuration.Configuration.GetSection("OpenIddict:Applications").GetChildren())
         {
             await SaveScopes(child);
             await SaveApplications(child);
         }
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private async Task SaveApplications(IConfigurationSection child)
@@ -54,19 +56,19 @@ public class OpenIdDictDataSeedWorker : IHostedService
             };
 
             AddItemsFromConfiguration(child, "Scopes",
-                (s) => application.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + s)
+                s => application.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + s)
             );
 
             AddItemsFromConfiguration(child, "Permissions",
-                (permission) => application.Permissions.Add(permission)
+                permission => application.Permissions.Add(permission)
             );
 
             AddItemsFromConfiguration(child, "RedirectUris",
-                (uri) => application.RedirectUris.Add(new Uri(uri))
+                uri => application.RedirectUris.Add(new Uri(uri))
             );
 
             AddItemsFromConfiguration(child, "PostLogoutRedirectUris",
-                (uri) => application.PostLogoutRedirectUris.Add(new Uri(uri))
+                uri => application.PostLogoutRedirectUris.Add(new Uri(uri))
             );
 
             await applicationManager.CreateAsync(application);
@@ -83,38 +85,25 @@ public class OpenIdDictDataSeedWorker : IHostedService
         var scopes = child.GetSection("Scopes").GetChildren().Select(c => c.Value).ToList();
 
         foreach (var scopeName in scopes)
-        {
             await unitOfWorkManager.WithUnitOfWorkAsync(async () =>
             {
                 if (await scopeManager.FindByNameAsync(scopeName) == null)
-                {
                     await scopeManager.CreateAsync(new OpenIddictScopeDescriptor
                     {
                         Name = scopeName,
                         DisplayName = scopeName,
                         Resources =
                         {
-                                scopeName
-                        },
+                            scopeName
+                        }
                     });
-                }
             });
-        }
     }
 
     private void AddItemsFromConfiguration(IConfigurationSection configSection, string key,
         Action<string> itemAdder)
     {
         var items = configSection.GetSection(key).GetChildren().Select(c => c.Value).ToList();
-        foreach (var item in items)
-        {
-            itemAdder(item);
-        }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
+        foreach (var item in items) itemAdder(item);
     }
 }
-

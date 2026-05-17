@@ -15,4 +15,3 @@ public interface IPaymentManager : IDomainService
 
     Task UpdatePayment(SubscriptionPayment payment);
 }
-

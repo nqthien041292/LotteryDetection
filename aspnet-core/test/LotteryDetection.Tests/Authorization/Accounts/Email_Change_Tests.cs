@@ -1,14 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using Abp;
-using Abp.Runtime.Security;
-using Castle.MicroKernel.Registration;
 using LotteryDetection.Authorization.Accounts;
 using LotteryDetection.Authorization.Accounts.Dto;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Url;
-using NSubstitute;
 using Shouldly;
 using Xunit;
 
@@ -31,9 +27,9 @@ public class Email_Change_Tests : AppTestBase
 
         var user = await GetCurrentUserAsync();
         user.IsEmailConfirmed.ShouldBeFalse();
-        
+
         const string newEmailAddress = "example@gmail.com";
-        
+
         var accountAppService = Resolve<IAccountAppService>();
         var userEmailer = Resolve<IUserEmailer>();
         var appUrlService = Resolve<IAppUrlService>();
@@ -47,7 +43,7 @@ public class Email_Change_Tests : AppTestBase
         );
 
         await accountAppService.ChangeEmail(
-            new ChangeEmailInput()
+            new ChangeEmailInput
             {
                 UserId = user.Id,
                 EmailAddress = newEmailAddress,
@@ -60,7 +56,7 @@ public class Email_Change_Tests : AppTestBase
         user = await GetCurrentUserAsync();
         user.EmailAddress.ShouldBe(newEmailAddress);
     }
-    
+
     [Fact]
     public async Task Should_Throw_Exception_Wrong_Old_Email()
     {
@@ -75,17 +71,17 @@ public class Email_Change_Tests : AppTestBase
 
         var user = await GetCurrentUserAsync();
         user.IsEmailConfirmed.ShouldBeFalse();
-        
+
         const string newEmailAddress = "example@gmail.com";
-        
+
         var accountAppService = Resolve<IAccountAppService>();
-        
+
         //Act & Assert
 
-        await Should.ThrowAsync<AbpException>( async () =>
+        await Should.ThrowAsync<AbpException>(async () =>
         {
             await accountAppService.ChangeEmail(
-                new ChangeEmailInput()
+                new ChangeEmailInput
                 {
                     UserId = user.Id,
                     EmailAddress = newEmailAddress,

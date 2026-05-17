@@ -20,4 +20,3 @@ public interface IUserFriendsCache
 
     void ClearFriendCache();
 }
-

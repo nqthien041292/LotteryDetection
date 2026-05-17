@@ -21,4 +21,3 @@ public class ExtraPropertyDictionary : Dictionary<string, object>
         return this.ToJsonString();
     }
 }
-

@@ -5,9 +5,9 @@ using Abp.AspNetCore.Mvc.Authorization;
 using Abp.IO.Extensions;
 using Abp.UI;
 using Abp.Web.Models;
-using Microsoft.AspNetCore.Mvc;
 using LotteryDetection.Chat;
 using LotteryDetection.Storage;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LotteryDetection.Web.Controllers;
 
@@ -31,15 +31,10 @@ public class ChatControllerBase : LotteryDetectionControllerBase
             var file = Request.Form.Files.First();
 
             //Check input
-            if (file == null)
-            {
-                throw new UserFriendlyException(L("File_Empty_Error"));
-            }
+            if (file == null) throw new UserFriendlyException(L("File_Empty_Error"));
 
             if (file.Length > 10000000) //10MB
-            {
                 throw new UserFriendlyException(L("File_SizeLimit_Error"));
-            }
 
             byte[] fileBytes;
             using (var stream = file.OpenReadStream())
@@ -47,7 +42,8 @@ public class ChatControllerBase : LotteryDetectionControllerBase
                 fileBytes = stream.GetAllBytes();
             }
 
-            var fileObject = new BinaryObject(null, fileBytes, $"File uploaded from chat by {AbpSession.UserId}, File name: {file.FileName} {DateTime.UtcNow}");
+            var fileObject = new BinaryObject(null, fileBytes,
+                $"File uploaded from chat by {AbpSession.UserId}, File name: {file.FileName} {DateTime.UtcNow}");
             using (CurrentUnitOfWork.SetTenantId(null))
             {
                 await BinaryObjectManager.SaveAsync(fileObject);
@@ -67,4 +63,3 @@ public class ChatControllerBase : LotteryDetectionControllerBase
         }
     }
 }
-

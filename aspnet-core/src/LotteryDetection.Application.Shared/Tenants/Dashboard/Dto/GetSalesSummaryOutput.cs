@@ -19,6 +19,4 @@ public class GetSalesSummaryOutput
     public int Growth { get; set; }
 
     public List<SalesSummaryData> SalesSummary { get; set; }
-
 }
-

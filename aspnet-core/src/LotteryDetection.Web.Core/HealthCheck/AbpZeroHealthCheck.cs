@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using LotteryDetection.HealthChecks;
+﻿using LotteryDetection.HealthChecks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetection.Web.HealthCheck;
 
@@ -18,4 +18,3 @@ public static class AbpZeroHealthCheck
         return builder;
     }
 }
-

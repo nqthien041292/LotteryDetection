@@ -9,4 +9,3 @@ public interface IWidgetFilterDefinitionCacheManager : ITransientDependency
 
     void Set(List<WidgetFilterDefinition> definition);
 }
-

@@ -17,7 +17,7 @@ public class ImportUserDto : ImportFromExcelDto
     public string Password { get; set; }
 
     /// <summary>
-    /// comma separated list
+    ///     comma separated list
     /// </summary>
     public string[] Roles { get; set; }
 }

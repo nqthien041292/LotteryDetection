@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Abp;
-using Abp.Auditing;
 using Abp.Authorization.Users;
 using Abp.Extensions;
 using Abp.Timing;
@@ -10,10 +7,18 @@ using Abp.Timing;
 namespace LotteryDetection.Authorization.Users;
 
 /// <summary>
-/// Represents a user in the system.
+///     Represents a user in the system.
 /// </summary>
 public class User : AbpUser<User>
 {
+    //Can add application specific user properties here
+
+    public User()
+    {
+        IsLockoutEnabled = true;
+        IsTwoFactorEnabled = true;
+    }
+
     public virtual Guid? ProfilePictureId { get; set; }
 
     public virtual bool ShouldChangePasswordOnNextLogin { get; set; }
@@ -28,22 +33,14 @@ public class User : AbpUser<User>
 
     public List<UserOrganizationUnit> OrganizationUnits { get; set; }
 
-    //Can add application specific user properties here
-
-    public User()
-    {
-        IsLockoutEnabled = true;
-        IsTwoFactorEnabled = true;
-    }
-
     /// <summary>
-    /// Creates admin <see cref="User"/> for a tenant.
+    ///     Creates admin <see cref="User" /> for a tenant.
     /// </summary>
     /// <param name="tenantId">Tenant Id</param>
     /// <param name="emailAddress">Email address</param>
     /// <param name="name">Name of admin user</param>
     /// <param name="surname">Surname of admin user</param>
-    /// <returns>Created <see cref="User"/> object</returns>
+    /// <returns>Created <see cref="User" /> object</returns>
     public static User CreateTenantAdminUser(int tenantId, string emailAddress, string name = null,
         string surname = null)
     {
@@ -83,4 +80,3 @@ public class User : AbpUser<User>
         SignInTokenExpireTimeUtc = Clock.Now.AddMinutes(1).ToUniversalTime();
     }
 }
-

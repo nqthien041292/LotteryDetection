@@ -20,4 +20,3 @@ public class ThemeMenuSettingsDto
 
     public bool HoverableAside { get; set; }
 }
-

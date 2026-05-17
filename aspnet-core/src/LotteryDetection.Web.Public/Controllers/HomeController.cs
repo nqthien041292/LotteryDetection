@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LotteryDetection.Web.Controllers;
+﻿using LotteryDetection.Web.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LotteryDetection.Web.Public.Controllers;
 
@@ -10,4 +10,3 @@ public class HomeController : LotteryDetectionControllerBase
         return View();
     }
 }
-

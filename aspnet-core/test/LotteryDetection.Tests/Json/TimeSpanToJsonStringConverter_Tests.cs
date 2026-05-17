@@ -3,43 +3,43 @@ using Abp.Json;
 using Shouldly;
 using Xunit;
 
-namespace LotteryDetection.Tests.Json
+namespace LotteryDetection.Tests.Json;
+
+public class TimeSpanToJsonStringConverter_Tests
 {
-    public class TimeSpanToJsonStringConverter_Tests
+    [Fact]
+    public void TimeSpanToJsonStringConverter_Test()
     {
-        public class TimeSpanModel
+        var obj = new TimeSpanModel
         {
-            public TimeSpan MyTimeSpan { get; set; }
+            MyTimeSpan = TimeSpan.FromMinutes(72),
+            MyTimeSpan2 = null,
+            MyNullableTimeSpan = null,
+            MyNullableTimeSpan2 = TimeSpan.FromMinutes(72)
+        };
+        var jsonString = obj.ToJsonString();
 
-            public TimeSpan? MyTimeSpan2 { get; set; }
+        //WriteJson assert
+        jsonString.ShouldBe(
+            "{\"MyTimeSpan\":\"01:12:00\",\"MyTimeSpan2\":null,\"MyNullableTimeSpan\":null,\"MyNullableTimeSpan2\":\"01:12:00\"}");
 
-            public TimeSpan? MyNullableTimeSpan { get; set; }
+        var obj2 = jsonString.FromJsonString<TimeSpanModel>();
 
-            public TimeSpan? MyNullableTimeSpan2 { get; set; }
-        }
+        //ReadJson assert
+        obj2.MyTimeSpan.ShouldBe(TimeSpan.FromMinutes(72));
+        obj2.MyTimeSpan2.ShouldBeNull();
+        obj2.MyNullableTimeSpan.ShouldBeNull();
+        obj2.MyNullableTimeSpan2.ShouldBe(TimeSpan.FromMinutes(72));
+    }
 
-        [Fact]
-        public void TimeSpanToJsonStringConverter_Test()
-        {
-            var obj = new TimeSpanModel
-            {
-                MyTimeSpan = TimeSpan.FromMinutes(72),
-                MyTimeSpan2 = null,
-                MyNullableTimeSpan = null,
-                MyNullableTimeSpan2 = TimeSpan.FromMinutes(72)
-            };
-            var jsonString = obj.ToJsonString();
+    public class TimeSpanModel
+    {
+        public TimeSpan MyTimeSpan { get; set; }
 
-            //WriteJson assert
-            jsonString.ShouldBe("{\"MyTimeSpan\":\"01:12:00\",\"MyTimeSpan2\":null,\"MyNullableTimeSpan\":null,\"MyNullableTimeSpan2\":\"01:12:00\"}");
+        public TimeSpan? MyTimeSpan2 { get; set; }
 
-            var obj2 = jsonString.FromJsonString<TimeSpanModel>();
+        public TimeSpan? MyNullableTimeSpan { get; set; }
 
-            //ReadJson assert
-            obj2.MyTimeSpan.ShouldBe(TimeSpan.FromMinutes(72));
-            obj2.MyTimeSpan2.ShouldBeNull();
-            obj2.MyNullableTimeSpan.ShouldBeNull();
-            obj2.MyNullableTimeSpan2.ShouldBe(TimeSpan.FromMinutes(72));
-        }
+        public TimeSpan? MyNullableTimeSpan2 { get; set; }
     }
 }

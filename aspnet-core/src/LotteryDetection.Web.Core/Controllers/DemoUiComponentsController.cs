@@ -5,9 +5,9 @@ using Abp.AspNetCore.Mvc.Authorization;
 using Abp.IO.Extensions;
 using Abp.UI;
 using Abp.Web.Models;
-using Microsoft.AspNetCore.Mvc;
 using LotteryDetection.DemoUiComponents.Dto;
 using LotteryDetection.Storage;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LotteryDetection.Web.Controllers;
 
@@ -29,19 +29,14 @@ public class DemoUiComponentsController : LotteryDetectionControllerBase
             var files = Request.Form.Files;
 
             //Check input
-            if (files == null)
-            {
-                throw new UserFriendlyException(L("File_Empty_Error"));
-            }
+            if (files == null) throw new UserFriendlyException(L("File_Empty_Error"));
 
-            List<UploadFileOutput> filesOutput = new List<UploadFileOutput>();
+            var filesOutput = new List<UploadFileOutput>();
 
             foreach (var file in files)
             {
                 if (file.Length > 1048576) //1MB
-                {
                     throw new UserFriendlyException(L("File_SizeLimit_Error"));
-                }
 
                 byte[] fileBytes;
                 using (var stream = file.OpenReadStream())
@@ -49,7 +44,8 @@ public class DemoUiComponentsController : LotteryDetectionControllerBase
                     fileBytes = stream.GetAllBytes();
                 }
 
-                var fileObject = new BinaryObject(AbpSession.TenantId, fileBytes, $"Demo ui, uploaded file {DateTime.UtcNow}");
+                var fileObject = new BinaryObject(AbpSession.TenantId, fileBytes,
+                    $"Demo ui, uploaded file {DateTime.UtcNow}");
                 await _binaryObjectManager.SaveAsync(fileObject);
 
                 filesOutput.Add(new UploadFileOutput
@@ -67,4 +63,3 @@ public class DemoUiComponentsController : LotteryDetectionControllerBase
         }
     }
 }
-

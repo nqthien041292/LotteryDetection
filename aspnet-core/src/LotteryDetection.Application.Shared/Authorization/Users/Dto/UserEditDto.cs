@@ -9,7 +9,7 @@ namespace LotteryDetection.Authorization.Users.Dto;
 public class UserEditDto : IPassivable
 {
     /// <summary>
-    /// Set null to create a new user. Set user's Id to update a user
+    ///     Set null to create a new user. Set user's Id to update a user
     /// </summary>
     public long? Id { get; set; }
 
@@ -38,13 +38,11 @@ public class UserEditDto : IPassivable
     [DisableAuditing]
     public string Password { get; set; }
 
-    public bool IsActive { get; set; }
-
     public bool ShouldChangePasswordOnNextLogin { get; set; }
 
     public virtual bool IsTwoFactorEnabled { get; set; }
 
     public virtual bool IsLockoutEnabled { get; set; }
 
+    public bool IsActive { get; set; }
 }
-

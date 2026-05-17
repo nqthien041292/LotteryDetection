@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LotteryDetection.Configuration;
+using LotteryDetection.Web;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using LotteryDetection.Configuration;
-using LotteryDetection.Web;
 
 namespace LotteryDetection.EntityFrameworkCore;
 
@@ -14,7 +14,7 @@ public class LotteryDetectionDbContextFactory : IDesignTimeDbContextFactory<Lott
         var builder = new DbContextOptionsBuilder<LotteryDetectionDbContext>();
 
         /*
-         You can provide an environmentName parameter to the AppConfigurations.Get method. 
+         You can provide an environmentName parameter to the AppConfigurations.Get method.
          In this case, AppConfigurations will try to read appsettings.{environmentName}.json.
          Use Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") method or from string[] args to get environment if necessary.
          https://docs.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#args
@@ -24,9 +24,9 @@ public class LotteryDetectionDbContextFactory : IDesignTimeDbContextFactory<Lott
             addUserSecrets: true
         );
 
-        LotteryDetectionDbContextConfigurer.Configure(builder, configuration.GetConnectionString(LotteryDetectionConsts.ConnectionStringName));
+        LotteryDetectionDbContextConfigurer.Configure(builder,
+            configuration.GetConnectionString(LotteryDetectionConsts.ConnectionStringName));
 
         return new LotteryDetectionDbContext(builder.Options);
     }
 }
-

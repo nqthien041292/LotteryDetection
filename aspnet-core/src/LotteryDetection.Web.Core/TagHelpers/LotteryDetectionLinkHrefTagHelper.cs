@@ -15,8 +15,6 @@ public class LotteryDetectionLinkHrefTagHelper : TagHelper
     private readonly IWebHostEnvironment _hostingEnvironment;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public override int Order => -1000 - 1;
-
     public LotteryDetectionLinkHrefTagHelper(
         IWebHostEnvironment hostingEnvironment,
         IHttpContextAccessor httpContextAccessor)
@@ -25,9 +23,12 @@ public class LotteryDetectionLinkHrefTagHelper : TagHelper
         _httpContextAccessor = httpContextAccessor;
     }
 
+    public override int Order => -1000 - 1;
+
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        if (output.Attributes["abp-ignore-href-modification"] != null && output.Attributes["abp-ignore-href-modification"].Value.ToString() == "true")
+        if (output.Attributes["abp-ignore-href-modification"] != null &&
+            output.Attributes["abp-ignore-href-modification"].Value.ToString() == "true")
         {
             base.Process(context, output);
             return;
@@ -47,21 +48,16 @@ public class LotteryDetectionLinkHrefTagHelper : TagHelper
                 ? _httpContextAccessor.HttpContext.Request.PathBase.Value
                 : string.Empty;
 
-            if (!(href.IndexOf(".min.css", StringComparison.InvariantCultureIgnoreCase) >= 0) && href.IndexOf(".css", StringComparison.InvariantCultureIgnoreCase) >= 0)
-            {
+            if (!(href.IndexOf(".min.css", StringComparison.InvariantCultureIgnoreCase) >= 0) &&
+                href.IndexOf(".css", StringComparison.InvariantCultureIgnoreCase) >= 0)
                 href = href.Insert(href.LastIndexOf(".css", StringComparison.InvariantCultureIgnoreCase),
                     ".min");
-            }
 
             output.Attributes.Add(new TagHelperAttribute("href", basePath + href));
 
-            if (_hostingEnvironment.IsProduction())
-            {
-                output.Attributes.Remove(output.Attributes[AbpHrefAttributeName]);
-            }
+            if (_hostingEnvironment.IsProduction()) output.Attributes.Remove(output.Attributes[AbpHrefAttributeName]);
         }
 
         base.Process(context, output);
     }
 }
-

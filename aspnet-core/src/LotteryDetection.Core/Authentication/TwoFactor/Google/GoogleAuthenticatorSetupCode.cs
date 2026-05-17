@@ -7,4 +7,3 @@ public class GoogleAuthenticatorSetupCode
     public string ManualEntryKey { get; internal set; }
     public string QrCodeSetupImageUrl { get; internal set; }
 }
-

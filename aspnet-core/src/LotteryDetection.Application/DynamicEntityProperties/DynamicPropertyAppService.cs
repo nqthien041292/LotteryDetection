@@ -12,9 +12,9 @@ namespace LotteryDetection.DynamicEntityProperties;
 [AbpAuthorize(AppPermissions.Pages_Administration_DynamicProperties)]
 public class DynamicPropertyAppService : LotteryDetectionAppServiceBase, IDynamicPropertyAppService
 {
+    private readonly IDynamicEntityPropertyDefinitionManager _dynamicEntityPropertyDefinitionManager;
     private readonly IDynamicPropertyManager _dynamicPropertyManager;
     private readonly IDynamicPropertyStore _dynamicPropertyStore;
-    private readonly IDynamicEntityPropertyDefinitionManager _dynamicEntityPropertyDefinitionManager;
 
     public DynamicPropertyAppService(
         IDynamicPropertyManager dynamicPropertyManager,

@@ -22,17 +22,17 @@ public class PayPalGatewayManager : LotteryDetectionServiceBase, ITransientDepen
         switch (configuration.Environment)
         {
             case "sandbox":
-                {
-                    return new SandboxEnvironment(configuration.ClientId, configuration.ClientSecret);
-                }
+            {
+                return new SandboxEnvironment(configuration.ClientId, configuration.ClientSecret);
+            }
             case "live":
-                {
-                    return new LiveEnvironment(configuration.ClientId, configuration.ClientSecret);
-                }
+            {
+                return new LiveEnvironment(configuration.ClientId, configuration.ClientSecret);
+            }
             default:
-                {
-                    throw new ApplicationException("Unknown PayPal environment");
-                }
+            {
+                throw new ApplicationException("Unknown PayPal environment");
+            }
         }
     }
 
@@ -43,12 +43,8 @@ public class PayPalGatewayManager : LotteryDetectionServiceBase, ITransientDepen
 
         var response = await _client.Execute(request);
         var payment = response.Result<Order>();
-        if (payment.Status != "COMPLETED")
-        {
-            throw new UserFriendlyException(L("PaymentFailed"));
-        }
+        if (payment.Status != "COMPLETED") throw new UserFriendlyException(L("PaymentFailed"));
 
         return payment.Id;
     }
 }
-

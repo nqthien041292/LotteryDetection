@@ -8,4 +8,3 @@ public enum SubscriptionPaymentStatus
     Cancelled = 4,
     Completed = 5
 }
-

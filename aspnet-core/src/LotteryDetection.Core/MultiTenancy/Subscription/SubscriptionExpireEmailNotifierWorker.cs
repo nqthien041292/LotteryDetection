@@ -17,8 +17,8 @@ public class SubscriptionExpireEmailNotifierWorker : PeriodicBackgroundWorkerBas
     private const int CheckPeriodAsMilliseconds = 1 * 60 * 60 * 1000 * 24; //1 day
 
     private readonly IRepository<Tenant> _tenantRepository;
-    private readonly UserEmailer _userEmailer;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly UserEmailer _userEmailer;
 
     public SubscriptionExpireEmailNotifierWorker(
         AbpTimer timer,
@@ -40,14 +40,17 @@ public class SubscriptionExpireEmailNotifierWorker : PeriodicBackgroundWorkerBas
     {
         _unitOfWorkManager.WithUnitOfWork(() =>
         {
-            var subscriptionRemainingDayCount = Convert.ToInt32(SettingManager.GetSettingValueForApplication(AppSettings.TenantManagement.SubscriptionExpireNotifyDayCount));
+            var subscriptionRemainingDayCount =
+                Convert.ToInt32(
+                    SettingManager.GetSettingValueForApplication(AppSettings.TenantManagement
+                        .SubscriptionExpireNotifyDayCount));
             var dateToCheckRemainingDayCount = Clock.Now.AddDays(subscriptionRemainingDayCount).ToUniversalTime();
 
-            var subscriptionExpiredTenants = _tenantRepository.GetAllList(
-                tenant => tenant.SubscriptionEndDateUtc != null &&
-                          tenant.SubscriptionEndDateUtc.Value.Date == dateToCheckRemainingDayCount.Date &&
-                          tenant.IsActive &&
-                          tenant.EditionId != null
+            var subscriptionExpiredTenants = _tenantRepository.GetAllList(tenant =>
+                tenant.SubscriptionEndDateUtc != null &&
+                tenant.SubscriptionEndDateUtc.Value.Date == dateToCheckRemainingDayCount.Date &&
+                tenant.IsActive &&
+                tenant.EditionId != null
             );
 
             foreach (var tenant in subscriptionExpiredTenants)
@@ -55,7 +58,8 @@ public class SubscriptionExpireEmailNotifierWorker : PeriodicBackgroundWorkerBas
                 Debug.Assert(tenant.EditionId.HasValue);
                 try
                 {
-                    AsyncHelper.RunSync(() => _userEmailer.TryToSendSubscriptionExpiringSoonEmail(tenant.Id, dateToCheckRemainingDayCount));
+                    AsyncHelper.RunSync(() =>
+                        _userEmailer.TryToSendSubscriptionExpiringSoonEmail(tenant.Id, dateToCheckRemainingDayCount));
                 }
                 catch (Exception exception)
                 {
@@ -65,4 +69,3 @@ public class SubscriptionExpireEmailNotifierWorker : PeriodicBackgroundWorkerBas
         });
     }
 }
-

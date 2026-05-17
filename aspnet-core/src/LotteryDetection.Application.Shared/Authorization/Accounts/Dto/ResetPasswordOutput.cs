@@ -6,4 +6,3 @@ public class ResetPasswordOutput
 
     public string UserName { get; set; }
 }
-

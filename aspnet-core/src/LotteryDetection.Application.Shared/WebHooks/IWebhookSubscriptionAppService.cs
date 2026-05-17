@@ -8,15 +8,15 @@ namespace LotteryDetection.WebHooks;
 public interface IWebhookSubscriptionAppService
 {
     /// <summary>
-    /// Returns all subscriptions of tenant
+    ///     Returns all subscriptions of tenant
     /// </summary>
     /// <returns></returns>
     Task<ListResultDto<GetAllSubscriptionsOutput>> GetAllSubscriptions();
 
     /// <summary>
-    /// Returns subscription for given id. 
+    ///     Returns subscription for given id.
     /// </summary>
-    /// <param name="subscriptionId">Unique identifier of <see cref="WebhookSubscriptionInfo"/></param>
+    /// <param name="subscriptionId">Unique identifier of <see cref="WebhookSubscriptionInfo" /></param>
     Task<WebhookSubscription> GetSubscription(string subscriptionId);
 
     Task AddSubscription(WebhookSubscription subscription);
@@ -31,4 +31,3 @@ public interface IWebhookSubscriptionAppService
 
     Task<ListResultDto<GetAllAvailableWebhooksOutput>> GetAllAvailableWebhooks();
 }
-

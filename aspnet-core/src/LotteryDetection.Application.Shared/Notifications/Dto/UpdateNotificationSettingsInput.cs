@@ -8,4 +8,3 @@ public class UpdateNotificationSettingsInput
 
     public List<NotificationSubscriptionDto> Notifications { get; set; }
 }
-

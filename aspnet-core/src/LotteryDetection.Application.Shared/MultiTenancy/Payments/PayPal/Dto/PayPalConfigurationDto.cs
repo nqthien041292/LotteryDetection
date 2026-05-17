@@ -12,4 +12,3 @@ public class PayPalConfigurationDto
 
     public List<string> DisabledFundings { get; set; }
 }
-

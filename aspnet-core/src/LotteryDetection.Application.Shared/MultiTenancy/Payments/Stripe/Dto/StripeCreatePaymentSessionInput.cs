@@ -8,4 +8,3 @@ public class StripeCreatePaymentSessionInput
 
     public string CancelUrl { get; set; }
 }
-

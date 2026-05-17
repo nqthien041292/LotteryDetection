@@ -1,7 +1,7 @@
 ﻿using Abp.Dependency;
 using Castle.Windsor.MsDependencyInjection;
-using Microsoft.Extensions.DependencyInjection;
 using LotteryDetection.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetection.Migrator.DependencyInjection;
 
@@ -16,4 +16,3 @@ public static class ServiceCollectionRegistrar
         WindsorRegistrationHelper.CreateServiceProvider(iocManager.IocContainer, services);
     }
 }
-

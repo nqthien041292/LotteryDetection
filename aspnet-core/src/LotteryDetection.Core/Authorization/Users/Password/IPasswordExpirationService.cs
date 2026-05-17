@@ -6,4 +6,3 @@ public interface IPasswordExpirationService : IDomainService
 {
     void ForcePasswordExpiredUsersToChangeTheirPassword();
 }
-

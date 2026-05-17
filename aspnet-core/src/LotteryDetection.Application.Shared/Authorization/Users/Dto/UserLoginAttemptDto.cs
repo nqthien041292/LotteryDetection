@@ -18,4 +18,3 @@ public class UserLoginAttemptDto
 
     public DateTime CreationTime { get; set; }
 }
-

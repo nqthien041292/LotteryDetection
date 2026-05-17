@@ -4,4 +4,3 @@ public abstract class CreatePaymentResponse
 {
     public abstract string GetId();
 }
-

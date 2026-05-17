@@ -9,6 +9,4 @@ public interface ISupportsRecurringPayments :
     IEventHandler<SubscriptionUpdatedEventData>,
     IEventHandler<SubscriptionCancelledEventData>
 {
-
 }
-

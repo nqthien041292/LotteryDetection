@@ -12,6 +12,4 @@ public class ExternalLoginProviderInfoModel
     public string ClientId { get; set; }
 
     public Dictionary<string, string> AdditionalParams { get; set; }
-
 }
-

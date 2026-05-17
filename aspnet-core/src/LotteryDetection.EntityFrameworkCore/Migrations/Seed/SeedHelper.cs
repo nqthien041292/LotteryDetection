@@ -4,10 +4,10 @@ using Abp.Dependency;
 using Abp.Domain.Uow;
 using Abp.EntityFrameworkCore.Uow;
 using Abp.MultiTenancy;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Migrations.Seed.Host;
 using LotteryDetection.Migrations.Seed.Tenants;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Migrations.Seed;
 
@@ -46,4 +46,3 @@ public static class SeedHelper
         }
     }
 }
-

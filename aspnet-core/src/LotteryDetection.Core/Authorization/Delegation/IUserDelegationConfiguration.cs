@@ -4,4 +4,3 @@ public interface IUserDelegationConfiguration
 {
     bool IsEnabled { get; set; }
 }
-

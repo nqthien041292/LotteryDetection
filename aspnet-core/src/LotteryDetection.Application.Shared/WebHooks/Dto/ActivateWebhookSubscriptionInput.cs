@@ -8,4 +8,3 @@ public class ActivateWebhookSubscriptionInput
 
     public bool IsActive { get; set; }
 }
-

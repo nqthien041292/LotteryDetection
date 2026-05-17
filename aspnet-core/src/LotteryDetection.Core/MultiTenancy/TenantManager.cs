@@ -1,64 +1,60 @@
-﻿using System.Linq;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Abp;
 using Abp.Application.Features;
+using Abp.BackgroundJobs;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
-using Abp.IdentityFramework;
-using Abp.MultiTenancy;
-using LotteryDetection.Authorization.Roles;
-using LotteryDetection.Authorization.Users;
-using LotteryDetection.Editions;
-using LotteryDetection.MultiTenancy.Demo;
-using Abp.Extensions;
-using Abp.Notifications;
-using Abp.Runtime.Security;
-using Microsoft.AspNetCore.Identity;
-using LotteryDetection.Notifications;
-using System;
-using System.Diagnostics;
-using Abp.BackgroundJobs;
 using Abp.Events.Bus;
 using Abp.Events.Bus.Handlers;
+using Abp.Extensions;
+using Abp.IdentityFramework;
 using Abp.Localization;
+using Abp.MultiTenancy;
+using Abp.Notifications;
+using Abp.Runtime.Security;
 using Abp.Runtime.Session;
 using Abp.Threading;
 using Abp.UI;
 using Castle.Core.Logging;
+using LotteryDetection.Authorization.Roles;
+using LotteryDetection.Authorization.Users;
+using LotteryDetection.Editions;
 using LotteryDetection.ExtraProperties;
+using LotteryDetection.MultiTenancy.Demo;
 using LotteryDetection.MultiTenancy.Payments;
 using LotteryDetection.MultiTenancy.Subscription;
+using LotteryDetection.Notifications;
+using Microsoft.AspNetCore.Identity;
 
 namespace LotteryDetection.MultiTenancy;
 
 /// <summary>
-/// Tenant manager.
+///     Tenant manager.
 /// </summary>
 public class TenantManager :
     AbpTenantManager<Tenant, User>,
     IEventHandler<TenantEditionChangedEventData>,
     IEventHandler<RecurringPaymentSucceedEventData>
 {
-    public IAbpSession AbpSession { get; set; }
-    public IEventBus EventBus { get; set; }
-
-    public ILogger Logger { get; set; }
-
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
-    private readonly RoleManager _roleManager;
-    private readonly UserManager _userManager;
-    private readonly IUserEmailer _userEmailer;
-    private readonly INotificationSubscriptionManager _notificationSubscriptionManager;
-    private readonly IAppNotifier _appNotifier;
     private readonly IAbpZeroDbMigrator _abpZeroDbMigrator;
-    private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly IRepository<SubscribableEdition> _subscribableEditionRepository;
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
-    private readonly EditionManager _editionManager;
-    private readonly IPaymentManager _paymentManager;
+    private readonly IAppNotifier _appNotifier;
 
     protected readonly IBackgroundJobManager _backgroundJobManager;
+    private readonly EditionManager _editionManager;
+    private readonly INotificationSubscriptionManager _notificationSubscriptionManager;
+    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IPaymentManager _paymentManager;
+    private readonly RoleManager _roleManager;
+    private readonly IRepository<SubscribableEdition> _subscribableEditionRepository;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
+
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IUserEmailer _userEmailer;
+    private readonly UserManager _userManager;
 
 
     public TenantManager(
@@ -102,6 +98,135 @@ public class TenantManager :
         _subscriptionPaymentRepository = subscriptionPaymentRepository;
     }
 
+    public IAbpSession AbpSession { get; set; }
+    public IEventBus EventBus { get; set; }
+
+    public ILogger Logger { get; set; }
+
+    public void HandleEvent(RecurringPaymentSucceedEventData eventData)
+    {
+        _unitOfWorkManager.WithUnitOfWork(() =>
+        {
+            if (!eventData.Items.Any())
+            {
+                Logger.Warn("There is no item in the recurring payment. " +
+                            "Ignoring the payment: " + eventData.ExternalPaymentId);
+
+                return;
+            }
+
+            var editionItem = eventData.Items.FirstOrDefault();
+            if (editionItem == null || !editionItem.Product.Equals(LotteryDetectionConsts.ProductName))
+            {
+                Logger.Warn(
+                    $"This is not a payment for {LotteryDetectionConsts.ProductName} for edition subscription cycle! " +
+                    $"Ignoring payment: " + eventData.ExternalPaymentId
+                );
+
+                return;
+            }
+
+            if (editionItem.PlanType != PaymentConsts.EditionSubscriptionPlan)
+            {
+                Logger.Warn(
+                    $"This is not a payment for {PaymentConsts.EditionSubscriptionPlan} for edition subscription cycle! " +
+                    $"Ignoring payment: " + eventData.ExternalPaymentId
+                );
+                return;
+            }
+
+            var editionItemValues = editionItem.PlanId.Split('_');
+            var editionName = editionItemValues[0];
+            var paymentPeriodType = Enum.Parse<PaymentPeriodType>(editionItemValues[1]);
+
+            int? editionId;
+            string editionDisplayName;
+
+            using (_unitOfWorkManager.Current.SetTenantId(eventData.TenantId))
+            {
+                var edition = _editionManager.FindByName(editionName);
+                editionId = edition?.Id;
+                editionDisplayName = edition?.DisplayName;
+            }
+
+            if (!editionId.HasValue) throw new ApplicationException("There is no edition for this recurring payment !");
+
+            AsyncHelper.RunSync(() =>
+                UpdateTenantAsync(
+                    eventData.TenantId,
+                    true,
+                    false,
+                    paymentPeriodType,
+                    editionId.Value,
+                    EditionPaymentType.Extend
+                )
+            );
+
+            var payment = new SubscriptionPayment
+            {
+                TenantId = eventData.TenantId,
+                DayCount = (int)paymentPeriodType,
+                PaymentPeriodType = paymentPeriodType,
+                ExternalPaymentId = eventData.ExternalPaymentId,
+                Gateway = SubscriptionPaymentGatewayType.Stripe,
+                IsRecurring = true,
+                SubscriptionPaymentProducts =
+                {
+                    new SubscriptionPaymentProduct(
+                        $"Extend subscription {Convert.ToInt32(paymentPeriodType)} days for {editionDisplayName}",
+                        editionItem.Amount,
+                        1,
+                        editionItem.Amount
+                    )
+                }
+            };
+
+            payment.SetProperty(PaymentConsts.PlanId, editionItem.PlanId);
+            payment.SetAsPaid();
+
+            _subscriptionPaymentRepository.Insert(payment);
+        });
+    }
+
+    public void HandleEvent(TenantEditionChangedEventData eventData)
+    {
+        if (!eventData.OldEditionId.HasValue) return;
+
+        var lastPayment = _paymentManager.GetLastCompletedSubscriptionPayment(
+            eventData.TenantId
+        );
+
+        if (lastPayment == null) return;
+
+        if (!eventData.NewEditionId.HasValue)
+        {
+            EventBus.Trigger(new SubscriptionCancelledEventData
+            {
+                PaymentId = lastPayment.Id,
+                ExternalPaymentId = lastPayment.ExternalPaymentId
+            });
+            return;
+        }
+
+        var edition = _editionManager.GetById(eventData.NewEditionId.Value) as SubscribableEdition;
+        var paymentPeriodType = lastPayment.PaymentPeriodType.Value;
+
+        EventBus.Trigger(new SubscriptionUpdatedEventData
+        {
+            TenantId = eventData.TenantId,
+            PaymentId = lastPayment.Id,
+            ExternalPaymentId = lastPayment.ExternalPaymentId,
+            NewPlanId = edition.GetPlanId(paymentPeriodType),
+            NewPlanAmount = edition.GetPaymentAmountOrNull(paymentPeriodType),
+            Description = $"Edition change by admin from {eventData.OldEditionId} to {eventData.NewEditionId}",
+            ExtraProperties = new ExtraPropertyDictionary
+            {
+                [PaymentConsts.OldEditionId] = eventData.OldEditionId.Value,
+                [PaymentConsts.NewEditionId] = eventData.NewEditionId.Value
+            }
+        });
+    }
+
     public async Task<int> CreateWithAdminUserAsync(
         string tenancyName,
         string name,
@@ -125,10 +250,8 @@ public class TenantManager :
         await CheckEditionAsync(editionId, isInTrialPeriod);
 
         if (isInTrialPeriod && !subscriptionEndDate.HasValue)
-        {
             throw new UserFriendlyException(LocalizationManager.GetString(
                 LotteryDetectionConsts.LocalizationSourceName, "TrialWithoutEndDateErrorMessage"));
-        }
 
         using (var uow = _unitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
         {
@@ -179,9 +302,7 @@ public class TenantManager :
                 {
                     await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
                     foreach (var validator in _userManager.PasswordValidators)
-                    {
                         CheckErrors(await validator.ValidateAsync(_userManager, adminUser, adminPassword));
-                    }
                 }
 
                 adminUser.Password = _passwordHasher.HashPassword(adminUser, adminPassword);
@@ -232,16 +353,10 @@ public class TenantManager :
     {
         await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
         {
-            if (!editionId.HasValue || !isInTrialPeriod)
-            {
-                return;
-            }
+            if (!editionId.HasValue || !isInTrialPeriod) return;
 
             var edition = await _subscribableEditionRepository.GetAsync(editionId.Value);
-            if (!edition.IsFree)
-            {
-                return;
-            }
+            if (!edition.IsFree) return;
 
             var error = LocalizationManager.GetSource(LotteryDetectionConsts.LocalizationSourceName)
                 .GetString("FreeEditionsCannotHaveTrialVersions");
@@ -257,7 +372,7 @@ public class TenantManager :
     public decimal GetUpgradePrice(SubscribableEdition currentEdition, SubscribableEdition targetEdition,
         int totalRemainingHourCount, PaymentPeriodType paymentPeriodType)
     {
-        int numberOfHoursPerDay = 24;
+        var numberOfHoursPerDay = 24;
 
         var totalRemainingDayCount = totalRemainingHourCount / numberOfHoursPerDay;
         var unusedPeriodCount = totalRemainingDayCount / (int)paymentPeriodType;
@@ -272,14 +387,14 @@ public class TenantManager :
         if (currentEditionPrice > 0)
         {
             currentEditionPriceForUnusedPeriod = currentEditionPrice * unusedPeriodCount;
-            currentEditionPriceForUnusedPeriod += (currentEditionPrice / (int)paymentPeriodType) /
+            currentEditionPriceForUnusedPeriod += currentEditionPrice / (int)paymentPeriodType /
                 numberOfHoursPerDay * unusedHoursCount;
         }
 
         if (targetEditionPrice > 0)
         {
             targetEditionPriceForUnusedPeriod = targetEditionPrice * unusedPeriodCount;
-            targetEditionPriceForUnusedPeriod += (targetEditionPrice / (int)paymentPeriodType) /
+            targetEditionPriceForUnusedPeriod += targetEditionPrice / (int)paymentPeriodType /
                 numberOfHoursPerDay * unusedHoursCount;
         }
 
@@ -299,15 +414,10 @@ public class TenantManager :
         tenant.IsActive = isActive;
         tenant.EditionId = editionId;
 
-        if (isInTrialPeriod.HasValue)
-        {
-            tenant.IsInTrialPeriod = isInTrialPeriod.Value;
-        }
+        if (isInTrialPeriod.HasValue) tenant.IsInTrialPeriod = isInTrialPeriod.Value;
 
         if (paymentPeriodType.HasValue)
-        {
             tenant.UpdateSubscriptionDateForPayment(paymentPeriodType.Value, editionPaymentType);
-        }
 
         return tenant;
     }
@@ -316,25 +426,19 @@ public class TenantManager :
         DateTime nowUtc)
     {
         if (tenant.EditionId == null || tenant.HasUnlimitedTimeSubscription())
-        {
             throw new Exception(
                 $"Can not end tenant {tenant.TenancyName} subscription for {edition.DisplayName} tenant has unlimited time subscription!");
-        }
 
-        Debug.Assert(tenant.SubscriptionEndDateUtc != null, "tenant.SubscriptionEndDateUtc != null");
+        Debug.Assert(tenant.SubscriptionEndDateUtc != null);
 
         var subscriptionEndDateUtc = tenant.SubscriptionEndDateUtc.Value;
         if (!tenant.IsInTrialPeriod)
-        {
             subscriptionEndDateUtc =
                 tenant.SubscriptionEndDateUtc.Value.AddDays(edition.WaitingDayAfterExpire ?? 0);
-        }
 
         if (subscriptionEndDateUtc >= nowUtc)
-        {
             throw new Exception(
                 $"Can not end tenant {tenant.TenancyName} subscription for {edition.DisplayName} since subscription has not expired yet!");
-        }
 
         if (!tenant.IsInTrialPeriod && edition.ExpiringEditionId.HasValue)
         {
@@ -357,10 +461,8 @@ public class TenantManager :
     public override Task UpdateAsync(Tenant tenant)
     {
         if (tenant.IsInTrialPeriod && !tenant.SubscriptionEndDateUtc.HasValue)
-        {
             throw new UserFriendlyException(LocalizationManager.GetString(
                 LotteryDetectionConsts.LocalizationSourceName, "TrialWithoutEndDateErrorMessage"));
-        }
 
         return base.UpdateAsync(tenant);
     }
@@ -369,10 +471,7 @@ public class TenantManager :
     {
         var lastPayment =
             await _subscriptionPaymentRepository.GetLastCompletedPaymentOrDefaultAsync(tenantId, null, null);
-        if (lastPayment == null)
-        {
-            return PaymentPeriodType.Monthly;
-        }
+        if (lastPayment == null) return PaymentPeriodType.Monthly;
 
         return lastPayment.PaymentPeriodType ?? PaymentPeriodType.Monthly;
     }
@@ -381,22 +480,15 @@ public class TenantManager :
     {
         var tenant = await GetByIdAsync(AbpSession.GetTenantId());
 
-        if (!tenant.EditionId.HasValue)
-        {
-            throw new ArgumentException("tenant.EditionId can not be null");
-        }
+        if (!tenant.EditionId.HasValue) throw new ArgumentException("tenant.EditionId can not be null");
 
         var currentEdition = await _editionManager.GetByIdAsync(tenant.EditionId.Value);
         if (!((SubscribableEdition)currentEdition).IsFree)
-        {
             throw new ArgumentException("You can only switch between free editions. Current edition if not free");
-        }
 
         var upgradeEdition = await _editionManager.GetByIdAsync(upgradeEditionId);
         if (!((SubscribableEdition)upgradeEdition).IsFree)
-        {
             throw new ArgumentException("You can only switch between free editions. Target edition if not free");
-        }
 
         await UpdateTenantAsync(
             tenant.Id,
@@ -407,138 +499,4 @@ public class TenantManager :
             EditionPaymentType.Upgrade
         );
     }
-
-    public void HandleEvent(TenantEditionChangedEventData eventData)
-    {
-        if (!eventData.OldEditionId.HasValue)
-        {
-            return;
-        }
-
-        var lastPayment = _paymentManager.GetLastCompletedSubscriptionPayment(
-            eventData.TenantId
-        );
-
-        if (lastPayment == null)
-        {
-            return;
-        }
-
-        if (!eventData.NewEditionId.HasValue)
-        {
-            EventBus.Trigger(new SubscriptionCancelledEventData
-            {
-                PaymentId = lastPayment.Id,
-                ExternalPaymentId = lastPayment.ExternalPaymentId
-            });
-            return;
-        }
-
-        var edition = _editionManager.GetById(eventData.NewEditionId.Value) as SubscribableEdition;
-        var paymentPeriodType = lastPayment.PaymentPeriodType.Value;
-
-        EventBus.Trigger(new SubscriptionUpdatedEventData
-        {
-            TenantId = eventData.TenantId,
-            PaymentId = lastPayment.Id,
-            ExternalPaymentId = lastPayment.ExternalPaymentId,
-            NewPlanId = edition.GetPlanId(paymentPeriodType),
-            NewPlanAmount = edition.GetPaymentAmountOrNull(paymentPeriodType),
-            Description = $"Edition change by admin from {eventData.OldEditionId} to {eventData.NewEditionId}",
-            ExtraProperties = new ExtraPropertyDictionary
-            {
-                [PaymentConsts.OldEditionId] = eventData.OldEditionId.Value,
-                [PaymentConsts.NewEditionId] = eventData.NewEditionId.Value,
-            }
-        });
-    }
-
-    public void HandleEvent(RecurringPaymentSucceedEventData eventData)
-    {
-        _unitOfWorkManager.WithUnitOfWork(() =>
-        {
-            if (!eventData.Items.Any())
-            {
-                Logger.Warn("There is no item in the recurring payment. " +
-                            "Ignoring the payment: " + eventData.ExternalPaymentId);
-
-                return;
-            }
-
-            var editionItem = eventData.Items.FirstOrDefault();
-            if (editionItem == null || !editionItem.Product.Equals(LotteryDetectionConsts.ProductName))
-            {
-                Logger.Warn(
-                    $"This is not a payment for {LotteryDetectionConsts.ProductName} for edition subscription cycle! " +
-                    $"Ignoring payment: " + eventData.ExternalPaymentId
-                );
-
-                return;
-            }
-
-            if (editionItem.PlanType != PaymentConsts.EditionSubscriptionPlan)
-            {
-                Logger.Warn(
-                    $"This is not a payment for {PaymentConsts.EditionSubscriptionPlan} for edition subscription cycle! " +
-                    $"Ignoring payment: " + eventData.ExternalPaymentId
-                );
-                return;
-            }
-
-            var editionItemValues = editionItem.PlanId.Split('_');
-            var editionName = editionItemValues[0];
-            var paymentPeriodType = Enum.Parse<PaymentPeriodType>(editionItemValues[1]);
-
-            int? editionId;
-            string editionDisplayName;
-
-            using (_unitOfWorkManager.Current.SetTenantId(eventData.TenantId))
-            {
-                var edition = _editionManager.FindByName(editionName);
-                editionId = edition?.Id;
-                editionDisplayName = edition?.DisplayName;
-            }
-
-            if (!editionId.HasValue)
-            {
-                throw new ApplicationException("There is no edition for this recurring payment !");
-            }
-
-            AsyncHelper.RunSync(() =>
-                UpdateTenantAsync(
-                    eventData.TenantId,
-                    isActive: true,
-                    isInTrialPeriod: false,
-                    paymentPeriodType,
-                    editionId.Value,
-                    EditionPaymentType.Extend
-                )
-            );
-
-            var payment = new SubscriptionPayment
-            {
-                TenantId = eventData.TenantId,
-                DayCount = (int)paymentPeriodType,
-                PaymentPeriodType = paymentPeriodType,
-                ExternalPaymentId = eventData.ExternalPaymentId,
-                Gateway = SubscriptionPaymentGatewayType.Stripe,
-                IsRecurring = true,
-                SubscriptionPaymentProducts =
-                {
-                        new SubscriptionPaymentProduct(
-                            $"Extend subscription {Convert.ToInt32(paymentPeriodType)} days for {editionDisplayName}",
-                            editionItem.Amount,
-                            1,
-                            totalAmount: editionItem.Amount
-                        )
-                }
-            };
-
-            payment.SetProperty(PaymentConsts.PlanId, editionItem.PlanId);
-            payment.SetAsPaid();
-
-            _subscriptionPaymentRepository.Insert(payment);
-        });
-    }
 }
-

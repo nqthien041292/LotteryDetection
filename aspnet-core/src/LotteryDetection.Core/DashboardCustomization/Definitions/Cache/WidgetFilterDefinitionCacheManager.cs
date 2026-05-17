@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Abp.Runtime.Caching;
 
 namespace LotteryDetection.DashboardCustomization.Definitions.Cache;
@@ -26,4 +25,3 @@ public class WidgetFilterDefinitionCacheManager : IWidgetFilterDefinitionCacheMa
         _cache.Set(WidgetFilterDefinitionCacheItemName, definition);
     }
 }
-

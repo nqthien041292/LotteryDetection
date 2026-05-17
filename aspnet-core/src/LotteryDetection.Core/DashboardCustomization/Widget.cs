@@ -12,4 +12,3 @@ public class Widget
 
     public byte PositionY { get; set; }
 }
-

@@ -4,12 +4,6 @@ namespace LotteryDetection.Web.Public.Views.Shared.Components.Header;
 
 public class HeaderMenuItemViewModel
 {
-    public UserMenuItem MenuItem { get; set; }
-
-    public int CurrentLevel { get; set; }
-
-    public string CurrentPageName { get; set; }
-
     public HeaderMenuItemViewModel(
         UserMenuItem menuItem,
         int currentLevel,
@@ -19,5 +13,10 @@ public class HeaderMenuItemViewModel
         CurrentLevel = currentLevel;
         CurrentPageName = currentPageName;
     }
-}
 
+    public UserMenuItem MenuItem { get; set; }
+
+    public int CurrentLevel { get; set; }
+
+    public string CurrentPageName { get; set; }
+}

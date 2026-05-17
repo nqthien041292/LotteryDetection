@@ -20,4 +20,3 @@ public class GetUserForEditOutput
 
     public bool IsSMTPSettingsProvided { get; set; }
 }
-

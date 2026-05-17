@@ -1,8 +1,8 @@
 ﻿namespace LotteryDetection.Configuration;
 
 /// <summary>
-/// Defines string constants for setting names in the application.
-/// See <see cref="AppSettingProvider"/> for setting definitions.
+///     Defines string constants for setting names in the application.
+///     See <see cref="AppSettingProvider" /> for setting definitions.
 /// </summary>
 public static class AppSettings
 {
@@ -71,7 +71,10 @@ public static class AppSettings
     public static class TenantManagement
     {
         public const string AllowSelfRegistration = "App.TenantManagement.AllowSelfRegistration";
-        public const string IsNewRegisteredTenantActiveByDefault = "App.TenantManagement.IsNewRegisteredTenantActiveByDefault";
+
+        public const string IsNewRegisteredTenantActiveByDefault =
+            "App.TenantManagement.IsNewRegisteredTenantActiveByDefault";
+
         public const string UseCaptchaOnRegistration = "App.TenantManagement.UseCaptchaOnRegistration";
         public const string UseCaptchaOnEmailActivation = "App.TenantManagement.UseCaptchaOnEmailActivation";
         public const string UseCaptchaOnResetPassword = "App.TenantManagement.UseCaptchaOnResetPassword";
@@ -85,28 +88,12 @@ public static class AppSettings
 
     public static class UserManagement
     {
-        public static class TwoFactorLogin
-        {
-            public const string IsGoogleAuthenticatorEnabled = "App.UserManagement.TwoFactorLogin.IsGoogleAuthenticatorEnabled";
-        }
-
-        public static class PasswordlessLogin
-        {
-            public const string IsEmailPasswordlessLoginEnabled = "App.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled";
-            public const string IsSmsPasswordlessLoginEnabled = "App.UserManagement.PasswordlessLogin.IsSmsPasswordlessLoginEnabled";
-        }
-
-        public static class SessionTimeOut
-        {
-            public const string IsEnabled = "App.UserManagement.SessionTimeOut.IsEnabled";
-            public const string TimeOutSecond = "App.UserManagement.SessionTimeOut.TimeOutSecond";
-            public const string ShowTimeOutNotificationSecond = "App.UserManagement.SessionTimeOut.ShowTimeOutNotificationSecond";
-            public const string ShowLockScreenWhenTimedOut = "App.UserManagement.SessionTimeOut.ShowLockScreenWhenTimedOut";
-        }
-
         public const string IsQrLoginEnabled = "App.UserManagement.IsQrLoginEnabled";
         public const string AllowSelfRegistration = "App.UserManagement.AllowSelfRegistration";
-        public const string IsNewRegisteredUserActiveByDefault = "App.UserManagement.IsNewRegisteredUserActiveByDefault";
+
+        public const string IsNewRegisteredUserActiveByDefault =
+            "App.UserManagement.IsNewRegisteredUserActiveByDefault";
+
         public const string UseCaptchaOnRegistration = "App.UserManagement.UseCaptchaOnRegistration";
         public const string UseCaptchaOnLogin = "App.UserManagement.UseCaptchaOnLogin";
         public const string UseCaptchaOnEmailActivation = "App.UserManagement.UseCaptchaOnEmailActivation";
@@ -123,13 +110,44 @@ public static class AppSettings
         public const string MaxProfilePictureWidth = "App.UserManagement.MaxProfilePictureWidth";
         public const string MaxProfilePictureHeight = "App.UserManagement.MaxProfilePictureHeight";
 
+        public static class TwoFactorLogin
+        {
+            public const string IsGoogleAuthenticatorEnabled =
+                "App.UserManagement.TwoFactorLogin.IsGoogleAuthenticatorEnabled";
+        }
+
+        public static class PasswordlessLogin
+        {
+            public const string IsEmailPasswordlessLoginEnabled =
+                "App.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled";
+
+            public const string IsSmsPasswordlessLoginEnabled =
+                "App.UserManagement.PasswordlessLogin.IsSmsPasswordlessLoginEnabled";
+        }
+
+        public static class SessionTimeOut
+        {
+            public const string IsEnabled = "App.UserManagement.SessionTimeOut.IsEnabled";
+            public const string TimeOutSecond = "App.UserManagement.SessionTimeOut.TimeOutSecond";
+
+            public const string ShowTimeOutNotificationSecond =
+                "App.UserManagement.SessionTimeOut.ShowTimeOutNotificationSecond";
+
+            public const string ShowLockScreenWhenTimedOut =
+                "App.UserManagement.SessionTimeOut.ShowLockScreenWhenTimedOut";
+        }
+
         public static class Password
         {
-            public const string EnableCheckingLastXPasswordWhenPasswordChange = "App.UserManagement.EnableCheckingLastXPasswordWhenPasswordChange";
+            public const string EnableCheckingLastXPasswordWhenPasswordChange =
+                "App.UserManagement.EnableCheckingLastXPasswordWhenPasswordChange";
+
             public const string CheckingLastXPasswordCount = "App.UserManagement.CheckingLastXPasswordCount";
             public const string EnablePasswordExpiration = "App.UserManagement.EnablePasswordExpiration";
             public const string PasswordExpirationDayCount = "App.UserManagement.PasswordExpirationDayCount";
-            public const string PasswordResetCodeExpirationHours = "App.UserManagement.PasswordResetCodeExpirationHours";
+
+            public const string PasswordResetCodeExpirationHours =
+                "App.UserManagement.PasswordResetCodeExpirationHours";
         }
     }
 
@@ -175,4 +193,3 @@ public static class AppSettings
         }
     }
 }
-

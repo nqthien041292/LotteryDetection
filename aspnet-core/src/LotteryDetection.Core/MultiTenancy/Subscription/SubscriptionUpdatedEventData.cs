@@ -5,6 +5,11 @@ namespace LotteryDetection.MultiTenancy.Subscription;
 
 public class SubscriptionUpdatedEventData : EventData
 {
+    public SubscriptionUpdatedEventData()
+    {
+        ExtraProperties = new ExtraPropertyDictionary();
+    }
+
     public int TenantId { get; set; }
 
     public long PaymentId { get; set; }
@@ -18,10 +23,4 @@ public class SubscriptionUpdatedEventData : EventData
     public string Description { get; set; }
 
     public ExtraPropertyDictionary ExtraProperties { get; set; }
-
-    public SubscriptionUpdatedEventData()
-    {
-        ExtraProperties = new ExtraPropertyDictionary();
-    }
 }
-

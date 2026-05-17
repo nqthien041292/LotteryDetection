@@ -10,4 +10,3 @@ public class CaptchaSettingsEditDto
 
     public bool UseCaptchaOnLogin { get; set; }
 }
-

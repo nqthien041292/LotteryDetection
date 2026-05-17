@@ -2,15 +2,8 @@
 
 public class IsTenantAvailableOutput
 {
-    public TenantAvailabilityState State { get; set; }
-
-    public int? TenantId { get; set; }
-
-    public string ServerRootAddress { get; set; }
-
     public IsTenantAvailableOutput()
     {
-
     }
 
     public IsTenantAvailableOutput(TenantAvailabilityState state, int? tenantId = null)
@@ -25,5 +18,10 @@ public class IsTenantAvailableOutput
         TenantId = tenantId;
         ServerRootAddress = serverRootAddress;
     }
-}
 
+    public TenantAvailabilityState State { get; set; }
+
+    public int? TenantId { get; set; }
+
+    public string ServerRootAddress { get; set; }
+}

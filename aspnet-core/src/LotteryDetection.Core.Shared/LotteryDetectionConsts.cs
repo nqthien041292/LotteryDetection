@@ -5,7 +5,7 @@ public class LotteryDetectionConsts
     public const string LocalizationSourceName = "LotteryDetection";
 
     /// <summary>
-    /// Name of the product if the app itself is sold as a SAAS product.
+    ///     Name of the product if the app itself is sold as a SAAS product.
     /// </summary>
     public const string ProductName = "LotteryDetection";
 
@@ -14,7 +14,7 @@ public class LotteryDetectionConsts
     public const bool MultiTenancyEnabled = true;
 
     /// <summary>
-    /// Redirects users to host URL when using subdomain as tenancy name for not existing tenants
+    ///     Redirects users to host URL when using subdomain as tenancy name for not existing tenants
     /// </summary>
     public const bool PreventNotExistingTenantSubdomains = false;
 
@@ -36,4 +36,3 @@ public class LotteryDetectionConsts
 
     public const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:sszzz";
 }
-

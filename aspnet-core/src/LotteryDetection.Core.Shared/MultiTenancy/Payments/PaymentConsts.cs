@@ -14,6 +14,4 @@ public class PaymentConsts
     public const string PaymentPeriodType = "PaymentPeriodType";
 
     public const string EditionSubscriptionPlan = "EditionSubscriptionPlan";
-
 }
-

@@ -20,4 +20,3 @@ public class ChatUserDto : EntityDto<long>
 
     public FriendshipState State { get; set; }
 }
-

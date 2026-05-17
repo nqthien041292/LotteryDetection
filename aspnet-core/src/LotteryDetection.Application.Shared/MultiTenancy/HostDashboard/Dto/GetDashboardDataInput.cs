@@ -5,6 +5,7 @@ namespace LotteryDetection.MultiTenancy.HostDashboard.Dto;
 public class GetDashboardDataInput : DashboardInputBase, IShouldNormalize
 {
     public ChartDateInterval IncomeStatisticsDateInterval { get; set; }
+
     public void Normalize()
     {
         TrimTime();
@@ -16,4 +17,3 @@ public class GetDashboardDataInput : DashboardInputBase, IShouldNormalize
         StartDate = StartDate.Date;
     }
 }
-

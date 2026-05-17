@@ -16,4 +16,3 @@ public class PasswordlessAuthenticateResultModel
 
     public int RefreshTokenExpireInSeconds { get; set; }
 }
-

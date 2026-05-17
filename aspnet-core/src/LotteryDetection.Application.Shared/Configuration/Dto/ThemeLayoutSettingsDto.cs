@@ -6,4 +6,3 @@ public class ThemeLayoutSettingsDto
 
     public bool DarkMode { get; set; }
 }
-

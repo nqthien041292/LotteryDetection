@@ -15,4 +15,3 @@ public class EditionsSelectOutput
 
     public List<EditionWithFeaturesDto> EditionsWithFeatures { get; set; }
 }
-

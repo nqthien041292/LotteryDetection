@@ -5,22 +5,22 @@ using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Permissions;
 using LotteryDetection.Authorization.Permissions.Dto;
 using LotteryDetection.Authorization.Roles.Dto;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Authorization.Roles;
 
 /// <summary>
-/// Application service that is used by 'role management' page.
+///     Application service that is used by 'role management' page.
 /// </summary>
 [AbpAuthorize(AppPermissions.Pages_Administration_Roles)]
 public class RoleAppService : LotteryDetectionAppServiceBase, IRoleAppService
 {
-    private readonly RoleManager _roleManager;
     private readonly IRoleManagementConfig _roleManagementConfig;
+    private readonly RoleManager _roleManager;
 
     public RoleAppService(
         RoleManager roleManager,
@@ -39,19 +39,16 @@ public class RoleAppService : LotteryDetectionAppServiceBase, IRoleAppService
         {
             input.Permissions = input.Permissions.Where(p => !string.IsNullOrEmpty(p)).ToList();
 
-            var staticRoleNames = _roleManagementConfig.StaticRoles.Where(
-                r => r.GrantAllPermissionsByDefault &&
-                     r.Side == AbpSession.MultiTenancySide
+            var staticRoleNames = _roleManagementConfig.StaticRoles.Where(r => r.GrantAllPermissionsByDefault &&
+                                                                               r.Side == AbpSession.MultiTenancySide
             ).Select(r => r.RoleName).ToList();
 
             foreach (var permission in input.Permissions)
-            {
                 query = query.Where(r =>
                     r.Permissions.Any(rp => rp.Name == permission)
                         ? r.Permissions.Any(rp => rp.Name == permission && rp.IsGranted)
                         : staticRoleNames.Contains(r.Name)
                 );
-            }
         }
 
         var roles = await query.ToListAsync();
@@ -88,13 +85,9 @@ public class RoleAppService : LotteryDetectionAppServiceBase, IRoleAppService
     public async Task CreateOrUpdateRole(CreateOrUpdateRoleInput input)
     {
         if (input.Role.Id.HasValue)
-        {
             await UpdateRoleAsync(input);
-        }
         else
-        {
             await CreateRoleAsync(input);
-        }
     }
 
     [AbpAuthorize(AppPermissions.Pages_Administration_Roles_Delete)]
@@ -103,10 +96,7 @@ public class RoleAppService : LotteryDetectionAppServiceBase, IRoleAppService
         var role = await _roleManager.GetRoleByIdAsync(input.Id);
 
         var users = await UserManager.GetUsersInRoleAsync(role.Name);
-        foreach (var user in users)
-        {
-            CheckErrors(await UserManager.RemoveFromRoleAsync(user, role.Name));
-        }
+        foreach (var user in users) CheckErrors(await UserManager.RemoveFromRoleAsync(user, role.Name));
 
         CheckErrors(await _roleManager.DeleteAsync(role));
     }

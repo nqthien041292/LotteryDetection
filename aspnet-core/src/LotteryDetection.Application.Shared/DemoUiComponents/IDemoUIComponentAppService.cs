@@ -22,4 +22,3 @@ public interface IDemoUiComponentsAppService : IApplicationService
 
     StringOutput SendAndGetValue(string input);
 }
-

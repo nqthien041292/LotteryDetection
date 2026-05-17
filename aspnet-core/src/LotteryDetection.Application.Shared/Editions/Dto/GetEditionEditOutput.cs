@@ -11,4 +11,3 @@ public class GetEditionEditOutput
 
     public List<FlatFeatureDto> Features { get; set; }
 }
-

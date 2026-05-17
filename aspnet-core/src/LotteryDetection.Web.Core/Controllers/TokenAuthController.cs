@@ -10,77 +10,74 @@ using Abp.AspNetCore.Mvc.Authorization;
 using Abp.AspNetZeroCore.Web.Authentication.External;
 using Abp.Authorization;
 using Abp.Authorization.Users;
-using Abp.MultiTenancy;
 using Abp.Configuration;
 using Abp.Extensions;
 using Abp.Localization;
+using Abp.MultiTenancy;
 using Abp.Net.Mail;
 using Abp.Notifications;
 using Abp.Runtime.Caching;
 using Abp.Runtime.Security;
 using Abp.Runtime.Session;
+using Abp.Runtime.Validation;
 using Abp.Timing;
 using Abp.UI;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using LotteryDetection.Authentication.TwoFactor;
 using LotteryDetection.Authentication.TwoFactor.Google;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Accounts.Dto;
-using LotteryDetection.Authorization.Users;
-using LotteryDetection.MultiTenancy;
-using LotteryDetection.Web.Authentication.JwtBearer;
-using LotteryDetection.Web.Authentication.TwoFactor;
-using LotteryDetection.Web.Models.TokenAuth;
+using LotteryDetection.Authorization.Delegation;
 using LotteryDetection.Authorization.Impersonation;
+using LotteryDetection.Authorization.PasswordlessLogin;
+using LotteryDetection.Authorization.QrLogin;
 using LotteryDetection.Authorization.Roles;
+using LotteryDetection.Authorization.Users;
 using LotteryDetection.Configuration;
 using LotteryDetection.Identity;
+using LotteryDetection.MultiTenancy;
 using LotteryDetection.Net.Sms;
 using LotteryDetection.Notifications;
 using LotteryDetection.Security.Recaptcha;
 using LotteryDetection.Web.Authentication.External;
+using LotteryDetection.Web.Authentication.JwtBearer;
+using LotteryDetection.Web.Authentication.TwoFactor;
 using LotteryDetection.Web.Common;
-using LotteryDetection.Authorization.Delegation;
-using Abp.Runtime.Validation;
-using Microsoft.AspNetCore.SignalR;
-using LotteryDetection.Authorization.PasswordlessLogin;
-using LotteryDetection.Authorization.QrLogin;
+using LotteryDetection.Web.Models.TokenAuth;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LotteryDetection.Web.Controllers;
 
 [Route("api/[controller]/[action]")]
 public class TokenAuthController : LotteryDetectionControllerBase
 {
-    private readonly LogInManager _logInManager;
-    private readonly ITenantCache _tenantCache;
     private readonly AbpLoginResultTypeHelper _abpLoginResultTypeHelper;
-    private readonly TokenAuthConfiguration _configuration;
-    private readonly UserManager _userManager;
+    private readonly IAppNotifier _appNotifier;
     private readonly ICacheManager _cacheManager;
-    private readonly IOptions<AsyncJwtBearerOptions> _jwtOptions;
+    private readonly AbpUserClaimsPrincipalFactory<User, Role> _claimsPrincipalFactory;
+    private readonly TokenAuthConfiguration _configuration;
+    private readonly IEmailSender _emailSender;
     private readonly IExternalAuthConfiguration _externalAuthConfiguration;
     private readonly IExternalAuthManager _externalAuthManager;
-    private readonly UserRegistrationManager _userRegistrationManager;
-    private readonly IImpersonationManager _impersonationManager;
-    private readonly IUserLinkManager _userLinkManager;
-    private readonly IAppNotifier _appNotifier;
-    private readonly ISmsSender _smsSender;
-    private readonly IEmailSender _emailSender;
-    private readonly IdentityOptions _identityOptions;
-    private readonly GoogleAuthenticatorProvider _googleAuthenticatorProvider;
     private readonly ExternalLoginInfoManagerFactory _externalLoginInfoManagerFactory;
-    private readonly ISettingManager _settingManager;
-    private readonly IJwtSecurityStampHandler _securityStampHandler;
-    private readonly AbpUserClaimsPrincipalFactory<User, Role> _claimsPrincipalFactory;
-    private readonly IUserDelegationManager _userDelegationManager;
+    private readonly GoogleAuthenticatorProvider _googleAuthenticatorProvider;
+    private readonly IdentityOptions _identityOptions;
+    private readonly IImpersonationManager _impersonationManager;
+    private readonly IOptions<AsyncJwtBearerOptions> _jwtOptions;
+    private readonly LogInManager _logInManager;
     private readonly IPasswordlessLoginManager _passwordlessLoginManager;
     private readonly IQrLoginManager _qrLoginManager;
-
-    public IRecaptchaValidator RecaptchaValidator { get; set; }
+    private readonly IJwtSecurityStampHandler _securityStampHandler;
+    private readonly ISettingManager _settingManager;
+    private readonly ISmsSender _smsSender;
+    private readonly ITenantCache _tenantCache;
+    private readonly IUserDelegationManager _userDelegationManager;
+    private readonly IUserLinkManager _userLinkManager;
+    private readonly UserManager _userManager;
+    private readonly UserRegistrationManager _userRegistrationManager;
 
     public TokenAuthController(
         LogInManager logInManager,
@@ -136,6 +133,8 @@ public class TokenAuthController : LotteryDetectionControllerBase
         _qrLoginManager = qrLoginManager;
     }
 
+    public IRecaptchaValidator RecaptchaValidator { get; set; }
+
     private async Task<string> EncryptQueryParameters(long userId, Tenant tenant, string passwordResetCode)
     {
         var expirationHours = await _settingManager.GetSettingValueAsync<int>(
@@ -147,10 +146,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
         var query = $"userId={userId}&resetCode={passwordResetCode}&expireDate={expireDate}";
 
-        if (tenant != null)
-        {
-            query += $"&tenantId={tenant.Id}";
-        }
+        if (tenant != null) query += $"&tenantId={tenant.Id}";
 
         return SimpleStringCipher.Instance.Encrypt(query);
     }
@@ -159,10 +155,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
     [HttpPost]
     public async Task<AuthenticateResultModel> Authenticate([FromBody] AuthenticateModel model)
     {
-        if (UseCaptchaOnLogin())
-        {
-            await ValidateReCaptcha(model.CaptchaResponse);
-        }
+        if (UseCaptchaOnLogin()) await ValidateReCaptcha(model.CaptchaResponse);
 
         var loginResult = await GetLoginResultAsync(
             model.UserNameOrEmailAddress,
@@ -188,7 +181,8 @@ public class TokenAuthController : LotteryDetectionControllerBase
             {
                 ShouldResetPassword = true,
                 ReturnUrl = returnUrl,
-                c = await EncryptQueryParameters(loginResult.User.Id, loginResult.Tenant, loginResult.User.PasswordResetCode)
+                c = await EncryptQueryParameters(loginResult.User.Id, loginResult.Tenant,
+                    loginResult.User.PasswordResetCode)
             };
         }
 
@@ -221,10 +215,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
         }
 
         // One Concurrent Login 
-        if (AllowOneConcurrentLoginPerUser())
-        {
-            await ResetSecurityStampForLoginResult(loginResult);
-        }
+        if (AllowOneConcurrentLoginPerUser()) await ResetSecurityStampForLoginResult(loginResult);
 
         var refreshToken = CreateRefreshToken(
             await CreateJwtClaims(
@@ -254,7 +245,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
             ReturnUrl = returnUrl
         };
     }
-    
+
     [AbpAuthorize]
     [HttpPost]
     public async Task AuthenticateWithQrCode([FromBody] QrLoginAuthenticateModel model)
@@ -263,7 +254,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
         var user = await _userManager.GetUserByIdAsync(AbpSession.GetUserId());
         var loginResult = await _logInManager.CreateLoginResultAsync(user);
-        
+
         var refreshToken = CreateRefreshToken(
             await CreateJwtClaims(
                 loginResult.Identity,
@@ -279,9 +270,9 @@ public class TokenAuthController : LotteryDetectionControllerBase
                 refreshTokenKey: refreshToken.key
             )
         );
-        
+
         await _qrLoginManager.RemoveQrLoginCache(model.ConnectionId);
-        
+
         await _qrLoginManager.SendAuthData(model.ConnectionId, new QrLoginAuthenticateResultModel
         {
             AccessToken = accessToken,
@@ -293,17 +284,12 @@ public class TokenAuthController : LotteryDetectionControllerBase
     }
 
     [HttpPost]
-    public async Task<PasswordlessAuthenticateResultModel> PasswordlessAuthenticate([FromBody] PasswordlessAuthenticateModel model)
+    public async Task<PasswordlessAuthenticateResultModel> PasswordlessAuthenticate(
+        [FromBody] PasswordlessAuthenticateModel model)
     {
-        if (UseCaptchaOnLogin())
-        {
-            await ValidateReCaptcha(model.CaptchaResponse);
-        }
+        if (UseCaptchaOnLogin()) await ValidateReCaptcha(model.CaptchaResponse);
 
-        if (model.VerificationCode.IsNullOrEmpty())
-        {
-            return new PasswordlessAuthenticateResultModel();
-        }
+        if (model.VerificationCode.IsNullOrEmpty()) return new PasswordlessAuthenticateResultModel();
 
         await _passwordlessLoginManager.VerifyPasswordlessLoginCode(
             AbpSession.TenantId,
@@ -329,8 +315,8 @@ public class TokenAuthController : LotteryDetectionControllerBase
         }
 
         var refreshToken = CreateRefreshToken(
-        await CreateJwtClaims(
-        loginResult.Identity,
+            await CreateJwtClaims(
+                loginResult.Identity,
                 loginResult.User,
                 tokenType: TokenType.RefreshToken
             )
@@ -364,17 +350,11 @@ public class TokenAuthController : LotteryDetectionControllerBase
     [HttpPost]
     public async Task<RefreshTokenResult> RefreshToken(string refreshToken)
     {
-        if (string.IsNullOrWhiteSpace(refreshToken))
-        {
-            throw new ArgumentNullException(nameof(refreshToken));
-        }
+        if (string.IsNullOrWhiteSpace(refreshToken)) throw new ArgumentNullException(nameof(refreshToken));
 
         var (isRefreshTokenValid, principal) = await IsRefreshTokenValid(refreshToken);
 
-        if (!isRefreshTokenValid)
-        {
-            throw new AbpValidationException("Refresh token is not valid!");
-        }
+        if (!isRefreshTokenValid) throw new AbpValidationException("Refresh token is not valid!");
 
         try
         {
@@ -426,18 +406,13 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
             var refreshTokenValidityKeyInClaims =
                 User.Claims.FirstOrDefault(c => c.Type == AppConsts.RefreshTokenValidityKey);
-            if (refreshTokenValidityKeyInClaims != null)
-            {
-                await RemoveTokenAsync(refreshTokenValidityKeyInClaims.Value);
-            }
+            if (refreshTokenValidityKeyInClaims != null) await RemoveTokenAsync(refreshTokenValidityKeyInClaims.Value);
 
             if (AllowOneConcurrentLoginPerUser())
-            {
                 await _securityStampHandler.RemoveSecurityStampCacheItem(
                     AbpSession.TenantId,
                     AbpSession.GetUserId()
                 );
-            }
         }
     }
 
@@ -460,10 +435,8 @@ public class TokenAuthController : LotteryDetectionControllerBase
             .GetOrDefaultAsync(cacheKey);
 
         if (cacheItem == null)
-        {
             //There should be a cache item added in Authenticate method! This check is needed to prevent sending unwanted two factor code to users.
             throw new UserFriendlyException(L("SendSecurityCodeErrorMessage"));
-        }
 
         var user = await _userManager.FindByIdAsync(model.UserId.ToString());
 
@@ -473,14 +446,10 @@ public class TokenAuthController : LotteryDetectionControllerBase
             var message = L("EmailSecurityCodeBody", cacheItem.Code);
 
             if (model.Provider == "Email")
-            {
                 await _emailSender.SendAsync(await _userManager.GetEmailAsync(user), L("EmailSecurityCodeSubject"),
                     message);
-            }
             else if (model.Provider == "Phone")
-            {
                 await _smsSender.SendAsync(await _userManager.GetPhoneNumberAsync(user), message);
-            }
         }
 
         await _cacheManager.GetTwoFactorCodeCache().SetAsync(
@@ -516,9 +485,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
         var userDelegation = await _userDelegationManager.GetAsync(userDelegationId);
 
         if (!userDelegation.IsCreatedByUser(result.User.Id))
-        {
             throw new UserFriendlyException("User delegation error...");
-        }
 
         var expiration = userDelegation.EndTime.Subtract(Clock.Now);
         var accessToken = CreateAccessToken(await CreateJwtClaims(result.Identity, result.User, expiration),
@@ -558,10 +525,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
     private bool IsSchemeEnabledOnTenant(ExternalLoginProviderInfo scheme)
     {
-        if (!AbpSession.TenantId.HasValue)
-        {
-            return true;
-        }
+        if (!AbpSession.TenantId.HasValue) return true;
 
         switch (scheme.Name)
         {
@@ -601,103 +565,96 @@ public class TokenAuthController : LotteryDetectionControllerBase
         switch (loginResult.Result)
         {
             case AbpLoginResultType.Success:
+            {
+                // One Concurrent Login 
+                if (AllowOneConcurrentLoginPerUser()) await ResetSecurityStampForLoginResult(loginResult);
+
+                var refreshToken = CreateRefreshToken(
+                    await CreateJwtClaims(
+                        loginResult.Identity,
+                        loginResult.User,
+                        tokenType: TokenType.RefreshToken
+                    )
+                );
+
+                var accessToken = CreateAccessToken(
+                    await CreateJwtClaims(
+                        loginResult.Identity,
+                        loginResult.User,
+                        refreshTokenKey: refreshToken.key
+                    )
+                );
+
+                var returnUrl = model.ReturnUrl;
+
+                if (model.SingleSignIn.HasValue && model.SingleSignIn.Value &&
+                    loginResult.Result == AbpLoginResultType.Success)
                 {
-                    // One Concurrent Login 
-                    if (AllowOneConcurrentLoginPerUser())
-                    {
-                        await ResetSecurityStampForLoginResult(loginResult);
-                    }
-
-                    var refreshToken = CreateRefreshToken(
-                        await CreateJwtClaims(
-                            loginResult.Identity,
-                            loginResult.User,
-                            tokenType: TokenType.RefreshToken
-                        )
+                    loginResult.User.SetSignInToken();
+                    returnUrl = AddSingleSignInParametersToReturnUrl(
+                        model.ReturnUrl,
+                        loginResult.User.SignInToken,
+                        loginResult.User.Id,
+                        loginResult.User.TenantId
                     );
-
-                    var accessToken = CreateAccessToken(
-                        await CreateJwtClaims(
-                            loginResult.Identity,
-                            loginResult.User,
-                            refreshTokenKey: refreshToken.key
-                        )
-                    );
-
-                    var returnUrl = model.ReturnUrl;
-
-                    if (model.SingleSignIn.HasValue && model.SingleSignIn.Value &&
-                        loginResult.Result == AbpLoginResultType.Success)
-                    {
-                        loginResult.User.SetSignInToken();
-                        returnUrl = AddSingleSignInParametersToReturnUrl(
-                            model.ReturnUrl,
-                            loginResult.User.SignInToken,
-                            loginResult.User.Id,
-                            loginResult.User.TenantId
-                        );
-                    }
-
-                    return new ExternalAuthenticateResultModel
-                    {
-                        AccessToken = accessToken,
-                        EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
-                        ExpireInSeconds = (int)_configuration.AccessTokenExpiration.TotalSeconds,
-                        ReturnUrl = returnUrl,
-                        RefreshToken = refreshToken.token,
-                        RefreshTokenExpireInSeconds = (int)_configuration.RefreshTokenExpiration.TotalSeconds
-                    };
                 }
+
+                return new ExternalAuthenticateResultModel
+                {
+                    AccessToken = accessToken,
+                    EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
+                    ExpireInSeconds = (int)_configuration.AccessTokenExpiration.TotalSeconds,
+                    ReturnUrl = returnUrl,
+                    RefreshToken = refreshToken.token,
+                    RefreshTokenExpireInSeconds = (int)_configuration.RefreshTokenExpiration.TotalSeconds
+                };
+            }
             case AbpLoginResultType.UnknownExternalLogin:
-                {
-                    var newUser = await RegisterExternalUserAsync(externalUser);
-                    if (!newUser.IsActive)
-                    {
-                        return new ExternalAuthenticateResultModel
-                        {
-                            WaitingForActivation = true
-                        };
-                    }
-
-                    //Try to login again with newly registered user!
-                    loginResult = await _logInManager.LoginAsync(
-                        new UserLoginInfo(model.AuthProvider, model.ProviderKey, model.AuthProvider),
-                        GetTenancyNameOrNull()
-                    );
-
-                    if (loginResult.Result != AbpLoginResultType.Success)
-                    {
-                        throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(
-                            loginResult.Result,
-                            externalUser.EmailAddress,
-                            GetTenancyNameOrNull()
-                        );
-                    }
-
-                    var refreshToken = CreateRefreshToken(await CreateJwtClaims(loginResult.Identity,
-                        loginResult.User, tokenType: TokenType.RefreshToken)
-                    );
-
-                    var accessToken = CreateAccessToken(await CreateJwtClaims(loginResult.Identity,
-                        loginResult.User, refreshTokenKey: refreshToken.key));
-
+            {
+                var newUser = await RegisterExternalUserAsync(externalUser);
+                if (!newUser.IsActive)
                     return new ExternalAuthenticateResultModel
                     {
-                        AccessToken = accessToken,
-                        EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
-                        ExpireInSeconds = (int)_configuration.AccessTokenExpiration.TotalSeconds,
-                        RefreshToken = refreshToken.token,
-                        RefreshTokenExpireInSeconds = (int)_configuration.RefreshTokenExpiration.TotalSeconds
+                        WaitingForActivation = true
                     };
-                }
-            default:
-                {
+
+                //Try to login again with newly registered user!
+                loginResult = await _logInManager.LoginAsync(
+                    new UserLoginInfo(model.AuthProvider, model.ProviderKey, model.AuthProvider),
+                    GetTenancyNameOrNull()
+                );
+
+                if (loginResult.Result != AbpLoginResultType.Success)
                     throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(
                         loginResult.Result,
                         externalUser.EmailAddress,
                         GetTenancyNameOrNull()
                     );
-                }
+
+                var refreshToken = CreateRefreshToken(await CreateJwtClaims(loginResult.Identity,
+                    loginResult.User, tokenType: TokenType.RefreshToken)
+                );
+
+                var accessToken = CreateAccessToken(await CreateJwtClaims(loginResult.Identity,
+                    loginResult.User, refreshTokenKey: refreshToken.key));
+
+                return new ExternalAuthenticateResultModel
+                {
+                    AccessToken = accessToken,
+                    EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
+                    ExpireInSeconds = (int)_configuration.AccessTokenExpiration.TotalSeconds,
+                    RefreshToken = refreshToken.token,
+                    RefreshTokenExpireInSeconds = (int)_configuration.RefreshTokenExpiration.TotalSeconds
+                };
+            }
+            default:
+            {
+                throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(
+                    loginResult.Result,
+                    externalUser.EmailAddress,
+                    GetTenancyNameOrNull()
+                );
+            }
         }
     }
 
@@ -715,10 +672,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
     [HttpGet]
     public async Task<ActionResult> TestNotification(string message = "", string severity = "info")
     {
-        if (message.IsNullOrEmpty())
-        {
-            message = "This is a test notification, created at " + Clock.Now;
-        }
+        if (message.IsNullOrEmpty()) message = "This is a test notification, created at " + Clock.Now;
 
         await _appNotifier.SendMessageAsync(
             AbpSession.ToUserIdentifier(),
@@ -752,14 +706,14 @@ public class TokenAuthController : LotteryDetectionControllerBase
         );
 
         user.Logins = new List<UserLogin>
+        {
+            new()
             {
-                new UserLogin
-                {
-                    LoginProvider = externalLoginInfo.Provider,
-                    ProviderKey = externalLoginInfo.ProviderKey,
-                    TenantId = user.TenantId
-                }
-            };
+                LoginProvider = externalLoginInfo.Provider,
+                ProviderKey = externalLoginInfo.ProviderKey,
+                TenantId = user.TenantId
+            }
+        };
 
         await CurrentUnitOfWork.SaveChangesAsync();
 
@@ -769,20 +723,14 @@ public class TokenAuthController : LotteryDetectionControllerBase
     private async Task<ExternalAuthUserInfo> GetExternalUserInfo(ExternalAuthenticateModel model)
     {
         var userInfo = await _externalAuthManager.GetUserInfo(model.AuthProvider, model.ProviderAccessCode);
-        if (!ProviderKeysAreEqual(model, userInfo))
-        {
-            throw new UserFriendlyException(L("CouldNotValidateExternalUser"));
-        }
+        if (!ProviderKeysAreEqual(model, userInfo)) throw new UserFriendlyException(L("CouldNotValidateExternalUser"));
 
         return userInfo;
     }
 
     private bool ProviderKeysAreEqual(ExternalAuthenticateModel model, ExternalAuthUserInfo userInfo)
     {
-        if (userInfo.ProviderKey == model.ProviderKey)
-        {
-            return true;
-        }
+        if (userInfo.ProviderKey == model.ProviderKey) return true;
 
         return userInfo.ProviderKey == model.ProviderKey.Replace("-", "").TrimStart('0');
     }
@@ -792,24 +740,13 @@ public class TokenAuthController : LotteryDetectionControllerBase
     {
         if (!await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.TwoFactorLogin
                 .IsEnabled))
-        {
             return false;
-        }
 
-        if (!loginResult.User.IsTwoFactorEnabled)
-        {
-            return false;
-        }
+        if (!loginResult.User.IsTwoFactorEnabled) return false;
 
-        if ((await _userManager.GetValidTwoFactorProvidersAsync(loginResult.User)).Count <= 0)
-        {
-            return false;
-        }
+        if ((await _userManager.GetValidTwoFactorProvidersAsync(loginResult.User)).Count <= 0) return false;
 
-        if (await TwoFactorClientRememberedAsync(loginResult.User.ToUserIdentifier(), authenticateModel))
-        {
-            return false;
-        }
+        if (await TwoFactorClientRememberedAsync(loginResult.User.ToUserIdentifier(), authenticateModel)) return false;
 
         return true;
     }
@@ -820,14 +757,9 @@ public class TokenAuthController : LotteryDetectionControllerBase
         if (!await SettingManager.GetSettingValueAsync<bool>(
                 AbpZeroSettingNames.UserManagement.TwoFactorLogin.IsRememberBrowserEnabled)
            )
-        {
             return false;
-        }
 
-        if (string.IsNullOrWhiteSpace(authenticateModel.TwoFactorRememberClientToken))
-        {
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(authenticateModel.TwoFactorRememberClientToken)) return false;
 
         try
         {
@@ -839,9 +771,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
             };
 
             foreach (var validator in _jwtOptions.Value.AsyncSecurityTokenValidators)
-            {
                 if (validator.CanReadToken(authenticateModel.TwoFactorRememberClientToken))
-                {
                     try
                     {
                         var (principal, _) = await validator.ValidateToken(
@@ -850,10 +780,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
                         );
 
                         var userIdentifierClaim = principal.FindFirst(c => c.Type == AppConsts.UserIdentifier);
-                        if (userIdentifierClaim == null)
-                        {
-                            return false;
-                        }
+                        if (userIdentifierClaim == null) return false;
 
                         return userIdentifierClaim.Value == userIdentifier.ToString();
                     }
@@ -861,8 +788,6 @@ public class TokenAuthController : LotteryDetectionControllerBase
                     {
                         Logger.Debug(ex.ToString(), ex);
                     }
-                }
-            }
         }
         catch (Exception ex)
         {
@@ -900,18 +825,14 @@ public class TokenAuthController : LotteryDetectionControllerBase
         await twoFactorCodeCache.RemoveAsync(userIdentifier);
 
         if (authenticateModel.RememberClient)
-        {
             if (await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.TwoFactorLogin
                     .IsRememberBrowserEnabled))
-            {
                 return CreateAccessToken(
                     await CreateJwtClaims(
                         loginResult.Identity,
                         loginResult.User
                     )
                 );
-            }
-        }
 
         await _logInManager.SaveLoginAttemptAsync(
             loginResult,
@@ -941,10 +862,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
     private string GetTenancyNameOrNull()
     {
-        if (!AbpSession.TenantId.HasValue)
-        {
-            return null;
-        }
+        if (!AbpSession.TenantId.HasValue) return null;
 
         return _tenantCache.GetOrNull(AbpSession.TenantId.Value)?.TenancyName;
     }
@@ -1002,12 +920,12 @@ public class TokenAuthController : LotteryDetectionControllerBase
         var now = DateTime.UtcNow;
 
         var jwtSecurityToken = new JwtSecurityToken(
-            issuer: _configuration.Issuer,
-            audience: _configuration.Audience,
-            claims: claims,
-            notBefore: now,
+            _configuration.Issuer,
+            _configuration.Audience,
+            claims,
+            now,
             signingCredentials: _configuration.SigningCredentials,
-            expires: expiration == null ? (DateTime?)null : now.Add(expiration.Value)
+            expires: expiration == null ? null : now.Add(expiration.Value)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
@@ -1029,31 +947,25 @@ public class TokenAuthController : LotteryDetectionControllerBase
         var nameIdClaim = claims.First(c => c.Type == _identityOptions.ClaimsIdentity.UserIdClaimType);
 
         if (_identityOptions.ClaimsIdentity.UserIdClaimType != JwtRegisteredClaimNames.Sub)
-        {
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, nameIdClaim.Value));
-        }
 
         claims.AddRange(new[]
         {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.Now.ToUnixTimeSeconds().ToString(),
-                    ClaimValueTypes.Integer64),
-                new Claim(AppConsts.TokenValidityKey, tokenValidityKey),
-                new Claim(AppConsts.UserIdentifier, user.ToUserIdentifier().ToUserIdentifierString()),
-                new Claim(AppConsts.TokenType, tokenType.To<int>().ToString())
-            });
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.Now.ToUnixTimeSeconds().ToString(),
+                ClaimValueTypes.Integer64),
+            new Claim(AppConsts.TokenValidityKey, tokenValidityKey),
+            new Claim(AppConsts.UserIdentifier, user.ToUserIdentifier().ToUserIdentifierString()),
+            new Claim(AppConsts.TokenType, tokenType.To<int>().ToString())
+        });
 
         if (!string.IsNullOrEmpty(refreshTokenKey))
-        {
             claims.Add(new Claim(AppConsts.RefreshTokenValidityKey, refreshTokenKey));
-        }
 
         if (!expiration.HasValue)
-        {
             expiration = tokenType == TokenType.AccessToken
                 ? _configuration.AccessTokenExpiration
                 : _configuration.RefreshTokenExpiration;
-        }
 
         var expirationDate = DateTime.UtcNow.Add(expiration.Value);
 
@@ -1077,9 +989,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
                      "accessToken=" + signInToken +
                      "&userId=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(userId.ToString()));
         if (tenantId.HasValue)
-        {
             returnUrl += "&tenantId=" + Convert.ToBase64String(Encoding.UTF8.GetBytes(tenantId.Value.ToString()));
-        }
 
         return returnUrl;
     }
@@ -1100,10 +1010,7 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
             foreach (var validator in _jwtOptions.Value.AsyncSecurityTokenValidators)
             {
-                if (!validator.CanReadToken(refreshToken))
-                {
-                    continue;
-                }
+                if (!validator.CanReadToken(refreshToken)) continue;
 
                 try
                 {
@@ -1134,27 +1041,23 @@ public class TokenAuthController : LotteryDetectionControllerBase
     {
         var requestUserAgent = Request.Headers["User-Agent"].ToString();
 
-        if (requestUserAgent.IsNullOrEmpty())
-        {
-            return;
-        }
+        if (requestUserAgent.IsNullOrEmpty()) return;
 
-        if (WebConsts.ReCaptchaIgnoreWhiteList.Contains(requestUserAgent.Trim()))
-        {
-            return;
-        }
+        if (WebConsts.ReCaptchaIgnoreWhiteList.Contains(requestUserAgent.Trim())) return;
 
         await RecaptchaValidator.ValidateAsync(captchaResponse);
     }
+
     private async Task<bool> IsUserLockoutEnabled()
     {
-        return await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.UserLockOut.IsEnabled);
+        return await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.UserLockOut
+            .IsEnabled);
     }
 }
 
 public class QrLoginAuthenticateModel
 {
     public string ConnectionId { get; set; }
-    
+
     public string SessionId { get; set; }
 }

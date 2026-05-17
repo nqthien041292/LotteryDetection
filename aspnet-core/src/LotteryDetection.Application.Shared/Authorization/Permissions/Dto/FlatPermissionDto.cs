@@ -12,4 +12,3 @@ public class FlatPermissionDto
 
     public bool IsGrantedByDefault { get; set; }
 }
-

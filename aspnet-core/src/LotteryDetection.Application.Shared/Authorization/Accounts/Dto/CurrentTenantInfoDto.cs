@@ -9,4 +9,3 @@ public class CurrentTenantInfoDto : EntityDto
 
     public string Name { get; set; }
 }
-

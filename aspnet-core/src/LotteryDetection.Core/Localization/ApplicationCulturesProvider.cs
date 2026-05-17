@@ -10,4 +10,3 @@ public class ApplicationCulturesProvider : IApplicationCulturesProvider, ITransi
         return CultureInfo.GetCultures(CultureTypes.AllCultures);
     }
 }
-

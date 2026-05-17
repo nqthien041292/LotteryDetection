@@ -25,4 +25,3 @@ public class ApplicationInfoDto
 
     public Dictionary<string, bool> Features { get; set; }
 }
-

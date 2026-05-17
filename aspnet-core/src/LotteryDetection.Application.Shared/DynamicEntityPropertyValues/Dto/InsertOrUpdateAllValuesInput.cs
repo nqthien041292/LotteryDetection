@@ -15,4 +15,3 @@ public class InsertOrUpdateAllValuesInputItem
 
     public List<string> Values { get; set; }
 }
-

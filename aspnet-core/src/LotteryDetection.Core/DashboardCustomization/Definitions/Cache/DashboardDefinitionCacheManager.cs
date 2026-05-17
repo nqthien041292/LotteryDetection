@@ -23,4 +23,3 @@ public class DashboardDefinitionCacheManager : IDashboardDefinitionCacheManager
         _cache.Set(definition.Name, definition);
     }
 }
-

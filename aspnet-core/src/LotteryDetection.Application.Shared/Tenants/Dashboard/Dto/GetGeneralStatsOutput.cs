@@ -6,4 +6,3 @@ public class GetGeneralStatsOutput
     public int NewVisitPercent { get; set; }
     public int BouncePercent { get; set; }
 }
-

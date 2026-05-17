@@ -10,4 +10,3 @@ public interface ISessionAppService : IApplicationService
 
     Task<UpdateUserSignInTokenOutput> UpdateUserSignInToken();
 }
-

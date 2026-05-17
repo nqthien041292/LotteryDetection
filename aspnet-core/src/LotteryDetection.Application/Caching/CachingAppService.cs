@@ -23,11 +23,11 @@ public class CachingAppService : LotteryDetectionAppServiceBase, ICachingAppServ
     public ListResultDto<CacheDto> GetAllCaches()
     {
         var caches = _cacheManager.GetAllCaches()
-                                    .Select(cache => new CacheDto
-                                    {
-                                        Name = cache.Name
-                                    })
-                                    .ToList();
+            .Select(cache => new CacheDto
+            {
+                Name = cache.Name
+            })
+            .ToList();
 
         return new ListResultDto<CacheDto>(caches);
     }
@@ -40,16 +40,10 @@ public class CachingAppService : LotteryDetectionAppServiceBase, ICachingAppServ
 
     public async Task ClearAllCaches()
     {
-        if (!CanClearAllCaches())
-        {
-            throw new ApplicationException("This method can be used only with Memory Cache!");
-        }
+        if (!CanClearAllCaches()) throw new ApplicationException("This method can be used only with Memory Cache!");
 
         var caches = _cacheManager.GetAllCaches();
-        foreach (var cache in caches)
-        {
-            await cache.ClearAsync();
-        }
+        foreach (var cache in caches) await cache.ClearAsync();
     }
 
     public bool CanClearAllCaches()

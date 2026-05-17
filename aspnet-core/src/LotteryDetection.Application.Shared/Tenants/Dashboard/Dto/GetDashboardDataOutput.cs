@@ -32,6 +32,4 @@ public class GetDashboardDataOutput
     public int[] DailySales { get; set; }
 
     public int[] ProfitShares { get; set; }
-
 }
-

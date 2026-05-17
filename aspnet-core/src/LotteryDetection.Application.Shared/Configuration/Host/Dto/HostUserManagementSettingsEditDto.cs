@@ -26,4 +26,3 @@ public class HostUserManagementSettingsEditDto
 
     public bool IsQrLoginEnabled { get; set; }
 }
-

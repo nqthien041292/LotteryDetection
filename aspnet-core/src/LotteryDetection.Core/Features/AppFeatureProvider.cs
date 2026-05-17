@@ -11,10 +11,10 @@ public class AppFeatureProvider : FeatureProvider
     {
         context.Create(
             AppFeatures.MaxUserCount,
-            defaultValue: "0", //0 = unlimited
-            displayName: L("MaximumUserCount"),
-            description: L("MaximumUserCount_Description"),
-            inputType: new SingleLineStringInputType(new NumericValueValidator(0, int.MaxValue))
+            "0", //0 = unlimited
+            L("MaximumUserCount"),
+            L("MaximumUserCount_Description"),
+            inputType: new SingleLineStringInputType(new NumericValueValidator(0))
         )[FeatureMetadata.CustomFeatureKey] = new FeatureMetadata
         {
             ValueTextNormalizer = value => value == "0" ? L("Unlimited") : new FixedLocalizableString(value),
@@ -28,8 +28,8 @@ public class AppFeatureProvider : FeatureProvider
 
         context.Create(
             AppFeatures.TestCheckFeature,
-            defaultValue: "false",
-            displayName: L("TestCheckFeature"),
+            "false",
+            L("TestCheckFeature"),
             inputType: new CheckboxInputType()
         )[FeatureMetadata.CustomFeatureKey] = new FeatureMetadata
         {
@@ -39,8 +39,8 @@ public class AppFeatureProvider : FeatureProvider
 
         context.Create(
             AppFeatures.TestCheckFeature2,
-            defaultValue: "true",
-            displayName: L("TestCheckFeature2"),
+            "true",
+            L("TestCheckFeature2"),
             inputType: new CheckboxInputType()
         )[FeatureMetadata.CustomFeatureKey] = new FeatureMetadata
         {
@@ -52,22 +52,22 @@ public class AppFeatureProvider : FeatureProvider
 
         var chatFeature = context.Create(
             AppFeatures.ChatFeature,
-            defaultValue: "false",
-            displayName: L("ChatFeature"),
+            "false",
+            L("ChatFeature"),
             inputType: new CheckboxInputType()
         );
 
         chatFeature.CreateChildFeature(
             AppFeatures.TenantToTenantChatFeature,
-            defaultValue: "false",
-            displayName: L("TenantToTenantChatFeature"),
+            "false",
+            L("TenantToTenantChatFeature"),
             inputType: new CheckboxInputType()
         );
 
         chatFeature.CreateChildFeature(
             AppFeatures.TenantToHostChatFeature,
-            defaultValue: "false",
-            displayName: L("TenantToHostChatFeature"),
+            "false",
+            L("TenantToHostChatFeature"),
             inputType: new CheckboxInputType()
         );
     }
@@ -77,4 +77,3 @@ public class AppFeatureProvider : FeatureProvider
         return new LocalizableString(name, LotteryDetectionConsts.LocalizationSourceName);
     }
 }
-

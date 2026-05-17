@@ -4,6 +4,5 @@ namespace LotteryDetection.Configuration.Dto;
 
 public class ExternalLoginSettingsDto
 {
-    public List<string> EnabledSocialLoginSettings { get; set; } = new List<string>();
+    public List<string> EnabledSocialLoginSettings { get; set; } = new();
 }
-

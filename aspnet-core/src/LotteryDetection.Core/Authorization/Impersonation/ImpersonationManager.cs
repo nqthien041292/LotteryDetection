@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Abp.Authorization.Users;
 using Abp.Runtime.Caching;
 using Abp.Runtime.Security;
 using Abp.Runtime.Session;
@@ -13,11 +12,9 @@ namespace LotteryDetection.Authorization.Impersonation;
 
 public class ImpersonationManager : LotteryDetectionDomainServiceBase, IImpersonationManager
 {
-    public IAbpSession AbpSession { get; set; }
-
     private readonly ICacheManager _cacheManager;
-    private readonly UserManager _userManager;
     private readonly UserClaimsPrincipalFactory _principalFactory;
+    private readonly UserManager _userManager;
 
     public ImpersonationManager(
         ICacheManager cacheManager,
@@ -31,13 +28,12 @@ public class ImpersonationManager : LotteryDetectionDomainServiceBase, IImperson
         AbpSession = NullAbpSession.Instance;
     }
 
+    public IAbpSession AbpSession { get; set; }
+
     public async Task<UserAndIdentity> GetImpersonatedUserAndIdentity(string impersonationToken)
     {
         var cacheItem = await _cacheManager.GetImpersonationCache().GetOrDefaultAsync(impersonationToken);
-        if (cacheItem == null)
-        {
-            throw new UserFriendlyException(L("ImpersonationTokenErrorMessage"));
-        }
+        if (cacheItem == null) throw new UserFriendlyException(L("ImpersonationTokenErrorMessage"));
 
         CheckCurrentTenant(cacheItem.TargetTenantId);
 
@@ -53,44 +49,17 @@ public class ImpersonationManager : LotteryDetectionDomainServiceBase, IImperson
         return new UserAndIdentity(user, identity);
     }
 
-    private async Task<ClaimsIdentity> GetClaimsIdentityFromCache(User user, ImpersonationCacheItem cacheItem)
-    {
-        var identity = (ClaimsIdentity)(await _principalFactory.CreateAsync(user)).Identity;
-
-        if (!cacheItem.IsBackToImpersonator)
-        {
-            //Add claims for audit logging
-            if (cacheItem.ImpersonatorTenantId.HasValue)
-            {
-                identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorTenantId,
-                    cacheItem.ImpersonatorTenantId.Value.ToString(CultureInfo.InvariantCulture)));
-            }
-
-            identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorUserId,
-                cacheItem.ImpersonatorUserId.ToString(CultureInfo.InvariantCulture)));
-        }
-
-        return identity;
-    }
-
     public Task<string> GetImpersonationToken(long userId, int? tenantId)
     {
         if (AbpSession.ImpersonatorUserId.HasValue)
-        {
             throw new UserFriendlyException(L("CascadeImpersonationErrorMessage"));
-        }
 
         if (AbpSession.TenantId.HasValue)
         {
-            if (!tenantId.HasValue)
-            {
-                throw new UserFriendlyException(L("FromTenantToHostImpersonationErrorMessage"));
-            }
+            if (!tenantId.HasValue) throw new UserFriendlyException(L("FromTenantToHostImpersonationErrorMessage"));
 
             if (tenantId.Value != AbpSession.TenantId.Value)
-            {
                 throw new UserFriendlyException(L("DifferentTenantImpersonationErrorMessage"));
-            }
         }
 
         return GenerateImpersonationTokenAsync(tenantId, userId, false);
@@ -99,19 +68,35 @@ public class ImpersonationManager : LotteryDetectionDomainServiceBase, IImperson
     public Task<string> GetBackToImpersonatorToken()
     {
         if (!AbpSession.ImpersonatorUserId.HasValue)
-        {
             throw new UserFriendlyException(L("NotImpersonatedLoginErrorMessage"));
+
+        return GenerateImpersonationTokenAsync(AbpSession.ImpersonatorTenantId, AbpSession.ImpersonatorUserId.Value,
+            true);
+    }
+
+    private async Task<ClaimsIdentity> GetClaimsIdentityFromCache(User user, ImpersonationCacheItem cacheItem)
+    {
+        var identity = (ClaimsIdentity)(await _principalFactory.CreateAsync(user)).Identity;
+
+        if (!cacheItem.IsBackToImpersonator)
+        {
+            //Add claims for audit logging
+            if (cacheItem.ImpersonatorTenantId.HasValue)
+                identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorTenantId,
+                    cacheItem.ImpersonatorTenantId.Value.ToString(CultureInfo.InvariantCulture)));
+
+            identity.AddClaim(new Claim(AbpClaimTypes.ImpersonatorUserId,
+                cacheItem.ImpersonatorUserId.ToString(CultureInfo.InvariantCulture)));
         }
 
-        return GenerateImpersonationTokenAsync(AbpSession.ImpersonatorTenantId, AbpSession.ImpersonatorUserId.Value, true);
+        return identity;
     }
 
     private void CheckCurrentTenant(int? tenantId)
     {
         if (AbpSession.TenantId != tenantId)
-        {
-            throw new Exception($"Current tenant is different than given tenant. AbpSession.TenantId: {AbpSession.TenantId}, given tenantId: {tenantId}");
-        }
+            throw new Exception(
+                $"Current tenant is different than given tenant. AbpSession.TenantId: {AbpSession.TenantId}, given tenantId: {tenantId}");
     }
 
     private async Task<string> GenerateImpersonationTokenAsync(int? tenantId, long userId, bool isBackToImpersonator)
@@ -139,4 +124,3 @@ public class ImpersonationManager : LotteryDetectionDomainServiceBase, IImperson
         return token;
     }
 }
-

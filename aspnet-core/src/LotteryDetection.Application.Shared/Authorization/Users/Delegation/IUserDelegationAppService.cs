@@ -16,4 +16,3 @@ public interface IUserDelegationAppService : IApplicationService
 
     Task<List<UserDelegationDto>> GetActiveUserDelegations();
 }
-

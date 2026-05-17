@@ -3,8 +3,8 @@ using Abp.Configuration;
 using Abp.Localization;
 using Abp.MultiTenancy;
 using Abp.Net.Mail;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Migrations.Seed.Host;
 
@@ -24,9 +24,7 @@ public class DefaultSettingsCreator
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (!LotteryDetectionConsts.MultiTenancyEnabled)
 #pragma warning disable 162
-        {
             tenantId = MultiTenancyConsts.DefaultTenantId;
-        }
 #pragma warning restore 162
 
         //Emailing
@@ -39,13 +37,10 @@ public class DefaultSettingsCreator
 
     private void AddSettingIfNotExists(string name, string value, int? tenantId = null)
     {
-        if (_context.Settings.IgnoreQueryFilters().Any(s => s.Name == name && s.TenantId == tenantId && s.UserId == null))
-        {
-            return;
-        }
+        if (_context.Settings.IgnoreQueryFilters()
+            .Any(s => s.Name == name && s.TenantId == tenantId && s.UserId == null)) return;
 
         _context.Settings.Add(new Setting(tenantId, null, name, value));
         _context.SaveChanges();
     }
 }
-

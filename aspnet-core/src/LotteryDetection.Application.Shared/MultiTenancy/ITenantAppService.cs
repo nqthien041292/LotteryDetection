@@ -25,4 +25,3 @@ public interface ITenantAppService : IApplicationService
 
     Task UnlockTenantAdmin(EntityDto input);
 }
-

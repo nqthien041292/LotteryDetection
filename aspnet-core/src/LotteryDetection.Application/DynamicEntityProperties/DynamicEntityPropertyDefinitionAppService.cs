@@ -6,11 +6,13 @@ using LotteryDetection.Authorization;
 namespace LotteryDetection.DynamicEntityProperties;
 
 [AbpAuthorize(AppPermissions.Pages_Administration_DynamicProperties)]
-public class DynamicEntityPropertyDefinitionAppService : LotteryDetectionAppServiceBase, IDynamicEntityPropertyDefinitionAppService
+public class DynamicEntityPropertyDefinitionAppService : LotteryDetectionAppServiceBase,
+    IDynamicEntityPropertyDefinitionAppService
 {
     private readonly IDynamicEntityPropertyDefinitionManager _dynamicEntityPropertyDefinitionManager;
 
-    public DynamicEntityPropertyDefinitionAppService(IDynamicEntityPropertyDefinitionManager dynamicEntityPropertyDefinitionManager)
+    public DynamicEntityPropertyDefinitionAppService(
+        IDynamicEntityPropertyDefinitionManager dynamicEntityPropertyDefinitionManager)
     {
         _dynamicEntityPropertyDefinitionManager = dynamicEntityPropertyDefinitionManager;
     }

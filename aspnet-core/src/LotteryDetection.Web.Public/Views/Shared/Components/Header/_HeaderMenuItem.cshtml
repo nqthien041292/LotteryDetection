@@ -1,21 +1,19 @@
-﻿@using Abp.Collections.Extensions
+﻿@using Abp.AspNetZeroCore.Web.Url
+@using Abp.Collections.Extensions
 @using Abp.Extensions
-@using System.Threading.Tasks
-@using Abp.AspNetZeroCore.Web.Url
 @using LotteryDetection.Web.Navigation
 @using LotteryDetection.Web.Public.Views.Shared.Components.Header
-@using LotteryDetection.Web.Url
 @model LotteryDetection.Web.Public.Views.Shared.Components.Header.HeaderMenuItemViewModel
 @{
     var orderedChildMenuItems = Model.MenuItem.Items.OrderByCustom().ToList();
 }
 
-<li class="@(Model.MenuItem.Name == Model.CurrentPageName ? "active" : "") @(Model.MenuItem.Items.IsNullOrEmpty() ? "" : (Model.CurrentLevel == 0 ? "dropdown" : "dropdown-submenu"))">
+<li class="@(Model.MenuItem.Name == Model.CurrentPageName ? "active" : "") @(Model.MenuItem.Items.IsNullOrEmpty() ? "" : Model.CurrentLevel == 0 ? "dropdown" : "dropdown-submenu")">
     @if (Model.MenuItem.Items.IsNullOrEmpty())
     {
         if (!Model.MenuItem.Url.IsNullOrEmpty())
         {
-            <a href="@(UrlChecker.IsRooted(Model.MenuItem.Url) ? Model.MenuItem.Url : (ApplicationPath + Model.MenuItem.Url))">@Model.MenuItem.DisplayName</a>
+            <a href="@(UrlChecker.IsRooted(Model.MenuItem.Url) ? Model.MenuItem.Url : ApplicationPath + Model.MenuItem.Url)">@Model.MenuItem.DisplayName</a>
         }
         else
         {
@@ -27,11 +25,11 @@
         <a class="dropdown-toggle" data-bs-toggle="dropdown" data-target="#" href="javascript:;">
             @Model.MenuItem.DisplayName
         </a>
-            <ul class="dropdown-menu">
-                @foreach (var childMenuItem in orderedChildMenuItems)
-                {
-                    @await Html.PartialAsync("Components/Header/_HeaderMenuItem", new HeaderMenuItemViewModel(childMenuItem, Model.CurrentLevel + 1, Model.CurrentPageName))
-                }
-            </ul>
+        <ul class="dropdown-menu">
+            @foreach (var childMenuItem in orderedChildMenuItems)
+            {
+                @await Html.PartialAsync("Components/Header/_HeaderMenuItem", new HeaderMenuItemViewModel(childMenuItem, Model.CurrentLevel + 1, Model.CurrentPageName))
+            }
+        </ul>
     }
 </li>

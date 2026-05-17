@@ -13,11 +13,9 @@ public class ExternalAuthenticateModel
     [MaxLength(UserLogin.MaxProviderKeyLength)]
     public string ProviderKey { get; set; }
 
-    [Required]
-    public string ProviderAccessCode { get; set; }
+    [Required] public string ProviderAccessCode { get; set; }
 
     public string ReturnUrl { get; set; }
 
     public bool? SingleSignIn { get; set; }
 }
-

@@ -10,4 +10,3 @@ public class TenantConsts
 
     public const int DefaultTenantId = 1;
 }
-

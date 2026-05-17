@@ -29,4 +29,3 @@ public interface IUserAppService : IApplicationService
 
     Task UnlockUser(EntityDto<long> input);
 }
-

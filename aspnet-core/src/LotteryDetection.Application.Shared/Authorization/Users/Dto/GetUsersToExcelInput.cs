@@ -6,11 +6,10 @@ namespace LotteryDetection.Authorization.Users.Dto;
 
 public class GetUsersToExcelInput : IGetUsersInput, IExcelColumnSelectionInput, IShouldNormalize
 {
+    public List<string> SelectedColumns { get; set; }
     public string Filter { get; set; }
 
     public List<string> Permissions { get; set; }
-
-    public List<string> SelectedColumns { get; set; }
 
     public int? Role { get; set; }
 
@@ -20,12 +19,8 @@ public class GetUsersToExcelInput : IGetUsersInput, IExcelColumnSelectionInput, 
 
     public void Normalize()
     {
-        if (string.IsNullOrEmpty(Sorting))
-        {
-            Sorting = "Name,Surname";
-        }
+        if (string.IsNullOrEmpty(Sorting)) Sorting = "Name,Surname";
 
         Filter = Filter?.Trim();
     }
 }
-

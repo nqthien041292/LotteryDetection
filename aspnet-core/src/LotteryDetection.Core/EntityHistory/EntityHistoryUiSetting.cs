@@ -8,4 +8,3 @@ public class EntityHistoryUiSetting
 
     public List<string> EnabledEntities { get; set; }
 }
-

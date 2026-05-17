@@ -7,4 +7,3 @@ public interface IInvoiceNumberGenerator : ITransientDependency
 {
     Task<string> GetNewInvoiceNumber();
 }
-

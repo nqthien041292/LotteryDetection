@@ -4,201 +4,208 @@ using Abp.Authorization.Users;
 using Abp.Domain.Uow;
 using Abp.MultiTenancy;
 using Abp.Runtime.Security;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Authorization.Users.Dto;
 using LotteryDetection.MultiTenancy;
+using Microsoft.EntityFrameworkCore;
 using Shouldly;
 
-namespace LotteryDetection.Tests.Authorization.Users
+namespace LotteryDetection.Tests.Authorization.Users;
+
+// ReSharper disable once InconsistentNaming
+public class UserAppService_Link_Tests : UserAppServiceTestBase
 {
-    // ReSharper disable once InconsistentNaming
-    public class UserAppService_Link_Tests : UserAppServiceTestBase
+    private readonly TenantManager _tenantManager;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IUserLinkAppService _userLinkAppService;
+    private readonly IUserLinkManager _userLinkManager;
+    private readonly UserManager _userManager;
+
+    public UserAppService_Link_Tests()
     {
-        private readonly IUserLinkAppService _userLinkAppService;
-        private readonly IUserLinkManager _userLinkManager;
-        private readonly UserManager _userManager;
-        private readonly TenantManager _tenantManager;
-        private readonly IUnitOfWorkManager _unitOfWorkManager;
+        _userLinkAppService = Resolve<IUserLinkAppService>();
+        _userLinkManager = Resolve<IUserLinkManager>();
+        _userManager = Resolve<UserManager>();
+        _tenantManager = Resolve<TenantManager>();
+        _unitOfWorkManager = Resolve<IUnitOfWorkManager>();
+    }
 
-        public UserAppService_Link_Tests()
+    [MultiTenantFact]
+    public async Task Should_Link_User_To_Host_Admin()
+    {
+        LoginAsHostAdmin();
+        await LinkUserAndTestAsync(string.Empty);
+    }
+
+    [MultiTenantFact]
+    public async Task Should_Link_User_To_Default_Tenant_Admin()
+    {
+        LoginAsDefaultTenantAdmin();
+        await LinkUserAndTestAsync(AbpTenantBase.DefaultTenantName);
+    }
+
+    [MultiTenantFact]
+    public async Task Should_Link_User_To_Different_Tenant_User()
+    {
+        //Arrange
+        LoginAsHostAdmin();
+        var testTenantId = await CreateTestTenantAndTestUser();
+
+        //Act
+        LoginAsDefaultTenantAdmin();
+        await _userLinkAppService.LinkToUser(new LinkToUserInput
         {
-            _userLinkAppService = Resolve<IUserLinkAppService>();
-            _userLinkManager = Resolve<IUserLinkManager>();
-            _userManager = Resolve<UserManager>();
-            _tenantManager = Resolve<TenantManager>();
-            _unitOfWorkManager = Resolve<IUnitOfWorkManager>();
-        }
+            TenancyName = "Test",
+            UsernameOrEmailAddress = "test",
+            Password = "123qwe"
+        });
 
-        [MultiTenantFact]
-        public async Task Should_Link_User_To_Host_Admin()
+        //Assert
+        var defaultTenantAdmin = await UsingDbContextAsync(context =>
+            context.Users.FirstOrDefaultAsync(u => u.TenantId == AbpSession.TenantId && u.Id == AbpSession.UserId));
+        var defaultTenantAccount = await _userLinkManager.GetUserAccountAsync(defaultTenantAdmin.ToUserIdentifier());
+
+        var testUser = await UsingDbContextAsync(testTenantId,
+            context => context.Users.FirstOrDefaultAsync(u => u.UserName == "test"));
+        var testUserAccount = await _userLinkManager.GetUserAccountAsync(testUser.ToUserIdentifier());
+
+        defaultTenantAccount.UserLinkId.ShouldBe(testUserAccount.UserLinkId);
+        defaultTenantAccount.UserLinkId.ShouldBe(defaultTenantAccount.Id);
+    }
+
+    [MultiTenantFact]
+    public async Task Should_Link_User_To_Already_Linked_User()
+    {
+        //Arrange
+        LoginAsHostAdmin();
+        var testTenantId = await CreateTestTenantAndTestUser();
+
+        LoginAsDefaultTenantAdmin();
+        await CreateTestUsersForAccountLinkingAsync();
+
+        var linkToTestTenantUserInput = new LinkToUserInput
         {
-            LoginAsHostAdmin();
-            await LinkUserAndTestAsync(string.Empty);
-        }
+            TenancyName = "Test",
+            UsernameOrEmailAddress = "test",
+            Password = "123qwe"
+        };
 
-        [MultiTenantFact]
-        public async Task Should_Link_User_To_Default_Tenant_Admin()
+        //Act
+        //Link Default\admin -> Test\test
+        await _userLinkAppService.LinkToUser(linkToTestTenantUserInput);
+
+        LoginAsTenant(AbpTenantBase.DefaultTenantName, "jnash");
+        //Link Default\jnash->Test\test
+        await _userLinkAppService.LinkToUser(linkToTestTenantUserInput);
+
+        //Assert
+        var defaultTenantAdmin = await UsingDbContextAsync(context =>
+            context.Users.FirstOrDefaultAsync(u =>
+                u.TenantId == AbpSession.TenantId && u.UserName == AbpUserBase.AdminUserName));
+        var defaultTenantAdminAccount =
+            await _userLinkManager.GetUserAccountAsync(defaultTenantAdmin.ToUserIdentifier());
+
+        var jnash = await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.UserName == "jnash"));
+        var jnashAccount = await _userLinkManager.GetUserAccountAsync(jnash.ToUserIdentifier());
+
+        var testTenantUser = await UsingDbContextAsync(testTenantId,
+            context => context.Users.FirstOrDefaultAsync(u => u.UserName == "test"));
+        var testTenantUserAccount = await _userLinkManager.GetUserAccountAsync(testTenantUser.ToUserIdentifier());
+
+        jnashAccount.UserLinkId.ShouldBe(jnashAccount.Id);
+        defaultTenantAdminAccount.UserLinkId.ShouldBe(jnashAccount.Id);
+        testTenantUserAccount.UserLinkId.ShouldBe(jnashAccount.Id);
+
+        jnashAccount.UserLinkId.ShouldBe(defaultTenantAdminAccount.UserLinkId);
+        jnashAccount.UserLinkId.ShouldBe(testTenantUserAccount.UserLinkId);
+    }
+
+    private async Task<int> CreateTestTenantAndTestUser()
+    {
+        var testTenant = new Tenant("Test", "test")
         {
-            LoginAsDefaultTenantAdmin();
-            await LinkUserAndTestAsync(AbpTenantBase.DefaultTenantName);
-        }
+            ConnectionString = SimpleStringCipher.Instance.Encrypt("Server=localhost; Database=LotteryDetectionTest_" +
+                                                                   Guid.NewGuid().ToString("N") +
+                                                                   "; Trusted_Connection=True;")
+        };
 
-        [MultiTenantFact]
-        public async Task Should_Link_User_To_Different_Tenant_User()
+        await _tenantManager.CreateAsync(testTenant);
+
+        using (var uow = _unitOfWorkManager.Begin())
         {
-            //Arrange
-            LoginAsHostAdmin();
-            var testTenantId = await CreateTestTenantAndTestUser();
-
-            //Act
-            LoginAsDefaultTenantAdmin();
-            await _userLinkAppService.LinkToUser(new LinkToUserInput
+            using (_unitOfWorkManager.Current.SetTenantId(testTenant.Id))
             {
-                TenancyName = "Test",
-                UsernameOrEmailAddress = "test",
-                Password = "123qwe"
-            });
-
-            //Assert
-            var defaultTenantAdmin = await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.TenantId == AbpSession.TenantId && u.Id == AbpSession.UserId));
-            var defaultTenantAccount = await _userLinkManager.GetUserAccountAsync(defaultTenantAdmin.ToUserIdentifier());
-
-            var testUser = await UsingDbContextAsync(testTenantId, context => context.Users.FirstOrDefaultAsync(u => u.UserName == "test"));
-            var testUserAccount = await _userLinkManager.GetUserAccountAsync(testUser.ToUserIdentifier());
-
-            defaultTenantAccount.UserLinkId.ShouldBe(testUserAccount.UserLinkId);
-            defaultTenantAccount.UserLinkId.ShouldBe(defaultTenantAccount.Id);
-        }
-
-        [MultiTenantFact]
-        public async Task Should_Link_User_To_Already_Linked_User()
-        {
-            //Arrange
-            LoginAsHostAdmin();
-            var testTenantId = await CreateTestTenantAndTestUser();
-
-            LoginAsDefaultTenantAdmin();
-            await CreateTestUsersForAccountLinkingAsync();
-
-            var linkToTestTenantUserInput = new LinkToUserInput
-            {
-                TenancyName = "Test",
-                UsernameOrEmailAddress = "test",
-                Password = "123qwe"
-            };
-
-            //Act
-            //Link Default\admin -> Test\test
-            await _userLinkAppService.LinkToUser(linkToTestTenantUserInput);
-
-            LoginAsTenant(AbpTenantBase.DefaultTenantName, "jnash");
-            //Link Default\jnash->Test\test
-            await _userLinkAppService.LinkToUser(linkToTestTenantUserInput);
-
-            //Assert
-            var defaultTenantAdmin = await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.TenantId == AbpSession.TenantId && u.UserName == AbpUserBase.AdminUserName));
-            var defaultTenantAdminAccount = await _userLinkManager.GetUserAccountAsync(defaultTenantAdmin.ToUserIdentifier());
-
-            var jnash = await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.UserName == "jnash"));
-            var jnashAccount = await _userLinkManager.GetUserAccountAsync(jnash.ToUserIdentifier());
-
-            var testTenantUser = await UsingDbContextAsync(testTenantId, context => context.Users.FirstOrDefaultAsync(u => u.UserName == "test"));
-            var testTenantUserAccount = await _userLinkManager.GetUserAccountAsync(testTenantUser.ToUserIdentifier());
-
-            jnashAccount.UserLinkId.ShouldBe(jnashAccount.Id);
-            defaultTenantAdminAccount.UserLinkId.ShouldBe(jnashAccount.Id);
-            testTenantUserAccount.UserLinkId.ShouldBe(jnashAccount.Id);
-
-            jnashAccount.UserLinkId.ShouldBe(defaultTenantAdminAccount.UserLinkId);
-            jnashAccount.UserLinkId.ShouldBe(testTenantUserAccount.UserLinkId);
-        }
-
-        private async Task<int> CreateTestTenantAndTestUser()
-        {
-            var testTenant = new Tenant("Test", "test")
-            {
-                ConnectionString = SimpleStringCipher.Instance.Encrypt("Server=localhost; Database=LotteryDetectionTest_" + Guid.NewGuid().ToString("N") + "; Trusted_Connection=True;")
-            };
-
-            await _tenantManager.CreateAsync(testTenant);
-
-            using (var uow = _unitOfWorkManager.Begin())
-            {
-                using (_unitOfWorkManager.Current.SetTenantId(testTenant.Id))
+                var testUser = new User
                 {
-                    var testUser = new User
-                    {
-                        EmailAddress = "test@test.com",
-                        IsEmailConfirmed = true,
-                        Name = "Test",
-                        Surname = "User",
-                        UserName = "test",
-                        Password = "AM4OLBpptxBYmM79lGOX9egzZk3vIQU3d/gFCJzaBjAPXzYIK3tQ2N7X4fcrHtElTw==", //123qwe
-                        TenantId = testTenant.Id,
-                    };
+                    EmailAddress = "test@test.com",
+                    IsEmailConfirmed = true,
+                    Name = "Test",
+                    Surname = "User",
+                    UserName = "test",
+                    Password = "AM4OLBpptxBYmM79lGOX9egzZk3vIQU3d/gFCJzaBjAPXzYIK3tQ2N7X4fcrHtElTw==", //123qwe
+                    TenantId = testTenant.Id
+                };
 
-                    await _userManager.CreateAsync(testUser);
+                await _userManager.CreateAsync(testUser);
 
-                    UsingDbContext(null, context =>
+                UsingDbContext(null, context =>
+                {
+                    context.UserAccounts.Add(new UserAccount
                     {
-                        context.UserAccounts.Add(new UserAccount
-                        {
-                            TenantId = testUser.TenantId,
-                            UserId = testUser.Id,
-                            UserName = testUser.UserName,
-                            EmailAddress = testUser.EmailAddress
-                        });
+                        TenantId = testUser.TenantId,
+                        UserId = testUser.Id,
+                        UserName = testUser.UserName,
+                        EmailAddress = testUser.EmailAddress
                     });
-                }
-
-                await uow.CompleteAsync();
-                return testTenant.Id;
+                });
             }
+
+            await uow.CompleteAsync();
+            return testTenant.Id;
         }
+    }
 
-        private async Task LinkUserAndTestAsync(string tenancyName)
+    private async Task LinkUserAndTestAsync(string tenancyName)
+    {
+        //Arrange
+        await CreateTestUsersForAccountLinkingAsync();
+
+        //Act
+        await _userLinkAppService.LinkToUser(new LinkToUserInput
         {
-            //Arrange
-            await CreateTestUsersForAccountLinkingAsync();
+            TenancyName = tenancyName,
+            UsernameOrEmailAddress = "jnash",
+            Password = "123qwe"
+        });
 
-            //Act
-            await _userLinkAppService.LinkToUser(new LinkToUserInput
-            {
-                TenancyName = tenancyName,
-                UsernameOrEmailAddress = "jnash",
-                Password = "123qwe"
-            });
+        //Assert
+        var linkedUser =
+            await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.UserName == "jnash"));
+        var linkedUserAccount = await _userLinkManager.GetUserAccountAsync(linkedUser.ToUserIdentifier());
 
-            //Assert
-            var linkedUser = await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.UserName == "jnash"));
-            var linkedUserAccount = await _userLinkManager.GetUserAccountAsync(linkedUser.ToUserIdentifier());
+        var currentUser =
+            await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.Id == AbpSession.UserId));
+        var currentUserAccount = await _userLinkManager.GetUserAccountAsync(currentUser.ToUserIdentifier());
 
-            var currentUser = await UsingDbContextAsync(context => context.Users.FirstOrDefaultAsync(u => u.Id == AbpSession.UserId));
-            var currentUserAccount = await _userLinkManager.GetUserAccountAsync(currentUser.ToUserIdentifier());
+        linkedUserAccount.UserLinkId.HasValue.ShouldBe(true);
+        currentUserAccount.UserLinkId.HasValue.ShouldBe(true);
 
-            linkedUserAccount.UserLinkId.HasValue.ShouldBe(true);
-            currentUserAccount.UserLinkId.HasValue.ShouldBe(true);
+        linkedUserAccount.ShouldNotBe(null);
+        currentUserAccount.ShouldNotBe(null);
 
-            linkedUserAccount.ShouldNotBe(null);
-            currentUserAccount.ShouldNotBe(null);
+        if (currentUserAccount.UserLinkId != null)
+            linkedUserAccount.UserLinkId?.ShouldBe(currentUserAccount.UserLinkId.Value);
+    }
 
-            if (currentUserAccount.UserLinkId != null)
-            {
-                linkedUserAccount.UserLinkId?.ShouldBe(currentUserAccount.UserLinkId.Value);
-            }
-        }
-
-        private async Task CreateTestUsersForAccountLinkingAsync()
+    private async Task CreateTestUsersForAccountLinkingAsync()
+    {
+        using (var uow = _unitOfWorkManager.Begin())
         {
-            using (var uow = _unitOfWorkManager.Begin())
-            {
-                await _userManager.CreateAsync(CreateUserEntity("jnash", "John", "Nash", "jnsh2000@testdomain.com"));
-                await _userManager.CreateAsync(CreateUserEntity("adams_d", "Douglas", "Adams", "adams_d@gmail.com"));
-                await _userManager.CreateAsync(CreateUserEntity("artdent", "Arthur", "Dent", "ArthurDent@yahoo.com"));
+            await _userManager.CreateAsync(CreateUserEntity("jnash", "John", "Nash", "jnsh2000@testdomain.com"));
+            await _userManager.CreateAsync(CreateUserEntity("adams_d", "Douglas", "Adams", "adams_d@gmail.com"));
+            await _userManager.CreateAsync(CreateUserEntity("artdent", "Arthur", "Dent", "ArthurDent@yahoo.com"));
 
-                await uow.CompleteAsync();
-            }
+            await uow.CompleteAsync();
         }
     }
 }

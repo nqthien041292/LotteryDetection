@@ -32,4 +32,3 @@ public class CurrentUserProfileEditDto
 
     public bool IsGoogleAuthenticatorEnabled { get; set; }
 }
-

@@ -22,4 +22,3 @@ public class PaymentUrlGenerator : IPaymentUrlGenerator, ITransientDependency
                subscriptionPayment.Id;
     }
 }
-

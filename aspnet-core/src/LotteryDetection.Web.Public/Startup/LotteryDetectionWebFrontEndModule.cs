@@ -1,11 +1,10 @@
-﻿using Abp.AspNetZeroCore;
-using Abp.Configuration.Startup;
+﻿using Abp.Configuration.Startup;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Configuration;
 using LotteryDetection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Web.Public.Startup;
 
@@ -16,7 +15,8 @@ public class LotteryDetectionWebFrontEndModule : AbpModule
 {
     private readonly IConfigurationRoot _appConfiguration;
 
-    public LotteryDetectionWebFrontEndModule(IWebHostEnvironment env, LotteryDetectionEntityFrameworkCoreModule lotteryDetectionEntityFrameworkCoreModule)
+    public LotteryDetectionWebFrontEndModule(IWebHostEnvironment env,
+        LotteryDetectionEntityFrameworkCoreModule lotteryDetectionEntityFrameworkCoreModule)
     {
         _appConfiguration = env.GetAppConfiguration();
         lotteryDetectionEntityFrameworkCoreModule.SkipDbSeed = true;
@@ -24,7 +24,8 @@ public class LotteryDetectionWebFrontEndModule : AbpModule
 
     public override void PreInitialize()
     {
-        Configuration.Modules.AbpWebCommon().MultiTenancy.DomainFormat = _appConfiguration["App:WebSiteRootAddress"] ?? "https://localhost:44303/";
+        Configuration.Modules.AbpWebCommon().MultiTenancy.DomainFormat =
+            _appConfiguration["App:WebSiteRootAddress"] ?? "https://localhost:44303/";
 
         //Changed AntiForgery token/cookie names to not conflict to the main application while redirections.
         Configuration.Modules.AbpWebCommon().AntiForgery.TokenCookieName = "Public-XSRF-TOKEN";
@@ -40,4 +41,3 @@ public class LotteryDetectionWebFrontEndModule : AbpModule
         IocManager.RegisterAssemblyByConvention(typeof(LotteryDetectionWebFrontEndModule).GetAssembly());
     }
 }
-

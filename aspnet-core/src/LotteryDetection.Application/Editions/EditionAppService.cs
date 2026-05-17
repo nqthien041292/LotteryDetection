@@ -11,19 +11,19 @@ using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Runtime.Session;
 using Abp.UI;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization;
 using LotteryDetection.Editions.Dto;
 using LotteryDetection.MultiTenancy;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Editions;
 
 public class EditionAppService : LotteryDetectionAppServiceBase, IEditionAppService
 {
+    private readonly IBackgroundJobManager _backgroundJobManager;
     private readonly EditionManager _editionManager;
     private readonly IRepository<SubscribableEdition> _editionRepository;
     private readonly IRepository<Tenant> _tenantRepository;
-    private readonly IBackgroundJobManager _backgroundJobManager;
 
     public EditionAppService(
         EditionManager editionManager,
@@ -41,13 +41,14 @@ public class EditionAppService : LotteryDetectionAppServiceBase, IEditionAppServ
     public async Task<ListResultDto<EditionListDto>> GetEditions()
     {
         var editions = await (from edition in _editionRepository.GetAll()
-                              join expiringEdition in _editionRepository.GetAll() on edition.ExpiringEditionId equals expiringEdition.Id into expiringEditionJoined
-                              from expiringEdition in expiringEditionJoined.DefaultIfEmpty()
-                              select new
-                              {
-                                  Edition = edition,
-                                  expiringEditionDisplayName = expiringEdition.DisplayName
-                              }).ToListAsync();
+            join expiringEdition in _editionRepository.GetAll() on edition.ExpiringEditionId equals expiringEdition.Id
+                into expiringEditionJoined
+            from expiringEdition in expiringEditionJoined.DefaultIfEmpty()
+            select new
+            {
+                Edition = edition,
+                expiringEditionDisplayName = expiringEdition.DisplayName
+            }).ToListAsync();
 
         var result = new List<EditionListDto>();
 
@@ -109,10 +110,7 @@ public class EditionAppService : LotteryDetectionAppServiceBase, IEditionAppServ
     public async Task DeleteEdition(EntityDto input)
     {
         var tenantCount = await _tenantRepository.CountAsync(t => t.EditionId == input.Id);
-        if (tenantCount > 0)
-        {
-            throw new UserFriendlyException(L("ThereAreTenantsSubscribedToThisEdition"));
-        }
+        if (tenantCount > 0) throw new UserFriendlyException(L("ThereAreTenantsSubscribedToThisEdition"));
 
         var edition = await _editionManager.GetByIdAsync(input.Id);
         await _editionManager.DeleteAsync(edition);
@@ -122,20 +120,20 @@ public class EditionAppService : LotteryDetectionAppServiceBase, IEditionAppServ
     public async Task MoveTenantsToAnotherEdition(MoveTenantsToAnotherEditionDto input)
     {
         if (input.SourceEditionId == input.TargetEditionId)
-        {
             throw new UserFriendlyException(L("SameEditionChangeErrorMessage"));
-        }
 
-        await _backgroundJobManager.EnqueueAsync<MoveTenantsToAnotherEditionJob, MoveTenantsToAnotherEditionJobArgs>(new MoveTenantsToAnotherEditionJobArgs
-        {
-            SourceEditionId = input.SourceEditionId,
-            TargetEditionId = input.TargetEditionId,
-            User = AbpSession.ToUserIdentifier()
-        });
+        await _backgroundJobManager.EnqueueAsync<MoveTenantsToAnotherEditionJob, MoveTenantsToAnotherEditionJobArgs>(
+            new MoveTenantsToAnotherEditionJobArgs
+            {
+                SourceEditionId = input.SourceEditionId,
+                TargetEditionId = input.TargetEditionId,
+                User = AbpSession.ToUserIdentifier()
+            });
     }
 
     [AbpAuthorize(AppPermissions.Pages_Editions, AppPermissions.Pages_Tenants)]
-    public async Task<List<SubscribableEditionComboboxItemDto>> GetEditionComboboxItems(int? selectedEditionId = null, bool addAllItem = false, bool onlyFreeItems = false)
+    public async Task<List<SubscribableEditionComboboxItemDto>> GetEditionComboboxItems(int? selectedEditionId = null,
+        bool addAllItem = false, bool onlyFreeItems = false)
     {
         var editions = await _editionManager.Editions.ToListAsync();
         var subscribableEditions = editions.Cast<SubscribableEdition>()
@@ -144,23 +142,20 @@ public class EditionAppService : LotteryDetectionAppServiceBase, IEditionAppServ
 
         var editionItems =
             new ListResultDto<SubscribableEditionComboboxItemDto>(subscribableEditions
-                .Select(e => new SubscribableEditionComboboxItemDto(e.Id.ToString(), e.DisplayName, e.IsFree)).ToList()).Items.ToList();
+                    .Select(e => new SubscribableEditionComboboxItemDto(e.Id.ToString(), e.DisplayName, e.IsFree))
+                    .ToList())
+                .Items.ToList();
 
         var defaultItem = new SubscribableEditionComboboxItemDto("", L("NotAssigned"), null);
         editionItems.Insert(0, defaultItem);
 
         if (addAllItem)
-        {
             editionItems.Insert(0, new SubscribableEditionComboboxItemDto("-1", "- " + L("All") + " -", null));
-        }
 
         if (selectedEditionId.HasValue)
         {
             var selectedEdition = editionItems.FirstOrDefault(e => e.Value == selectedEditionId.Value.ToString());
-            if (selectedEdition != null)
-            {
-                selectedEdition.IsSelected = true;
-            }
+            if (selectedEdition != null) selectedEdition.IsSelected = true;
         }
         else
         {
@@ -182,11 +177,9 @@ public class EditionAppService : LotteryDetectionAppServiceBase, IEditionAppServ
 
         if (edition.ExpiringEditionId.HasValue)
         {
-            var expiringEdition = (SubscribableEdition)await _editionManager.GetByIdAsync(edition.ExpiringEditionId.Value);
-            if (!expiringEdition.IsFree)
-            {
-                throw new UserFriendlyException(L("ExpiringEditionMustBeAFreeEdition"));
-            }
+            var expiringEdition =
+                (SubscribableEdition)await _editionManager.GetByIdAsync(edition.ExpiringEditionId.Value);
+            if (!expiringEdition.IsFree) throw new UserFriendlyException(L("ExpiringEditionMustBeAFreeEdition"));
         }
 
         await _editionManager.CreateAsync(edition);

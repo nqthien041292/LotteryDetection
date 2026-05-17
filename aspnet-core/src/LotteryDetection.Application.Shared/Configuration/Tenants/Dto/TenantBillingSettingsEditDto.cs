@@ -6,4 +6,3 @@ public class TenantBillingSettingsEditDto
     public string Address { get; set; }
     public string TaxVatNo { get; set; }
 }
-

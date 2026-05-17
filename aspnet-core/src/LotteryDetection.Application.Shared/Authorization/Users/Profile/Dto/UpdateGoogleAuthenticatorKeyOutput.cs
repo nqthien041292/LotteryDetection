@@ -6,4 +6,3 @@ public class UpdateGoogleAuthenticatorKeyOutput
 {
     public IEnumerable<string> RecoveryCodes { get; set; }
 }
-

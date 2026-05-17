@@ -14,8 +14,8 @@ namespace LotteryDetection.Configuration;
 [AbpAuthorize]
 public class UiCustomizationSettingsAppService : LotteryDetectionAppServiceBase, IUiCustomizationSettingsAppService
 {
-    private readonly SettingManager _settingManager;
     private readonly IIocResolver _iocResolver;
+    private readonly SettingManager _settingManager;
     private readonly IUiThemeCustomizerFactory _uiThemeCustomizerFactory;
 
     public UiCustomizationSettingsAppService(
@@ -43,22 +43,6 @@ public class UiCustomizationSettingsAppService : LotteryDetectionAppServiceBase,
         return settings;
     }
 
-    public async Task ChangeThemeWithDefaultValues(string themeName)
-    {
-        var settings = (await GetUiManagementSettings()).FirstOrDefault(s => s.Theme == themeName);
-
-        var hasUiCustomizationPagePermission = await PermissionChecker.IsGrantedAsync(AppPermissions.Pages_Administration_UiCustomization);
-
-        if (hasUiCustomizationPagePermission)
-        {
-            await UpdateDefaultUiManagementSettings(settings);
-        }
-        else
-        {
-            await UpdateUiManagementSettings(settings);
-        }
-    }
-
     public async Task UpdateUiManagementSettings(ThemeSettingsDto settings)
     {
         var themeCustomizer = _uiThemeCustomizerFactory.GetUiCustomizer(settings.Theme);
@@ -70,20 +54,18 @@ public class UiCustomizationSettingsAppService : LotteryDetectionAppServiceBase,
         var themeCustomizer = _uiThemeCustomizerFactory.GetUiCustomizer(settings.Theme);
 
         if (AbpSession.TenantId.HasValue)
-        {
-            await themeCustomizer.UpdateTenantUiManagementSettingsAsync(AbpSession.TenantId.Value, settings, AbpSession.ToUserIdentifier());
-        }
+            await themeCustomizer.UpdateTenantUiManagementSettingsAsync(AbpSession.TenantId.Value, settings,
+                AbpSession.ToUserIdentifier());
         else
-        {
             await themeCustomizer.UpdateApplicationUiManagementSettingsAsync(settings, AbpSession.ToUserIdentifier());
-        }
     }
 
     public async Task UseSystemDefaultSettings()
     {
         if (AbpSession.TenantId.HasValue)
         {
-            var theme = await _settingManager.GetSettingValueForTenantAsync(AppSettings.UiManagement.Theme, AbpSession.TenantId.Value);
+            var theme = await _settingManager.GetSettingValueForTenantAsync(AppSettings.UiManagement.Theme,
+                AbpSession.TenantId.Value);
             var themeCustomizer = _uiThemeCustomizerFactory.GetUiCustomizer(theme);
             var settings = await themeCustomizer.GetTenantUiCustomizationSettings(AbpSession.TenantId.Value);
             await themeCustomizer.UpdateUserUiManagementSettingsAsync(AbpSession.ToUserIdentifier(), settings);
@@ -104,5 +86,18 @@ public class UiCustomizationSettingsAppService : LotteryDetectionAppServiceBase,
 
         var themeCustomizer = _uiThemeCustomizerFactory.GetUiCustomizer(theme);
         await themeCustomizer.UpdateDarkModeSettingsAsync(user, isDarkModeActive);
+    }
+
+    public async Task ChangeThemeWithDefaultValues(string themeName)
+    {
+        var settings = (await GetUiManagementSettings()).FirstOrDefault(s => s.Theme == themeName);
+
+        var hasUiCustomizationPagePermission =
+            await PermissionChecker.IsGrantedAsync(AppPermissions.Pages_Administration_UiCustomization);
+
+        if (hasUiCustomizationPagePermission)
+            await UpdateDefaultUiManagementSettings(settings);
+        else
+            await UpdateUiManagementSettings(settings);
     }
 }

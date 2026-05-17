@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using LotteryDetection.MultiTenancy.Payments;
+﻿using LotteryDetection.MultiTenancy.Payments;
 
 namespace LotteryDetection.Editions.Dto;
 
@@ -23,10 +22,6 @@ public class EditionSelectDto
 
     public bool IsFree { get; set; }
 
-    public EditionSelectDto()
-    {
-    }
-
     public decimal GetPaymentAmount(PaymentPeriodType? paymentPeriodType)
     {
         switch (paymentPeriodType)
@@ -40,4 +35,3 @@ public class EditionSelectDto
         }
     }
 }
-

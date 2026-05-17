@@ -1,48 +1,44 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Abp;
 using Abp.Authorization;
 using Abp.Configuration;
 using Abp.Extensions;
+using Abp.Runtime.Caching;
 using Abp.Runtime.Security;
 using Abp.Runtime.Session;
+using Abp.Timing;
 using Abp.UI;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Identity;
+using LotteryDetection.Authentication.PasswordlessLogin;
 using LotteryDetection.Authorization.Accounts.Dto;
+using LotteryDetection.Authorization.Delegation;
 using LotteryDetection.Authorization.Impersonation;
+using LotteryDetection.Authorization.PasswordlessLogin;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Configuration;
 using LotteryDetection.MultiTenancy;
+using LotteryDetection.Net.Sms;
 using LotteryDetection.Security.Recaptcha;
 using LotteryDetection.Url;
-using LotteryDetection.Authorization.Delegation;
-using Abp.Timing;
-using LotteryDetection.Net.Sms;
-using Abp.Runtime.Caching;
-using System.Linq;
 using Microsoft.AspNetCore.RateLimiting;
-using LotteryDetection.Authentication.PasswordlessLogin;
-using LotteryDetection.Authorization.PasswordlessLogin;
 
 namespace LotteryDetection.Authorization.Accounts;
 
 public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppService
 {
-    public IAppUrlService AppUrlService { get; set; }
-
-    public IRecaptchaValidator RecaptchaValidator { get; set; }
+    private readonly ICacheManager _cacheManager;
+    private readonly IImpersonationManager _impersonationManager;
+    private readonly IPasswordlessLoginManager _passwordlessLoginManager;
+    private readonly ISmsSender _smsSender;
+    private readonly IUserDelegationManager _userDelegationManager;
 
     private readonly IUserEmailer _userEmailer;
-    private readonly UserRegistrationManager _userRegistrationManager;
-    private readonly IImpersonationManager _impersonationManager;
     private readonly IUserLinkManager _userLinkManager;
+    private readonly UserRegistrationManager _userRegistrationManager;
     private readonly IWebUrlService _webUrlService;
-    private readonly IUserDelegationManager _userDelegationManager;
-    private readonly ISmsSender _smsSender;
-    private readonly ICacheManager _cacheManager;
-    private readonly IPasswordlessLoginManager _passwordlessLoginManager;
 
     public AccountAppService(
         IUserEmailer userEmailer,
@@ -69,18 +65,16 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
         _passwordlessLoginManager = passwordlessLoginManager;
     }
 
+    public IAppUrlService AppUrlService { get; set; }
+
+    public IRecaptchaValidator RecaptchaValidator { get; set; }
+
     public async Task<IsTenantAvailableOutput> IsTenantAvailable(IsTenantAvailableInput input)
     {
         var tenant = await TenantManager.FindByTenancyNameAsync(input.TenancyName);
-        if (tenant == null)
-        {
-            return new IsTenantAvailableOutput(TenantAvailabilityState.NotFound);
-        }
+        if (tenant == null) return new IsTenantAvailableOutput(TenantAvailabilityState.NotFound);
 
-        if (!tenant.IsActive)
-        {
-            return new IsTenantAvailableOutput(TenantAvailabilityState.InActive);
-        }
+        if (!tenant.IsActive) return new IsTenantAvailableOutput(TenantAvailabilityState.InActive);
 
         return new IsTenantAvailableOutput(TenantAvailabilityState.Available, tenant.Id,
             _webUrlService.GetServerRootAddress(input.TenancyName));
@@ -88,18 +82,12 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
 
     public Task<int?> ResolveTenantId(ResolveTenantIdInput input)
     {
-        if (string.IsNullOrEmpty(input.c))
-        {
-            return Task.FromResult(AbpSession.TenantId);
-        }
+        if (string.IsNullOrEmpty(input.c)) return Task.FromResult(AbpSession.TenantId);
 
         var parameters = SimpleStringCipher.Instance.Decrypt(input.c);
         var query = HttpUtility.ParseQueryString(parameters);
 
-        if (query["tenantId"] == null)
-        {
-            return Task.FromResult<int?>(null);
-        }
+        if (query["tenantId"] == null) return Task.FromResult<int?>(null);
 
         var tenantId = Convert.ToInt32(query["tenantId"]) as int?;
         return Task.FromResult(tenantId);
@@ -107,10 +95,7 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
 
     public async Task<RegisterOutput> Register(RegisterInput input)
     {
-        if (UseCaptchaOnRegistration())
-        {
-            await RecaptchaValidator.ValidateAsync(input.CaptchaResponse);
-        }
+        if (UseCaptchaOnRegistration()) await RecaptchaValidator.ValidateAsync(input.CaptchaResponse);
 
         var user = await _userRegistrationManager.RegisterAsync(
             input.Name,
@@ -153,16 +138,11 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
 
     public async Task<ResetPasswordOutput> ResetPassword(ResetPasswordInput input)
     {
-        if (input.ExpireDate < Clock.Now)
-        {
-            throw new UserFriendlyException(L("PasswordResetLinkExpired"));
-        }
+        if (input.ExpireDate < Clock.Now) throw new UserFriendlyException(L("PasswordResetLinkExpired"));
 
         var user = await UserManager.GetUserByIdAsync(input.UserId);
         if (user == null || user.PasswordResetCode.IsNullOrEmpty() || user.PasswordResetCode != input.ResetCode)
-        {
             throw new UserFriendlyException(L("InvalidPasswordResetCode"), L("InvalidPasswordResetCode_Detail"));
-        }
 
         await UserManager.InitializeOptionsAsync(AbpSession.TenantId);
         CheckErrors(await UserManager.ChangePasswordAsync(user, input.Password));
@@ -181,17 +161,11 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
 
     public async Task SendEmailActivationLink(SendEmailActivationLinkInput input)
     {
-        if (UseCaptchaOnEmailActivation())
-        {
-            await RecaptchaValidator.ValidateAsync(input.CaptchaResponse);
-        }
+        if (UseCaptchaOnEmailActivation()) await RecaptchaValidator.ValidateAsync(input.CaptchaResponse);
 
         var user = await UserManager.FindByEmailAsync(input.EmailAddress);
 
-        if (user == null)
-        {
-            throw new AbpException(L("UserNotFound"));
-        }
+        if (user == null) throw new AbpException(L("UserNotFound"));
 
         await SendEmailActivationLinkInternal(user);
     }
@@ -199,51 +173,9 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
     public async Task SendPasswordlessLoginCode(SendPasswordlessLoginCodeInput input)
     {
         if (input.ProviderType == PasswordlessLoginProviderType.Email)
-        {
             await SendEmailPasswordlessCode(input.ProviderValue);
-        }
         else if (input.ProviderType == PasswordlessLoginProviderType.Sms)
-        {
             await SendSmsPasswordlessCode(input.ProviderValue);
-        }
-    }
-
-    private async Task SendEmailPasswordlessCode(string emailAddress)
-    {
-        var user = await UserManager.FindByEmailAsync(emailAddress);
-        if (user == null)
-        {
-            return;
-        }
-
-        var code = await _passwordlessLoginManager.GeneratePasswordlessLoginCode(
-            AbpSession.TenantId,
-            emailAddress
-        );
-
-        await _userEmailer.SendPasswordlessLoginCodeAsync(user, code);
-    }
-
-    private async Task SendSmsPasswordlessCode(string phoneNumber)
-    {
-        if (phoneNumber.IsNullOrEmpty())
-        {
-            return;
-        }
-
-        var user = UserManager.Users.FirstOrDefault(u => u.PhoneNumber == phoneNumber);
-        if (user == null)
-        {
-            return;
-        }
-
-        var code = await _passwordlessLoginManager.GeneratePasswordlessLoginCode(
-            AbpSession.TenantId,
-            phoneNumber
-        );
-
-        var message = string.Format(L("PasswordlessLogin_SmsMessage", LotteryDetectionConsts.ProductName, code));
-        await _smsSender.SendAsync(phoneNumber, message);
     }
 
     [EnableRateLimiting("PasswordlessLoginLimiter")]
@@ -259,17 +191,12 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
     public async Task ActivateEmail(ActivateEmailInput input)
     {
         var user = await UserManager.FindByIdAsync(input.UserId.ToString());
-        if (user != null && user.IsEmailConfirmed)
-        {
-            return;
-        }
+        if (user != null && user.IsEmailConfirmed) return;
 
         if (user == null || user.EmailConfirmationCode.IsNullOrEmpty() ||
             user.EmailConfirmationCode != input.ConfirmationCode)
-        {
             throw new UserFriendlyException(L("InvalidEmailConfirmationCode"),
                 L("InvalidEmailConfirmationCode_Detail"));
-        }
 
         user.IsEmailConfirmed = true;
         user.EmailConfirmationCode = null;
@@ -281,15 +208,9 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
     {
         var user = await UserManager.FindByIdAsync(input.UserId.ToString());
 
-        if (user == null)
-        {
-            throw new AbpException(L("UserNotFound"));
-        }
+        if (user == null) throw new AbpException(L("UserNotFound"));
 
-        if (user.EmailAddress != input.OldEmailAddress)
-        {
-            throw new UserFriendlyException(L("EmailAddressesDidNotMatch"));
-        }
+        if (user.EmailAddress != input.OldEmailAddress) throw new UserFriendlyException(L("EmailAddressesDidNotMatch"));
 
         user.EmailAddress = input.EmailAddress;
         user.IsEmailConfirmed = false;
@@ -325,9 +246,7 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
     {
         var userDelegation = await _userDelegationManager.GetAsync(input.UserDelegationId);
         if (userDelegation.TargetUserId != AbpSession.GetUserId())
-        {
             throw new UserFriendlyException("User delegation error.");
-        }
 
         return new ImpersonateOutput
         {
@@ -350,9 +269,7 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
     public virtual async Task<SwitchToLinkedAccountOutput> SwitchToLinkedAccount(SwitchToLinkedAccountInput input)
     {
         if (!await _userLinkManager.AreUsersLinked(AbpSession.ToUserIdentifier(), input.ToUserIdentifier()))
-        {
             throw new Exception(L("This account is not linked to your account"));
-        }
 
         return new SwitchToLinkedAccountOutput
         {
@@ -360,6 +277,35 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
                 await _userLinkManager.GetAccountSwitchToken(input.TargetUserId, input.TargetTenantId),
             TenancyName = await GetTenancyNameOrNullAsync(input.TargetTenantId)
         };
+    }
+
+    private async Task SendEmailPasswordlessCode(string emailAddress)
+    {
+        var user = await UserManager.FindByEmailAsync(emailAddress);
+        if (user == null) return;
+
+        var code = await _passwordlessLoginManager.GeneratePasswordlessLoginCode(
+            AbpSession.TenantId,
+            emailAddress
+        );
+
+        await _userEmailer.SendPasswordlessLoginCodeAsync(user, code);
+    }
+
+    private async Task SendSmsPasswordlessCode(string phoneNumber)
+    {
+        if (phoneNumber.IsNullOrEmpty()) return;
+
+        var user = UserManager.Users.FirstOrDefault(u => u.PhoneNumber == phoneNumber);
+        if (user == null) return;
+
+        var code = await _passwordlessLoginManager.GeneratePasswordlessLoginCode(
+            AbpSession.TenantId,
+            phoneNumber
+        );
+
+        var message = string.Format(L("PasswordlessLogin_SmsMessage", LotteryDetectionConsts.ProductName, code));
+        await _smsSender.SendAsync(phoneNumber, message);
     }
 
     private bool UseCaptchaOnRegistration()
@@ -375,15 +321,9 @@ public class AccountAppService : LotteryDetectionAppServiceBase, IAccountAppServ
     private async Task<Tenant> GetActiveTenantAsync(int tenantId)
     {
         var tenant = await TenantManager.FindByIdAsync(tenantId);
-        if (tenant == null)
-        {
-            throw new UserFriendlyException(L("UnknownTenantId{0}", tenantId));
-        }
+        if (tenant == null) throw new UserFriendlyException(L("UnknownTenantId{0}", tenantId));
 
-        if (!tenant.IsActive)
-        {
-            throw new UserFriendlyException(L("TenantIdIsNotActive{0}", tenantId));
-        }
+        if (!tenant.IsActive) throw new UserFriendlyException(L("TenantIdIsNotActive{0}", tenantId));
 
         return tenant;
     }

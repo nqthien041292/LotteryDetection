@@ -5,14 +5,11 @@ namespace LotteryDetection.Web.Authentication.JwtBearer;
 
 public class AsyncJwtBearerOptions : JwtBearerOptions
 {
+    private readonly LotteryDetectionAsyncJwtSecurityTokenHandler _defaultAsyncHandler = new();
     public readonly List<IAsyncSecurityTokenValidator> AsyncSecurityTokenValidators;
-
-    private readonly LotteryDetectionAsyncJwtSecurityTokenHandler _defaultAsyncHandler = new LotteryDetectionAsyncJwtSecurityTokenHandler();
 
     public AsyncJwtBearerOptions()
     {
-        AsyncSecurityTokenValidators = new List<IAsyncSecurityTokenValidator>() { _defaultAsyncHandler };
+        AsyncSecurityTokenValidators = new List<IAsyncSecurityTokenValidator> { _defaultAsyncHandler };
     }
 }
-
-

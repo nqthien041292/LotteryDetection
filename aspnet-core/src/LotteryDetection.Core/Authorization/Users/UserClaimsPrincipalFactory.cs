@@ -1,8 +1,8 @@
 ﻿using Abp.Authorization;
 using Abp.Domain.Uow;
+using LotteryDetection.Authorization.Roles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using LotteryDetection.Authorization.Roles;
 
 namespace LotteryDetection.Authorization.Users;
 
@@ -14,12 +14,10 @@ public class UserClaimsPrincipalFactory : AbpUserClaimsPrincipalFactory<User, Ro
         IOptions<IdentityOptions> optionsAccessor,
         IUnitOfWorkManager unitOfWorkManager)
         : base(
-              userManager,
-              roleManager,
-              optionsAccessor,
-              unitOfWorkManager)
+            userManager,
+            roleManager,
+            optionsAccessor,
+            unitOfWorkManager)
     {
-
     }
 }
-

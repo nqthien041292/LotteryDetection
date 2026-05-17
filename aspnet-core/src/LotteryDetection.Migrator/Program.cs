@@ -1,9 +1,9 @@
 ﻿using System;
 using Abp;
+using Abp.Castle.Logging.Log4Net;
 using Abp.Collections.Extensions;
 using Abp.Dependency;
 using Castle.Facilities.Logging;
-using Abp.Castle.Logging.Log4Net;
 
 namespace LotteryDetection.Migrator;
 
@@ -15,7 +15,7 @@ public class Program
     {
         ParseArgs(args);
 
-        bool.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_Docker_Enabled"), out bool isDockerEnabled);
+        bool.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_Docker_Enabled"), out var isDockerEnabled);
 
         using (var bootstrapper = AbpBootstrapper.Create<LotteryDetectionMigratorModule>())
         {
@@ -40,18 +40,10 @@ public class Program
 
     private static void ParseArgs(string[] args)
     {
-        if (args.IsNullOrEmpty())
-        {
-            return;
-        }
+        if (args.IsNullOrEmpty()) return;
 
         foreach (var arg in args)
-        {
             if (arg == "-s")
-            {
                 _skipConnVerification = true;
-            }
-        }
     }
 }
-

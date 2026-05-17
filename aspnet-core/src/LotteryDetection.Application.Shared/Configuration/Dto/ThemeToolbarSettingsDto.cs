@@ -6,4 +6,3 @@ public class ThemeToolbarSettingsDto
 
     public bool MobileFixedToolbar { get; set; }
 }
-

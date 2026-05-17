@@ -12,11 +12,11 @@ namespace LotteryDetection.MultiTenancy.Subscription;
 public class SubscriptionPaymentNotCompletedEmailNotifierWorker : PeriodicBackgroundWorkerBase, ISingletonDependency
 {
     private const int CheckPeriodAsMilliseconds = 1 * 60 * 60 * 1000 * 24; //1 day
+    private readonly IPaymentUrlGenerator _paymentUrlGenerator;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     private readonly UserEmailer _userEmailer;
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
-    private readonly IPaymentUrlGenerator _paymentUrlGenerator;
 
     public SubscriptionPaymentNotCompletedEmailNotifierWorker(
         AbpTimer timer,
@@ -46,7 +46,6 @@ public class SubscriptionPaymentNotCompletedEmailNotifierWorker : PeriodicBackgr
                 .ToList();
 
             foreach (var notCompletedPayment in notCompletedPayments)
-            {
                 try
                 {
                     var paymentUrl = _paymentUrlGenerator.CreatePaymentRequestUrl(notCompletedPayment);
@@ -56,8 +55,6 @@ public class SubscriptionPaymentNotCompletedEmailNotifierWorker : PeriodicBackgr
                 {
                     Logger.Error(exception.Message, exception);
                 }
-            }
         });
     }
 }
-

@@ -6,4 +6,3 @@ public class UserListRoleDto
 
     public string RoleName { get; set; }
 }
-

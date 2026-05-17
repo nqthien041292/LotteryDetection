@@ -7,4 +7,3 @@ public static class SubscriptionPaymentTypeExtensions
         return subscriptionPaymentType != SubscriptionPaymentType.Manual;
     }
 }
-

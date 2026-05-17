@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Abp.Data;
 using Abp.Dependency;
 using Abp.Domain.Repositories;
@@ -8,7 +7,6 @@ using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.MultiTenancy;
 using Abp.Runtime.Security;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Migrations.Seed;
 using LotteryDetection.MultiTenancy;
@@ -17,11 +15,10 @@ namespace LotteryDetection.Migrator;
 
 public class MultiTenantMigrateExecuter : ITransientDependency
 {
-    public Log Log { get; private set; }
+    private readonly IDbPerTenantConnectionStringResolver _connectionStringResolver;
 
     private readonly AbpZeroDbMigrator _migrator;
     private readonly IRepository<Tenant> _tenantRepository;
-    private readonly IDbPerTenantConnectionStringResolver _connectionStringResolver;
 
     public MultiTenantMigrateExecuter(
         AbpZeroDbMigrator migrator,
@@ -36,14 +33,19 @@ public class MultiTenantMigrateExecuter : ITransientDependency
         _connectionStringResolver = connectionStringResolver;
     }
 
+    public Log Log { get; }
+
     public void Run(bool skipConnVerification, bool isDockerEnabled = false)
     {
-        var hostConnStr = _connectionStringResolver.GetNameOrConnectionString(new ConnectionStringResolveArgs(MultiTenancySides.Host));
+        var hostConnStr =
+            _connectionStringResolver.GetNameOrConnectionString(
+                new ConnectionStringResolveArgs(MultiTenancySides.Host));
         if (hostConnStr.IsNullOrWhiteSpace())
         {
             Log.Write("Configuration file should contain a connection string named 'Default'");
             return;
         }
+
         Log.Write("Host database: " + ConnectionStringHelper.GetConnectionString(hostConnStr));
 
         if (!skipConnVerification && !isDockerEnabled)
@@ -76,10 +78,10 @@ public class MultiTenantMigrateExecuter : ITransientDependency
 
         var migratedDatabases = new HashSet<string>();
         var tenants = _tenantRepository.GetAllList(t => t.ConnectionString != null && t.ConnectionString != "");
-        for (int i = 0; i < tenants.Count; i++)
+        for (var i = 0; i < tenants.Count; i++)
         {
             var tenant = tenants[i];
-            Log.Write(string.Format("Tenant database migration started... ({0} / {1})", (i + 1), tenants.Count));
+            Log.Write(string.Format("Tenant database migration started... ({0} / {1})", i + 1, tenants.Count));
             Log.Write("Name              : " + tenant.Name);
             Log.Write("TenancyName       : " + tenant.TenancyName);
             Log.Write("Tenant Id         : " + tenant.Id);
@@ -102,14 +104,14 @@ public class MultiTenantMigrateExecuter : ITransientDependency
             }
             else
             {
-                Log.Write("This database has already migrated before (you have more than one tenant in same database). Skipping it....");
+                Log.Write(
+                    "This database has already migrated before (you have more than one tenant in same database). Skipping it....");
             }
 
-            Log.Write(string.Format("Tenant database migration completed. ({0} / {1})", (i + 1), tenants.Count));
+            Log.Write(string.Format("Tenant database migration completed. ({0} / {1})", i + 1, tenants.Count));
             Log.Write("--------------------------------------------------------");
         }
 
         Log.Write("All databases have been migrated.");
     }
 }
-

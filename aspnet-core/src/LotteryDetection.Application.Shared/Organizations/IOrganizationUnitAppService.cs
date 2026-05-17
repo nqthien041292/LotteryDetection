@@ -34,4 +34,3 @@ public interface IOrganizationUnitAppService : IApplicationService
 
     Task<List<OrganizationUnitDto>> GetAll();
 }
-

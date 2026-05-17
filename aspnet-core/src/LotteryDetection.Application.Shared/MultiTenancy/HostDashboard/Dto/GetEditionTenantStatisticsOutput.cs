@@ -11,4 +11,3 @@ public class GetEditionTenantStatisticsOutput
 
     public List<TenantEdition> EditionStatistics { get; set; }
 }
-

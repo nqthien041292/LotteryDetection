@@ -4,8 +4,6 @@ namespace LotteryDetection.Storage;
 
 public class FileUploadCacheOutput : ErrorInfo
 {
-    public string FileToken { get; set; }
-
     public FileUploadCacheOutput(string fileToken)
     {
         FileToken = fileToken;
@@ -18,5 +16,6 @@ public class FileUploadCacheOutput : ErrorInfo
         Message = error.Message;
         ValidationErrors = error.ValidationErrors;
     }
-}
 
+    public string FileToken { get; set; }
+}

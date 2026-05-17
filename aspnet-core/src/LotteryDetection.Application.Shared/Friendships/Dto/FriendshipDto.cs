@@ -20,4 +20,3 @@ public class FriendDto
 
     public FriendshipState State { get; set; }
 }
-

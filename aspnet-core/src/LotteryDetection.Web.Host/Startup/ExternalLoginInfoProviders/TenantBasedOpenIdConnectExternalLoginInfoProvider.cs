@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Abp.AspNetZeroCore.Web.Authentication.External;
-using Abp.AspNetZeroCore.Web.Authentication.External.Microsoft;
 using Abp.AspNetZeroCore.Web.Authentication.External.OpenIdConnect;
 using Abp.Configuration;
 using Abp.Dependency;
@@ -16,9 +15,8 @@ namespace LotteryDetection.Web.Startup.ExternalLoginInfoProviders;
 public class TenantBasedOpenIdConnectExternalLoginInfoProvider : TenantBasedExternalLoginInfoProviderBase,
     ISingletonDependency
 {
-    private readonly ISettingManager _settingManager;
     private readonly IAbpSession _abpSession;
-    public override string Name { get; } = OpenIdConnectAuthProviderApi.Name;
+    private readonly ISettingManager _settingManager;
 
     public TenantBasedOpenIdConnectExternalLoginInfoProvider(
         ISettingManager settingManager,
@@ -28,6 +26,8 @@ public class TenantBasedOpenIdConnectExternalLoginInfoProvider : TenantBasedExte
         _settingManager = settingManager;
         _abpSession = abpSession;
     }
+
+    public override string Name { get; } = OpenIdConnectAuthProviderApi.Name;
 
     private ExternalLoginProviderInfo CreateExternalLoginInfo(OpenIdConnectExternalLoginProviderSettings settings)
     {
@@ -42,10 +42,10 @@ public class TenantBasedOpenIdConnectExternalLoginInfoProvider : TenantBasedExte
             typeof(OpenIdConnectAuthProviderApi),
             new Dictionary<string, string>
             {
-                    {"Authority", settings.Authority},
-                    {"LoginUrl", settings.LoginUrl},
-                    {"ValidateIssuer", settings.ValidateIssuer.ToString()},
-                    {"ResponseType", settings.ResponseType}
+                { "Authority", settings.Authority },
+                { "LoginUrl", settings.LoginUrl },
+                { "ValidateIssuer", settings.ValidateIssuer.ToString() },
+                { "ResponseType", settings.ResponseType }
             },
             jsonClaimMappings
         );
@@ -61,7 +61,7 @@ public class TenantBasedOpenIdConnectExternalLoginInfoProvider : TenantBasedExte
 
     protected override ExternalLoginProviderInfo GetTenantInformation()
     {
-        string settingValue =
+        var settingValue =
             _settingManager.GetSettingValueForTenant(AppSettings.ExternalLoginProvider.Tenant.OpenIdConnect,
                 _abpSession.TenantId.Value);
         var settings = settingValue.FromJsonString<OpenIdConnectExternalLoginProviderSettings>();
@@ -70,10 +70,9 @@ public class TenantBasedOpenIdConnectExternalLoginInfoProvider : TenantBasedExte
 
     protected override ExternalLoginProviderInfo GetHostInformation()
     {
-        string settingValue =
+        var settingValue =
             _settingManager.GetSettingValueForApplication(AppSettings.ExternalLoginProvider.Host.OpenIdConnect);
         var settings = settingValue.FromJsonString<OpenIdConnectExternalLoginProviderSettings>();
         return CreateExternalLoginInfo(settings);
     }
 }
-

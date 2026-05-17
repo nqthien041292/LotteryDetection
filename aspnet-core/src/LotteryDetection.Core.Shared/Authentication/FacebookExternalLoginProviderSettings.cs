@@ -12,4 +12,3 @@ public class FacebookExternalLoginProviderSettings
         return !AppId.IsNullOrWhiteSpace() && !AppSecret.IsNullOrWhiteSpace();
     }
 }
-

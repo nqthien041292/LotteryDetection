@@ -21,4 +21,3 @@ public class UpdateLanguageTextInput
     [StringLength(ApplicationLanguageText.MaxValueLength)]
     public string Value { get; set; }
 }
-

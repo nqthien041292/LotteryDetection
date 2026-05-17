@@ -6,4 +6,3 @@ public enum ChartDateInterval
     Weekly = 2,
     Monthly = 3
 }
-

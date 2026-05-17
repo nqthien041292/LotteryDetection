@@ -14,4 +14,3 @@ public sealed class QueryContainer : ObjectGraphType, ITransientDependency
         AddField(userQuery.GetFieldType());
     }
 }
-

@@ -11,4 +11,3 @@ public class CreateOrganizationUnitInput
     [StringLength(OrganizationUnit.MaxDisplayNameLength)]
     public string DisplayName { get; set; }
 }
-

@@ -1,25 +1,24 @@
 ﻿using LotteryDetection.EntityFrameworkCore;
 
-namespace LotteryDetection.Test.Base.TestData
+namespace LotteryDetection.Test.Base.TestData;
+
+public class TestDataBuilder
 {
-    public class TestDataBuilder
+    private readonly LotteryDetectionDbContext _context;
+    private readonly int _tenantId;
+
+    public TestDataBuilder(LotteryDetectionDbContext context, int tenantId)
     {
-        private readonly LotteryDetectionDbContext _context;
-        private readonly int _tenantId;
+        _context = context;
+        _tenantId = tenantId;
+    }
 
-        public TestDataBuilder(LotteryDetectionDbContext context, int tenantId)
-        {
-            _context = context;
-            _tenantId = tenantId;
-        }
+    public void Create()
+    {
+        new TestOrganizationUnitsBuilder(_context, _tenantId).Create();
+        new TestSubscriptionPaymentBuilder(_context, _tenantId).Create();
+        new TestEditionsBuilder(_context).Create();
 
-        public void Create()
-        {
-            new TestOrganizationUnitsBuilder(_context, _tenantId).Create();
-            new TestSubscriptionPaymentBuilder(_context, _tenantId).Create();
-            new TestEditionsBuilder(_context).Create();
-
-            _context.SaveChanges();
-        }
+        _context.SaveChanges();
     }
 }

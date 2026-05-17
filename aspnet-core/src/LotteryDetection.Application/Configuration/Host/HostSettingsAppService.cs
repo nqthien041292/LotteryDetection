@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 using Abp.Authorization;
 using Abp.Collections.Extensions;
 using Abp.Configuration;
-using Abp.Configuration.Startup;
 using Abp.Extensions;
 using Abp.Json;
 using Abp.Net.Mail;
 using Abp.Runtime.Security;
-using Abp.Runtime.Session;
 using Abp.Timing;
 using Abp.UI;
 using Abp.Zero.Configuration;
@@ -21,18 +19,15 @@ using LotteryDetection.Configuration.Host.Dto;
 using LotteryDetection.Editions;
 using LotteryDetection.Security;
 using LotteryDetection.Timing;
-using LotteryDetection.Timing.Dto;
 
 namespace LotteryDetection.Configuration.Host;
 
 [AbpAuthorize(AppPermissions.Pages_Administration_Host_Settings)]
 public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppService
 {
-    public IExternalLoginOptionsCacheManager ExternalLoginOptionsCacheManager { get; set; }
-
     private readonly EditionManager _editionManager;
+    private readonly ISettingDefinitionManager _settingDefinitionManager;
     private readonly ITimeZoneService _timeZoneService;
-    readonly ISettingDefinitionManager _settingDefinitionManager;
 
     public HostSettingsAppService(
         IEmailSender emailSender,
@@ -47,6 +42,8 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
         _timeZoneService = timeZoneService;
         _settingDefinitionManager = settingDefinitionManager;
     }
+
+    public IExternalLoginOptionsCacheManager ExternalLoginOptionsCacheManager { get; set; }
 
     #region Get Settings
 
@@ -76,10 +73,7 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
 
         var defaultTimeZoneId =
             await _timeZoneService.GetDefaultTimezoneAsync(SettingScopes.Application, AbpSession.TenantId);
-        if (settings.Timezone == defaultTimeZoneId)
-        {
-            settings.Timezone = string.Empty;
-        }
+        if (settings.Timezone == defaultTimeZoneId) settings.Timezone = string.Empty;
 
         return settings;
     }
@@ -94,30 +88,29 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
                 await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
                     .IsNewRegisteredTenantActiveByDefault),
 
-            CaptchaSettings = new CaptchaSettingsEditDto()
+            CaptchaSettings = new CaptchaSettingsEditDto
             {
                 UseCaptchaOnRegistration =
-                await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
-                    .UseCaptchaOnRegistration),
+                    await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
+                        .UseCaptchaOnRegistration),
                 UseCaptchaOnEmailActivation =
-                await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
-                    .UseCaptchaOnEmailActivation),
+                    await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
+                        .UseCaptchaOnEmailActivation),
                 UseCaptchaOnResetPassword =
-                await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
-                    .UseCaptchaOnResetPassword),
+                    await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
+                        .UseCaptchaOnResetPassword)
             },
 
             IsRestrictedEmailDomainEnabled =
-                await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement.IsRestrictedEmailDomainEnabled),
+                await SettingManager.GetSettingValueAsync<bool>(AppSettings.TenantManagement
+                    .IsRestrictedEmailDomainEnabled)
         };
 
         var defaultEditionId =
             await SettingManager.GetSettingValueAsync(AppSettings.TenantManagement.DefaultEdition);
         if (!string.IsNullOrEmpty(defaultEditionId) &&
-            (await _editionManager.FindByIdAsync(Convert.ToInt32(defaultEditionId)) != null))
-        {
+            await _editionManager.FindByIdAsync(Convert.ToInt32(defaultEditionId)) != null)
             settings.DefaultEditionId = Convert.ToInt32(defaultEditionId);
-        }
 
         return settings;
     }
@@ -150,8 +143,8 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
 
             SessionTimeOutSettings = new SessionTimeOutSettingsEditDto
             {
-                IsEnabled = await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement
-                    .SessionTimeOut.IsEnabled),
+                IsEnabled = await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.SessionTimeOut
+                    .IsEnabled),
                 TimeOutSecond =
                     await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.SessionTimeOut
                         .TimeOutSecond),
@@ -165,7 +158,8 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
 
             PasswordlessLogin = await GetPasswordlessLoginSettingsAsync(),
 
-            IsQrLoginEnabled =  await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.IsQrLoginEnabled)
+            IsQrLoginEnabled =
+                await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.IsQrLoginEnabled)
         };
     }
 
@@ -197,17 +191,17 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
         var passwordComplexitySetting = new PasswordComplexitySetting
         {
             RequireDigit =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireDigit),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireDigit),
             RequireLowercase =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireLowercase),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireLowercase),
             RequireNonAlphanumeric =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireNonAlphanumeric),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireNonAlphanumeric),
             RequireUppercase =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireUppercase),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireUppercase),
             RequiredLength =
                 await SettingManager.GetSettingValueAsync<int>(AbpZeroSettingNames.UserManagement.PasswordComplexity
                     .RequiredLength)
@@ -256,7 +250,7 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
 
     private async Task<OtherSettingsEditDto> GetOtherSettingsAsync()
     {
-        return new OtherSettingsEditDto()
+        return new OtherSettingsEditDto
         {
             IsQuickThemeSelectEnabled =
                 await SettingManager.GetSettingValueAsync<bool>(
@@ -268,8 +262,8 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
     {
         return new UserLockOutSettingsEditDto
         {
-            IsEnabled = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                .UserLockOut.IsEnabled),
+            IsEnabled = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.UserLockOut
+                .IsEnabled),
             MaxFailedAccessAttemptsBeforeLockout =
                 await SettingManager.GetSettingValueAsync<int>(AbpZeroSettingNames.UserManagement.UserLockOut
                     .MaxFailedAccessAttemptsBeforeLockout),
@@ -306,10 +300,10 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
         var settings = new PasswordlessLoginSettingsEditDto
         {
             IsEmailProviderEnabledForApplication = await SettingManager.GetSettingValueForApplicationAsync<bool>
-            (AppSettings.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled),
+                (AppSettings.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled),
 
             IsSmsProviderEnabledForApplication = await SettingManager.GetSettingValueForApplicationAsync<bool>
-            (AppSettings.UserManagement.PasswordlessLogin.IsSmsPasswordlessLoginEnabled)
+                (AppSettings.UserManagement.PasswordlessLogin.IsSmsPasswordlessLoginEnabled)
         };
 
         return settings;
@@ -383,13 +377,24 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
     {
         return new UserPasswordSettingsEditDto
         {
-            EnableCheckingLastXPasswordWhenPasswordChange = await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.Password.EnableCheckingLastXPasswordWhenPasswordChange),
-            CheckingLastXPasswordCount = await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.Password.CheckingLastXPasswordCount),
-            EnablePasswordExpiration = await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.Password.EnablePasswordExpiration),
-            PasswordExpirationDayCount = await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.Password.PasswordExpirationDayCount),
-            PasswordResetCodeExpirationHours = await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.Password.PasswordResetCodeExpirationHours),
+            EnableCheckingLastXPasswordWhenPasswordChange =
+                await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.Password
+                    .EnableCheckingLastXPasswordWhenPasswordChange),
+            CheckingLastXPasswordCount =
+                await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.Password
+                    .CheckingLastXPasswordCount),
+            EnablePasswordExpiration =
+                await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.Password
+                    .EnablePasswordExpiration),
+            PasswordExpirationDayCount =
+                await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.Password
+                    .PasswordExpirationDayCount),
+            PasswordResetCodeExpirationHours =
+                await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.Password
+                    .PasswordResetCodeExpirationHours)
         };
     }
+
     #endregion
 
     #region Update Settings
@@ -429,7 +434,7 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
             if (settings.Timezone.IsNullOrEmpty())
             {
                 var defaultValue =
-                   await _timeZoneService.GetDefaultTimezoneAsync(SettingScopes.Application, AbpSession.TenantId);
+                    await _timeZoneService.GetDefaultTimezoneAsync(SettingScopes.Application, AbpSession.TenantId);
                 await SettingManager.ChangeSettingForApplicationAsync(TimingSettingNames.TimeZone, defaultValue);
             }
             else
@@ -497,7 +502,7 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
             AppSettings.UserManagement.IsCookieConsentEnabled,
             settings.IsCookieConsentEnabled.ToString().ToLowerInvariant()
         );
-        
+
         await SettingManager.ChangeSettingForApplicationAsync(
             AppSettings.UserManagement.UseCaptchaOnLogin,
             settings.UseCaptchaOnLogin.ToString().ToLowerInvariant()
@@ -541,27 +546,23 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
         var user = await GetCurrentUserAsync();
 
         if (!user.IsEmailConfirmed && settings.IsEmailConfirmationRequiredForLogin)
-        {
             throw new UserFriendlyException(L("CurrentUsersEmailIsNotConfirmed"));
-        }
 
         if (!user.IsPhoneNumberConfirmed && settings.SmsVerificationEnabled)
-        {
             throw new UserFriendlyException(L("CurrentUsersPhoneNumberIsNotConfirmed"));
-        }
     }
 
     private async Task UpdatePasswordlessLoginSettingsAsync(PasswordlessLoginSettingsEditDto settings)
     {
         await SettingManager.ChangeSettingForApplicationAsync(
-          AppSettings.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled,
-          settings.IsEmailProviderEnabledForApplication.ToString().ToLowerInvariant()
-      );
+            AppSettings.UserManagement.PasswordlessLogin.IsEmailPasswordlessLoginEnabled,
+            settings.IsEmailProviderEnabledForApplication.ToString().ToLowerInvariant()
+        );
 
         await SettingManager.ChangeSettingForApplicationAsync(
-           AppSettings.UserManagement.PasswordlessLogin.IsSmsPasswordlessLoginEnabled,
-           settings.IsSmsProviderEnabledForApplication.ToString().ToLowerInvariant()
-       );
+            AppSettings.UserManagement.PasswordlessLogin.IsSmsPasswordlessLoginEnabled,
+            settings.IsSmsProviderEnabledForApplication.ToString().ToLowerInvariant()
+        );
     }
 
     private async Task UpdateUserManagementPasswordSettingsAsync(UserPasswordSettingsEditDto settings)
@@ -624,9 +625,8 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
         else
         {
             if (settings.PasswordComplexity.RequiredLength < settings.PasswordComplexity.AllowedMinimumLength)
-            {
-                throw new UserFriendlyException(L("AllowedMinimumLength", settings.PasswordComplexity.AllowedMinimumLength));
-            }
+                throw new UserFriendlyException(L("AllowedMinimumLength",
+                    settings.PasswordComplexity.AllowedMinimumLength));
 
             await UpdatePasswordComplexitySettingsAsync(settings.PasswordComplexity);
         }
@@ -673,20 +673,16 @@ public class HostSettingsAppService : SettingsAppServiceBase, IHostSettingsAppSe
         );
 
         if (settings.DefaultAccountLockoutSeconds.HasValue)
-        {
             await SettingManager.ChangeSettingForApplicationAsync(
                 AbpZeroSettingNames.UserManagement.UserLockOut.DefaultAccountLockoutSeconds,
                 settings.DefaultAccountLockoutSeconds.ToString()
             );
-        }
 
         if (settings.MaxFailedAccessAttemptsBeforeLockout.HasValue)
-        {
             await SettingManager.ChangeSettingForApplicationAsync(
                 AbpZeroSettingNames.UserManagement.UserLockOut.MaxFailedAccessAttemptsBeforeLockout,
                 settings.MaxFailedAccessAttemptsBeforeLockout.ToString()
             );
-        }
     }
 
     private async Task UpdateTwoFactorLoginSettingsAsync(TwoFactorLoginSettingsEditDto settings)

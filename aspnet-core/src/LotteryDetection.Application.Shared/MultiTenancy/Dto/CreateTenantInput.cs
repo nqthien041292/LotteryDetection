@@ -51,4 +51,3 @@ public class CreateTenantInput
 
     public bool IsInTrialPeriod { get; set; }
 }
-

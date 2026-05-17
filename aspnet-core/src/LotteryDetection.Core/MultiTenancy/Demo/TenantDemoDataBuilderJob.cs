@@ -32,4 +32,3 @@ public class TenantDemoDataBuilderJob : AsyncBackgroundJob<int>, ITransientDepen
         }
     }
 }
-

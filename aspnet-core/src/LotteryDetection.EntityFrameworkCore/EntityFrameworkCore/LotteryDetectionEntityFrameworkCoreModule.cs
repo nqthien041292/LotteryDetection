@@ -1,12 +1,10 @@
-﻿using Abp;
-using Abp.Dependency;
+﻿using Abp.Dependency;
 using Abp.EntityFrameworkCore.Configuration;
 using Abp.Modules;
 using Abp.OpenIddict.EntityFrameworkCore;
 using Abp.Reflection.Extensions;
 using Abp.Zero.EntityFrameworkCore;
 using LotteryDetection.Configuration;
-using LotteryDetection.EntityHistory;
 using LotteryDetection.Migrations.Seed;
 
 namespace LotteryDetection.EntityFrameworkCore;
@@ -26,21 +24,15 @@ public class LotteryDetectionEntityFrameworkCoreModule : AbpModule
     public override void PreInitialize()
     {
         if (!SkipDbContextRegistration)
-        {
             Configuration.Modules.AbpEfCore().AddDbContext<LotteryDetectionDbContext>(options =>
             {
                 if (options.ExistingConnection != null)
-                {
                     LotteryDetectionDbContextConfigurer.Configure(options.DbContextOptions,
                         options.ExistingConnection);
-                }
                 else
-                {
                     LotteryDetectionDbContextConfigurer.Configure(options.DbContextOptions,
                         options.ConnectionString);
-                }
             });
-        }
 
         // Set this setting to true for enabling entity history.
         Configuration.EntityHistory.IsEnabled = false;
@@ -63,10 +55,7 @@ public class LotteryDetectionEntityFrameworkCoreModule : AbpModule
         {
             if (!SkipDbSeed && scope.Resolve<DatabaseCheckHelper>()
                     .Exist(configurationAccessor.Configuration["ConnectionStrings:Default"]))
-            {
                 SeedHelper.SeedHostDb(IocManager);
-            }
         }
     }
 }
-

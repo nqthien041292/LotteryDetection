@@ -20,4 +20,3 @@ public class RegisterTenantOutput
 
     public long? PaymentId { get; set; }
 }
-

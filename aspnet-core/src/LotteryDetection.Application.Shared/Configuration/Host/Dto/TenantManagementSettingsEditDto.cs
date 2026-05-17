@@ -11,6 +11,4 @@ public class TenantManagementSettingsEditDto
     public CaptchaSettingsEditDto CaptchaSettings { get; set; }
 
     public bool IsRestrictedEmailDomainEnabled { get; set; }
-
 }
-

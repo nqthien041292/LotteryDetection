@@ -1,51 +1,54 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Abp.AspNetCore;
 using Abp.AspNetCore.Configuration;
 using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.Mvc.Extensions;
+using Abp.AspNetCore.OpenIddict;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.AspNetZeroCore.Web.Authentication.JwtBearer;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
 using Abp.Hangfire;
+using Abp.HtmlSanitizer;
 using Abp.PlugIns;
 using Castle.Facilities.Logging;
+using GraphQL.Server.Ui.Playground;
 using Hangfire;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using HealthChecks.UI.Client;
 using LotteryDetection.Authorization;
+using LotteryDetection.Authorization.QrLogin;
 using LotteryDetection.Configuration;
+using LotteryDetection.Configure;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Identity;
+using LotteryDetection.Schemas;
+using LotteryDetection.Web.Authentication.PasswordlessLogin;
 using LotteryDetection.Web.Chat.SignalR;
 using LotteryDetection.Web.Common;
+using LotteryDetection.Web.HealthCheck;
+using LotteryDetection.Web.MultiTenancy;
+using LotteryDetection.Web.OpenIddict;
 using LotteryDetection.Web.Swagger;
-using Stripe;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
-using GraphQL.Server.Ui.Playground;
-using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using LotteryDetection.Configure;
-using LotteryDetection.Schemas;
-using LotteryDetection.Web.HealthCheck;
 using Owl.reCAPTCHA;
+using Stripe;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using HealthChecksUISettings = HealthChecks.UI.Configuration.Settings;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
-using LotteryDetection.Web.MultiTenancy;
-using Abp.HtmlSanitizer;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using LotteryDetection.Web.Authentication.PasswordlessLogin;
-using LotteryDetection.Web.OpenIddict;
-using Abp.AspNetCore.OpenIddict;
-using LotteryDetection.Authorization.QrLogin;
 
 namespace LotteryDetection.Web.Startup;
 
@@ -71,7 +74,7 @@ public class Startup
             options.AddAbpHtmlSanitizer();
         });
 #if DEBUG
-            mvcBuilder.AddRazorRuntimeCompilation();
+        mvcBuilder.AddRazorRuntimeCompilation();
 #endif
 
         services.AddSignalR();
@@ -97,10 +100,7 @@ public class Startup
             });
         });
 
-        if (bool.Parse(_appConfiguration["KestrelServer:IsEnabled"]))
-        {
-            ConfigureKestrel(services);
-        }
+        if (bool.Parse(_appConfiguration["KestrelServer:IsEnabled"])) ConfigureKestrel(services);
 
         IdentityRegistrar.Register(services);
         AuthConfigurer.Configure(services, _appConfiguration);
@@ -111,17 +111,15 @@ public class Startup
             services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
                 options => { options.LoginPath = "/Ui/Login"; });
         }
-        
+
         services.Configure<SecurityStampValidatorOptions>(opts =>
         {
             opts.OnRefreshingPrincipal = SecurityStampValidatorCallback.UpdatePrincipal;
         });
 
         if (WebConsts.SwaggerUiEnabled)
-        {
             //Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
-        }
 
         services.AddPasswordlessLoginRateLimit();
 
@@ -143,22 +141,16 @@ public class Startup
             services.AddHangfireServer();
         }
 
-        if (WebConsts.GraphQL.Enabled)
-        {
-            services.AddAndConfigureGraphQL();
-        }
+        if (WebConsts.GraphQL.Enabled) services.AddAndConfigureGraphQL();
 
-        if (bool.Parse(_appConfiguration["HealthChecks:HealthChecksEnabled"]))
-        {
-            ConfigureHealthChecks(services);
-        }
+        if (bool.Parse(_appConfiguration["HealthChecks:HealthChecksEnabled"])) ConfigureHealthChecks(services);
 
         //Configure Abp and Dependency Injection
         return services.AddAbp<LotteryDetectionWebHostModule>(options =>
         {
             //Configure Log4Net logging
-            options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                f => f.UseAbpLog4Net().WithConfig(_hostingEnvironment.IsDevelopment()
+            options.IocManager.IocContainer.AddFacility<LoggingFacility>(f => f.UseAbpLog4Net().WithConfig(
+                _hostingEnvironment.IsDevelopment()
                     ? "log4net.config"
                     : "log4net.Production.config")
             );
@@ -190,10 +182,7 @@ public class Startup
         app.UseStaticFiles();
 
 #pragma warning disable CS0162
-        if (LotteryDetectionConsts.PreventNotExistingTenantSubdomains)
-        {
-            app.UseMiddleware<DomainTenantCheckMiddleware>();
-        }
+        if (LotteryDetectionConsts.PreventNotExistingTenantSubdomains) app.UseMiddleware<DomainTenantCheckMiddleware>();
 
         app.UseRouting();
 
@@ -203,10 +192,7 @@ public class Startup
         app.UseAuthentication();
         app.UseJwtTokenMiddleware();
 
-        if (bool.Parse(_appConfiguration["OpenIddict:IsEnabled"]))
-        {
-            app.UseAbpOpenIddictValidation();
-        }
+        if (bool.Parse(_appConfiguration["OpenIddict:IsEnabled"])) app.UseAbpOpenIddictValidation();
 
         app.UseAuthorization();
 
@@ -214,37 +200,29 @@ public class Startup
         {
             if (scope.ServiceProvider.GetService<DatabaseCheckHelper>()
                 .Exist(_appConfiguration["ConnectionStrings:Default"]))
-            {
                 app.UseAbpRequestLocalization();
-            }
         }
 
         if (WebConsts.HangfireDashboardEnabled)
-        {
             //Hangfire dashboard &server(Enable to use Hangfire instead of default job manager)
             app.UseHangfireDashboard(WebConsts.HangfireDashboardEndPoint, new DashboardOptions
             {
                 Authorization = new[]
-                    {new AbpHangfireAuthorizationFilter(AppPermissions.Pages_Administration_HangfireDashboard)}
+                    { new AbpHangfireAuthorizationFilter(AppPermissions.Pages_Administration_HangfireDashboard) }
             });
-        }
 
         if (bool.Parse(_appConfiguration["Payment:Stripe:IsActive"]))
-        {
             StripeConfiguration.ApiKey = _appConfiguration["Payment:Stripe:SecretKey"];
-        }
 
         if (WebConsts.GraphQL.Enabled)
         {
-            app.UseGraphQL<MainSchema>(WebConsts.GraphQL.EndPoint);
+            app.UseGraphQL<MainSchema>();
             if (WebConsts.GraphQL.PlaygroundEnabled)
-            {
                 // to explorer API navigate https://*DOMAIN*/ui/playground
                 app.UseGraphQLPlayground(
                     WebConsts.GraphQL.PlaygroundEndPoint,
                     new PlaygroundOptions()
                 );
-            }
         }
 
         app.UseEndpoints(endpoints =>
@@ -262,16 +240,14 @@ public class Startup
 
         if (bool.Parse(_appConfiguration["HealthChecks:HealthChecksEnabled"]))
         {
-            app.UseHealthChecks("/health", new HealthCheckOptions()
+            app.UseHealthChecks("/health", new HealthCheckOptions
             {
                 Predicate = _ => true,
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
 
             if (bool.Parse(_appConfiguration["HealthChecks:HealthChecksUI:HealthChecksUIEnabled"]))
-            {
                 app.UseHealthChecksUI();
-            }
         }
 
         if (WebConsts.SwaggerUiEnabled)
@@ -292,16 +268,16 @@ public class Startup
 
     private void ConfigureKestrel(IServiceCollection services)
     {
-        services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
+        services.Configure<KestrelServerOptions>(options =>
         {
-            options.Listen(new System.Net.IPEndPoint(System.Net.IPAddress.Any, 443),
+            options.Listen(new IPEndPoint(IPAddress.Any, 443),
                 listenOptions =>
                 {
                     var certPassword = _appConfiguration.GetValue<string>("Kestrel:Certificates:Default:Password");
                     var certPath = _appConfiguration.GetValue<string>("Kestrel:Certificates:Default:Path");
-                    var cert = new System.Security.Cryptography.X509Certificates.X509Certificate2(certPath,
+                    var cert = new X509Certificate2(certPath,
                         certPassword);
-                    listenOptions.UseHttps(new HttpsConnectionAdapterOptions()
+                    listenOptions.UseHttps(new HttpsConnectionAdapterOptions
                     {
                         ServerCertificate = cert
                     });
@@ -313,7 +289,7 @@ public class Startup
     {
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo() { Title = "LotteryDetection API", Version = "v1" });
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "LotteryDetection API", Version = "v1" });
             options.DocInclusionPredicate((docName, description) => true);
             options.ParameterFilter<SwaggerEnumParameterFilter>();
             options.ParameterFilter<SwaggerNullableParameterFilter>();
@@ -323,18 +299,18 @@ public class Startup
             options.CustomDefaultSchemaIdSelector();
 
             //add summaries to swagger
-            bool canShowSummaries = _appConfiguration.GetValue<bool>("Swagger:ShowSummaries");
+            var canShowSummaries = _appConfiguration.GetValue<bool>("Swagger:ShowSummaries");
             if (canShowSummaries)
             {
                 var hostXmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var hostXmlPath = Path.Combine(AppContext.BaseDirectory, hostXmlFile);
                 options.IncludeXmlComments(hostXmlPath);
 
-                var applicationXml = $"LotteryDetection.Application.xml";
+                var applicationXml = "LotteryDetection.Application.xml";
                 var applicationXmlPath = Path.Combine(AppContext.BaseDirectory, applicationXml);
                 options.IncludeXmlComments(applicationXmlPath);
 
-                var webCoreXmlFile = $"LotteryDetection.Web.Core.xml";
+                var webCoreXmlFile = "LotteryDetection.Web.Core.xml";
                 var webCoreXmlPath = Path.Combine(AppContext.BaseDirectory, webCoreXmlFile);
                 options.IncludeXmlComments(webCoreXmlPath);
             }
@@ -358,4 +334,3 @@ public class Startup
         }
     }
 }
-

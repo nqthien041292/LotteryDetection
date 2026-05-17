@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Text;
 using Abp.AspNetCore.OpenIddict.Claims;
 using Abp.OpenIddict.Applications;
 using Abp.OpenIddict.Authorizations;
 using Abp.OpenIddict.Scopes;
 using Abp.OpenIddict.Tokens;
-using Abp.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Core;
 
 namespace LotteryDetection.Web.OpenIddict;
@@ -91,4 +87,3 @@ public static class OpenIddictRegistrar
         Register(services, configuration, options => { });
     }
 }
-

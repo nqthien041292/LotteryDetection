@@ -20,14 +20,84 @@ public enum PredicateOperator
 }
 
 /// <summary>
-/// See http://www.albahari.com/expressions for information and examples.
+///     See http://www.albahari.com/expressions for information and examples.
 /// </summary>
 public static class PredicateBuilder
 {
+    /// <summary> Start an expression </summary>
+    public static ExpressionStarter<T> New<T>(Expression<Func<T, bool>> expr = null)
+    {
+        return new ExpressionStarter<T>(expr);
+    }
+
+    /// <summary> Create an expression with a stub expression true or false to use when the expression is not yet started. </summary>
+    public static ExpressionStarter<T> New<T>(bool defaultExpression)
+    {
+        return new ExpressionStarter<T>(defaultExpression);
+    }
+
+    /// <summary> Always true </summary>
+    [Obsolete("Use PredicateBuilder.New() instead.")]
+    public static Expression<Func<T, bool>> True<T>()
+    {
+        return new ExpressionStarter<T>(true);
+    }
+
+    /// <summary> Always false </summary>
+    [Obsolete("Use PredicateBuilder.New() instead.")]
+    public static Expression<Func<T, bool>> False<T>()
+    {
+        return new ExpressionStarter<T>(false);
+    }
+
+    /// <summary> OR </summary>
+    public static Expression<Func<T, bool>> Or<T>([NotNull] this Expression<Func<T, bool>> expr1,
+        [NotNull] Expression<Func<T, bool>> expr2)
+    {
+        var expr2Body = new RebindParameterVisitor(expr2.Parameters[0], expr1.Parameters[0]).Visit(expr2.Body);
+        return Expression.Lambda<Func<T, bool>>(Expression.OrElse(expr1.Body, expr2Body), expr1.Parameters);
+    }
+
+    /// <summary> AND </summary>
+    public static Expression<Func<T, bool>> And<T>([NotNull] this Expression<Func<T, bool>> expr1,
+        [NotNull] Expression<Func<T, bool>> expr2)
+    {
+        var expr2Body = new RebindParameterVisitor(expr2.Parameters[0], expr1.Parameters[0]).Visit(expr2.Body);
+        return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(expr1.Body, expr2Body), expr1.Parameters);
+    }
+
+    /// <summary>
+    ///     Extends the specified source Predicate with another Predicate and the specified PredicateOperator.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
+    /// <param name="first">The source Predicate.</param>
+    /// <param name="second">The second Predicate.</param>
+    /// <param name="operator">The Operator (can be "And" or "Or").</param>
+    /// <returns>Expression{Func{T, bool}}</returns>
+    public static Expression<Func<T, bool>> Extend<T>([NotNull] this Expression<Func<T, bool>> first,
+        [NotNull] Expression<Func<T, bool>> second, PredicateOperator @operator = PredicateOperator.Or)
+    {
+        return @operator == PredicateOperator.Or ? first.Or(second) : first.And(second);
+    }
+
+    /// <summary>
+    ///     Extends the specified source Predicate with another Predicate and the specified PredicateOperator.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
+    /// <param name="first">The source Predicate.</param>
+    /// <param name="second">The second Predicate.</param>
+    /// <param name="operator">The Operator (can be "And" or "Or").</param>
+    /// <returns>Expression{Func{T, bool}}</returns>
+    public static Expression<Func<T, bool>> Extend<T>([NotNull] this ExpressionStarter<T> first,
+        [NotNull] Expression<Func<T, bool>> second, PredicateOperator @operator = PredicateOperator.Or)
+    {
+        return @operator == PredicateOperator.Or ? first.Or(second) : first.And(second);
+    }
+
     private class RebindParameterVisitor : ExpressionVisitor
     {
-        private readonly ParameterExpression _oldParameter;
         private readonly ParameterExpression _newParameter;
+        private readonly ParameterExpression _oldParameter;
 
         public RebindParameterVisitor(ParameterExpression oldParameter, ParameterExpression newParameter)
         {
@@ -37,77 +107,24 @@ public static class PredicateBuilder
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (node == _oldParameter)
-            {
-                return _newParameter;
-            }
+            if (node == _oldParameter) return _newParameter;
 
             return base.VisitParameter(node);
         }
     }
-
-    /// <summary> Start an expression </summary>
-    public static ExpressionStarter<T> New<T>(Expression<Func<T, bool>> expr = null) { return new ExpressionStarter<T>(expr); }
-
-    /// <summary> Create an expression with a stub expression true or false to use when the expression is not yet started. </summary>
-    public static ExpressionStarter<T> New<T>(bool defaultExpression) { return new ExpressionStarter<T>(defaultExpression); }
-
-    /// <summary> Always true </summary>
-    [Obsolete("Use PredicateBuilder.New() instead.")]
-    public static Expression<Func<T, bool>> True<T>() { return new ExpressionStarter<T>(true); }
-
-    /// <summary> Always false </summary>
-    [Obsolete("Use PredicateBuilder.New() instead.")]
-    public static Expression<Func<T, bool>> False<T>() { return new ExpressionStarter<T>(false); }
-
-    /// <summary> OR </summary>
-    public static Expression<Func<T, bool>> Or<T>([NotNull] this Expression<Func<T, bool>> expr1, [NotNull] Expression<Func<T, bool>> expr2)
-    {
-        var expr2Body = new RebindParameterVisitor(expr2.Parameters[0], expr1.Parameters[0]).Visit(expr2.Body);
-        return Expression.Lambda<Func<T, bool>>(Expression.OrElse(expr1.Body, expr2Body), expr1.Parameters);
-    }
-
-    /// <summary> AND </summary>
-    public static Expression<Func<T, bool>> And<T>([NotNull] this Expression<Func<T, bool>> expr1, [NotNull] Expression<Func<T, bool>> expr2)
-    {
-        var expr2Body = new RebindParameterVisitor(expr2.Parameters[0], expr1.Parameters[0]).Visit(expr2.Body);
-        return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(expr1.Body, expr2Body), expr1.Parameters);
-    }
-
-    /// <summary>
-    /// Extends the specified source Predicate with another Predicate and the specified PredicateOperator.
-    /// </summary>
-    /// <typeparam name="T">The type</typeparam>
-    /// <param name="first">The source Predicate.</param>
-    /// <param name="second">The second Predicate.</param>
-    /// <param name="operator">The Operator (can be "And" or "Or").</param>
-    /// <returns>Expression{Func{T, bool}}</returns>
-    public static Expression<Func<T, bool>> Extend<T>([NotNull] this Expression<Func<T, bool>> first, [NotNull] Expression<Func<T, bool>> second, PredicateOperator @operator = PredicateOperator.Or)
-    {
-        return @operator == PredicateOperator.Or ? first.Or(second) : first.And(second);
-    }
-
-    /// <summary>
-    /// Extends the specified source Predicate with another Predicate and the specified PredicateOperator.
-    /// </summary>
-    /// <typeparam name="T">The type</typeparam>
-    /// <param name="first">The source Predicate.</param>
-    /// <param name="second">The second Predicate.</param>
-    /// <param name="operator">The Operator (can be "And" or "Or").</param>
-    /// <returns>Expression{Func{T, bool}}</returns>
-    public static Expression<Func<T, bool>> Extend<T>([NotNull] this ExpressionStarter<T> first, [NotNull] Expression<Func<T, bool>> second, PredicateOperator @operator = PredicateOperator.Or)
-    {
-        return @operator == PredicateOperator.Or ? first.Or(second) : first.And(second);
-    }
 }
 
 /// <summary>
-/// ExpressionStarter{T} which eliminates the default 1=0 or 1=1 stub expressions
+///     ExpressionStarter{T} which eliminates the default 1=0 or 1=1 stub expressions
 /// </summary>
 /// <typeparam name="T">The type</typeparam>
 public class ExpressionStarter<T>
 {
-    internal ExpressionStarter() : this(false) { }
+    private Expression<Func<T, bool>> _predicate;
+
+    internal ExpressionStarter() : this(false)
+    {
+    }
 
     internal ExpressionStarter(bool defaultExpression)
     {
@@ -123,9 +140,7 @@ public class ExpressionStarter<T>
     }
 
     /// <summary>The actual Predicate. It can only be set by calling Start.</summary>
-    private Expression<Func<T, bool>> Predicate => (IsStarted || !UseDefaultExpression) ? _predicate : DefaultExpression;
-
-    private Expression<Func<T, bool>> _predicate;
+    private Expression<Func<T, bool>> Predicate => IsStarted || !UseDefaultExpression ? _predicate : DefaultExpression;
 
     /// <summary>Determines if the predicate is started.</summary>
     public bool IsStarted => _predicate != null;
@@ -135,6 +150,15 @@ public class ExpressionStarter<T>
 
     /// <summary>The default expression</summary>
     public Expression<Func<T, bool>> DefaultExpression { get; set; }
+
+    #region Implement Expression methods and properties
+
+#if !(NET35)
+    /// <summary></summary>
+    public virtual bool CanReduce => Predicate.CanReduce;
+#endif
+
+    #endregion
 
     /// <summary>Set the Expression predicate</summary>
     /// <param name="exp">The first expression</param>
@@ -149,13 +173,13 @@ public class ExpressionStarter<T>
     /// <summary>Or</summary>
     public Expression<Func<T, bool>> Or([NotNull] Expression<Func<T, bool>> expr2)
     {
-        return (IsStarted) ? _predicate = Predicate.Or(expr2) : Start(expr2);
+        return IsStarted ? _predicate = Predicate.Or(expr2) : Start(expr2);
     }
 
     /// <summary>And</summary>
     public Expression<Func<T, bool>> And([NotNull] Expression<Func<T, bool>> expr2)
     {
-        return (IsStarted) ? _predicate = Predicate.And(expr2) : Start(expr2);
+        return IsStarted ? _predicate = Predicate.And(expr2) : Start(expr2);
     }
 
     /// <summary> Show predicate string </summary>
@@ -165,8 +189,9 @@ public class ExpressionStarter<T>
     }
 
     #region Implicit Operators
+
     /// <summary>
-    /// Allows this object to be implicitely converted to an Expression{Func{T, bool}}.
+    ///     Allows this object to be implicitely converted to an Expression{Func{T, bool}}.
     /// </summary>
     /// <param name="right"></param>
     public static implicit operator Expression<Func<T, bool>>(ExpressionStarter<T> right)
@@ -175,38 +200,50 @@ public class ExpressionStarter<T>
     }
 
     /// <summary>
-    /// Allows this object to be implicitely converted to an Expression{Func{T, bool}}.
+    ///     Allows this object to be implicitely converted to an Expression{Func{T, bool}}.
     /// </summary>
     /// <param name="right"></param>
     public static implicit operator Func<T, bool>(ExpressionStarter<T> right)
     {
-        return right == null ? null : (right.IsStarted || right.UseDefaultExpression) ? right.Predicate.Compile() : null;
+        return right == null ? null : right.IsStarted || right.UseDefaultExpression ? right.Predicate.Compile() : null;
     }
 
     /// <summary>
-    /// Allows this object to be implicitely converted to an Expression{Func{T, bool}}.
+    ///     Allows this object to be implicitely converted to an Expression{Func{T, bool}}.
     /// </summary>
     /// <param name="right"></param>
     public static implicit operator ExpressionStarter<T>(Expression<Func<T, bool>> right)
     {
         return right == null ? null : new ExpressionStarter<T>(right);
     }
+
     #endregion
 
     #region Implement Expression<TDelagate> methods and properties
+
 #if !(NET35)
 
     /// <summary></summary>
-    public Func<T, bool> Compile() { return Predicate.Compile(); }
+    public Func<T, bool> Compile()
+    {
+        return Predicate.Compile();
+    }
 #endif
 
 #if !(NET35 || WINDOWS_APP || NETSTANDARD || PORTABLE || PORTABLE40 || UAP)
     /// <summary></summary>
-    public Func<T, bool> Compile(DebugInfoGenerator debugInfoGenerator) { return Predicate.Compile(debugInfoGenerator); }
+    public Func<T, bool> Compile(DebugInfoGenerator debugInfoGenerator)
+    {
+        return Predicate.Compile(debugInfoGenerator);
+    }
 
     /// <summary></summary>
-    public Expression<Func<T, bool>> Update(Expression body, IEnumerable<ParameterExpression> parameters) { return Predicate.Update(body, parameters); }
+    public Expression<Func<T, bool>> Update(Expression body, IEnumerable<ParameterExpression> parameters)
+    {
+        return Predicate.Update(body, parameters);
+    }
 #endif
+
     #endregion
 
     #region Implement LamdaExpression methods and properties
@@ -236,12 +273,4 @@ public class ExpressionStarter<T>
 #endif
 
     #endregion
-
-    #region Implement Expression methods and properties
-#if !(NET35)
-    /// <summary></summary>
-    public virtual bool CanReduce => Predicate.CanReduce;
-#endif
-    #endregion
 }
-

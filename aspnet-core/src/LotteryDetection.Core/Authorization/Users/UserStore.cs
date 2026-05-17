@@ -7,13 +7,13 @@ using Abp.Authorization.Users;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.Organizations;
-using Microsoft.AspNetCore.Identity;
 using LotteryDetection.Authorization.Roles;
+using Microsoft.AspNetCore.Identity;
 
 namespace LotteryDetection.Authorization.Users;
 
 /// <summary>
-/// Used to perform database operations for <see cref="UserManager"/>.
+///     Used to perform database operations for <see cref="UserManager" />.
 /// </summary>
 public class UserStore : AbpUserStore<Role, User>, IUserTwoFactorRecoveryCodeStore<User>
 {
@@ -42,7 +42,8 @@ public class UserStore : AbpUserStore<Role, User>, IUserTwoFactorRecoveryCodeSto
     {
     }
 
-    public async Task ReplaceCodesAsync(User user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
+    public async Task ReplaceCodesAsync(User user, IEnumerable<string> recoveryCodes,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -55,22 +56,13 @@ public class UserStore : AbpUserStore<Role, User>, IUserTwoFactorRecoveryCodeSto
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (user == null)
-        {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (code == null)
-        {
-            throw new ArgumentNullException(nameof(code));
-        }
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (code == null) throw new ArgumentNullException(nameof(code));
 
         var mergedCodes = user.RecoveryCode ?? "";
         var splitCodes = mergedCodes.Split(';');
 
-        if (!splitCodes.Contains(code))
-        {
-            return false;
-        }
+        if (!splitCodes.Contains(code)) return false;
 
         var updatedCodes = new List<string>(splitCodes.Where(s => s != code));
         await ReplaceCodesAsync(user, updatedCodes, cancellationToken).ConfigureAwait(false);
@@ -81,14 +73,10 @@ public class UserStore : AbpUserStore<Role, User>, IUserTwoFactorRecoveryCodeSto
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (user == null)
-        {
-            throw new ArgumentNullException(nameof(user));
-        }
+        if (user == null) throw new ArgumentNullException(nameof(user));
 
         var mergedCodes = user.RecoveryCode ?? "";
 
         return Task.FromResult(mergedCodes.Length > 0 ? mergedCodes.Split(';').Length : 0);
     }
 }
-

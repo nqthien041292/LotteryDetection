@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using LotteryDetection.Authentication.TwoFactor.Google;
+﻿using LotteryDetection.Authentication.TwoFactor.Google;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Editions;
 using LotteryDetection.MultiTenancy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetection.Identity;
 
@@ -17,7 +17,8 @@ public static class IdentityRegistrar
 
         return services.AddAbpIdentity<Tenant, User, Role>(options =>
             {
-                options.Tokens.ProviderMap[GoogleAuthenticatorProvider.Name] = new TokenProviderDescriptor(typeof(GoogleAuthenticatorProvider));
+                options.Tokens.ProviderMap[GoogleAuthenticatorProvider.Name] =
+                    new TokenProviderDescriptor(typeof(GoogleAuthenticatorProvider));
             })
             .AddAbpTenantManager<TenantManager>()
             .AddAbpUserManager<UserManager>()
@@ -32,4 +33,3 @@ public static class IdentityRegistrar
             .AddDefaultTokenProviders();
     }
 }
-

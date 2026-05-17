@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Abp.Dependency;
-using Microsoft.AspNetCore.Http;
 using LotteryDetection.Sessions;
 using LotteryDetection.Sessions.Dto;
+using Microsoft.AspNetCore.Http;
 
 namespace LotteryDetection.Web.Session;
 
@@ -22,10 +22,7 @@ public class PerRequestSessionCache : IPerRequestSessionCache, ITransientDepende
     public async Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformationsAsync()
     {
         var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext == null)
-        {
-            return await _sessionAppService.GetCurrentLoginInformations();
-        }
+        if (httpContext == null) return await _sessionAppService.GetCurrentLoginInformations();
 
         var cachedValue = httpContext.Items["__PerRequestSessionCache"] as GetCurrentLoginInformationsOutput;
         if (cachedValue == null)
@@ -37,4 +34,3 @@ public class PerRequestSessionCache : IPerRequestSessionCache, ITransientDepende
         return cachedValue;
     }
 }
-

@@ -24,7 +24,7 @@ public class SwaggerOperationIdFilter : IOperationFilter
         {
             var trimmed = part.Trim('{', '}');
             builder.AppendFormat("{0}{1}",
-                (part.StartsWith("{") ? "By" : string.Empty),
+                part.StartsWith("{") ? "By" : string.Empty,
                 CultureInfo.InvariantCulture.TextInfo.ToTitleCase(trimmed)
             );
         }
@@ -37,4 +37,3 @@ public class SwaggerOperationIdFilter : IOperationFilter
         return apiDescription.RelativePath.Split('?').First();
     }
 }
-

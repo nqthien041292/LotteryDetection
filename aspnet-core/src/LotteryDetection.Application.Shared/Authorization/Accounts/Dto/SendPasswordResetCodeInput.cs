@@ -9,4 +9,3 @@ public class SendPasswordResetCodeInput
     [MaxLength(AbpUserBase.MaxEmailAddressLength)]
     public string EmailAddress { get; set; }
 }
-

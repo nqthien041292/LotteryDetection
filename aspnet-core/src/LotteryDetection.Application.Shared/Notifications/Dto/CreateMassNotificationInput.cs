@@ -14,4 +14,3 @@ public class CreateMassNotificationInput
 
     public string[] TargetNotifiers { get; set; }
 }
-

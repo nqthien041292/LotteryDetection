@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using LotteryDetection.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace LotteryDetection.HealthChecks;
 
@@ -14,12 +14,11 @@ public class LotteryDetectionDbContextHealthCheck : IHealthCheck
         _checkHelper = checkHelper;
     }
 
-    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+        CancellationToken cancellationToken = new())
     {
         if (_checkHelper.Exist("db"))
-        {
             return Task.FromResult(HealthCheckResult.Healthy("LotteryDetectionDbContext connected to database."));
-        }
 
         return Task.FromResult(HealthCheckResult.Unhealthy("LotteryDetectionDbContext could not connect to database"));
     }

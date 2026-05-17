@@ -4,4 +4,3 @@ public class SendVerificationSmsInputDto
 {
     public string PhoneNumber { get; set; }
 }
-

@@ -9,7 +9,7 @@ using OpenIddict.Abstractions;
 
 namespace LotteryDetection.Web.OpenIddict.Controllers;
 
-public partial class TokenController : TokenController<Tenant, Role, User>
+public class TokenController : TokenController<Tenant, Role, User>
 {
     public TokenController(AbpSignInManager<Tenant, Role, User> signInManager,
         AbpUserManager<Role, User> userManager, IOpenIddictApplicationManager applicationManager,
@@ -20,4 +20,3 @@ public partial class TokenController : TokenController<Tenant, Role, User>
     {
     }
 }
-

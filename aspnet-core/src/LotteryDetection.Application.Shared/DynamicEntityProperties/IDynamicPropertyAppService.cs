@@ -19,4 +19,3 @@ public interface IDynamicPropertyAppService
 
     IInputType FindAllowedInputType(string name);
 }
-

@@ -1,6 +1,4 @@
-﻿@using LotteryDetection.Web.Public.Views.Shared.Components.Header
-@using LotteryDetection.Web.Navigation
-@model HeaderViewModel
+﻿@model LotteryDetection.Web.Public.Views.Shared.Components.Header.HeaderViewModel
 
 <!--begin::Header Section-->
 <div class="mb-0" id="home">
@@ -19,8 +17,8 @@
                             <!--begin::Svg Icon | path: icons/duotune/abstract/abs015.svg-->
                             <span class="svg-icon svg-icon-2hx">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="currentColor" />
-                                    <path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="currentColor" />
+                                    <path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="currentColor"/>
+                                    <path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="currentColor"/>
                                 </svg>
                             </span>
                             <!--end::Svg Icon-->
@@ -28,8 +26,8 @@
                         <!--end::Mobile menu toggle-->
                         <!--begin::Logo image-->
                         <a href="/">
-                            <img alt="Logo" src="@Model.GetLogoUrl(ApplicationPath, "dark")" class="logo-default h-25px h-lg-30px" />
-                            <img alt="Logo" src="@Model.GetLogoUrl(ApplicationPath, "light")" class="logo-sticky h-20px h-lg-25px" />
+                            <img alt="Logo" src="@Model.GetLogoUrl(ApplicationPath, "dark")" class="logo-default h-25px h-lg-30px"/>
+                            <img alt="Logo" src="@Model.GetLogoUrl(ApplicationPath, "light")" class="logo-sticky h-20px h-lg-25px"/>
                         </a>
                         <!--end::Logo image-->
                     </div>
@@ -111,11 +109,12 @@
                                         }
 
                                         <div class="menu-item px-0 py-0">
-                                            <a href="@Url.Action("ChangeCulture", "AbpLocalization", new {
-                                            area = "",
-                                            cultureName = languageInfo.Name,
-                                            returnUrl = Context.Request.Path + Context.Request.QueryString
-                                        })" class="menu-link d-flex px-5">
+                                            <a href="@Url.Action("ChangeCulture", "AbpLocalization", new
+                                                     {
+                                                         area = "",
+                                                         cultureName = languageInfo.Name,
+                                                         returnUrl = Context.Request.Path + Context.Request.QueryString
+                                                     })" class="menu-link d-flex px-5">
                                                 <span class="symbol symbol-20px me-3">
                                                     <i class="@languageInfo.Icon me-3"></i>
                                                 </span>
@@ -133,7 +132,7 @@
                     @if (Model.LoginInformations?.User == null && Model.IsMultiTenancyEnabled && Model.TenantRegistrationEnabled && Model.IsInHostView)
                     {
                         <div class="flex-equal text-end me-4">
-                            <a href="@(string.Format("{0}{1}", Model.AdminWebSiteRootAddress,"?redirect=TenantRegistration&forceNewRegistration=true"))" class="btn btn-secondary">@L("NewTenant")</a>
+                            <a href="@(string.Format("{0}{1}", Model.AdminWebSiteRootAddress, "?redirect=TenantRegistration&forceNewRegistration=true"))" class="btn btn-secondary">@L("NewTenant")</a>
                         </div>
                     }
                     @if (Model.LoginInformations?.User != null)
@@ -151,14 +150,14 @@
 
                                 <!--begin::Menu sub-->
                                 <div class="menu-sub menu-sub-dropdown w-125px mt-5">
-                                        <div class="menu-item px-3">
+                                    <div class="menu-item px-3">
                                         <a href="@Url.Action("Logout", "Account")" class="menu-link d-flex px-5">
-                                                <span class="symbol symbol-20px me-3">
+                                            <span class="symbol symbol-20px me-3">
                                                 <i class="icon-logout"></i>
                                             </span>
                                             @L("Logout")
-                                            </a>
-                                        </div>
+                                        </a>
+                                    </div>
                                 </div>
                                 <!--end::Menu sub-->
                             </div>
@@ -168,7 +167,6 @@
                     else
                     {
                         <a href="@(string.Format("{0}{1}?ss={2}&returnUrl={3}", Model.AdminWebSiteRootAddress, "account/login", "true", Model.WebSiteRootAddress + "Account/Login"))" class="btn btn-success">@L("LogIn")</a>
-
                     }
                     <!--end::Toolbar-->
                 </div>
@@ -183,7 +181,7 @@
             <div class="text-center mb-5 mb-lg-10 py-10 py-lg-20">
                 <!--begin::Title-->
                 <h1 class="text-white lh-base fw-bold fs-2x fs-lg-3x mb-15">
-                    BASE SOLUTION FOR<br />
+                    BASE SOLUTION FOR<br/>
                     <span style="background: linear-gradient(to right, #12CE5D 0%, #FFD80C 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
                         <span id="kt_landing_hero_text">YOUR NEXT WEB APPLICATION</span>
                     </span>
@@ -198,22 +196,22 @@
             <div class="d-flex flex-center flex-wrap position-relative px-5">
                 <!--begin::Client-->
                 <div class="d-flex flex-center m-3 m-md-6" data-bs-toggle="tooltip" title="Fujifilm">
-                    <img src="~/metronic/assets/media/svg/brand-logos/fujifilm.svg" class="mh-30px mh-lg-40px" alt="" />
+                    <img src="~/metronic/assets/media/svg/brand-logos/fujifilm.svg" class="mh-30px mh-lg-40px" alt=""/>
                 </div>
                 <!--end::Client-->
                 <!--begin::Client-->
                 <div class="d-flex flex-center m-3 m-md-6" data-bs-toggle="tooltip" title="Nasa">
-                    <img src="~/metronic/assets/media/svg/brand-logos/nasa.svg" class="mh-30px mh-lg-40px" alt="" />
+                    <img src="~/metronic/assets/media/svg/brand-logos/nasa.svg" class="mh-30px mh-lg-40px" alt=""/>
                 </div>
                 <!--end::Client-->
                 <!--begin::Client-->
                 <div class="d-flex flex-center m-3 m-md-6" data-bs-toggle="tooltip" title="ASP.NET Zero">
-                    <img src="~/metronic/assets/media/svg/brand-logos/aspnetzero.svg" class="mh-30px mh-lg-40px" alt="" />
+                    <img src="~/metronic/assets/media/svg/brand-logos/aspnetzero.svg" class="mh-30px mh-lg-40px" alt=""/>
                 </div>
                 <!--end::Client-->
                 <!--begin::Client-->
                 <div class="d-flex flex-center m-3 m-md-6" data-bs-toggle="tooltip" title="AON - Empower Results">
-                    <img src="~/metronic/assets/media/svg/brand-logos/aon.svg" class="mh-30px mh-lg-40px" alt="" />
+                    <img src="~/metronic/assets/media/svg/brand-logos/aon.svg" class="mh-30px mh-lg-40px" alt=""/>
                 </div>
                 <!--end::Client-->
             </div>

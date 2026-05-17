@@ -1,25 +1,25 @@
-﻿using Abp;
-using Abp.Domain.Repositories;
-using Abp.Runtime.Caching;
-using LotteryDetection.Chat;
-using System.Linq;
+﻿using System.Linq;
+using Abp;
 using Abp.Dependency;
+using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.MultiTenancy;
+using Abp.Runtime.Caching;
 using LotteryDetection.Authorization.Users;
+using LotteryDetection.Chat;
 
 namespace LotteryDetection.Friendships.Cache;
 
 public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
 {
     private readonly ICacheManager _cacheManager;
-    private readonly IRepository<Friendship, long> _friendshipRepository;
     private readonly IRepository<ChatMessage, long> _chatMessageRepository;
-    private readonly ITenantCache _tenantCache;
-    private readonly UserStore _userStore;
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IRepository<Friendship, long> _friendshipRepository;
 
-    private readonly object _syncObj = new object();
+    private readonly object _syncObj = new();
+    private readonly ITenantCache _tenantCache;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly UserStore _userStore;
 
     public UserFriendsCache(
         ICacheManager cacheManager,
@@ -66,22 +66,15 @@ public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
         _unitOfWorkManager.WithUnitOfWork(() =>
         {
             var user = GetCacheItemOrNull(userIdentifier);
-            if (user == null)
-            {
-                return;
-            }
+            if (user == null) return;
 
             lock (_syncObj)
             {
-                var friend = user.Friends.FirstOrDefault(
-                    f => f.FriendUserId == friendIdentifier.UserId &&
-                         f.FriendTenantId == friendIdentifier.TenantId
+                var friend = user.Friends.FirstOrDefault(f => f.FriendUserId == friendIdentifier.UserId &&
+                                                              f.FriendTenantId == friendIdentifier.TenantId
                 );
 
-                if (friend == null)
-                {
-                    return;
-                }
+                if (friend == null) return;
 
                 friend.UnreadMessageCount = 0;
                 UpdateUserOnCache(userIdentifier, user);
@@ -95,22 +88,15 @@ public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
         _unitOfWorkManager.WithUnitOfWork(() =>
         {
             var user = GetCacheItemOrNull(userIdentifier);
-            if (user == null)
-            {
-                return;
-            }
+            if (user == null) return;
 
             lock (_syncObj)
             {
-                var friend = user.Friends.FirstOrDefault(
-                    f => f.FriendUserId == friendIdentifier.UserId &&
-                         f.FriendTenantId == friendIdentifier.TenantId
+                var friend = user.Friends.FirstOrDefault(f => f.FriendUserId == friendIdentifier.UserId &&
+                                                              f.FriendTenantId == friendIdentifier.TenantId
                 );
 
-                if (friend == null)
-                {
-                    return;
-                }
+                if (friend == null) return;
 
                 friend.UnreadMessageCount += change;
                 UpdateUserOnCache(userIdentifier, user);
@@ -121,10 +107,7 @@ public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
     public void AddFriend(UserIdentifier userIdentifier, FriendCacheItem friend)
     {
         var user = GetCacheItemOrNull(userIdentifier);
-        if (user == null)
-        {
-            return;
-        }
+        if (user == null) return;
 
         lock (_syncObj)
         {
@@ -139,10 +122,7 @@ public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
     public void RemoveFriend(UserIdentifier userIdentifier, FriendCacheItem friend)
     {
         var user = GetCacheItemOrNull(userIdentifier);
-        if (user == null)
-        {
-            return;
-        }
+        if (user == null) return;
 
         lock (_syncObj)
         {
@@ -157,16 +137,12 @@ public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
     public void UpdateFriend(UserIdentifier userIdentifier, FriendCacheItem friend)
     {
         var user = GetCacheItemOrNull(userIdentifier);
-        if (user == null)
-        {
-            return;
-        }
+        if (user == null) return;
 
         lock (_syncObj)
         {
-            var existingFriendIndex = user.Friends.FindIndex(
-                f => f.FriendUserId == friend.FriendUserId &&
-                     f.FriendTenantId == friend.FriendTenantId
+            var existingFriendIndex = user.Friends.FindIndex(f => f.FriendUserId == friend.FriendUserId &&
+                                                                  f.FriendTenantId == friend.FriendTenantId
             );
 
             if (existingFriendIndex >= 0)
@@ -226,4 +202,3 @@ public class UserFriendsCache : IUserFriendsCache, ISingletonDependency
         _cacheManager.GetCache(FriendCacheItem.CacheName).Set(userIdentifier.ToUserIdentifierString(), user);
     }
 }
-

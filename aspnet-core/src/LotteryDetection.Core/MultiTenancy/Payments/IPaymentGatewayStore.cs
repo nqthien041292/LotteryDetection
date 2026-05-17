@@ -6,4 +6,3 @@ public interface IPaymentGatewayStore
 {
     List<PaymentGatewayModel> GetActiveGateways();
 }
-

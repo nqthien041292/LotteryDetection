@@ -22,4 +22,3 @@ public class ChatMessageExportDto
 
     public DateTime CreationTime { get; set; }
 }
-

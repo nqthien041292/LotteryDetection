@@ -16,4 +16,3 @@ public class UserLoginInfoDto : EntityDto<long>
 
     public LoginType LoginType { get; set; }
 }
-

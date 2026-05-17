@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Abp.Extensions;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.MultiTenancy.Payments.Paypal;
 
@@ -9,7 +9,10 @@ public class PayPalPaymentGatewayConfiguration : IPaymentGatewayConfiguration
 {
     private readonly IConfigurationRoot _appConfiguration;
 
-    public SubscriptionPaymentGatewayType GatewayType => SubscriptionPaymentGatewayType.Paypal;
+    public PayPalPaymentGatewayConfiguration(IAppConfigurationAccessor configurationAccessor)
+    {
+        _appConfiguration = configurationAccessor.Configuration;
+    }
 
     public string Environment => _appConfiguration["Payment:PayPal:Environment"];
 
@@ -21,16 +24,12 @@ public class PayPalPaymentGatewayConfiguration : IPaymentGatewayConfiguration
 
     public string DemoPassword => _appConfiguration["Payment:PayPal:DemoPassword"];
 
-    public bool IsActive => _appConfiguration["Payment:PayPal:IsActive"].To<bool>();
-
     public List<string> DisabledFundings =>
         _appConfiguration.GetSection("Payment:PayPal:DisabledFundings").Get<List<string>>();
 
+    public SubscriptionPaymentGatewayType GatewayType => SubscriptionPaymentGatewayType.Paypal;
+
+    public bool IsActive => _appConfiguration["Payment:PayPal:IsActive"].To<bool>();
+
     public bool SupportsRecurringPayments => false;
-
-    public PayPalPaymentGatewayConfiguration(IAppConfigurationAccessor configurationAccessor)
-    {
-        _appConfiguration = configurationAccessor.Configuration;
-    }
 }
-

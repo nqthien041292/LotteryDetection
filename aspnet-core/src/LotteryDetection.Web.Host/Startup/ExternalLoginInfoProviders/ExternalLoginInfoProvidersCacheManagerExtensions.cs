@@ -13,4 +13,3 @@ public static class ExternalLoginInfoProvidersCacheManagerExtensions
         return cacheManager.GetCache<string, ExternalLoginProviderInfo>(CacheName);
     }
 }
-

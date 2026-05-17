@@ -1,5 +1,4 @@
-﻿using System;
-using Abp;
+﻿using Abp;
 
 namespace LotteryDetection.Authorization.Users.Profile.Dto;
 
@@ -14,4 +13,3 @@ public class GetFriendProfilePictureInput
         return new UserIdentifier(TenantId, UserId);
     }
 }
-

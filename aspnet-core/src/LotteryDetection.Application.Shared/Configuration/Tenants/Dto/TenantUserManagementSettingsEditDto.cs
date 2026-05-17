@@ -29,6 +29,6 @@ public class TenantUserManagementSettingsEditDto
     public bool IsRestrictedEmailDomainEnabledForApplication { get; set; }
 
     public bool IsQrLoginEnabled { get; set; }
-    
+
     public bool IsQrLoginEnabledForApplication { get; set; }
 }

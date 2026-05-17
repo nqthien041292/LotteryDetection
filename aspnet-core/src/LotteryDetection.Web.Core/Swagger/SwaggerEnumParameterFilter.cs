@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Abp.Collections.Extensions;
 using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -14,7 +12,8 @@ public class SwaggerEnumParameterFilter : IParameterFilter
 {
     public void Apply(OpenApiParameter parameter, ParameterFilterContext context)
     {
-        var type = Nullable.GetUnderlyingType(context.ApiParameterDescription.Type) ?? context.ApiParameterDescription.Type;
+        var type = Nullable.GetUnderlyingType(context.ApiParameterDescription.Type) ??
+                   context.ApiParameterDescription.Type;
         if (type.IsEnum)
         {
             AddEnumParamSpec(parameter, type, context);
@@ -33,10 +32,7 @@ public class SwaggerEnumParameterFilter : IParameterFilter
             context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository)
         );
 
-        if (schema.Reference == null || !type.IsEnum)
-        {
-            return;
-        }
+        if (schema.Reference == null || !type.IsEnum) return;
 
         var enumNames = new OpenApiArray();
         enumNames.AddRange(Enum.GetNames(type).Select(_ => new OpenApiString(_)));
@@ -44,10 +40,7 @@ public class SwaggerEnumParameterFilter : IParameterFilter
         if (schema.Extensions.ContainsKey("x-enumNames"))
         {
             var existingEnums = schema.Extensions["x-enumNames"] as OpenApiArray;
-            foreach (var enumName in enumNames)
-            {
-                existingEnums.AddIfNotContains(enumName);
-            }
+            foreach (var enumName in enumNames) existingEnums.AddIfNotContains(enumName);
 
             schema.Extensions["x-enumNames"] = existingEnums;
         }
@@ -60,10 +53,7 @@ public class SwaggerEnumParameterFilter : IParameterFilter
     private static void AddEnumParamSpec(OpenApiParameter parameter, Type type, ParameterFilterContext context)
     {
         var schema = context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository);
-        if (schema.Reference == null)
-        {
-            return;
-        }
+        if (schema.Reference == null) return;
 
         parameter.Schema = schema;
 
@@ -72,4 +62,3 @@ public class SwaggerEnumParameterFilter : IParameterFilter
         schema.Extensions.Add("x-enumNames", enumNames);
     }
 }
-

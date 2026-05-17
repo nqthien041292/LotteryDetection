@@ -1,44 +1,43 @@
 ﻿using Abp.Dependency;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor.MsDependencyInjection;
+using LotteryDetection.EntityFrameworkCore;
+using LotteryDetection.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using LotteryDetection.EntityFrameworkCore;
-using LotteryDetection.Identity;
 
-namespace LotteryDetection.Test.Base.DependencyInjection
+namespace LotteryDetection.Test.Base.DependencyInjection;
+
+public static class ServiceCollectionRegistrar
 {
-    public static class ServiceCollectionRegistrar
+    public static void Register(IIocManager iocManager)
     {
-        public static void Register(IIocManager iocManager)
-        {
-            RegisterIdentity(iocManager);
+        RegisterIdentity(iocManager);
 
-            var builder = new DbContextOptionsBuilder<LotteryDetectionDbContext>();
+        var builder = new DbContextOptionsBuilder<LotteryDetectionDbContext>();
 
-            var inMemorySqlite = new SqliteConnection("Data Source=:memory:");
-            builder.UseSqlite(inMemorySqlite);
+        var inMemorySqlite = new SqliteConnection("Data Source=:memory:");
+        builder.UseSqlite(inMemorySqlite);
 
-            iocManager.IocContainer.Register(
-                Component
-                    .For<DbContextOptions<LotteryDetectionDbContext>>()
-                    .Instance(builder.Options)
-                    .LifestyleSingleton()
-            );
+        iocManager.IocContainer.Register(
+            Component
+                .For<DbContextOptions<LotteryDetectionDbContext>>()
+                .Instance(builder.Options)
+                .LifestyleSingleton()
+        );
 
-            inMemorySqlite.Open();
+        inMemorySqlite.Open();
 
-            new LotteryDetectionDbContext(builder.Options).Database.EnsureCreated();
-        }
+        new LotteryDetectionDbContext(builder.Options).Database.EnsureCreated();
+    }
 
-        private static void RegisterIdentity(IIocManager iocManager)
-        {
-            var services = new ServiceCollection();
+    private static void RegisterIdentity(IIocManager iocManager)
+    {
+        var services = new ServiceCollection();
 
-            IdentityRegistrar.Register(services);
+        IdentityRegistrar.Register(services);
 
-            WindsorRegistrationHelper.CreateServiceProvider(iocManager.IocContainer, services);
-        }
+        WindsorRegistrationHelper.CreateServiceProvider(iocManager.IocContainer, services);
     }
 }

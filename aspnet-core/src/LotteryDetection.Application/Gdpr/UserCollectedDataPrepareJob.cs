@@ -19,10 +19,10 @@ namespace LotteryDetection.Gdpr;
 
 public class UserCollectedDataPrepareJob : AsyncBackgroundJob<UserIdentifier>, ITransientDependency
 {
-    private readonly IBinaryObjectManager _binaryObjectManager;
-    private readonly ITempFileCacheManager _tempFileCacheManager;
     private readonly IAppNotifier _appNotifier;
+    private readonly IBinaryObjectManager _binaryObjectManager;
     private readonly ISettingManager _settingManager;
+    private readonly ITempFileCacheManager _tempFileCacheManager;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     public UserCollectedDataPrepareJob(
@@ -63,10 +63,7 @@ public class UserCollectedDataPrepareJob : AsyncBackgroundJob<UserIdentifier>, I
                         foreach (var provider in providers)
                         {
                             var providerFiles = await provider.GetFiles(args);
-                            if (providerFiles.Any())
-                            {
-                                files.AddRange(providerFiles);
-                            }
+                            if (providerFiles.Any()) files.AddRange(providerFiles);
                         }
                     }
 
@@ -109,5 +106,4 @@ public class UserCollectedDataPrepareJob : AsyncBackgroundJob<UserIdentifier>, I
             return outputZipFileStream.ToArray();
         }
     }
-
 }

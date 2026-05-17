@@ -8,4 +8,3 @@ public class FindUsersInput : PagedAndFilteredInputDto
 
     public bool ExcludeCurrentUser { get; set; }
 }
-

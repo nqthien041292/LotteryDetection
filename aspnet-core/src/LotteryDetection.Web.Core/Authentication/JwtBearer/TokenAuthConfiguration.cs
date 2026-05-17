@@ -17,4 +17,3 @@ public class TokenAuthConfiguration
 
     public TimeSpan RefreshTokenExpiration { get; set; }
 }
-

@@ -10,4 +10,3 @@ public class GetTenantFeaturesEditOutput
 
     public List<FlatFeatureDto> Features { get; set; }
 }
-

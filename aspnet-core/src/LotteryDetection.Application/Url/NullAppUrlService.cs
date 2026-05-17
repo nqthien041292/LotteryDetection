@@ -4,12 +4,11 @@ namespace LotteryDetection.Url;
 
 public class NullAppUrlService : IAppUrlService
 {
-    public static IAppUrlService Instance { get; } = new NullAppUrlService();
-
     private NullAppUrlService()
     {
-
     }
+
+    public static IAppUrlService Instance { get; } = new NullAppUrlService();
 
     public string CreateEmailActivationUrlFormat(int? tenantId)
     {

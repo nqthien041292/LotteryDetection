@@ -1,20 +1,20 @@
-﻿using Abp.Application.Services.Dto;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
 using Abp.Configuration;
 using Abp.Dependency;
 using Abp.Timing;
 using Abp.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TimeZoneConverter;
 
 namespace LotteryDetection.Timing;
 
 public class TimeZoneService : ITimeZoneService, ITransientDependency
 {
-    readonly ISettingManager _settingManager;
-    readonly ISettingDefinitionManager _settingDefinitionManager;
+    private readonly ISettingDefinitionManager _settingDefinitionManager;
+    private readonly ISettingManager _settingManager;
 
     public TimeZoneService(
         ISettingManager settingManager,
@@ -29,17 +29,13 @@ public class TimeZoneService : ITimeZoneService, ITransientDependency
         if (scope == SettingScopes.User)
         {
             if (tenantId.HasValue)
-            {
                 return await _settingManager.GetSettingValueForTenantAsync(TimingSettingNames.TimeZone, tenantId.Value);
-            }
 
             return await _settingManager.GetSettingValueForApplicationAsync(TimingSettingNames.TimeZone);
         }
 
         if (scope == SettingScopes.Tenant)
-        {
             return await _settingManager.GetSettingValueForApplicationAsync(TimingSettingNames.TimeZone);
-        }
 
         if (scope == SettingScopes.Application)
         {
@@ -65,24 +61,18 @@ public class TimeZoneService : ITimeZoneService, ITransientDependency
             }).OrderBy(e => e.Name).ToList();
     }
 
-    private string GetTimezoneOffset(TimeZoneInfo timeZoneInfo)
-    {
-        if (timeZoneInfo.BaseUtcOffset < TimeSpan.Zero)
-        {
-            return "-" + timeZoneInfo.BaseUtcOffset.ToString(@"hh\:mm");
-        }
-
-        return "+" + timeZoneInfo.BaseUtcOffset.ToString(@"hh\:mm");
-    }
-
     public void ValidateTimezone(string timeZone)
     {
         var timeZones = GetWindowsTimezones();
 
         if (!timeZones.Select(tz => tz.Value).Contains(timeZone))
-        {
             throw new UserFriendlyException("The timezone value provided is not recognized");
-        }
+    }
+
+    private string GetTimezoneOffset(TimeZoneInfo timeZoneInfo)
+    {
+        if (timeZoneInfo.BaseUtcOffset < TimeSpan.Zero) return "-" + timeZoneInfo.BaseUtcOffset.ToString(@"hh\:mm");
+
+        return "+" + timeZoneInfo.BaseUtcOffset.ToString(@"hh\:mm");
     }
 }
-

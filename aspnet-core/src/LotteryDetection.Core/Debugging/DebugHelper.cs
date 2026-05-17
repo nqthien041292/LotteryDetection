@@ -8,11 +8,10 @@ public static class DebugHelper
         {
 #pragma warning disable
 #if DEBUG
-                return true;
+            return true;
 #endif
             return false;
 #pragma warning restore
         }
     }
 }
-

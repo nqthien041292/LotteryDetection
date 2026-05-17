@@ -1,17 +1,16 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Application.Editions;
 using LotteryDetection.MultiTenancy.Payments;
 
 namespace LotteryDetection.Editions;
 
 /// <summary>
-/// Extends <see cref="Edition"/> to add subscription features.
+///     Extends <see cref="Edition" /> to add subscription features.
 /// </summary>
 public class SubscribableEdition : Edition
 {
     /// <summary>
-    /// The edition that will assigned after expire date
+    ///     The edition that will assigned after expire date
     /// </summary>
     public int? ExpiringEditionId { get; set; }
 
@@ -22,19 +21,16 @@ public class SubscribableEdition : Edition
     public int? TrialDayCount { get; set; }
 
     /// <summary>
-    /// The account will be taken an action (termination of tenant account) after the specified days when the subscription is expired.
+    ///     The account will be taken an action (termination of tenant account) after the specified days when the subscription
+    ///     is expired.
     /// </summary>
     public int? WaitingDayAfterExpire { get; set; }
 
-    [NotMapped]
-    public bool IsFree => !MonthlyPrice.HasValue && !AnnualPrice.HasValue;
+    [NotMapped] public bool IsFree => !MonthlyPrice.HasValue && !AnnualPrice.HasValue;
 
     public bool HasTrial()
     {
-        if (IsFree)
-        {
-            return false;
-        }
+        if (IsFree) return false;
 
         return TrialDayCount.HasValue && TrialDayCount.Value > 0;
     }
@@ -63,4 +59,3 @@ public class SubscribableEdition : Edition
         return Name + "_" + paymentPeriodType + "_" + LotteryDetectionConsts.Currency;
     }
 }
-

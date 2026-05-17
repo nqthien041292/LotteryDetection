@@ -6,4 +6,3 @@ public class VerifySmsCodeInputDto
 
     public string PhoneNumber { get; set; }
 }
-

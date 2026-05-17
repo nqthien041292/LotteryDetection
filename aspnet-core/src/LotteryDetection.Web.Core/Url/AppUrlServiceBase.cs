@@ -7,20 +7,21 @@ namespace LotteryDetection.Web.Url;
 
 public abstract class AppUrlServiceBase : IAppUrlService, ITransientDependency
 {
-    public abstract string EmailActivationRoute { get; }
-
-    public abstract string EmailChangeRequestRoute { get; }
-
-    public abstract string PasswordResetRoute { get; }
+    protected readonly ITenantCache TenantCache;
 
     protected readonly IWebUrlService WebUrlService;
-    protected readonly ITenantCache TenantCache;
 
     protected AppUrlServiceBase(IWebUrlService webUrlService, ITenantCache tenantCache)
     {
         WebUrlService = webUrlService;
         TenantCache = tenantCache;
     }
+
+    public abstract string EmailActivationRoute { get; }
+
+    public abstract string EmailChangeRequestRoute { get; }
+
+    public abstract string PasswordResetRoute { get; }
 
     public string CreateEmailActivationUrlFormat(int? tenantId)
     {
@@ -32,10 +33,7 @@ public abstract class AppUrlServiceBase : IAppUrlService, ITransientDependency
         var activationLink = GetSiteRootAddressWithoutQueryParams(tenancyName).EnsureEndsWith('/') +
                              EmailActivationRoute + "?userId={userId}&confirmationCode={confirmationCode}";
 
-        if (tenancyName != null)
-        {
-            activationLink = activationLink + "&tenantId={tenantId}";
-        }
+        if (tenancyName != null) activationLink = activationLink + "&tenantId={tenantId}";
 
         return activationLink;
     }
@@ -43,19 +41,6 @@ public abstract class AppUrlServiceBase : IAppUrlService, ITransientDependency
     public string CreateEmailChangeRequestUrlFormat(int? tenantId)
     {
         return CreateEmailChangeRequestUrlFormat(GetTenancyName(tenantId));
-    }
-
-    public string CreateEmailChangeRequestUrlFormat(string tenancyName)
-    {
-        var activationLink = GetSiteRootAddressWithoutQueryParams(tenancyName).EnsureEndsWith('/') +
-                             EmailChangeRequestRoute + "?userId={userId}&emailAddress={emailAddress}&old={oldMailAddress}";
-
-        if (tenancyName != null)
-        {
-            activationLink = activationLink + "&tenantId={tenantId}";
-        }
-
-        return activationLink;
     }
 
     public string CreatePasswordResetUrlFormat(int? tenantId)
@@ -66,14 +51,22 @@ public abstract class AppUrlServiceBase : IAppUrlService, ITransientDependency
     public string CreatePasswordResetUrlFormat(string tenancyName)
     {
         var resetLink = GetSiteRootAddressWithoutQueryParams(tenancyName).EnsureEndsWith('/') + PasswordResetRoute +
-                        $"?userId={{userId}}&resetCode={{resetCode}}&expireDate={{expireDate}}";
+                        "?userId={userId}&resetCode={resetCode}&expireDate={expireDate}";
 
-        if (tenancyName != null)
-        {
-            resetLink += "&tenantId={tenantId}";
-        }
+        if (tenancyName != null) resetLink += "&tenantId={tenantId}";
 
         return resetLink;
+    }
+
+    public string CreateEmailChangeRequestUrlFormat(string tenancyName)
+    {
+        var activationLink = GetSiteRootAddressWithoutQueryParams(tenancyName).EnsureEndsWith('/') +
+                             EmailChangeRequestRoute +
+                             "?userId={userId}&emailAddress={emailAddress}&old={oldMailAddress}";
+
+        if (tenancyName != null) activationLink = activationLink + "&tenantId={tenantId}";
+
+        return activationLink;
     }
 
     private string GetSiteRootAddressWithoutQueryParams(string tenancyName)
@@ -86,4 +79,3 @@ public abstract class AppUrlServiceBase : IAppUrlService, ITransientDependency
         return tenantId.HasValue ? TenantCache.Get(tenantId.Value).TenancyName : null;
     }
 }
-

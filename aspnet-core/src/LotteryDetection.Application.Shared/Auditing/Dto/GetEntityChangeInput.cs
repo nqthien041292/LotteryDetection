@@ -18,18 +18,11 @@ public class GetEntityChangeInput : PagedAndSortedInputDto, IShouldNormalize
 
     public void Normalize()
     {
-        if (Sorting.IsNullOrWhiteSpace())
-        {
-            Sorting = "ChangeTime DESC";
-        }
+        if (Sorting.IsNullOrWhiteSpace()) Sorting = "ChangeTime DESC";
 
         Sorting = DtoSortingHelper.ReplaceSorting(Sorting, s =>
         {
-
-            if (s.IndexOf("UserName", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return "User." + s;
-            }
+            if (s.IndexOf("UserName", StringComparison.OrdinalIgnoreCase) >= 0) return "User." + s;
 
             return "EntityChange." + s;
         });
@@ -44,24 +37,16 @@ public class GetEntityTypeChangeInput : PagedAndSortedInputDto, IShouldNormalize
 
     public void Normalize()
     {
-        if (Sorting.IsNullOrWhiteSpace())
-        {
-            Sorting = "ChangeTime DESC";
-        }
+        if (Sorting.IsNullOrWhiteSpace()) Sorting = "ChangeTime DESC";
 
         Sorting = DtoSortingHelper.ReplaceSorting(Sorting, s =>
         {
             if (s.IndexOf("UserName", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
                 s = "User." + s;
-            }
             else
-            {
                 s = "EntityChange." + s;
-            }
 
             return s;
         });
     }
 }
-

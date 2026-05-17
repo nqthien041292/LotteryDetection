@@ -21,4 +21,3 @@ public interface ILanguageAppService : IApplicationService
 
     Task UpdateLanguageText(UpdateLanguageTextInput input);
 }
-

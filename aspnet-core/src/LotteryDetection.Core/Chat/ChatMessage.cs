@@ -13,28 +13,6 @@ public class ChatMessage : Entity<long>, IHasCreationTime, IMayHaveTenant
 {
     public const int MaxMessageLength = 4 * 1024; //4KB
 
-    public long UserId { get; set; }
-
-    public int? TenantId { get; set; }
-
-    public long TargetUserId { get; set; }
-
-    public int? TargetTenantId { get; set; }
-
-    [Required]
-    [StringLength(MaxMessageLength)]
-    public string Message { get; set; }
-
-    public DateTime CreationTime { get; set; }
-
-    public ChatSide Side { get; set; }
-
-    public ChatMessageReadState ReadState { get; private set; }
-
-    public ChatMessageReadState ReceiverReadState { get; private set; }
-
-    public Guid? SharedMessageId { get; set; }
-
     public ChatMessage(
         UserIdentifier user,
         UserIdentifier targetUser,
@@ -57,14 +35,35 @@ public class ChatMessage : Entity<long>, IHasCreationTime, IMayHaveTenant
         CreationTime = Clock.Now;
     }
 
+    protected ChatMessage()
+    {
+    }
+
+    public long UserId { get; set; }
+
+    public long TargetUserId { get; set; }
+
+    public int? TargetTenantId { get; set; }
+
+    [Required]
+    [StringLength(MaxMessageLength)]
+    public string Message { get; set; }
+
+    public ChatSide Side { get; set; }
+
+    public ChatMessageReadState ReadState { get; private set; }
+
+    public ChatMessageReadState ReceiverReadState { get; private set; }
+
+    public Guid? SharedMessageId { get; set; }
+
+    public DateTime CreationTime { get; set; }
+
+    public int? TenantId { get; set; }
+
     public void ChangeReadState(ChatMessageReadState newState)
     {
         ReadState = newState;
-    }
-
-    protected ChatMessage()
-    {
-
     }
 
     public void ChangeReceiverReadState(ChatMessageReadState newState)
@@ -72,4 +71,3 @@ public class ChatMessage : Entity<long>, IHasCreationTime, IMayHaveTenant
         ReceiverReadState = newState;
     }
 }
-

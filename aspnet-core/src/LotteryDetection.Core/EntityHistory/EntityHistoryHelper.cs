@@ -12,13 +12,13 @@ public static class EntityHistoryHelper
 
     public static readonly Type[] HostSideTrackedTypes =
     {
-            typeof(OrganizationUnit), typeof(Role), typeof(Tenant)
-        };
+        typeof(OrganizationUnit), typeof(Role), typeof(Tenant)
+    };
 
     public static readonly Type[] TenantSideTrackedTypes =
     {
-            typeof(OrganizationUnit), typeof(Role)
-        };
+        typeof(OrganizationUnit), typeof(Role)
+    };
 
     public static readonly Type[] TrackedTypes =
         HostSideTrackedTypes
@@ -27,4 +27,3 @@ public static class EntityHistoryHelper
             .Select(types => types.First())
             .ToArray();
 }
-

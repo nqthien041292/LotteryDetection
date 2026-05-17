@@ -8,4 +8,3 @@ public interface IDashboardDefinitionCacheManager : ITransientDependency
 
     void Set(DashboardDefinition definition);
 }
-

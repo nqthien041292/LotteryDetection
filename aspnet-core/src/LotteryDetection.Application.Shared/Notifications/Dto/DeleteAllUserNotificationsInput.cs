@@ -11,4 +11,3 @@ public class DeleteAllUserNotificationsInput
 
     public DateTime? EndDate { get; set; }
 }
-

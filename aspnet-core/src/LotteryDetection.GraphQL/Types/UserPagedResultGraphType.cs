@@ -11,7 +11,6 @@ public class UserPagedResultGraphType : ObjectGraphType<PagedResultDto<UserDto>>
         Name = "UserPagedResultGraphType";
 
         Field(x => x.TotalCount);
-        Field(x => x.Items, type: typeof(ListGraphType<UserType>));
+        Field(x => x.Items, typeof(ListGraphType<UserType>));
     }
 }
-

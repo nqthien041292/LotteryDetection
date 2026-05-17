@@ -16,4 +16,3 @@ public class AntiForgeryController : LotteryDetectionControllerBase
         _antiforgery.SetCookieTokenAndHeader(HttpContext);
     }
 }
-

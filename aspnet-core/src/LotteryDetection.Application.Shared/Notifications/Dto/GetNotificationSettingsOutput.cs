@@ -8,4 +8,3 @@ public class GetNotificationSettingsOutput
 
     public List<NotificationSubscriptionWithDisplayNameDto> Notifications { get; set; }
 }
-

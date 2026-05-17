@@ -2,18 +2,18 @@
 using System.IO;
 using System.Threading.Tasks;
 using Abp.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using LotteryDetection.MultiTenancy.Payments.Stripe;
 using LotteryDetection.MultiTenancy.Payments.Stripe.Dto;
+using Microsoft.AspNetCore.Mvc;
 using Stripe;
 
 namespace LotteryDetection.Web.Controllers;
 
 public class StripeControllerBase : LotteryDetectionControllerBase
 {
-    protected readonly IStripePaymentAppService StripePaymentAppService;
-    private readonly StripeGatewayManager _stripeGatewayManager;
     private readonly StripePaymentGatewayConfiguration _stripeConfiguration;
+    private readonly StripeGatewayManager _stripeGatewayManager;
+    protected readonly IStripePaymentAppService StripePaymentAppService;
 
     public StripeControllerBase(
         StripeGatewayManager stripeGatewayManager,
@@ -43,15 +43,10 @@ public class StripeControllerBase : LotteryDetectionControllerBase
                 throwOnApiVersionMismatch: false
             );
 
-            if (stripeEvent.Type == EventTypes.InvoicePaid)
-            {
-                await HandleSubscriptionCyclePaymentAsync(stripeEvent);
-            }
+            if (stripeEvent.Type == EventTypes.InvoicePaid) await HandleSubscriptionCyclePaymentAsync(stripeEvent);
 
             if (stripeEvent.Type == EventTypes.CheckoutSessionCompleted)
-            {
                 await HandleCheckoutSessionCompletedAsync(stripeEvent);
-            }
 
             // Other WebHook events can be handled here.
 
@@ -73,39 +68,26 @@ public class StripeControllerBase : LotteryDetectionControllerBase
     {
         var invoice = stripeEvent.Data.Object as Invoice;
 
-        if (invoice == null)
-        {
-            throw new ApplicationException("Unable to get Invoice information from stripeEvent.Data");
-        }
+        if (invoice == null) throw new ApplicationException("Unable to get Invoice information from stripeEvent.Data");
 
         // see https://stripe.com/docs/api/invoices/object#invoice_object-billing_reason
         // only handle for subscription_cycle payments
         if (invoice.BillingReason == "subscription_cycle")
-        {
             await _stripeGatewayManager.HandleInvoicePaymentSucceededAsync(invoice);
-        }
     }
 
     private async Task HandleCheckoutSessionCompletedAsync(Event stripeEvent)
     {
         var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
-        if (session == null)
-        {
-            throw new ApplicationException("Unable to get session information from stripeEvent.Data");
-        }
+        if (session == null) throw new ApplicationException("Unable to get session information from stripeEvent.Data");
 
         if (session.Metadata.TryGetValue("PaymentId", out var paymentId))
-        {
             await StripePaymentAppService.ConfirmPayment(
                 new StripeConfirmPaymentInput
                 {
                     PaymentId = paymentId.To<long>()
                 });
-        }
         else
-        {
             throw new ApplicationException("Unable to get PaymentId from session metadata");
-        }
     }
 }
-

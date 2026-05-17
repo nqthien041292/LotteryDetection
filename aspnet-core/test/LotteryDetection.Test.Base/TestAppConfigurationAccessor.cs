@@ -1,19 +1,18 @@
 ﻿using Abp.Dependency;
 using Abp.Reflection.Extensions;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Configuration;
+using Microsoft.Extensions.Configuration;
 
-namespace LotteryDetection.Test.Base
+namespace LotteryDetection.Test.Base;
+
+public class TestAppConfigurationAccessor : IAppConfigurationAccessor, ISingletonDependency
 {
-    public class TestAppConfigurationAccessor : IAppConfigurationAccessor, ISingletonDependency
+    public TestAppConfigurationAccessor()
     {
-        public IConfigurationRoot Configuration { get; }
-
-        public TestAppConfigurationAccessor()
-        {
-            Configuration = AppConfigurations.Get(
-                typeof(LotteryDetectionTestBaseModule).GetAssembly().GetDirectoryPathOrNull()
-            );
-        }
+        Configuration = AppConfigurations.Get(
+            typeof(LotteryDetectionTestBaseModule).GetAssembly().GetDirectoryPathOrNull()
+        );
     }
+
+    public IConfigurationRoot Configuration { get; }
 }

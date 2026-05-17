@@ -1,4 +1,7 @@
-﻿using Abp;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Abp;
 using Abp.Auditing;
 using Abp.Authorization;
 using Abp.BackgroundJobs;
@@ -10,7 +13,6 @@ using Abp.Runtime.Session;
 using Abp.Timing;
 using Abp.UI;
 using Abp.Zero.Configuration;
-using Microsoft.AspNetCore.Identity;
 using LotteryDetection.Authentication.TwoFactor.Google;
 using LotteryDetection.Authorization.Users.Dto;
 using LotteryDetection.Authorization.Users.Profile.Cache;
@@ -24,30 +26,27 @@ using LotteryDetection.Security;
 using LotteryDetection.Storage;
 using LotteryDetection.Timing;
 using LotteryDetection.Url;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace LotteryDetection.Authorization.Users.Profile;
 
 [AbpAuthorize]
 public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppService
 {
-    public IAppUrlService AppUrlService { get; set; }
+    private readonly IBackgroundJobManager _backgroundJobManager;
 
     private readonly IBinaryObjectManager _binaryObjectManager;
-    private readonly ITimeZoneService _timeZoneService;
+    private readonly ICacheManager _cacheManager;
     private readonly IFriendshipManager _friendshipManager;
     private readonly GoogleTwoFactorAuthenticateService _googleTwoFactorAuthenticateService;
-    private readonly ISmsSender _smsSender;
-    private readonly ICacheManager _cacheManager;
-    private readonly ITempFileCacheManager _tempFileCacheManager;
-    private readonly IBackgroundJobManager _backgroundJobManager;
     private readonly ProfileImageServiceFactory _profileImageServiceFactory;
-    private readonly IUserEmailer _userEmailer;
-    private readonly ISettingStore _settingStore;
-    private readonly ITypedCache<string, Dictionary<string, SettingInfo>> _userSettingCache;
     private readonly IProfilePictureValidator _profilePictureValidator;
+    private readonly ISettingStore _settingStore;
+    private readonly ISmsSender _smsSender;
+    private readonly ITempFileCacheManager _tempFileCacheManager;
+    private readonly ITimeZoneService _timeZoneService;
+    private readonly IUserEmailer _userEmailer;
+    private readonly ITypedCache<string, Dictionary<string, SettingInfo>> _userSettingCache;
 
     public ProfileAppService(
         IBinaryObjectManager binaryObjectManager,
@@ -76,10 +75,12 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
         _userEmailer = userEmailer;
         _settingStore = settingStore;
         _userSettingCache = cacheManager.GetUserSettingsCache();
-        
+
         AppUrlService = NullAppUrlService.Instance;
         _profilePictureValidator = profilePictureValidator;
     }
+
+    public IAppUrlService AppUrlService { get; set; }
 
     [DisableAuditing]
     public async Task<CurrentUserProfileEditDto> GetCurrentUserProfileForEdit()
@@ -93,10 +94,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
                 user.EmailAddress, user.GoogleAuthenticatorKey, 300, 300).QrCodeSetupImageUrl
             : "";
 
-        if (!Clock.SupportsMultipleTimezone)
-        {
-            return userProfileEditDto;
-        }
+        if (!Clock.SupportsMultipleTimezone) return userProfileEditDto;
 
         userProfileEditDto.Timezone = await SettingManager.GetSettingValueAsync(TimingSettingNames.TimeZone);
 
@@ -105,10 +103,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
             AbpSession.TenantId
         );
 
-        if (userProfileEditDto.Timezone == defaultTimeZoneId)
-        {
-            userProfileEditDto.Timezone = string.Empty;
-        }
+        if (userProfileEditDto.Timezone == defaultTimeZoneId) userProfileEditDto.Timezone = string.Empty;
 
         return userProfileEditDto;
     }
@@ -117,10 +112,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
     {
         var result = await VerifyAuthenticatorCode(input);
 
-        if (!result)
-        {
-            throw new UserFriendlyException(L("InvalidVerificationCode"));
-        }
+        if (!result) throw new UserFriendlyException(L("InvalidVerificationCode"));
 
         var user = await GetCurrentUserAsync();
 
@@ -132,10 +124,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
     {
         var verified = await VerifyAuthenticatorCodeInternal(input);
 
-        if (!verified)
-        {
-            throw new UserFriendlyException(L("InvalidVerificationCode"));
-        }
+        if (!verified) throw new UserFriendlyException(L("InvalidVerificationCode"));
 
         var user = await GetCurrentUserAsync();
 
@@ -171,10 +160,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
             GoogleAuthenticatorKey = input.GoogleAuthenticatorKey
         });
 
-        if (!verified)
-        {
-            throw new UserFriendlyException(L("InvalidVerificationCode"));
-        }
+        if (!verified) throw new UserFriendlyException(L("InvalidVerificationCode"));
 
         var user = await GetCurrentUserAsync();
         user.GoogleAuthenticatorKey = input.GoogleAuthenticatorKey;
@@ -211,15 +197,9 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
         var cacheKey = AbpSession.ToUserIdentifier().ToString();
         var cacheValue = await _cacheManager.GetSmsVerificationCodeCache().GetOrDefaultAsync(cacheKey);
 
-        if (cacheValue == null)
-        {
-            throw new Exception("Phone number confirmation code is not found in cache !");
-        }
+        if (cacheValue == null) throw new Exception("Phone number confirmation code is not found in cache !");
 
-        if (input.Code != cacheValue.Code)
-        {
-            throw new UserFriendlyException(L("WrongSmsVerificationCode"));
-        }
+        if (input.Code != cacheValue.Code) throw new UserFriendlyException(L("WrongSmsVerificationCode"));
 
         var user = await UserManager.GetUserAsync(AbpSession.ToUserIdentifier());
         user.IsPhoneNumberConfirmed = true;
@@ -239,14 +219,9 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
         var user = await GetCurrentUserAsync();
 
         if (user.PhoneNumber != input.PhoneNumber)
-        {
             input.IsPhoneNumberConfirmed = false;
-        }
-        else if (user.IsPhoneNumberConfirmed)
-        {
-            input.IsPhoneNumberConfirmed = true;
-        }
-        
+        else if (user.IsPhoneNumberConfirmed) input.IsPhoneNumberConfirmed = true;
+
         if (user.EmailAddress != input.EmailAddress)
         {
             await _userEmailer.SendEmailChangeRequestLinkAsync(
@@ -254,7 +229,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
                 input.EmailAddress,
                 AppUrlService.CreateEmailChangeRequestUrlFormat(AbpSession.TenantId)
             );
-            
+
             input.EmailAddress = user.EmailAddress;
         }
 
@@ -284,16 +259,12 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
 
         var user = await GetCurrentUserAsync();
         if (await UserManager.CheckPasswordAsync(user, input.CurrentPassword))
-        {
             CheckErrors(await UserManager.ChangePasswordAsync(user, input.NewPassword));
-        }
         else
-        {
             CheckErrors(IdentityResult.Failed(new IdentityError
             {
                 Description = "Incorrect password."
             }));
-        }
     }
 
     public async Task UpdateProfilePicture(UpdateProfilePictureInput input)
@@ -314,94 +285,6 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
         return result;
     }
 
-    private async Task<bool> VerifyAuthenticatorCodeInternal(VerifyAuthenticatorCodeInput input)
-    {
-        var user = await GetCurrentUserAsync();
-
-        var isValid = _googleTwoFactorAuthenticateService.ValidateTwoFactorPin(
-            user.GoogleAuthenticatorKey ?? input.GoogleAuthenticatorKey,
-            input.Code
-        );
-
-        if (isValid)
-        {
-            return true;
-        }
-
-        isValid = (await UserManager.RedeemTwoFactorRecoveryCodeAsync(user, input.Code)).Succeeded;
-
-        return isValid;
-    }
-
-    private async Task CheckUpdateUsersProfilePicturePermission()
-    {
-        var permissionToChangeAnotherUsersProfilePicture = await PermissionChecker.IsGrantedAsync(
-            AppPermissions.Pages_Administration_Users_ChangeProfilePicture
-        );
-
-        if (!permissionToChangeAnotherUsersProfilePicture)
-        {
-            var localizedPermissionName = L("UpdateUsersProfilePicture");
-            throw new AbpAuthorizationException(
-                string.Format(
-                    L("AllOfThesePermissionsMustBeGranted"),
-                    localizedPermissionName
-                )
-            );
-        }
-    }
-
-    private async Task UpdateProfilePictureForUser(long userId, UpdateProfilePictureInput input)
-    {
-        var userIdentifier = new UserIdentifier(AbpSession.TenantId, userId);
-        var allowToUseGravatar = await SettingManager.GetSettingValueForUserAsync<bool>(
-            AppSettings.UserManagement.AllowUsingGravatarProfilePicture,
-            user: userIdentifier
-        );
-
-        if (!allowToUseGravatar)
-        {
-            input.UseGravatarProfilePicture = false;
-        }
-
-        await SettingManager.ChangeSettingForUserAsync(
-            userIdentifier,
-            AppSettings.UserManagement.UseGravatarProfilePicture,
-            input.UseGravatarProfilePicture.ToString().ToLowerInvariant()
-        );
-
-        if (input.UseGravatarProfilePicture)
-        {
-            return;
-        }
-
-        var imageBytes = _tempFileCacheManager.GetFile(input.FileToken);
-
-        if (imageBytes == null)
-        {
-            throw new UserFriendlyException("There is no such image file with the token: " + input.FileToken);
-        }
-
-        // Validate the profile picture size
-        await _profilePictureValidator.ValidateProfilePictureSize(imageBytes);
-
-        // Validate the profile picture width & height
-        await _profilePictureValidator.ValidateProfilePictureDimensions(imageBytes);
-
-        var user = await UserManager.GetUserByIdAsync(userIdentifier.UserId);
-
-        if (user.ProfilePictureId.HasValue)
-        {
-            await _binaryObjectManager.DeleteAsync(user.ProfilePictureId.Value);
-        }
-
-        var storedFile = new BinaryObject(userIdentifier.TenantId, imageBytes,
-            $"Profile picture of user {userIdentifier.UserId}. {DateTime.UtcNow}");
-        await _binaryObjectManager.SaveAsync(storedFile);
-
-        user.ProfilePictureId = storedFile.Id;
-    }
-
 
     [AbpAllowAnonymous]
     public async Task<GetPasswordComplexitySettingOutput> GetPasswordComplexitySetting()
@@ -409,17 +292,17 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
         var passwordComplexitySetting = new PasswordComplexitySetting
         {
             RequireDigit =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireDigit),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireDigit),
             RequireLowercase =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireLowercase),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireLowercase),
             RequireNonAlphanumeric =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireNonAlphanumeric),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireNonAlphanumeric),
             RequireUppercase =
-                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement
-                    .PasswordComplexity.RequireUppercase),
+                await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.PasswordComplexity
+                    .RequireUppercase),
             RequiredLength =
                 await SettingManager.GetSettingValueAsync<int>(AbpZeroSettingNames.UserManagement.PasswordComplexity
                     .RequiredLength)
@@ -448,10 +331,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
     public async Task<GetProfilePictureOutput> GetProfilePictureByUserName(string username)
     {
         var user = await UserManager.FindByNameAsync(username);
-        if (user == null)
-        {
-            return new GetProfilePictureOutput(string.Empty);
-        }
+        if (user == null) return new GetProfilePictureOutput(string.Empty);
 
         var userIdentifier = new UserIdentifier(AbpSession.TenantId, user.Id);
         using (var profileImageService = await _profileImageServiceFactory.Get(userIdentifier))
@@ -469,10 +349,7 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
             friendUserIdentifier
         );
 
-        if (friendShip == null)
-        {
-            return new GetProfilePictureOutput(string.Empty);
-        }
+        if (friendShip == null) return new GetProfilePictureOutput(string.Empty);
 
 
         using (var profileImageService = await _profileImageServiceFactory.Get(friendUserIdentifier))
@@ -502,24 +379,94 @@ public class ProfileAppService : LotteryDetectionAppServiceBase, IProfileAppServ
         );
 
         if (languageSetting == null)
-        {
             await _settingStore.CreateAsync(new SettingInfo(
                 AbpSession.TenantId,
                 AbpSession.UserId,
                 LocalizationSettingNames.DefaultLanguage,
                 input.LanguageName
             ));
-        }
         else
-        {
             await _settingStore.UpdateAsync(new SettingInfo(
                 AbpSession.TenantId,
                 AbpSession.UserId,
                 LocalizationSettingNames.DefaultLanguage,
                 input.LanguageName
             ));
-        }
 
         await _userSettingCache.RemoveAsync(AbpSession.ToUserIdentifier().ToString());
+    }
+
+    private async Task<bool> VerifyAuthenticatorCodeInternal(VerifyAuthenticatorCodeInput input)
+    {
+        var user = await GetCurrentUserAsync();
+
+        var isValid = _googleTwoFactorAuthenticateService.ValidateTwoFactorPin(
+            user.GoogleAuthenticatorKey ?? input.GoogleAuthenticatorKey,
+            input.Code
+        );
+
+        if (isValid) return true;
+
+        isValid = (await UserManager.RedeemTwoFactorRecoveryCodeAsync(user, input.Code)).Succeeded;
+
+        return isValid;
+    }
+
+    private async Task CheckUpdateUsersProfilePicturePermission()
+    {
+        var permissionToChangeAnotherUsersProfilePicture = await PermissionChecker.IsGrantedAsync(
+            AppPermissions.Pages_Administration_Users_ChangeProfilePicture
+        );
+
+        if (!permissionToChangeAnotherUsersProfilePicture)
+        {
+            var localizedPermissionName = L("UpdateUsersProfilePicture");
+            throw new AbpAuthorizationException(
+                string.Format(
+                    L("AllOfThesePermissionsMustBeGranted"),
+                    localizedPermissionName
+                )
+            );
+        }
+    }
+
+    private async Task UpdateProfilePictureForUser(long userId, UpdateProfilePictureInput input)
+    {
+        var userIdentifier = new UserIdentifier(AbpSession.TenantId, userId);
+        var allowToUseGravatar = await SettingManager.GetSettingValueForUserAsync<bool>(
+            AppSettings.UserManagement.AllowUsingGravatarProfilePicture,
+            userIdentifier
+        );
+
+        if (!allowToUseGravatar) input.UseGravatarProfilePicture = false;
+
+        await SettingManager.ChangeSettingForUserAsync(
+            userIdentifier,
+            AppSettings.UserManagement.UseGravatarProfilePicture,
+            input.UseGravatarProfilePicture.ToString().ToLowerInvariant()
+        );
+
+        if (input.UseGravatarProfilePicture) return;
+
+        var imageBytes = _tempFileCacheManager.GetFile(input.FileToken);
+
+        if (imageBytes == null)
+            throw new UserFriendlyException("There is no such image file with the token: " + input.FileToken);
+
+        // Validate the profile picture size
+        await _profilePictureValidator.ValidateProfilePictureSize(imageBytes);
+
+        // Validate the profile picture width & height
+        await _profilePictureValidator.ValidateProfilePictureDimensions(imageBytes);
+
+        var user = await UserManager.GetUserByIdAsync(userIdentifier.UserId);
+
+        if (user.ProfilePictureId.HasValue) await _binaryObjectManager.DeleteAsync(user.ProfilePictureId.Value);
+
+        var storedFile = new BinaryObject(userIdentifier.TenantId, imageBytes,
+            $"Profile picture of user {userIdentifier.UserId}. {DateTime.UtcNow}");
+        await _binaryObjectManager.SaveAsync(storedFile);
+
+        user.ProfilePictureId = storedFile.Id;
     }
 }

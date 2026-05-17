@@ -1,5 +1,4 @@
 ﻿using System;
-using Abp;
 using Abp.Runtime.Validation;
 
 namespace LotteryDetection.Configuration.Host.Dto;
@@ -14,20 +13,12 @@ public class UserLockOutSettingsEditDto : ICustomValidate
 
     public void AddValidationErrors(CustomValidationContext context)
     {
-        if (!IsEnabled)
-        {
-            return;
-        }
+        if (!IsEnabled) return;
 
         if (!MaxFailedAccessAttemptsBeforeLockout.HasValue)
-        {
             throw new ArgumentNullException(nameof(MaxFailedAccessAttemptsBeforeLockout));
-        }
 
         if (!DefaultAccountLockoutSeconds.HasValue)
-        {
             throw new ArgumentNullException(nameof(DefaultAccountLockoutSeconds));
-        }
     }
 }
-

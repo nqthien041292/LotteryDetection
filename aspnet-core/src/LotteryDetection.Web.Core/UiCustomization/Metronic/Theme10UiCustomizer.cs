@@ -21,16 +21,16 @@ public class Theme10UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         {
             BaseSettings = new ThemeSettingsDto
             {
-                Layout = new ThemeLayoutSettingsDto()
+                Layout = new ThemeLayoutSettingsDto
                 {
                     LayoutType = await GetSettingValueAsync(AppSettings.UiManagement.LayoutType),
                     DarkMode = await GetSettingValueAsync<bool>(AppSettings.UiManagement.DarkMode)
                 },
-                Menu = new ThemeMenuSettingsDto()
+                Menu = new ThemeMenuSettingsDto
                 {
                     SearchActive = await GetSettingValueAsync<bool>(AppSettings.UiManagement.SearchActive)
                 },
-                Footer = new ThemeFooterSettingsDto()
+                Footer = new ThemeFooterSettingsDto
                 {
                     FooterWidthType = await GetSettingValueAsync(AppSettings.UiManagement.Footer.FooterWidthType)
                 }
@@ -58,22 +58,32 @@ public class Theme10UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
 
         await ChangeSettingForUserAsync(user, AppSettings.UiManagement.LayoutType, settings.Layout.LayoutType);
         await ChangeSettingForUserAsync(user, AppSettings.UiManagement.DarkMode, settings.Layout.DarkMode.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Header.DesktopFixedHeader, settings.Header.DesktopFixedHeader.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Header.MobileFixedHeader, settings.Header.MobileFixedHeader.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.SearchActive, settings.Menu.SearchActive.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Footer.FooterWidthType, settings.Footer.FooterWidthType);
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Header.DesktopFixedHeader,
+            settings.Header.DesktopFixedHeader.ToString());
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Header.MobileFixedHeader,
+            settings.Header.MobileFixedHeader.ToString());
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.SearchActive,
+            settings.Menu.SearchActive.ToString());
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Footer.FooterWidthType,
+            settings.Footer.FooterWidthType);
     }
 
-    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings, UserIdentifier changerUser)
+    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings,
+        UserIdentifier changerUser)
     {
         await SettingManager.ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Theme, ThemeName);
 
         await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.LayoutType, settings.Layout.LayoutType);
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.DarkMode, settings.Layout.DarkMode.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Header.DesktopFixedHeader, settings.Header.DesktopFixedHeader.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Header.MobileFixedHeader, settings.Header.MobileFixedHeader.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.SearchActive, settings.Menu.SearchActive.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Footer.FooterWidthType, settings.Footer.FooterWidthType);
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.DarkMode,
+            settings.Layout.DarkMode.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Header.DesktopFixedHeader,
+            settings.Header.DesktopFixedHeader.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Header.MobileFixedHeader,
+            settings.Header.MobileFixedHeader.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.SearchActive,
+            settings.Menu.SearchActive.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Footer.FooterWidthType,
+            settings.Footer.FooterWidthType);
 
         await ResetDarkModeSettingsAsync(changerUser);
     }
@@ -84,10 +94,14 @@ public class Theme10UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
 
         await ChangeSettingForApplicationAsync(AppSettings.UiManagement.LayoutType, settings.Layout.LayoutType);
         await ChangeSettingForApplicationAsync(AppSettings.UiManagement.DarkMode, settings.Layout.DarkMode.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Header.DesktopFixedHeader, settings.Header.DesktopFixedHeader.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Header.MobileFixedHeader, settings.Header.MobileFixedHeader.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.SearchActive, settings.Menu.SearchActive.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType, settings.Footer.FooterWidthType);
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Header.DesktopFixedHeader,
+            settings.Header.DesktopFixedHeader.ToString());
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Header.MobileFixedHeader,
+            settings.Header.MobileFixedHeader.ToString());
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.SearchActive,
+            settings.Menu.SearchActive.ToString());
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType,
+            settings.Footer.FooterWidthType);
 
         await ResetDarkModeSettingsAsync(changerUser);
     }
@@ -104,13 +118,14 @@ public class Theme10UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                 LayoutType = await GetSettingValueForApplicationAsync(AppSettings.UiManagement.LayoutType),
                 DarkMode = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.DarkMode)
             },
-            Menu = new ThemeMenuSettingsDto()
+            Menu = new ThemeMenuSettingsDto
             {
                 SearchActive = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.SearchActive)
             },
-            Footer = new ThemeFooterSettingsDto()
+            Footer = new ThemeFooterSettingsDto
             {
-                FooterWidthType = await GetSettingValueForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType)
+                FooterWidthType =
+                    await GetSettingValueForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType)
             }
         };
     }
@@ -129,11 +144,13 @@ public class Theme10UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
             },
             Menu = new ThemeMenuSettingsDto
             {
-                SearchActive = await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.SearchActive, tenantId)
+                SearchActive =
+                    await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.SearchActive, tenantId)
             },
-            Footer = new ThemeFooterSettingsDto()
+            Footer = new ThemeFooterSettingsDto
             {
-                FooterWidthType = await GetSettingValueForTenantAsync(AppSettings.UiManagement.Footer.FooterWidthType, tenantId)
+                FooterWidthType =
+                    await GetSettingValueForTenantAsync(AppSettings.UiManagement.Footer.FooterWidthType, tenantId)
             }
         };
     }
@@ -143,4 +160,3 @@ public class Theme10UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         return Task.FromResult("header-tablet-and-mobile-fixed aside-enabled");
     }
 }
-

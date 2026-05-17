@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using GraphQL;
+using LotteryDetection.Debugging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
-using LotteryDetection.Debugging;
 
 namespace LotteryDetection.Configure;
 
@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
                 .AddDataLoader()
                 .AddUserContextBuilder(httpContext => new Dictionary<string, object>
                 {
-                        {"user", httpContext.User}
+                    { "user", httpContext.User }
                 })
             );
 
@@ -35,4 +35,3 @@ public static class ServiceCollectionExtensions
         services.Configure<IISServerOptions>(options => { options.AllowSynchronousIO = true; });
     }
 }
-

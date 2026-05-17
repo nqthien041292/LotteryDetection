@@ -28,4 +28,3 @@ public class EditionManager : AbpEditionManager
         return await EditionRepository.GetAllListAsync();
     }
 }
-

@@ -1,11 +1,9 @@
 ﻿using Abp.Modules;
 using LotteryDetection.Test.Base;
 
-namespace LotteryDetection.Tests
+namespace LotteryDetection.Tests;
+
+[DependsOn(typeof(LotteryDetectionTestBaseModule))]
+public class LotteryDetectionTestModule : AbpModule
 {
-    [DependsOn(typeof(LotteryDetectionTestBaseModule))]
-    public class LotteryDetectionTestModule : AbpModule
-    {
-       
-    }
 }

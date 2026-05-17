@@ -26,4 +26,3 @@ public class AppWebhookPublisher : LotteryDetectionDomainServiceBase, IAppWebhoo
         );
     }
 }
-

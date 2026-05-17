@@ -14,4 +14,3 @@ public class TwoFactorLoginSettingsEditDto
 
     public bool IsGoogleAuthenticatorEnabled { get; set; }
 }
-

@@ -6,12 +6,12 @@ namespace LotteryDetection.Net.Sms;
 
 public class SmsSender : ISmsSender, ITransientDependency
 {
-    public ILogger Logger { get; set; }
-
     public SmsSender()
     {
         Logger = NullLogger.Instance;
     }
+
+    public ILogger Logger { get; set; }
 
     public Task SendAsync(string number, string message)
     {
@@ -24,4 +24,3 @@ public class SmsSender : ISmsSender, ITransientDependency
         return Task.FromResult(0);
     }
 }
-

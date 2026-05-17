@@ -15,11 +15,11 @@ namespace LotteryDetection.Gdpr;
 
 public class ProfileUserCollectedDataProvider : IUserCollectedDataProvider, ITransientDependency
 {
-    private readonly UserManager _userManager;
+    private readonly ILocalizationManager _localizationManager;
+    private readonly ITempFileCacheManager _tempFileCacheManager;
     private readonly TenantManager _tenantManager;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
-    private readonly ITempFileCacheManager _tempFileCacheManager;
-    private readonly ILocalizationManager _localizationManager;
+    private readonly UserManager _userManager;
 
     public ProfileUserCollectedDataProvider(
         UserManager userManager,
@@ -39,24 +39,22 @@ public class ProfileUserCollectedDataProvider : IUserCollectedDataProvider, ITra
     {
         var tenancyName = ".";
         if (user.TenantId.HasValue)
-        {
             using (_unitOfWorkManager.Current.SetTenantId(null))
             {
                 tenancyName = (await _tenantManager.GetByIdAsync(user.TenantId.Value)).TenancyName;
             }
-        }
 
         var profileInfo = await _userManager.GetUserByIdAsync(user.UserId);
 
         var content = new List<string>
-            {
-                L("TenancyName")+ ": " + tenancyName,
-                L("UserName") +": " + profileInfo.UserName,
-                L("Name") +": " + profileInfo.Name,
-                L("Surname") +": " + profileInfo.Surname,
-                L("EmailAddress") +": " + profileInfo.EmailAddress,
-                L("PhoneNumber") +": " + profileInfo.PhoneNumber
-            };
+        {
+            L("TenancyName") + ": " + tenancyName,
+            L("UserName") + ": " + profileInfo.UserName,
+            L("Name") + ": " + profileInfo.Name,
+            L("Surname") + ": " + profileInfo.Surname,
+            L("EmailAddress") + ": " + profileInfo.EmailAddress,
+            L("PhoneNumber") + ": " + profileInfo.PhoneNumber
+        };
 
         var profileInfoBytes = Encoding.UTF8.GetBytes(string.Join("\n\r", content));
 

@@ -13,4 +13,3 @@ public class UnlinkUserInput
         return new UserIdentifier(TenantId, UserId);
     }
 }
-

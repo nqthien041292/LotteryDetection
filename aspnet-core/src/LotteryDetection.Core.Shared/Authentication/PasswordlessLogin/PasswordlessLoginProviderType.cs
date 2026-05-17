@@ -3,6 +3,5 @@
 public enum PasswordlessLoginProviderType
 {
     Email = 1,
-    Sms = 2,
+    Sms = 2
 }
-

@@ -11,4 +11,3 @@ public interface IBinaryObjectManager
 
     Task DeleteAsync(Guid id);
 }
-

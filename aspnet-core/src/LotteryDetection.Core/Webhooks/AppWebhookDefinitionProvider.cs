@@ -9,7 +9,7 @@ public class AppWebhookDefinitionProvider : WebhookDefinitionProvider
     public override void SetWebhooks(IWebhookDefinitionContext context)
     {
         context.Manager.Add(new WebhookDefinition(
-            name: AppWebHookNames.TestWebhook
+            AppWebHookNames.TestWebhook
         ));
 
         //Add your webhook definitions here 
@@ -20,4 +20,3 @@ public class AppWebhookDefinitionProvider : WebhookDefinitionProvider
         return new LocalizableString(name, LotteryDetectionConsts.LocalizationSourceName);
     }
 }
-

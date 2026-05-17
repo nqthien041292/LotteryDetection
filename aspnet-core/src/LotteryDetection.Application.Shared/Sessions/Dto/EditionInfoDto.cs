@@ -16,4 +16,3 @@ public class EditionInfoDto : EntityDto
 
     public bool IsFree { get; set; }
 }
-

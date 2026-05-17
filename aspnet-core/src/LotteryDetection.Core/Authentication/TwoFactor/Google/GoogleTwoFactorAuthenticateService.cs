@@ -8,15 +8,15 @@ using Abp.Dependency;
 namespace LotteryDetection.Authentication.TwoFactor.Google;
 
 /// <summary>
-/// This code taken from https://github.com/BrandonPotter/GoogleAuthenticator
+///     This code taken from https://github.com/BrandonPotter/GoogleAuthenticator
 /// </summary>
 public class GoogleTwoFactorAuthenticateService : ITransientDependency
 {
-    public static DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    public TimeSpan DefaultClockDriftTolerance { get; set; }
-    public bool UseManagedSha1Algorithm { get; set; }
-    public bool TryUnmanagedAlgorithmOnFailure { get; set; }
-    public GoogleTwoFactorAuthenticateService() : this(true, true) { }
+    public static DateTime Epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    public GoogleTwoFactorAuthenticateService() : this(true, true)
+    {
+    }
 
     public GoogleTwoFactorAuthenticateService(bool useManagedSha1, bool useUnmanagedOnFail)
     {
@@ -25,19 +25,27 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
         TryUnmanagedAlgorithmOnFailure = useUnmanagedOnFail;
     }
 
-    public GoogleAuthenticatorSetupCode GenerateSetupCode(string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight)
+    public TimeSpan DefaultClockDriftTolerance { get; set; }
+    public bool UseManagedSha1Algorithm { get; set; }
+    public bool TryUnmanagedAlgorithmOnFailure { get; set; }
+
+    public GoogleAuthenticatorSetupCode GenerateSetupCode(string accountTitleNoSpaces, string accountSecretKey,
+        int qrCodeWidth, int qrCodeHeight)
     {
         return GenerateSetupCode(null, accountTitleNoSpaces, accountSecretKey, qrCodeWidth, qrCodeHeight);
     }
 
-    public GoogleAuthenticatorSetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight)
+    public GoogleAuthenticatorSetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces,
+        string accountSecretKey, int qrCodeWidth, int qrCodeHeight)
     {
         return GenerateSetupCode(issuer, accountTitleNoSpaces, accountSecretKey, qrCodeWidth, qrCodeHeight, true);
     }
 
-    public GoogleAuthenticatorSetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces, string accountSecretKey, int qrCodeWidth, int qrCodeHeight, bool useHttps)
+    public GoogleAuthenticatorSetupCode GenerateSetupCode(string issuer, string accountTitleNoSpaces,
+        string accountSecretKey, int qrCodeWidth, int qrCodeHeight, bool useHttps)
     {
-        accountTitleNoSpaces = accountTitleNoSpaces?.Replace(" ", "") ?? throw new NullReferenceException("Account Title is null");
+        accountTitleNoSpaces = accountTitleNoSpaces?.Replace(" ", "") ??
+                               throw new NullReferenceException("Account Title is null");
 
         var setupCode = new GoogleAuthenticatorSetupCode
         {
@@ -48,9 +56,9 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
         var encodedSecretKey = EncodeAccountSecretKey(accountSecretKey);
         setupCode.ManualEntryKey = encodedSecretKey;
 
-        string provisionUrl = UrlEncode(string.IsNullOrEmpty(issuer) ?
-            $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}" :
-            $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}&issuer={UrlEncode(issuer)}");
+        var provisionUrl = UrlEncode(string.IsNullOrEmpty(issuer)
+            ? $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}"
+            : $"otpauth://totp/{accountTitleNoSpaces}?secret={encodedSecretKey}&issuer={UrlEncode(issuer)}");
 
         var protocol = useHttps ? "https" : "http";
         var url =
@@ -67,16 +75,10 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
         const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
         foreach (var symbol in value)
-        {
             if (validChars.IndexOf(symbol) != -1)
-            {
                 stringBuilder.Append(symbol);
-            }
             else
-            {
                 stringBuilder.Append('%' + $"{(int)symbol:X2}");
-            }
-        }
 
         return stringBuilder.ToString().Replace(" ", "%20");
     }
@@ -97,14 +99,14 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
 
         while (i < data.Length)
         {
-            var currentByte = data[i] >= 0 ? data[i] : (data[i] + 256);
+            var currentByte = data[i] >= 0 ? data[i] : data[i] + 256;
 
             int digit;
             if (index > inByteSize - outByteSize)
             {
                 int nextByte;
                 if (i + 1 < data.Length)
-                    nextByte = (data[i + 1] >= 0) ? data[i + 1] : (data[i + 1] + 256);
+                    nextByte = data[i + 1] >= 0 ? data[i + 1] : data[i + 1] + 256;
                 else
                     nextByte = 0;
 
@@ -121,6 +123,7 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
                 if (index == 0)
                     i++;
             }
+
             result.Append(alphabet[digit]);
         }
 
@@ -142,10 +145,7 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
     {
         var counter = BitConverter.GetBytes(iterationNumber);
 
-        if (BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(counter);
-        }
+        if (BitConverter.IsLittleEndian) Array.Reverse(counter);
 
         var hmac = GetHmacSha1Algorithm(key);
 
@@ -158,7 +158,7 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
             ((hash[offset] & 0x7f) << 24)
             | (hash[offset + 1] << 16)
             | (hash[offset + 2] << 8)
-            | (hash[offset + 3]);
+            | hash[offset + 3];
 
         var password = binary % (int)Math.Pow(10, digits);
 
@@ -197,20 +197,14 @@ public class GoogleTwoFactorAuthenticateService : ITransientDependency
         var iterationCounter = GetCurrentCounter();
         var iterationOffset = 0;
 
-        if (timeTolerance.TotalSeconds > 30)
-        {
-            iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / 30.00);
-        }
+        if (timeTolerance.TotalSeconds > 30) iterationOffset = Convert.ToInt32(timeTolerance.TotalSeconds / 30.00);
 
         var iterationStart = iterationCounter - iterationOffset;
         var iterationEnd = iterationCounter + iterationOffset;
 
         for (var counter = iterationStart; counter <= iterationEnd; counter++)
-        {
             codes.Add(GeneratePinAtInterval(accountSecretKey, counter));
-        }
 
         return codes.ToArray();
     }
 }
-

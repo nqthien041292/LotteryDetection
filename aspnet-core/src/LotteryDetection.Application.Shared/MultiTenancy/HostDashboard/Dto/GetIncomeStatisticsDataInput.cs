@@ -4,4 +4,3 @@ public class GetIncomeStatisticsDataInput : DashboardInputBase
 {
     public ChartDateInterval IncomeStatisticsDateInterval { get; set; }
 }
-

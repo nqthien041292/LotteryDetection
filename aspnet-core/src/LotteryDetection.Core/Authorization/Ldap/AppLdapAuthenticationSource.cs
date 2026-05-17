@@ -12,4 +12,3 @@ public class AppLdapAuthenticationSource : LdapAuthenticationSource<Tenant, User
     {
     }
 }
-

@@ -10,4 +10,3 @@ public class DynamicEntityPropertyValueDto : EntityDto
 
     public int DynamicEntityPropertyId { get; set; }
 }
-

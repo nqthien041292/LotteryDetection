@@ -6,4 +6,3 @@ public class SendFriendshipRequestInput
 
     public int? TenantId { get; set; }
 }
-

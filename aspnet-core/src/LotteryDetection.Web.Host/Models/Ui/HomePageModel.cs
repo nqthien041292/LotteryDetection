@@ -12,14 +12,10 @@ public class HomePageModel
     {
         var userName = "<span id=\"HeaderCurrentUserName\">" + LoginInformation.User.UserName + "</span>";
 
-        if (!IsMultiTenancyEnabled)
-        {
-            return userName;
-        }
+        if (!IsMultiTenancyEnabled) return userName;
 
         return LoginInformation.Tenant == null
             ? "<span class='tenancy-name'>.\\</span>" + userName
             : "<span class='tenancy-name'>" + LoginInformation.Tenant.TenancyName + "\\" + "</span>" + userName;
     }
 }
-

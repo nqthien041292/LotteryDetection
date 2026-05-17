@@ -1,6 +1,6 @@
-﻿using Abp.Dependency;
+﻿using System;
+using Abp.Dependency;
 using QRCoder;
-using System;
 
 namespace LotteryDetection.Authorization.QrLogin;
 
@@ -10,11 +10,11 @@ public class QrLoginImageService : ITransientDependency
     {
         var data = $"{connectionId}|{sessionId}";
 
-        using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
-        using (QRCodeData qrCodeData = qrGenerator.CreateQrCode(data, QRCodeGenerator.ECCLevel.Q))
-        using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+        using (var qrGenerator = new QRCodeGenerator())
+        using (var qrCodeData = qrGenerator.CreateQrCode(data, QRCodeGenerator.ECCLevel.Q))
+        using (var qrCode = new PngByteQRCode(qrCodeData))
         {
-            byte[] qrCodeImage = qrCode.GetGraphic(20);
+            var qrCodeImage = qrCode.GetGraphic(20);
             return $"data:image/png;base64,{Convert.ToBase64String(qrCodeImage)}";
         }
     }

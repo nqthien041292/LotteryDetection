@@ -5,24 +5,19 @@ using Abp.Dependency;
 using Abp.ObjectMapping;
 using Abp.RealTime;
 using Castle.Core.Logging;
-using Microsoft.AspNetCore.SignalR;
 using LotteryDetection.Chat;
 using LotteryDetection.Chat.Dto;
 using LotteryDetection.Friendships;
 using LotteryDetection.Friendships.Dto;
+using Microsoft.AspNetCore.SignalR;
 
 namespace LotteryDetection.Web.Chat.SignalR;
 
 public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
 {
-    /// <summary>
-    /// Reference to the logger.
-    /// </summary>
-    public ILogger Logger { get; set; }
+    private readonly IHubContext<ChatHub> _chatHub;
 
     private readonly IObjectMapper _objectMapper;
-
-    private readonly IHubContext<ChatHub> _chatHub;
 
     public SignalRChatCommunicator(
         IObjectMapper objectMapper,
@@ -33,15 +28,17 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         Logger = NullLogger.Instance;
     }
 
+    /// <summary>
+    ///     Reference to the logger.
+    /// </summary>
+    public ILogger Logger { get; set; }
+
     public async Task SendMessageToClient(IReadOnlyList<IOnlineClient> clients, ChatMessage message)
     {
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                return;
-            }
+            if (signalRClient == null) return;
 
             await signalRClient.SendAsync("getChatMessage", _objectMapper.Map<ChatMessageDto>(message));
         }
@@ -53,10 +50,7 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                return;
-            }
+            if (signalRClient == null) return;
 
             var friendshipRequest = _objectMapper.Map<FriendDto>(friendship);
             friendshipRequest.IsOnline = isFriendOnline;
@@ -71,10 +65,7 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                continue;
-            }
+            if (signalRClient == null) continue;
 
             await signalRClient.SendAsync("getUserConnectNotification", user, isConnected);
         }
@@ -86,10 +77,7 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                continue;
-            }
+            if (signalRClient == null) continue;
 
             await signalRClient.SendAsync("getUserStateChange", user, newState);
         }
@@ -101,10 +89,7 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                continue;
-            }
+            if (signalRClient == null) continue;
 
             await signalRClient.SendAsync("getallUnreadMessagesOfUserRead", user);
         }
@@ -115,10 +100,7 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                continue;
-            }
+            if (signalRClient == null) continue;
 
             await signalRClient.SendAsync("getReadStateChange", user);
         }
@@ -129,10 +111,7 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         foreach (var client in clients)
         {
             var signalRClient = GetSignalRClientOrNull(client);
-            if (signalRClient == null)
-            {
-                continue;
-            }
+            if (signalRClient == null) continue;
 
             await signalRClient.SendAsync("getUserDeleted", user);
         }
@@ -150,4 +129,3 @@ public class SignalRChatCommunicator : IChatCommunicator, ITransientDependency
         return signalRClient;
     }
 }
-

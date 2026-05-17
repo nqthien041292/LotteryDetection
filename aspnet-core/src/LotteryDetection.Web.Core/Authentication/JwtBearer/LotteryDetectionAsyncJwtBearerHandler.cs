@@ -1,7 +1,8 @@
 ﻿/*
  *  Copied from https://github.com/dotnet/aspnetcore/blob/main/src/Security/Authentication/JwtBearer/src/JwtBearerHandler.cs
- *  Updated to implement async token validation 
+ *  Updated to implement async token validation
  */
+
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
     private OpenIdConnectConfiguration? _configuration;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="JwtBearerHandler"/>.
+    ///     Initializes a new instance of <see cref="JwtBearerHandler" />.
     /// </summary>
     /// <inheritdoc />
     public LotteryDetectionAsyncJwtBearerHandler(IOptionsMonitor<AsyncJwtBearerOptions> options,
@@ -37,8 +38,9 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
     }
 
     /// <summary>
-    /// The handler calls methods on the events which give the application control at certain points where processing is occurring.
-    /// If it is not provided a default instance is supplied which does nothing when the methods are called.
+    ///     The handler calls methods on the events which give the application control at certain points where processing is
+    ///     occurring.
+    ///     If it is not provided a default instance is supplied which does nothing when the methods are called.
     /// </summary>
     protected new JwtBearerEvents Events
     {
@@ -47,10 +49,14 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
     }
 
     /// <inheritdoc />
-    protected override Task<object> CreateEventsAsync() => Task.FromResult<object>(new JwtBearerEvents());
+    protected override Task<object> CreateEventsAsync()
+    {
+        return Task.FromResult<object>(new JwtBearerEvents());
+    }
 
     /// <summary>
-    /// Searches the 'Authorization' header for a 'Bearer' token. If the 'Bearer' token is found, it is validated using <see cref="TokenValidationParameters"/> set in the options.
+    ///     Searches the 'Authorization' header for a 'Bearer' token. If the 'Bearer' token is found, it is validated using
+    ///     <see cref="TokenValidationParameters" /> set in the options.
     /// </summary>
     /// <returns></returns>
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -63,40 +69,27 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
 
             // event can set the token
             await Events.MessageReceived(messageReceivedContext);
-            if (messageReceivedContext.Result != null)
-            {
-                return messageReceivedContext.Result;
-            }
+            if (messageReceivedContext.Result != null) return messageReceivedContext.Result;
 
             // If application retrieved token from somewhere else, use that.
             token = messageReceivedContext.Token;
 
             if (string.IsNullOrEmpty(token))
             {
-                string authorization = Request.Headers.Authorization.ToString();
+                var authorization = Request.Headers.Authorization.ToString();
 
                 // If no authorization header found, nothing to process further
-                if (string.IsNullOrEmpty(authorization))
-                {
-                    return AuthenticateResult.NoResult();
-                }
+                if (string.IsNullOrEmpty(authorization)) return AuthenticateResult.NoResult();
 
                 if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                {
                     token = authorization.Substring("Bearer ".Length).Trim();
-                }
 
                 // If no token found, no further work possible
-                if (string.IsNullOrEmpty(token))
-                {
-                    return AuthenticateResult.NoResult();
-                }
+                if (string.IsNullOrEmpty(token)) return AuthenticateResult.NoResult();
             }
 
             if (_configuration == null && Options.ConfigurationManager != null)
-            {
                 _configuration = await Options.ConfigurationManager.GetConfigurationAsync(Context.RequestAborted);
-            }
 
             var validationParameters = Options.TokenValidationParameters.Clone();
             if (_configuration != null)
@@ -118,21 +111,15 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
                 // Refresh the configuration for exceptions that may be caused by key rollovers. The user can also request a refresh in the event.
                 if (Options.RefreshOnIssuerKeyNotFound && Options.ConfigurationManager != null
                                                        && ex is SecurityTokenSignatureKeyNotFoundException)
-                {
                     Options.ConfigurationManager.RequestRefresh();
-                }
 
-                if (validationFailures == null)
-                {
-                    validationFailures = new List<Exception>(1);
-                }
+                if (validationFailures == null) validationFailures = new List<Exception>(1);
 
                 validationFailures.Add(ex);
                 return validationFailures;
             }
 
             foreach (var validator in Options.AsyncSecurityTokenValidators)
-            {
                 if (validator.CanReadToken(token))
                 {
                     ClaimsPrincipal principal;
@@ -150,11 +137,9 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
 
                     return await OnTokenValidationSucceed(principal, asyncValidatedToken, token);
                 }
-            }
 
             //if unable to validate token with async validators, try default validators.
             foreach (var validator in Options.AsyncSecurityTokenValidators)
-            {
                 if (validator.CanReadToken(token))
                 {
                     ClaimsPrincipal principal;
@@ -170,22 +155,18 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
                         validationFailures = LogTokenValidationException(ex);
                     }
                 }
-            }
 
             if (validationFailures != null)
             {
                 var authenticationFailedContext = new AuthenticationFailedContext(Context, Scheme, Options)
                 {
-                    Exception = (validationFailures.Count == 1)
+                    Exception = validationFailures.Count == 1
                         ? validationFailures[0]
                         : new AggregateException(validationFailures)
                 };
 
                 await Events.AuthenticationFailed(authenticationFailedContext);
-                if (authenticationFailedContext.Result != null)
-                {
-                    return authenticationFailedContext.Result;
-                }
+                if (authenticationFailedContext.Result != null) return authenticationFailedContext.Result;
 
                 return AuthenticateResult.Fail(authenticationFailedContext.Exception);
             }
@@ -202,10 +183,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
             };
 
             await Events.AuthenticationFailed(authenticationFailedContext);
-            if (authenticationFailedContext.Result != null)
-            {
-                return authenticationFailedContext.Result;
-            }
+            if (authenticationFailedContext.Result != null) return authenticationFailedContext.Result;
 
             throw;
         }
@@ -226,18 +204,13 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
         tokenValidatedContext.Properties.IssuedUtc = GetSafeDateTime(validatedToken.ValidFrom);
 
         await Events.TokenValidated(tokenValidatedContext);
-        if (tokenValidatedContext.Result != null)
-        {
-            return tokenValidatedContext.Result;
-        }
+        if (tokenValidatedContext.Result != null) return tokenValidatedContext.Result;
 
         if (Options.SaveToken)
-        {
             tokenValidatedContext.Properties.StoreTokens(new[]
             {
-                    new AuthenticationToken { Name = "access_token", Value = token! }
-                });
-        }
+                new AuthenticationToken { Name = "access_token", Value = token! }
+            });
 
         tokenValidatedContext.Success();
         return tokenValidatedContext.Result!;
@@ -247,10 +220,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
     {
         // Assigning DateTime.MinValue or default(DateTime) to a DateTimeOffset when in a UTC+X timezone will throw
         // Since we don't really care about DateTime.MinValue in this case let's just set the field to null
-        if (dateTime == DateTime.MinValue)
-        {
-            return null;
-        }
+        if (dateTime == DateTime.MinValue) return null;
 
         return dateTime;
     }
@@ -272,10 +242,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
         }
 
         await Events.Challenge(eventContext);
-        if (eventContext.Handled)
-        {
-            return;
-        }
+        if (eventContext.Handled) return;
 
         Response.StatusCode = 401;
 
@@ -291,10 +258,8 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
             // WWW-Authenticate: Bearer realm="example", error="invalid_token", error_description="The access token expired"
             var builder = new StringBuilder(Options.Challenge);
             if (Options.Challenge.IndexOf(' ') > 0)
-            {
                 // Only add a comma after the first param, if any
                 builder.Append(',');
-            }
 
             if (!string.IsNullOrEmpty(eventContext.Error))
             {
@@ -305,10 +270,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
 
             if (!string.IsNullOrEmpty(eventContext.ErrorDescription))
             {
-                if (!string.IsNullOrEmpty(eventContext.Error))
-                {
-                    builder.Append(',');
-                }
+                if (!string.IsNullOrEmpty(eventContext.Error)) builder.Append(',');
 
                 builder.Append(" error_description=\"");
                 builder.Append(eventContext.ErrorDescription);
@@ -319,9 +281,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
             {
                 if (!string.IsNullOrEmpty(eventContext.Error) ||
                     !string.IsNullOrEmpty(eventContext.ErrorDescription))
-                {
                     builder.Append(',');
-                }
 
                 builder.Append(" error_uri=\"");
                 builder.Append(eventContext.ErrorUri);
@@ -344,18 +304,13 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
     {
         IReadOnlyCollection<Exception> exceptions;
         if (authFailure is AggregateException agEx)
-        {
             exceptions = agEx.InnerExceptions;
-        }
         else
-        {
             exceptions = new[] { authFailure };
-        }
 
         var messages = new List<string>(exceptions.Count);
 
         foreach (var ex in exceptions)
-        {
             // Order sensitive, some of these exceptions derive from others
             // and we want to display the most specific message possible.
             switch (ex)
@@ -388,9 +343,7 @@ public class LotteryDetectionAsyncJwtBearerHandler : AuthenticationHandler<Async
                     messages.Add("The signature is invalid");
                     break;
             }
-        }
 
         return string.Join("; ", messages);
     }
 }
-

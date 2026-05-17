@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LotteryDetection.Configuration.Host.Dto;
 
@@ -13,8 +12,5 @@ public class UserPasswordSettingsEditDto
 
     public int PasswordExpirationDayCount { get; set; }
 
-    [Range(1, Int32.MaxValue)]
-
-    public int? PasswordResetCodeExpirationHours { get; set; }
+    [Range(1, int.MaxValue)] public int? PasswordResetCodeExpirationHours { get; set; }
 }
-

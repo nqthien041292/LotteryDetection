@@ -6,4 +6,3 @@ public enum ChatMessageReadState
 
     Read = 2
 }
-

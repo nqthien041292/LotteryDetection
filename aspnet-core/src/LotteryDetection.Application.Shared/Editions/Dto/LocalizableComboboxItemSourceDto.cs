@@ -7,4 +7,3 @@ public class LocalizableComboboxItemSourceDto
 {
     public Collection<LocalizableComboboxItemDto> Items { get; set; }
 }
-

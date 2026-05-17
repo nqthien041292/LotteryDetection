@@ -12,4 +12,3 @@ public class CreatePaymentProductDto : IHasExtraProperties
 
     public ExtraPropertyDictionary ExtraProperties { get; set; }
 }
-

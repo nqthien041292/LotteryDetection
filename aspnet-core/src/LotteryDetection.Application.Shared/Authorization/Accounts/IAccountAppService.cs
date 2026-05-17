@@ -36,4 +36,3 @@ public interface IAccountAppService : IApplicationService
 
     Task VerifyPasswordlessLoginCode(VerifyPasswordlessLoginCodeInput input);
 }
-

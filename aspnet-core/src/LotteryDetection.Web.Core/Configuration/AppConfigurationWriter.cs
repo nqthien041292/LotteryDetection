@@ -6,8 +6,8 @@ using Abp;
 using Abp.Dependency;
 using Abp.UI;
 using Castle.Core.Logging;
-using Microsoft.AspNetCore.Hosting;
 using LotteryDetection.Configuration;
+using Microsoft.AspNetCore.Hosting;
 
 namespace LotteryDetection.Web.Configuration;
 
@@ -15,26 +15,21 @@ public class AppConfigurationWriter : IAppConfigurationWriter, ISingletonDepende
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public ILogger Logger { get; set; }
-
     public AppConfigurationWriter(IWebHostEnvironment webHostEnvironment)
     {
         _webHostEnvironment = webHostEnvironment;
         Logger = NullLogger.Instance;
     }
 
+    public ILogger Logger { get; set; }
+
     public void Write(string key, string value)
     {
-        if (!File.Exists("appsettings.json"))
-        {
-            throw new UserFriendlyException("appsettings.json file does not exist");
-        }
+        if (!File.Exists("appsettings.json")) throw new UserFriendlyException("appsettings.json file does not exist");
         Writenternal("appsettings.json", key, value);
 
         if (File.Exists($"appsettings.{_webHostEnvironment.EnvironmentName}.json"))
-        {
             Writenternal($"appsettings.{_webHostEnvironment.EnvironmentName}.json", key, value);
-        }
     }
 
     protected virtual void Writenternal(string filename, string key, string value)
@@ -82,7 +77,7 @@ public class AppConfigurationWriter : IAppConfigurationWriter, ISingletonDepende
         {
             using (var writer = new Utf8JsonWriter(file))
             {
-                JsonSerializer.Serialize(writer, jsonFile, new JsonSerializerOptions()
+                JsonSerializer.Serialize(writer, jsonFile, new JsonSerializerOptions
                 {
                     WriteIndented = true
                 });
@@ -90,4 +85,3 @@ public class AppConfigurationWriter : IAppConfigurationWriter, ISingletonDepende
         }
     }
 }
-

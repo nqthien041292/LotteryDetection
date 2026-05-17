@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Abp.Application.Services.Dto;
 using LotteryDetection.ExtraProperties;
 
@@ -7,6 +6,12 @@ namespace LotteryDetection.MultiTenancy.Payments.Dto;
 
 public class SubscriptionPaymentDto : EntityDto<long>
 {
+    public SubscriptionPaymentDto()
+    {
+        SubscriptionPaymentProducts = new List<SubscriptionPaymentProductDto>();
+        ExtraProperties = new ExtraPropertyDictionary();
+    }
+
     public SubscriptionPaymentGatewayType Gateway { get; set; }
 
     public int TenantId { get; set; }
@@ -35,12 +40,6 @@ public class SubscriptionPaymentDto : EntityDto<long>
 
     public ExtraPropertyDictionary ExtraProperties { get; set; }
 
-    public SubscriptionPaymentDto()
-    {
-        SubscriptionPaymentProducts = new List<SubscriptionPaymentProductDto>();
-        ExtraProperties = new ExtraPropertyDictionary();
-    }
-
     public decimal TotalAmount { get; set; }
 
     public bool AllowRecurringPayment()
@@ -53,4 +52,3 @@ public class SubscriptionPaymentDto : EntityDto<long>
         return IsRecurring.HasValue && IsRecurring.Value;
     }
 }
-

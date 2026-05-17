@@ -9,4 +9,3 @@ public class SetDefaultLanguageInput
     [StringLength(ApplicationLanguage.MaxNameLength)]
     public virtual string Name { get; set; }
 }
-

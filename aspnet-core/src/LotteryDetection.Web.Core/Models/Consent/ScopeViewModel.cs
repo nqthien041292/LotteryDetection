@@ -13,4 +13,3 @@ public class ScopeViewModel
     public bool Required { get; set; }
     public bool Checked { get; set; }
 }
-

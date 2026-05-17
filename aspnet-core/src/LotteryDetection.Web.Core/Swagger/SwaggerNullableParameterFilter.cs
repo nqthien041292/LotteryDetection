@@ -1,6 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
 
 namespace LotteryDetection.Web.Swagger;
 
@@ -10,11 +10,8 @@ public class SwaggerNullableParameterFilter : IParameterFilter
     {
         if (!parameter.Schema.Nullable &&
             (context.ApiParameterDescription.Type.IsNullable() || !context.ApiParameterDescription.Type.IsValueType))
-        {
             parameter.Schema.Nullable = true;
-        }
     }
-
 }
 
 public static class TypeExtensions

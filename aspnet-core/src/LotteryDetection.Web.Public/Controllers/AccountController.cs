@@ -1,26 +1,26 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Abp;
 using Abp.Extensions;
 using Abp.Runtime.Session;
 using Abp.Timing;
-using Microsoft.AspNetCore.Mvc;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Identity;
 using LotteryDetection.MultiTenancy;
 using LotteryDetection.Url;
 using LotteryDetection.Web.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LotteryDetection.Web.Public.Controllers;
 
 public class AccountController : LotteryDetectionControllerBase
 {
-    private readonly UserManager _userManager;
     private readonly SignInManager _signInManager;
-    private readonly IWebUrlService _webUrlService;
     private readonly TenantManager _tenantManager;
+    private readonly UserManager _userManager;
+    private readonly IWebUrlService _webUrlService;
 
     public AccountController(
         UserManager userManager,
@@ -34,12 +34,11 @@ public class AccountController : LotteryDetectionControllerBase
         _tenantManager = tenantManager;
     }
 
-    public async Task<ActionResult> Login(string accessToken, string userId, string tenantId = "", string returnUrl = "")
+    public async Task<ActionResult> Login(string accessToken, string userId, string tenantId = "",
+        string returnUrl = "")
     {
         if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(userId))
-        {
             return await RedirectToExternalLoginPageAsync();
-        }
 
         var targetTenantId = string.IsNullOrEmpty(tenantId) ? null : (int?)Convert.ToInt32(Base64Decode(tenantId));
         CurrentUnitOfWork.SetTenantId(targetTenantId);
@@ -47,23 +46,15 @@ public class AccountController : LotteryDetectionControllerBase
         var targetUserId = Convert.ToInt64(Base64Decode(userId));
 
         var user = await _userManager.GetUserAsync(new UserIdentifier(targetTenantId, targetUserId));
-        if (user == null)
-        {
-            return RedirectToAction("Index", "Home");
-        }
+        if (user == null) return RedirectToAction("Index", "Home");
 
         if (!user.SignInToken.Equals(accessToken) || !(user.SignInTokenExpireTimeUtc >= Clock.Now.ToUniversalTime()))
-        {
             return RedirectToAction("Index", "Home");
-        }
 
         CurrentUnitOfWork.SetTenantId(targetTenantId);
         await _signInManager.SignInAsync(user, false);
 
-        if (!string.IsNullOrEmpty(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
+        if (!string.IsNullOrEmpty(returnUrl)) return Redirect(returnUrl);
 
         return RedirectToAction("Index", "Home");
     }
@@ -85,16 +76,15 @@ public class AccountController : LotteryDetectionControllerBase
         var websiteAddress = _webUrlService.GetSiteRootAddress(tenancyName);
 
         var originalReturnUrl = Request.Query.ContainsKey("ReturnUrl") ? Request.Query["ReturnUrl"].ToString() : "";
-        var returnUrl = websiteAddress.EnsureEndsWith('/') + "account/login?returnUrl=" + websiteAddress.EnsureEndsWith('/') + originalReturnUrl.TrimStart('/');
-        return Redirect(serverAddress.EnsureEndsWith('/') + "account/login?ss=true&returnUrl=" + WebUtility.UrlEncode(returnUrl));
+        var returnUrl = websiteAddress.EnsureEndsWith('/') + "account/login?returnUrl=" +
+                        websiteAddress.EnsureEndsWith('/') + originalReturnUrl.TrimStart('/');
+        return Redirect(serverAddress.EnsureEndsWith('/') + "account/login?ss=true&returnUrl=" +
+                        WebUtility.UrlEncode(returnUrl));
     }
 
     private async Task<string> GetCurrentTenancyName()
     {
-        if (!AbpSession.TenantId.HasValue)
-        {
-            return "";
-        }
+        if (!AbpSession.TenantId.HasValue) return "";
 
         var tenant = await _tenantManager.GetByIdAsync(AbpSession.GetTenantId());
         return tenant.TenancyName;
@@ -103,7 +93,6 @@ public class AccountController : LotteryDetectionControllerBase
     private string Base64Decode(string base64EncodedData)
     {
         var base64EncodedBytes = Convert.FromBase64String(base64EncodedData);
-        return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        return Encoding.UTF8.GetString(base64EncodedBytes);
     }
 }
-

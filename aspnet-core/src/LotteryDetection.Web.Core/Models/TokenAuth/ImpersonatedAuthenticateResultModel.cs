@@ -8,4 +8,3 @@ public class ImpersonatedAuthenticateResultModel
 
     public int ExpireInSeconds { get; set; }
 }
-

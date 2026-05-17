@@ -10,4 +10,3 @@ public class FindUsersOutputDto : EntityDto<long>
 
     public string EmailAddress { get; set; }
 }
-

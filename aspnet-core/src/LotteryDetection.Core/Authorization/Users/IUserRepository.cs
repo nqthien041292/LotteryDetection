@@ -13,4 +13,3 @@ public interface IUserRepository : IRepository<User, long>
 
     void UpdateUsersToChangePasswordOnNextLogin(List<long> userIdsToUpdate);
 }
-

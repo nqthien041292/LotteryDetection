@@ -17,4 +17,3 @@ public class OrganizationUnitUserListDto : EntityDto<long>
 
     public DateTime AddedTime { get; set; }
 }
-

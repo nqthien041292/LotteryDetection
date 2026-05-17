@@ -27,4 +27,3 @@ public class RoleDto
 
     public int? TenantId { get; set; }
 }
-

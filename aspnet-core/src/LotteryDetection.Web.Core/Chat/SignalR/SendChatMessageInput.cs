@@ -16,4 +16,3 @@ public class SendChatMessageInput
 
     public string Message { get; set; }
 }
-

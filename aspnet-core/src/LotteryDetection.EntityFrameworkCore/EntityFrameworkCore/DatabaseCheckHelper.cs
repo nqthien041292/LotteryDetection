@@ -23,10 +23,8 @@ public class DatabaseCheckHelper : ITransientDependency
     public bool Exist(string connectionString)
     {
         if (connectionString.IsNullOrEmpty())
-        {
             //connectionString is null for unit tests
             return true;
-        }
 
         try
         {
@@ -48,4 +46,3 @@ public class DatabaseCheckHelper : ITransientDependency
         return true;
     }
 }
-

@@ -7,4 +7,3 @@ public class TopStatsData
     public int DashboardPlaceholder1 { get; set; }
     public int DashboardPlaceholder2 { get; set; }
 }
-

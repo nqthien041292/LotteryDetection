@@ -29,4 +29,3 @@ public class Program
             .UseStartup<Startup>();
     }
 }
-

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -11,8 +10,8 @@ using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Runtime.Session;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Users.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Authorization.Users;
 
@@ -36,7 +35,8 @@ public class UserLoginAppService : LotteryDetectionAppServiceBase, IUserLoginApp
         var userId = AbpSession.GetUserId();
         var query = _userLoginAttemptRepository.GetAll()
             .Where(la => la.UserId == userId)
-            .WhereIf(!input.Filter.IsNullOrEmpty(), la => la.ClientIpAddress.Contains(input.Filter) || la.BrowserInfo.Contains(input.Filter))
+            .WhereIf(!input.Filter.IsNullOrEmpty(),
+                la => la.ClientIpAddress.Contains(input.Filter) || la.BrowserInfo.Contains(input.Filter))
             .WhereIf(input.StartDate.HasValue, la => la.CreationTime >= input.StartDate)
             .WhereIf(input.EndDate.HasValue, la => la.CreationTime <= input.EndDate)
             .WhereIf(input.Result.HasValue, la => la.Result == input.Result);
@@ -61,10 +61,7 @@ public class UserLoginAppService : LotteryDetectionAppServiceBase, IUserLoginApp
     {
         var userLogin = await _userLoginRepository.FirstOrDefaultAsync(ul => ul.UserId == userId);
 
-        if (userLogin == null)
-        {
-            return null;
-        }
+        if (userLogin == null) return null;
 
         return userLogin.LoginProvider;
     }

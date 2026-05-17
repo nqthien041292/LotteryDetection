@@ -6,4 +6,3 @@ public class LocaleMappingInfo
 
     public string To { get; set; }
 }
-

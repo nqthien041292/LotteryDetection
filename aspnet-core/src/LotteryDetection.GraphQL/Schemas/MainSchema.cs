@@ -1,8 +1,8 @@
-﻿using Abp.Dependency;
+﻿using System;
+using Abp.Dependency;
+using GraphQL.Conversion;
 using GraphQL.Types;
 using LotteryDetection.Queries.Container;
-using System;
-using GraphQL.Conversion;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetection.Schemas;
@@ -16,4 +16,3 @@ public class MainSchema : Schema, ITransientDependency
         NameConverter = new CamelCaseNameConverter();
     }
 }
-

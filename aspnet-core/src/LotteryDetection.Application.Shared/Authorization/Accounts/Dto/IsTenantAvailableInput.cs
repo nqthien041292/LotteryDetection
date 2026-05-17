@@ -9,4 +9,3 @@ public class IsTenantAvailableInput
     [MaxLength(AbpTenantBase.MaxTenancyNameLength)]
     public string TenancyName { get; set; }
 }
-

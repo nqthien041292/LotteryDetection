@@ -27,19 +27,13 @@ public class WebLogAppService : LotteryDetectionAppServiceBase, IWebLogAppServic
     public GetLatestWebLogsOutput GetLatestWebLogs()
     {
         var directory = new DirectoryInfo(_appFolders.WebLogsFolder);
-        if (!directory.Exists)
-        {
-            return new GetLatestWebLogsOutput { LatestWebLogLines = new List<string>() };
-        }
+        if (!directory.Exists) return new GetLatestWebLogsOutput { LatestWebLogLines = new List<string>() };
 
         var lastLogFile = directory.GetFiles("*.txt", SearchOption.AllDirectories)
-                                    .OrderByDescending(f => f.LastWriteTime)
-                                    .FirstOrDefault();
+            .OrderByDescending(f => f.LastWriteTime)
+            .FirstOrDefault();
 
-        if (lastLogFile == null)
-        {
-            return new GetLatestWebLogsOutput();
-        }
+        if (lastLogFile == null) return new GetLatestWebLogsOutput();
 
         var lines = AppFileHelper.ReadLines(lastLogFile.FullName).Reverse().Take(1000).ToList();
         var logLineCount = 0;
@@ -52,16 +46,11 @@ public class WebLogAppService : LotteryDetectionAppServiceBase, IWebLogAppServic
                 line.StartsWith("WARN") ||
                 line.StartsWith("ERROR") ||
                 line.StartsWith("FATAL"))
-            {
                 logLineCount++;
-            }
 
             lineCount++;
 
-            if (logLineCount == 100)
-            {
-                break;
-            }
+            if (logLineCount == 100) break;
         }
 
         return new GetLatestWebLogsOutput
@@ -87,7 +76,8 @@ public class WebLogAppService : LotteryDetectionAppServiceBase, IWebLogAppServic
                     var entry = zipStream.CreateEntry(logFile.Name);
                     using (var entryStream = entry.Open())
                     {
-                        using (var fs = new FileStream(logFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 0x1000, FileOptions.SequentialScan))
+                        using (var fs = new FileStream(logFile.FullName, FileMode.Open, FileAccess.Read,
+                                   FileShare.ReadWrite, 0x1000, FileOptions.SequentialScan))
                         {
                             fs.CopyTo(entryStream);
                             entryStream.Flush();

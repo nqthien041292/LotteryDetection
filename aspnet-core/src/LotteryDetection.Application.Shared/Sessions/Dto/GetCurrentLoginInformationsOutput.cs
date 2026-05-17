@@ -16,4 +16,3 @@ public class GetCurrentLoginInformationsOutput
 
     public UiCustomizationSettingsDto Theme { get; set; }
 }
-

@@ -1,30 +1,14 @@
 ﻿using System.Collections.Generic;
-using Abp.Authorization;
-using Abp.Application.Features;
-using Abp.MultiTenancy;
 using System.Text.Json.Serialization;
+using Abp.Application.Features;
+using Abp.Authorization;
+using Abp.MultiTenancy;
 
 namespace LotteryDetection.DashboardCustomization.Definitions;
 
 [JsonConverter(typeof(WidgetDefinitionConverter))]
 public class WidgetDefinition
 {
-    public string Id { get; }
-
-    public string Name { get; }
-
-    public MultiTenancySides Side { get; }
-
-    public IPermissionDependency PermissionDependency { get; }
-
-    public List<string> UsedWidgetFilters { get; }
-
-    public string Description { get; }
-
-    public bool AllowMultipleInstanceInSamePage { get; }
-
-    public IFeatureDependency FeatureDependency { get; }
-
     public WidgetDefinition(
         string id,
         string name,
@@ -44,5 +28,20 @@ public class WidgetDefinition
         AllowMultipleInstanceInSamePage = allowMultipleInstanceInSamePage;
         FeatureDependency = featureDependency;
     }
-}
 
+    public string Id { get; }
+
+    public string Name { get; }
+
+    public MultiTenancySides Side { get; }
+
+    public IPermissionDependency PermissionDependency { get; }
+
+    public List<string> UsedWidgetFilters { get; }
+
+    public string Description { get; }
+
+    public bool AllowMultipleInstanceInSamePage { get; }
+
+    public IFeatureDependency FeatureDependency { get; }
+}

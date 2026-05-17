@@ -12,4 +12,3 @@ public interface ITimingAppService : IApplicationService
 
     Task<List<ComboboxItemDto>> GetTimezoneComboboxItems(GetTimezoneComboboxItemsInput input);
 }
-

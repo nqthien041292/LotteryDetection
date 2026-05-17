@@ -8,7 +8,5 @@ public class WidgetFilterViewDefinition : ViewDefinition
         string javascriptFile = null,
         string cssFile = null) : base(id, viewFile, javascriptFile, cssFile)
     {
-
     }
 }
-

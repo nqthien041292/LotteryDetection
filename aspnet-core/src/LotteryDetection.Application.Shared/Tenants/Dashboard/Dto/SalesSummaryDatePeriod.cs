@@ -6,4 +6,3 @@ public enum SalesSummaryDatePeriod
     Weekly = 2,
     Monthly = 3
 }
-

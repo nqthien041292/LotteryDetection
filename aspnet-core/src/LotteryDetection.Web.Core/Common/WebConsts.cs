@@ -10,10 +10,10 @@ public static class WebConsts
     public static bool SwaggerUiEnabled = true;
     public static bool HangfireDashboardEnabled = false;
 
-    public static List<string> ReCaptchaIgnoreWhiteList = new List<string>
-        {
-            LotteryDetectionConsts.AbpApiClientUserAgent
-        };
+    public static List<string> ReCaptchaIgnoreWhiteList = new()
+    {
+        LotteryDetectionConsts.AbpApiClientUserAgent
+    };
 
     public static class GraphQL
     {
@@ -24,4 +24,3 @@ public static class WebConsts
         public static bool Enabled = true;
     }
 }
-

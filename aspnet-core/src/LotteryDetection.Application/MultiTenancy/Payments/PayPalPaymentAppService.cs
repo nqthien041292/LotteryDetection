@@ -8,8 +8,8 @@ namespace LotteryDetection.MultiTenancy.Payments;
 public class PayPalPaymentAppService : LotteryDetectionAppServiceBase, IPayPalPaymentAppService
 {
     private readonly PayPalGatewayManager _payPalGatewayManager;
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
     private readonly PayPalPaymentGatewayConfiguration _payPalPaymentGatewayConfiguration;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
 
     public PayPalPaymentAppService(
         PayPalGatewayManager payPalGatewayManager,

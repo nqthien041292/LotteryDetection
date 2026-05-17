@@ -29,4 +29,3 @@ public class SubscriptionPaymentListDto : AuditedEntityDto
 
     public List<SubscriptionPaymentProductDto> SubscriptionPaymentProducts { get; set; }
 }
-

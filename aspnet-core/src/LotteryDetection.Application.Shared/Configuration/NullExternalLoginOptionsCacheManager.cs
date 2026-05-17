@@ -2,9 +2,9 @@
 
 public class NullExternalLoginOptionsCacheManager : IExternalLoginOptionsCacheManager
 {
-    public static NullExternalLoginOptionsCacheManager Instance { get; } = new NullExternalLoginOptionsCacheManager();
+    public static NullExternalLoginOptionsCacheManager Instance { get; } = new();
+
     public void ClearCache()
     {
     }
 }
-

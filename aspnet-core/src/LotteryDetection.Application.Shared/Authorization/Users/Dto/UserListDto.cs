@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
-using Abp.Timing;
 
 namespace LotteryDetection.Authorization.Users.Dto;
 
@@ -27,8 +26,7 @@ public class UserListDto : EntityDto<long>, IPassivable, IHasCreationTime
 
     public List<UserListRoleDto> Roles { get; set; }
 
-    public bool IsActive { get; set; }
-
     public DateTime CreationTime { get; set; }
-}
 
+    public bool IsActive { get; set; }
+}

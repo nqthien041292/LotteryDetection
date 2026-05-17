@@ -3,9 +3,10 @@
 public class LotteryDetectionDashboardCustomizationConsts
 {
     /// <summary>
-    /// Main page name your user will see if they dont change default page's name.
+    ///     Main page name your user will see if they dont change default page's name.
     /// </summary>
     public const string DefaultPageName = "Default Page";
+
     public const string DefaultPageUniqueName = "Default_Page";
 
     //Must use underscore instead of dot in widget and filter ids
@@ -51,4 +52,3 @@ public class LotteryDetectionDashboardCustomizationConsts
         public const string Angular = "Angular";
     }
 }
-

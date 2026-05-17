@@ -14,4 +14,3 @@ public class OrganizationUnitDto : AuditedEntityDto<long>
 
     public int RoleCount { get; set; }
 }
-

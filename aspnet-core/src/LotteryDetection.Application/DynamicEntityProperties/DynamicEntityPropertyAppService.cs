@@ -25,7 +25,8 @@ public class DynamicEntityPropertyAppService : LotteryDetectionAppServiceBase, I
         return ObjectMapper.Map<DynamicEntityPropertyDto>(entity);
     }
 
-    public async Task<ListResultDto<DynamicEntityPropertyDto>> GetAllPropertiesOfAnEntity(DynamicEntityPropertyGetAllInput input)
+    public async Task<ListResultDto<DynamicEntityPropertyDto>> GetAllPropertiesOfAnEntity(
+        DynamicEntityPropertyGetAllInput input)
     {
         var entities = await _dynamicEntityPropertyManager.GetAllAsync(input.EntityFullName);
         return new ListResultDto<DynamicEntityPropertyDto>(
@@ -64,7 +65,7 @@ public class DynamicEntityPropertyAppService : LotteryDetectionAppServiceBase, I
     {
         var entities = await _dynamicEntityPropertyManager.GetAllAsync();
         return new ListResultDto<GetAllEntitiesHasDynamicPropertyOutput>(
-            entities?.Select(x => new GetAllEntitiesHasDynamicPropertyOutput()
+            entities?.Select(x => new GetAllEntitiesHasDynamicPropertyOutput
             {
                 EntityFullName = x.EntityFullName
             }).DistinctBy(x => x.EntityFullName).ToList()

@@ -21,4 +21,3 @@ public interface ITenantDashboardAppService : IApplicationService
 
     GetGeneralStatsOutput GetGeneralStats();
 }
-

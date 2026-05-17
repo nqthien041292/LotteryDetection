@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
-using Abp.Notifications;
 using LotteryDetection.Notifications.Dto;
 
 namespace LotteryDetection.Notifications;
@@ -36,4 +35,3 @@ public interface INotificationAppService : IApplicationService
 
     Task<GetPublishedNotificationsOutput> GetNotificationsPublishedByUser(GetPublishedNotificationsInput input);
 }
-

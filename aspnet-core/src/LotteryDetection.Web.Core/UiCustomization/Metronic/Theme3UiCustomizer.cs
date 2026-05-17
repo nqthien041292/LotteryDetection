@@ -34,7 +34,6 @@ public class Theme3UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                 {
                     SearchActive = await GetSettingValueAsync<bool>(AppSettings.UiManagement.SearchActive)
                 }
-
             }
         };
 
@@ -79,7 +78,8 @@ public class Theme3UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
             settings.Menu.SearchActive.ToString());
     }
 
-    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings, UserIdentifier changerUser)
+    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings,
+        UserIdentifier changerUser)
     {
         await SettingManager.ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Theme, ThemeName);
 
@@ -134,12 +134,12 @@ public class Theme3UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         return new ThemeSettingsDto
         {
             Theme = theme,
-            Layout = new ThemeLayoutSettingsDto()
+            Layout = new ThemeLayoutSettingsDto
             {
                 LayoutType = await GetSettingValueForApplicationAsync(AppSettings.UiManagement.LayoutType),
-                DarkMode = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.DarkMode),
+                DarkMode = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.DarkMode)
             },
-            SubHeader = new ThemeSubHeaderSettingsDto()
+            SubHeader = new ThemeSubHeaderSettingsDto
             {
                 FixedSubHeader =
                     await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.SubHeader.Fixed),
@@ -150,7 +150,7 @@ public class Theme3UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                 FooterWidthType =
                     await GetSettingValueForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType)
             },
-            Menu = new ThemeMenuSettingsDto()
+            Menu = new ThemeMenuSettingsDto
             {
                 SearchActive = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.SearchActive)
             }
@@ -181,7 +181,7 @@ public class Theme3UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                 FooterWidthType =
                     await GetSettingValueForTenantAsync(AppSettings.UiManagement.Footer.FooterWidthType, tenantId)
             },
-            Menu = new ThemeMenuSettingsDto()
+            Menu = new ThemeMenuSettingsDto
             {
                 SearchActive =
                     await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.SearchActive, tenantId)
@@ -189,4 +189,3 @@ public class Theme3UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         };
     }
 }
-

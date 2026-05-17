@@ -10,4 +10,3 @@ public class StartTrialToBuySubscriptionInput
 
     public string ErrorUrl { get; set; }
 }
-

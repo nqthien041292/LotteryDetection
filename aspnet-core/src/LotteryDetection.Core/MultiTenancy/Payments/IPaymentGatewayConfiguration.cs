@@ -10,4 +10,3 @@ public interface IPaymentGatewayConfiguration : ITransientDependency
 
     SubscriptionPaymentGatewayType GatewayType { get; }
 }
-

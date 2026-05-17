@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Abp;
 using Abp.AspNetCore.SignalR.Hubs;
@@ -17,14 +16,13 @@ namespace LotteryDetection.Web.Chat.SignalR;
 public class ChatHub : OnlineClientHubBase
 {
     private readonly IChatMessageManager _chatMessageManager;
+    private readonly IHtmlSanitizer _htmlSanitizer;
     private readonly ILocalizationManager _localizationManager;
     private readonly IWindsorContainer _windsorContainer;
-    private readonly IHtmlSanitizer _htmlSanitizer;
     private bool _isCallByRelease;
-    private IAbpSession ChatAbpSession { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ChatHub"/> class.
+    ///     Initializes a new instance of the <see cref="ChatHub" /> class.
     /// </summary>
     public ChatHub(
         IChatMessageManager chatMessageManager,
@@ -43,6 +41,8 @@ public class ChatHub : OnlineClientHubBase
         ChatAbpSession = NullAbpSession.Instance;
     }
 
+    private IAbpSession ChatAbpSession { get; }
+
     public async Task<string> SendMessage(SendChatMessageInput input)
     {
         input.Message = _htmlSanitizer.Sanitize(input.Message);
@@ -53,7 +53,8 @@ public class ChatHub : OnlineClientHubBase
         {
             using (ChatAbpSession.Use(Context.GetTenantId(), Context.GetUserId()))
             {
-                await _chatMessageManager.SendMessageAsync(sender, receiver, input.Message, input.TenancyName, input.UserName, input.ProfilePictureId);
+                await _chatMessageManager.SendMessageAsync(sender, receiver, input.Message, input.TenancyName,
+                    input.UserName, input.ProfilePictureId);
                 return string.Empty;
             }
         }
@@ -78,10 +79,7 @@ public class ChatHub : OnlineClientHubBase
 
     protected override void Dispose(bool disposing)
     {
-        if (_isCallByRelease)
-        {
-            return;
-        }
+        if (_isCallByRelease) return;
         base.Dispose(disposing);
         if (disposing)
         {
@@ -90,4 +88,3 @@ public class ChatHub : OnlineClientHubBase
         }
     }
 }
-

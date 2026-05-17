@@ -6,4 +6,3 @@ public class PaymentGatewayModel
 
     public bool SupportsRecurringPayments { get; set; }
 }
-

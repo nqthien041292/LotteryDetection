@@ -25,4 +25,3 @@ public class ChatMessageDto : EntityDto
 
     public string SharedMessageId { get; set; }
 }
-

@@ -16,4 +16,3 @@ public interface IWebUrlService
 
     List<string> GetRedirectAllowedExternalWebSites();
 }
-

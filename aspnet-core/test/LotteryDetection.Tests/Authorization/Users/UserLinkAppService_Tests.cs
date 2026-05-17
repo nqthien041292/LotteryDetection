@@ -4,79 +4,78 @@ using LotteryDetection.Authorization.Users.Dto;
 using Shouldly;
 using Xunit;
 
-namespace LotteryDetection.Tests.Authorization.Users
+namespace LotteryDetection.Tests.Authorization.Users;
+
+// ReSharper disable once InconsistentNaming
+public class UserLinkAppService_Tests : UserAppServiceTestBase
 {
-    // ReSharper disable once InconsistentNaming
-    public class UserLinkAppService_Tests : UserAppServiceTestBase
+    private readonly IUserLinkAppService _userLinkAppService;
+
+    public UserLinkAppService_Tests()
     {
-        private readonly IUserLinkAppService _userLinkAppService;
+        _userLinkAppService = Resolve<UserLinkAppService>();
+    }
 
-        public UserLinkAppService_Tests()
-        {
-            _userLinkAppService = Resolve<UserLinkAppService>();
-        }
+    [Fact]
+    public async Task GetLinkedUsers()
+    {
+        CreateTestUsers();
 
-        [Fact]
-        public async Task GetLinkedUsers()
-        {
-            CreateTestUsers();
+        var user = await GetUserByUserNameAsync("jnash");
 
-            var user = await GetUserByUserNameAsync("jnash");
+        AbpSession.UserId = user.Id;
 
-            AbpSession.UserId = user.Id;
+        var linkedUsers = await _userLinkAppService.GetLinkedUsers(
+            new GetLinkedUsersInput
+            {
+                MaxResultCount = 10,
+                SkipCount = 0
+            }
+        );
 
-            var linkedUsers = await _userLinkAppService.GetLinkedUsers(
-                new GetLinkedUsersInput
-                {
-                    MaxResultCount = 10,
-                    SkipCount = 0
-                }
-            );
+        linkedUsers.Items.Count.ShouldBe(0);
+    }
 
-            linkedUsers.Items.Count.ShouldBe(0);
-        }
+    [Fact]
+    public async Task GetRecentlyUsedLinkedUsers()
+    {
+        CreateTestUsers();
 
-        [Fact]
-        public async Task GetRecentlyUsedLinkedUsers()
-        {
-            CreateTestUsers();
+        var user = await GetUserByUserNameAsync("jnash");
 
-            var user = await GetUserByUserNameAsync("jnash");
+        AbpSession.UserId = user.Id;
 
-            AbpSession.UserId = user.Id;
+        var linkedUsers = await _userLinkAppService.GetRecentlyUsedLinkedUsers();
 
-            var linkedUsers = await _userLinkAppService.GetRecentlyUsedLinkedUsers();
+        linkedUsers.Items.Count.ShouldBe(0);
+    }
 
-            linkedUsers.Items.Count.ShouldBe(0);
-        }
+    [Fact]
+    public async Task LinkToUser()
+    {
+        CreateTestUsers();
 
-        [Fact]
-        public async Task LinkToUser()
-        {
-            CreateTestUsers();
+        var user = await GetUserByUserNameAsync("jnash");
 
-            var user = await GetUserByUserNameAsync("jnash");
+        AbpSession.UserId = user.Id;
 
-            AbpSession.UserId = user.Id;
+        await _userLinkAppService.LinkToUser(
+            new LinkToUserInput
+            {
+                Password = "123qwe",
+                TenancyName = "Default",
+                UsernameOrEmailAddress = "adams_d@gmail.com"
+            }
+        );
 
-            await _userLinkAppService.LinkToUser(
-                new LinkToUserInput
-                {
-                    Password = "123qwe",
-                    TenancyName = "Default",
-                    UsernameOrEmailAddress = "adams_d@gmail.com"
-                }
-            );
+        var linkedUsers = await _userLinkAppService.GetLinkedUsers(
+            new GetLinkedUsersInput
+            {
+                MaxResultCount = 10,
+                SkipCount = 0
+            }
+        );
 
-            var linkedUsers = await _userLinkAppService.GetLinkedUsers(
-                new GetLinkedUsersInput
-                {
-                    MaxResultCount = 10,
-                    SkipCount = 0
-                }
-            );
-
-            linkedUsers.Items.Count.ShouldBe(1);
-        }
+        linkedUsers.Items.Count.ShouldBe(1);
     }
 }

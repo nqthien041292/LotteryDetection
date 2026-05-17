@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Abp.Application.Services.Dto;
-using Abp.Runtime.Validation;
 
 namespace LotteryDetection.Authorization.Users.Dto;
 
@@ -14,4 +13,3 @@ public interface IGetUsersInput : ISortedResultRequest
 
     bool OnlyLockedUsers { get; set; }
 }
-

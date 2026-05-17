@@ -12,6 +12,13 @@ namespace LotteryDetection.MultiTenancy.Payments;
 [MultiTenancySide(MultiTenancySides.Host)]
 public class SubscriptionPayment : FullAuditedEntity<long>, IHasExtraProperties
 {
+    public SubscriptionPayment()
+    {
+        Status = SubscriptionPaymentStatus.NotPaid;
+        SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>();
+        ExtraProperties = new ExtraPropertyDictionary();
+    }
+
     public ICollection<SubscriptionPaymentProduct> SubscriptionPaymentProducts { get; set; }
 
     public SubscriptionPaymentGatewayType Gateway { get; set; }
@@ -40,10 +47,7 @@ public class SubscriptionPayment : FullAuditedEntity<long>, IHasExtraProperties
 
     public void SetAsCancelled()
     {
-        if (Status == SubscriptionPaymentStatus.NotPaid)
-        {
-            Status = SubscriptionPaymentStatus.Cancelled;
-        }
+        if (Status == SubscriptionPaymentStatus.NotPaid) Status = SubscriptionPaymentStatus.Cancelled;
     }
 
     public void SetAsFailed()
@@ -53,25 +57,12 @@ public class SubscriptionPayment : FullAuditedEntity<long>, IHasExtraProperties
 
     public void SetAsPaid()
     {
-        if (Status == SubscriptionPaymentStatus.NotPaid)
-        {
-            Status = SubscriptionPaymentStatus.Paid;
-        }
+        if (Status == SubscriptionPaymentStatus.NotPaid) Status = SubscriptionPaymentStatus.Paid;
     }
 
     public void SetAsCompleted()
     {
-        if (Status == SubscriptionPaymentStatus.Paid)
-        {
-            Status = SubscriptionPaymentStatus.Completed;
-        }
-    }
-
-    public SubscriptionPayment()
-    {
-        Status = SubscriptionPaymentStatus.NotPaid;
-        SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>();
-        ExtraProperties = new ExtraPropertyDictionary();
+        if (Status == SubscriptionPaymentStatus.Paid) Status = SubscriptionPaymentStatus.Completed;
     }
 
     public PaymentPeriodType GetPaymentPeriodType()
@@ -97,4 +88,3 @@ public class SubscriptionPayment : FullAuditedEntity<long>, IHasExtraProperties
         return SubscriptionPaymentProducts.Sum(product => product.GetTotalAmount());
     }
 }
-

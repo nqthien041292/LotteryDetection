@@ -8,6 +8,11 @@ namespace LotteryDetection.Sessions.Dto;
 
 public class TenantLoginInfoDto : EntityDto
 {
+    public TenantLoginInfoDto()
+    {
+        FeatureValues = new List<NameValueDto>();
+    }
+
     public string TenancyName { get; set; }
 
     public string Name { get; set; }
@@ -48,11 +53,6 @@ public class TenantLoginInfoDto : EntityDto
 
     public string CreationTimeString { get; set; }
 
-    public TenantLoginInfoDto()
-    {
-        FeatureValues = new List<NameValueDto>();
-    }
-
     public bool IsInTrial()
     {
         return IsInTrialPeriod;
@@ -61,21 +61,18 @@ public class TenantLoginInfoDto : EntityDto
     public bool SubscriptionIsExpiringSoon(int subscriptionExpireNootifyDayCount)
     {
         if (SubscriptionEndDateUtc.HasValue)
-        {
-            return Clock.Now.ToUniversalTime().AddDays(subscriptionExpireNootifyDayCount) >= SubscriptionEndDateUtc.Value;
-        }
+            return Clock.Now.ToUniversalTime().AddDays(subscriptionExpireNootifyDayCount) >=
+                   SubscriptionEndDateUtc.Value;
 
         return false;
     }
 
     public int GetSubscriptionExpiringDayCount()
     {
-        if (!SubscriptionEndDateUtc.HasValue)
-        {
-            return 0;
-        }
+        if (!SubscriptionEndDateUtc.HasValue) return 0;
 
-        return Convert.ToInt32(SubscriptionEndDateUtc.Value.ToUniversalTime().Subtract(Clock.Now.ToUniversalTime()).TotalDays);
+        return Convert.ToInt32(SubscriptionEndDateUtc.Value.ToUniversalTime().Subtract(Clock.Now.ToUniversalTime())
+            .TotalDays);
     }
 
     public bool HasRecurringSubscription()
@@ -89,4 +86,3 @@ public class TenantLoginInfoDto : EntityDto
                (LightLogoId != null && LightLogoFileType != null);
     }
 }
-

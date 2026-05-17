@@ -1,23 +1,23 @@
-﻿using Abp;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp;
 using Abp.Dependency;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.RealTime;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Chat;
 using LotteryDetection.Friendships;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Authorization.Users.DataCleaners;
 
 public class FriendshipUserDataCleaner : IUserDataCleaner, ITransientDependency
 {
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IChatCommunicator _chatCommunicator;
     private readonly IRepository<Friendship, long> _friendshipRepository;
     private readonly IOnlineClientManager _onlineClientManager;
-    private readonly IChatCommunicator _chatCommunicator;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     public FriendshipUserDataCleaner(
         IUnitOfWorkManager unitOfWorkManager,
@@ -49,9 +49,7 @@ public class FriendshipUserDataCleaner : IUserDataCleaner, ITransientDependency
 
             // Delete all reverse friendships of a friendship
             if (userFriendList.Any())
-            {
                 foreach (var userFriend in userFriendList)
-                {
                     using (_unitOfWorkManager.Current.SetTenantId(userFriend.FriendTenantId))
                     {
                         var targetFriendshipQuery = await _friendshipRepository.GetAllAsync();
@@ -64,8 +62,6 @@ public class FriendshipUserDataCleaner : IUserDataCleaner, ITransientDependency
 
                         await DeleteFriendships(targetFriendships);
                     }
-                }
-            }
 
             // inform the friend user clients about the user deletion
             await SendUserDeletedMessageToOnlineClients(userIdentifier, userFriendList);
@@ -74,10 +70,7 @@ public class FriendshipUserDataCleaner : IUserDataCleaner, ITransientDependency
 
     private async Task DeleteFriendships(List<Friendship> userFriendList)
     {
-        foreach (var friendship in userFriendList)
-        {
-            await _friendshipRepository.DeleteAsync(friendship);
-        }
+        foreach (var friendship in userFriendList) await _friendshipRepository.DeleteAsync(friendship);
     }
 
     private async Task SendUserDeletedMessageToOnlineClients(
@@ -98,4 +91,3 @@ public class FriendshipUserDataCleaner : IUserDataCleaner, ITransientDependency
         await _chatCommunicator.SendUserDeletedToClients(friendUserClients, userIdentifier);
     }
 }
-

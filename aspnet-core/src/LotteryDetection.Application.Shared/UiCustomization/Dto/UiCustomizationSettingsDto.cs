@@ -14,4 +14,3 @@ public class UiCustomizationSettingsDto
 
     public bool AllowMenuScroll { get; set; } = true;
 }
-

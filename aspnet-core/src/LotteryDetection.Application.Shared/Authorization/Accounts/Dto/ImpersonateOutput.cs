@@ -6,4 +6,3 @@ public class ImpersonateOutput
 
     public string TenancyName { get; set; }
 }
-

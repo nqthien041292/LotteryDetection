@@ -8,4 +8,3 @@ public class SendAndGetDateWithTextInput
 
     public DateTime Date { get; set; }
 }
-

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp;
@@ -12,8 +11,6 @@ using Abp.Net.Mail;
 using Abp.Runtime.Security;
 using Abp.UI;
 using Abp.Zero.EntityFrameworkCore;
-using Castle.Core.Internal;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Configuration;
@@ -24,7 +21,7 @@ using LotteryDetection.Identity;
 using LotteryDetection.Install.Dto;
 using LotteryDetection.Migrations.Seed;
 using LotteryDetection.Migrations.Seed.Host;
-
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Install;
 
@@ -32,12 +29,12 @@ namespace LotteryDetection.Install;
 [DisableAuditing]
 public class InstallAppService : LotteryDetectionAppServiceBase, IInstallAppService
 {
-    private readonly AbpZeroDbMigrator<LotteryDetectionDbContext> _migrator;
-    private readonly LogInManager _logInManager;
-    private readonly SignInManager _signInManager;
-    private readonly DatabaseCheckHelper _databaseCheckHelper;
     private readonly IConfigurationRoot _appConfiguration;
     private readonly IAppConfigurationWriter _appConfigurationWriter;
+    private readonly DatabaseCheckHelper _databaseCheckHelper;
+    private readonly LogInManager _logInManager;
+    private readonly AbpZeroDbMigrator<LotteryDetectionDbContext> _migrator;
+    private readonly SignInManager _signInManager;
 
     public InstallAppService(AbpZeroDbMigrator migrator,
         LogInManager logInManager,
@@ -56,10 +53,7 @@ public class InstallAppService : LotteryDetectionAppServiceBase, IInstallAppServ
 
     public async Task Setup(InstallDto input)
     {
-        if (CheckDatabaseInternal())
-        {
-            throw new UserFriendlyException("Setup process is already done.");
-        }
+        if (CheckDatabaseInternal()) throw new UserFriendlyException("Setup process is already done.");
 
         SetConnectionString(input.ConnectionString);
 
@@ -85,7 +79,6 @@ public class InstallAppService : LotteryDetectionAppServiceBase, IInstallAppServ
         var appUrl = _appConfiguration.GetSection("App");
 
         if (appUrl["WebSiteRootAddress"].IsNullOrEmpty())
-        {
             return new AppSettingsJsonDto
             {
                 WebSiteUrl = appUrl["ClientRootAddress"],
@@ -93,7 +86,6 @@ public class InstallAppService : LotteryDetectionAppServiceBase, IInstallAppServ
                 Languages = DefaultLanguagesCreator.InitialLanguages
                     .Select(l => new NameValue(l.DisplayName, l.Name)).ToList()
             };
-        }
 
         return new AppSettingsJsonDto
         {
@@ -113,10 +105,7 @@ public class InstallAppService : LotteryDetectionAppServiceBase, IInstallAppServ
     {
         var connectionString = _appConfiguration[$"ConnectionStrings:{LotteryDetectionConsts.ConnectionStringName}"];
 
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            return false;
-        }
+        if (string.IsNullOrEmpty(connectionString)) return false;
 
         return _databaseCheckHelper.Exist(connectionString);
     }
@@ -162,24 +151,31 @@ public class InstallAppService : LotteryDetectionAppServiceBase, IInstallAppServ
 
     private async Task SetSmtpSettings(EmailSettingsEditDto input)
     {
-        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.DefaultFromAddress, input.DefaultFromAddress);
-        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.DefaultFromDisplayName, input.DefaultFromDisplayName);
+        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.DefaultFromAddress,
+            input.DefaultFromAddress);
+        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.DefaultFromDisplayName,
+            input.DefaultFromDisplayName);
         await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.Host, input.SmtpHost);
-        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.Port, input.SmtpPort.ToString(CultureInfo.InvariantCulture));
+        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.Port,
+            input.SmtpPort.ToString(CultureInfo.InvariantCulture));
         await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.UserName, input.SmtpUserName);
-        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.Password, SimpleStringCipher.Instance.Encrypt(input.SmtpPassword));
+        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.Password,
+            SimpleStringCipher.Instance.Encrypt(input.SmtpPassword));
         await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.Domain, input.SmtpDomain);
-        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.EnableSsl, input.SmtpEnableSsl.ToString().ToLowerInvariant());
+        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.EnableSsl,
+            input.SmtpEnableSsl.ToString().ToLowerInvariant());
 
         // If user uses authentication, use default credentials should be false.
         var useDefaultCredentials = (!input.SmtpUseAuthentication).ToString().ToLowerInvariant();
 
-        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.UseDefaultCredentials, useDefaultCredentials);
+        await SettingManager.ChangeSettingForApplicationAsync(EmailSettingNames.Smtp.UseDefaultCredentials,
+            useDefaultCredentials);
     }
 
     private async Task SetBillingSettings(HostBillingSettingsEditDto input)
     {
-        await SettingManager.ChangeSettingForApplicationAsync(AppSettings.HostManagement.BillingLegalName, input.LegalName);
+        await SettingManager.ChangeSettingForApplicationAsync(AppSettings.HostManagement.BillingLegalName,
+            input.LegalName);
         await SettingManager.ChangeSettingForApplicationAsync(AppSettings.HostManagement.BillingAddress, input.Address);
     }
 

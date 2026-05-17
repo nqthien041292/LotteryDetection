@@ -4,4 +4,3 @@ public class GetProfitShareOutput
 {
     public int[] ProfitShares { get; set; }
 }
-

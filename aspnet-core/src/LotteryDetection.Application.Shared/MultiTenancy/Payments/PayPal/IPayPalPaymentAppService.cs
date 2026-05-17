@@ -10,4 +10,3 @@ public interface IPayPalPaymentAppService : IApplicationService
 
     PayPalConfigurationDto GetConfiguration();
 }
-

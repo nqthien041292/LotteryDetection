@@ -19,9 +19,9 @@ public class CreatePaymentDto : IHasExtraProperties
 
     public string ErrorUrl { get; set; }
 
-    public ExtraPropertyDictionary ExtraProperties { get; set; }
-
     public List<CreatePaymentProductDto> Products { get; set; }
+
+    public ExtraPropertyDictionary ExtraProperties { get; set; }
 }
 
 public class UpdatePaymentDto : IHasExtraProperties
@@ -34,4 +34,3 @@ public class UpdatePaymentDto : IHasExtraProperties
 
     public ExtraPropertyDictionary ExtraProperties { get; set; }
 }
-

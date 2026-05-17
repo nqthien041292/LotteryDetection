@@ -10,4 +10,3 @@ public class FindOrganizationUnitUsersOutputDto : EntityDto<long>
 
     public string EmailAddress { get; set; }
 }
-

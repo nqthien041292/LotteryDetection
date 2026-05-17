@@ -14,4 +14,3 @@ public class RegionalStatCountry
 
     public decimal TotalPrice { get; set; }
 }
-

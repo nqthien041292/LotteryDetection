@@ -1,12 +1,11 @@
-﻿using Abp.AspNetZeroCore;
-using Abp.Events.Bus;
+﻿using Abp.Events.Bus;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Castle.MicroKernel.Registration;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Configuration;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Migrator.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Migrator;
 
@@ -15,7 +14,8 @@ public class LotteryDetectionMigratorModule : AbpModule
 {
     private readonly IConfigurationRoot _appConfiguration;
 
-    public LotteryDetectionMigratorModule(LotteryDetectionEntityFrameworkCoreModule lotteryDetectionEntityFrameworkCoreModule)
+    public LotteryDetectionMigratorModule(
+        LotteryDetectionEntityFrameworkCoreModule lotteryDetectionEntityFrameworkCoreModule)
     {
         lotteryDetectionEntityFrameworkCoreModule.SkipDbSeed = true;
 
@@ -29,7 +29,7 @@ public class LotteryDetectionMigratorModule : AbpModule
     {
         Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(
             LotteryDetectionConsts.ConnectionStringName
-            );
+        );
 
         Configuration.BackgroundJobs.IsJobExecutionEnabled = false;
         Configuration.ReplaceService(typeof(IEventBus), () =>
@@ -46,4 +46,3 @@ public class LotteryDetectionMigratorModule : AbpModule
         ServiceCollectionRegistrar.Register(IocManager);
     }
 }
-

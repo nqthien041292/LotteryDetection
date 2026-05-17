@@ -10,4 +10,3 @@ public interface IWebLogAppService : IApplicationService
 
     FileDto DownloadWebLogs();
 }
-

@@ -15,11 +15,9 @@ namespace LotteryDetection.MultiTenancy;
 
 public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscriptionAppService
 {
-    public IEventBus EventBus { get; set; }
-
     private readonly EditionManager _editionManager;
-    private readonly TenantManager _tenantManager;
     private readonly IPaymentManager _paymentManager;
+    private readonly TenantManager _tenantManager;
 
     public SubscriptionAppService(
         EditionManager editionManager,
@@ -33,21 +31,19 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
         EventBus = NullEventBus.Instance;
     }
 
+    public IEventBus EventBus { get; set; }
+
     public async Task DisableRecurringPayments()
     {
         using (CurrentUnitOfWork.SetTenantId(null))
         {
             var tenant = await TenantManager.GetByIdAsync(AbpSession.GetTenantId());
             if (!tenant.EditionId.HasValue)
-            {
                 throw new ApplicationException("This tenant has no edition. Can not disable recurring payments!");
-            }
 
             var edition = await _editionManager.GetByIdAsync(tenant.EditionId.Value) as SubscribableEdition;
             if (edition == null)
-            {
                 throw new ApplicationException("This tenant has no edition. Can not disable recurring payments!");
-            }
 
             var daysUntilDue = edition.WaitingDayAfterExpire ?? 3;
 
@@ -84,10 +80,7 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
         {
             var tenant = await TenantManager.GetByIdAsync(AbpSession.GetTenantId());
 
-            if (!tenant.EditionId.HasValue)
-            {
-                throw new UserFriendlyException("Your tenant doesn't have any edition.");
-            }
+            if (!tenant.EditionId.HasValue) throw new UserFriendlyException("Your tenant doesn't have any edition.");
 
             var edition = await _editionManager.GetByIdAsync(tenant.EditionId.Value) as SubscribableEdition;
             var paymentPeriodType = await _tenantManager.GetCurrentPaymentPeriodType(AbpSession.GetTenantId());
@@ -101,30 +94,26 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
                 DayCount = (int)paymentPeriodType,
                 IsRecurring = false,
                 SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>
-                    {
-                        new(
-                            description:
-                            $"Extend subscription {Convert.ToInt32(paymentPeriodType)} days for {edition.DisplayName}",
-                            edition.GetPaymentAmount(paymentPeriodType),
-                            count: 1,
-                            extraProperties: new ExtraPropertyDictionary
-                            {
-                                {PaymentConsts.TenantId, tenant.Id.ToString()},
-                                {PaymentConsts.EditionId, edition.Id.ToString()},
-                                {PaymentConsts.PaymentPeriodType, paymentPeriodType.ToString()}
-                            }
-                        )
-                    }
+                {
+                    new(
+                        $"Extend subscription {Convert.ToInt32(paymentPeriodType)} days for {edition.DisplayName}",
+                        edition.GetPaymentAmount(paymentPeriodType),
+                        1,
+                        extraProperties: new ExtraPropertyDictionary
+                        {
+                            { PaymentConsts.TenantId, tenant.Id.ToString() },
+                            { PaymentConsts.EditionId, edition.Id.ToString() },
+                            { PaymentConsts.PaymentPeriodType, paymentPeriodType.ToString() }
+                        }
+                    )
+                }
             });
         }
     }
 
     public async Task<StartUpgradeSubscriptionOutput> StartUpgradeSubscription(StartUpgradeSubscriptionInput input)
     {
-        if (!AbpSession.TenantId.HasValue)
-        {
-            throw new ArgumentNullException();
-        }
+        if (!AbpSession.TenantId.HasValue) throw new ArgumentNullException();
 
         Tenant tenant;
         SubscribableEdition targetEdition;
@@ -135,13 +124,9 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
             tenant = await _tenantManager.GetByIdAsync(AbpSession.GetTenantId());
             targetEdition = await _editionManager.GetByIdAsync(input.TargetEditionId) as SubscribableEdition;
             if (!input.PaymentPeriodType.HasValue)
-            {
                 currentPaymentPeriodType = await _tenantManager.GetCurrentPaymentPeriodType(AbpSession.GetTenantId());
-            }
             else
-            {
                 currentPaymentPeriodType = input.PaymentPeriodType.Value;
-            }
 
             if (tenant.EditionId.HasValue)
             {
@@ -195,10 +180,7 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
         {
             var tenant = await TenantManager.GetByIdAsync(AbpSession.GetTenantId());
 
-            if (!tenant.EditionId.HasValue)
-            {
-                throw new UserFriendlyException("Your tenant doesn't have any edition.");
-            }
+            if (!tenant.EditionId.HasValue) throw new UserFriendlyException("Your tenant doesn't have any edition.");
 
             var edition = await _editionManager.GetByIdAsync(tenant.EditionId.Value) as SubscribableEdition;
 
@@ -211,19 +193,19 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
                 DayCount = (int)input.PaymentPeriodType,
                 IsRecurring = false,
                 SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>
-                    {
-                        new(
-                            description: edition.DisplayName,
-                            edition.GetPaymentAmount(input.PaymentPeriodType),
-                            count: 1,
-                            extraProperties: new ExtraPropertyDictionary
-                            {
-                                {PaymentConsts.TenantId, tenant.Id.ToString()},
-                                {PaymentConsts.EditionId, edition.Id.ToString()},
-                                {PaymentConsts.PaymentPeriodType, input.PaymentPeriodType.ToString()}
-                            }
-                        )
-                    }
+                {
+                    new(
+                        edition.DisplayName,
+                        edition.GetPaymentAmount(input.PaymentPeriodType),
+                        1,
+                        extraProperties: new ExtraPropertyDictionary
+                        {
+                            { PaymentConsts.TenantId, tenant.Id.ToString() },
+                            { PaymentConsts.EditionId, edition.Id.ToString() },
+                            { PaymentConsts.PaymentPeriodType, input.PaymentPeriodType.ToString() }
+                        }
+                    )
+                }
             });
         }
     }
@@ -239,16 +221,11 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
         PaymentPeriodType periodType)
     {
         if (tenant.EditionId == null)
-        {
             throw new UserFriendlyException(L("CanNotUpgradeSubscriptionSinceTenantHasNoEditionAssigned"));
-        }
 
         var remainingHoursCount = tenant.CalculateRemainingHoursCount();
 
-        if (remainingHoursCount <= 0)
-        {
-            return targetEdition.GetPaymentAmount(periodType);
-        }
+        if (remainingHoursCount <= 0) return targetEdition.GetPaymentAmount(periodType);
 
         var currentEdition = (SubscribableEdition)await _editionManager.GetByIdAsync(tenant.EditionId.Value);
 
@@ -260,7 +237,8 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
         );
     }
 
-    private async Task<long> CreateUpgradeSubscriptionPayment(Tenant tenant, StartUpgradeSubscriptionInput input, PaymentPeriodType paymentPeriodType)
+    private async Task<long> CreateUpgradeSubscriptionPayment(Tenant tenant, StartUpgradeSubscriptionInput input,
+        PaymentPeriodType paymentPeriodType)
     {
         var targetEdition = (SubscribableEdition)await _editionManager.GetByIdAsync(input.TargetEditionId);
 
@@ -275,20 +253,20 @@ public class SubscriptionAppService : LotteryDetectionAppServiceBase, ISubscript
             // If the tenant is on a recurring payment plan and operation is upgrade, then it is a proration payment.
             IsProrationPayment = tenant.SubscriptionPaymentType == SubscriptionPaymentType.RecurringAutomatic,
             IsRecurring = tenant.SubscriptionPaymentType == SubscriptionPaymentType.RecurringAutomatic,
-            SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>()
-                {
-                    new(
-                        description: $"Upgrade to {targetEdition.DisplayName} edition",
-                        amount: upgradeAmount,
-                        count: 1,
-                        extraProperties: new ExtraPropertyDictionary
-                        {
-                            {PaymentConsts.TenantId, tenant.Id.ToString()},
-                            {PaymentConsts.TargetEditionId, targetEdition.Id.ToString()},
-                            {PaymentConsts.PaymentPeriodType, paymentPeriodType.ToString()},
-                        }
-                    )
-                }
+            SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>
+            {
+                new(
+                    $"Upgrade to {targetEdition.DisplayName} edition",
+                    upgradeAmount,
+                    1,
+                    extraProperties: new ExtraPropertyDictionary
+                    {
+                        { PaymentConsts.TenantId, tenant.Id.ToString() },
+                        { PaymentConsts.TargetEditionId, targetEdition.Id.ToString() },
+                        { PaymentConsts.PaymentPeriodType, paymentPeriodType.ToString() }
+                    }
+                )
+            }
         };
 
         if (tenant.SubscriptionPaymentType == SubscriptionPaymentType.RecurringAutomatic)

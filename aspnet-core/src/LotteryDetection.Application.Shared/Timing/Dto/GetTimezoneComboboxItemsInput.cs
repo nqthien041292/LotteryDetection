@@ -8,4 +8,3 @@ public class GetTimezoneComboboxItemsInput
 
     public string SelectedTimezoneId { get; set; }
 }
-

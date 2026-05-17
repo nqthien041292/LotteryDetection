@@ -1,6 +1,6 @@
-﻿using Abp.Dependency;
+﻿using System.Linq;
+using Abp.Dependency;
 using Abp.Extensions;
-using System.Linq;
 
 namespace LotteryDetection.Auditing;
 
@@ -8,15 +8,9 @@ public class NamespaceStripper : INamespaceStripper, ITransientDependency
 {
     public string StripNameSpace(string serviceName)
     {
-        if (serviceName.IsNullOrEmpty() || !serviceName.Contains("."))
-        {
-            return serviceName;
-        }
+        if (serviceName.IsNullOrEmpty() || !serviceName.Contains(".")) return serviceName;
 
-        if (serviceName.Contains("["))
-        {
-            return StripGenericNamespace(serviceName);
-        }
+        if (serviceName.Contains("[")) return StripGenericNamespace(serviceName);
 
         return GetTextAfterLastDot(serviceName);
     }
@@ -38,7 +32,8 @@ public class NamespaceStripper : INamespaceStripper, ITransientDependency
             var serviceNamePart = serviceNameParts[i];
             if (serviceNamePart.Contains("`"))
             {
-                genericServiceName += GetTextAfterLastDot(serviceNamePart.Substring(0, serviceNamePart.IndexOf('`'))) + "<";
+                genericServiceName += GetTextAfterLastDot(serviceNamePart.Substring(0, serviceNamePart.IndexOf('`'))) +
+                                      "<";
                 openBracketCount++;
             }
 
@@ -57,10 +52,7 @@ public class NamespaceStripper : INamespaceStripper, ITransientDependency
             }
         }
 
-        for (int i = 0; i < openBracketCount; i++)
-        {
-            genericServiceName += ">";
-        }
+        for (var i = 0; i < openBracketCount; i++) genericServiceName += ">";
 
         return genericServiceName;
     }

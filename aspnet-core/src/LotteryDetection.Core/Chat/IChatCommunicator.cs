@@ -10,11 +10,13 @@ public interface IChatCommunicator
 {
     Task SendMessageToClient(IReadOnlyList<IOnlineClient> clients, ChatMessage message);
 
-    Task SendFriendshipRequestToClient(IReadOnlyList<IOnlineClient> clients, Friendship friend, bool isOwnRequest, bool isFriendOnline);
+    Task SendFriendshipRequestToClient(IReadOnlyList<IOnlineClient> clients, Friendship friend, bool isOwnRequest,
+        bool isFriendOnline);
 
     Task SendUserConnectionChangeToClients(IReadOnlyList<IOnlineClient> clients, UserIdentifier user, bool isConnected);
 
-    Task SendUserStateChangeToClients(IReadOnlyList<IOnlineClient> clients, UserIdentifier user, FriendshipState newState);
+    Task SendUserStateChangeToClients(IReadOnlyList<IOnlineClient> clients, UserIdentifier user,
+        FriendshipState newState);
 
     Task SendAllUnreadMessagesOfUserReadToClients(IReadOnlyList<IOnlineClient> clients, UserIdentifier user);
 
@@ -22,4 +24,3 @@ public interface IChatCommunicator
 
     Task SendUserDeletedToClients(IReadOnlyList<IOnlineClient> clients, UserIdentifier user);
 }
-

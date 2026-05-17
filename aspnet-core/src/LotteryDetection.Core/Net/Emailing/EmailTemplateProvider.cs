@@ -1,88 +1,81 @@
-﻿using Abp.Dependency;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Text;
+using Abp.Dependency;
 using Abp.Extensions;
 using Abp.IO.Extensions;
 using Abp.MultiTenancy;
 using Abp.Reflection.Extensions;
-using LotteryDetection.Url;
-using System;
-using System.Collections.Concurrent;
-using System.Text;
 using Abp.Runtime.Caching;
+using LotteryDetection.Url;
 
-namespace LotteryDetection.Net.Emailing
+namespace LotteryDetection.Net.Emailing;
+
+public class EmailTemplateProvider : IEmailTemplateProvider, ISingletonDependency
 {
-    public class EmailTemplateProvider : IEmailTemplateProvider, ISingletonDependency
+    private const string GetLightTenantLogoUrl = "TenantCustomization/GetTenantLogo/light";
+
+    private readonly ICacheManager _cacheManager;
+    private readonly ConcurrentDictionary<string, string> _defaultTemplates;
+    private readonly ITenantCache _tenantCache;
+    private readonly IWebUrlService _webUrlService;
+
+    public EmailTemplateProvider(IWebUrlService webUrlService
+        , ITenantCache tenantCache
+        , ICacheManager cacheManager)
     {
-        private readonly IWebUrlService _webUrlService;
-        private readonly ITenantCache _tenantCache;
-        private readonly ConcurrentDictionary<string, string> _defaultTemplates;
+        _webUrlService = webUrlService;
+        _tenantCache = tenantCache;
+        _defaultTemplates = new ConcurrentDictionary<string, string>();
+        _cacheManager = cacheManager;
+    }
 
-        private readonly ICacheManager _cacheManager;
+    public string GetDefaultTemplate(int? tenantId)
+    {
+        var tenancyKey = tenantId.HasValue ? tenantId.Value.ToString() : "host";
 
-        private const string GetLightTenantLogoUrl = "TenantCustomization/GetTenantLogo/light";
+        var cacheItem = _cacheManager.GetEmailTemplateCache().GetOrDefault(tenancyKey);
 
-        public EmailTemplateProvider(IWebUrlService webUrlService
-            , ITenantCache tenantCache
-            , ICacheManager cacheManager)
+        if (cacheItem != null) return cacheItem.Template;
+
+        string template;
+
+        using (var stream = typeof(EmailTemplateProvider).GetAssembly()
+                   .GetManifestResourceStream(
+                       "LotteryDetection.Net.Emailing.EmailTemplates.default.html"))
         {
-            _webUrlService = webUrlService;
-            _tenantCache = tenantCache;
-            _defaultTemplates = new ConcurrentDictionary<string, string>();
-            _cacheManager = cacheManager;
+            var bytes = stream.GetAllBytes();
+            template = Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3);
         }
 
-        public string GetDefaultTemplate(int? tenantId)
-        {
-            var tenancyKey = tenantId.HasValue ? tenantId.Value.ToString() : "host";
+        var emailCacheItem = new EmailTemplateCacheItem(template);
 
-            var cacheItem = _cacheManager.GetEmailTemplateCache().GetOrDefault(tenancyKey);
+        _cacheManager.GetEmailTemplateCache().Set(tenancyKey, emailCacheItem);
 
-            if (cacheItem != null)
-            {
-                return cacheItem.Template;
-            }
+        return ReplaceTemplateBaseVariables(template, tenantId);
+    }
 
-            string template;
+    private string ReplaceTemplateBaseVariables(string template, int? tenantId)
+    {
+        template = template.Replace("{THIS_YEAR}", DateTime.Now.Year.ToString());
+        template = template.Replace("{TWITTER_URL}", GetTwitterIconUrl());
+        return template.Replace("{EMAIL_LOGO_URL}", GetTenantLogoUrl(tenantId));
+    }
 
-            using (var stream = typeof(EmailTemplateProvider).GetAssembly()
-                       .GetManifestResourceStream(
-                           "LotteryDetection.Net.Emailing.EmailTemplates.default.html"))
-            {
-                var bytes = stream.GetAllBytes();
-                template = Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3);
-            }
+    private string GetTenantLogoUrl(int? tenantId)
+    {
+        if (!tenantId.HasValue)
+            return _webUrlService.GetServerRootAddress().EnsureEndsWith('/') + GetLightTenantLogoUrl +
+                   "?tenantId=&extension=png";
 
-            var emailCacheItem = new EmailTemplateCacheItem(template);
+        var tenant = _tenantCache.Get(tenantId.Value);
 
-            _cacheManager.GetEmailTemplateCache().Set(tenancyKey, emailCacheItem);
+        return _webUrlService.GetServerRootAddress(tenant.TenancyName).EnsureEndsWith('/')
+               + GetLightTenantLogoUrl.EnsureEndsWith('/') + tenantId.Value + "/png";
+    }
 
-            return ReplaceTemplateBaseVariables(template, tenantId);
-        }
-
-        private string ReplaceTemplateBaseVariables(string template, int? tenantId)
-        {
-            template = template.Replace("{THIS_YEAR}", DateTime.Now.Year.ToString());
-            template = template.Replace("{TWITTER_URL}", GetTwitterIconUrl());
-            return template.Replace("{EMAIL_LOGO_URL}", GetTenantLogoUrl(tenantId));
-        }
-
-        private string GetTenantLogoUrl(int? tenantId)
-        {
-            if (!tenantId.HasValue)
-            {
-                return _webUrlService.GetServerRootAddress().EnsureEndsWith('/') + GetLightTenantLogoUrl +
-                       "?tenantId=&extension=png";
-            }
-
-            var tenant = _tenantCache.Get(tenantId.Value);
-
-            return _webUrlService.GetServerRootAddress(tenant.TenancyName).EnsureEndsWith('/')
-                   + GetLightTenantLogoUrl.EnsureEndsWith('/') + tenantId.Value + "/png";
-        }
-
-        private string GetTwitterIconUrl()
-        {
-            return _webUrlService.GetServerRootAddress().EnsureEndsWith('/') + "Common/Images/twitter.png";
-        }
+    private string GetTwitterIconUrl()
+    {
+        return _webUrlService.GetServerRootAddress().EnsureEndsWith('/') + "Common/Images/twitter.png";
     }
 }

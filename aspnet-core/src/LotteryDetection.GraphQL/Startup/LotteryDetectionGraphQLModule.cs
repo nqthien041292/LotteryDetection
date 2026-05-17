@@ -20,4 +20,3 @@ public class LotteryDetectionGraphQLModule : AbpModule
         Configuration.Modules.AbpAutoMapper().Configurators.Add(CustomDtoMapper.CreateMappings);
     }
 }
-

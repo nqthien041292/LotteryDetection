@@ -11,4 +11,3 @@ public static class HostingEnvironmentExtensions
         return AppConfigurations.Get(env.ContentRootPath, env.EnvironmentName, env.IsDevelopment());
     }
 }
-

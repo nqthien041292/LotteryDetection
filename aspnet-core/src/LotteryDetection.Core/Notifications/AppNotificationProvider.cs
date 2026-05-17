@@ -14,16 +14,16 @@ public class AppNotificationProvider : NotificationProvider
                 AppNotificationNames.NewUserRegistered,
                 displayName: L("NewUserRegisteredNotificationDefinition"),
                 permissionDependency: new SimplePermissionDependency(AppPermissions.Pages_Administration_Users)
-                )
-            );
+            )
+        );
 
         context.Manager.Add(
             new NotificationDefinition(
                 AppNotificationNames.NewTenantRegistered,
                 displayName: L("NewTenantRegisteredNotificationDefinition"),
                 permissionDependency: new SimplePermissionDependency(AppPermissions.Pages_Tenants)
-                )
-            );
+            )
+        );
     }
 
     private static ILocalizableString L(string name)
@@ -31,4 +31,3 @@ public class AppNotificationProvider : NotificationProvider
         return new LocalizableString(name, LotteryDetectionConsts.LocalizationSourceName);
     }
 }
-

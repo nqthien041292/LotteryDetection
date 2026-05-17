@@ -6,4 +6,3 @@ public class ThemeFooterSettingsDto
     public bool MobileFixedFooter { get; set; }
     public string FooterWidthType { get; set; }
 }
-

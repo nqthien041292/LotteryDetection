@@ -1,90 +1,90 @@
 ﻿using System.Collections.Generic;
 using Abp;
 using Abp.Dependency;
-using Microsoft.AspNetCore.Identity;
 using LotteryDetection.Authorization.Users;
+using Microsoft.AspNetCore.Identity;
 
 namespace LotteryDetection.MultiTenancy.Demo;
 
 public class RandomUserGenerator : ITransientDependency
 {
-    private readonly IPasswordHasher<User> _passwordHasher;
-
     public static string[] Names =
     {
-            "Agatha Christie",
-            "Albert Einstein",
-            "Aldous Huxley",
-            "Amin Maalouf",
-            "Andrew Andrewus",
-            "Arda Turan",
-            "Audrey Naulin",
-            "Biff Tannen",
-            "Bruce Wayne",
-            "Butch Coolidge",
-            "Carl Sagan",
-            "Charles Quint",
-            "Christophe Grange",
-            "Christopher Nolan",
-            "Christopher Lloyd",
-            "Clara Clayton",
-            "Clarice Starling",
-            "Dan Brown",
-            "Daniel Radcliffe",
-            "Douglas Hall",
-            "David Wells",
-            "Emmett Brown",
-            "Friedrich Hegel",
-            "Forrest Gump",
-            "Franz Kafka",
-            "Gabriel Marquez",
-            "Galileo Galilei",
-            "Georghe Hagi",
-            "Georghe Orwell",
-            "Georghe Richards",
-            "Gottfried Leibniz",
-            "Hannibal Lecter",
-            "Hercules Poirot",
-            "Isaac Asimov",
-            "Jane Fuller",
-            "Jean Reno",
-            "Jeniffer Parker",
-            "Johan Elmander",
-            "Jules Winnfield",
-            "Kurt Vonnegut",
-            "Laurence Fishburne",
-            "Leo Tolstoy",
-            "Lorraine Baines",
-            "Marsellus Wallace",
-            "Marty Mcfly",
-            "Michael Corleone",
-            "Oktay Anar",
-            "Omer Hayyam",
-            "Paulho Coelho",
-            "Quentin Tarantino",
-            "Rene Descartes",
-            "Robert Lafore",
-            "Stanislaw Lem",
-            "Stefan Zweig",
-            "Stephenie Mayer",
-            "Stephen Hawking",
-            "Thomas More",
-            "Vincent Vega",
-            "Vladimir Nabokov",
-            "William Faulkner"
-        };
+        "Agatha Christie",
+        "Albert Einstein",
+        "Aldous Huxley",
+        "Amin Maalouf",
+        "Andrew Andrewus",
+        "Arda Turan",
+        "Audrey Naulin",
+        "Biff Tannen",
+        "Bruce Wayne",
+        "Butch Coolidge",
+        "Carl Sagan",
+        "Charles Quint",
+        "Christophe Grange",
+        "Christopher Nolan",
+        "Christopher Lloyd",
+        "Clara Clayton",
+        "Clarice Starling",
+        "Dan Brown",
+        "Daniel Radcliffe",
+        "Douglas Hall",
+        "David Wells",
+        "Emmett Brown",
+        "Friedrich Hegel",
+        "Forrest Gump",
+        "Franz Kafka",
+        "Gabriel Marquez",
+        "Galileo Galilei",
+        "Georghe Hagi",
+        "Georghe Orwell",
+        "Georghe Richards",
+        "Gottfried Leibniz",
+        "Hannibal Lecter",
+        "Hercules Poirot",
+        "Isaac Asimov",
+        "Jane Fuller",
+        "Jean Reno",
+        "Jeniffer Parker",
+        "Johan Elmander",
+        "Jules Winnfield",
+        "Kurt Vonnegut",
+        "Laurence Fishburne",
+        "Leo Tolstoy",
+        "Lorraine Baines",
+        "Marsellus Wallace",
+        "Marty Mcfly",
+        "Michael Corleone",
+        "Oktay Anar",
+        "Omer Hayyam",
+        "Paulho Coelho",
+        "Quentin Tarantino",
+        "Rene Descartes",
+        "Robert Lafore",
+        "Stanislaw Lem",
+        "Stefan Zweig",
+        "Stephenie Mayer",
+        "Stephen Hawking",
+        "Thomas More",
+        "Vincent Vega",
+        "Vladimir Nabokov",
+        "William Faulkner"
+    };
 
     public static string[] EmailProviders =
     {
-            "yahoo.com",
-            "gmail.com",
-            "hotmail.com",
-            "outlook.com",
-            "live.com",
-            "yandex.com",
-            "aspnetzero.com",
-            "aspnetboilerplate.com"
-        };
+        "yahoo.com",
+        "gmail.com",
+        "hotmail.com",
+        "outlook.com",
+        "live.com",
+        "yandex.com",
+        "aspnetzero.com",
+        "aspnetboilerplate.com"
+    };
+
+    private readonly IPasswordHasher<User> _passwordHasher;
 
     public RandomUserGenerator(IPasswordHasher<User> passwordHasher)
     {
@@ -96,10 +96,7 @@ public class RandomUserGenerator : ITransientDependency
         var users = new List<User>();
 
         var randomNames = RandomHelper.GenerateRandomizedList(Names);
-        for (var i = 0; i < userCount && i < randomNames.Count; i++)
-        {
-            users.Add(CreateUser(tenantId, randomNames[i]));
-        }
+        for (var i = 0; i < userCount && i < randomNames.Count; i++) users.Add(CreateUser(tenantId, randomNames[i]));
 
         return users;
     }
@@ -114,7 +111,7 @@ public class RandomUserGenerator : ITransientDependency
             Name = nameSurname.Split(' ')[0],
             Surname = nameSurname.Split(' ')[1],
             ShouldChangePasswordOnNextLogin = false,
-            IsActive = (RandomHelper.GetRandom(0, 100) < 80), //A user will be active by 80% probability
+            IsActive = RandomHelper.GetRandom(0, 100) < 80, //A user will be active by 80% probability
             IsEmailConfirmed = true
         };
 
@@ -134,4 +131,3 @@ public class RandomUserGenerator : ITransientDependency
         return GenerateUsername(nameSurname) + "@" + RandomHelper.GetRandomOf(EmailProviders);
     }
 }
-

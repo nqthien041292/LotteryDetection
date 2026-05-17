@@ -5,35 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Auditing;
+using Abp.Authorization.Users;
+using Abp.Configuration;
+using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
+using Abp.Localization;
 using Abp.Runtime.Session;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authentication.TwoFactor;
+using LotteryDetection.Authorization.Delegation;
+using LotteryDetection.Authorization.PasswordlessLogin;
+using LotteryDetection.Authorization.Users;
+using LotteryDetection.Configuration;
 using LotteryDetection.Editions;
+using LotteryDetection.Features;
 using LotteryDetection.MultiTenancy.Payments;
 using LotteryDetection.Sessions.Dto;
 using LotteryDetection.UiCustomization;
-using LotteryDetection.Authorization.Delegation;
-using LotteryDetection.Authorization.Users;
-using Abp.Domain.Uow;
-using Abp.Localization;
-using LotteryDetection.Features;
-using LotteryDetection.Authorization.PasswordlessLogin;
-using Abp.Domain.Repositories;
-using Abp.Authorization.Users;
-using Abp.Configuration;
-using LotteryDetection.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Sessions;
 
 public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppService
 {
-    private readonly IUiThemeCustomizerFactory _uiThemeCustomizerFactory;
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
-    private readonly IUserDelegationConfiguration _userDelegationConfiguration;
-    private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly EditionManager _editionManager;
-    private readonly ISettingManager _settingManager;
     private readonly ILocalizationContext _localizationContext;
+    private readonly ISettingManager _settingManager;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
+    private readonly IUiThemeCustomizerFactory _uiThemeCustomizerFactory;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IUserDelegationConfiguration _userDelegationConfiguration;
     private readonly IRepository<UserLogin, long> _userLoginRepository;
 
     public SessionAppService(
@@ -59,8 +59,9 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
     [DisableAuditing]
     public async Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformations()
     {
-        var isQrLoginEnabled = await _settingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.IsQrLoginEnabled);
-        
+        var isQrLoginEnabled =
+            await _settingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement.IsQrLoginEnabled);
+
         return await _unitOfWorkManager.WithUnitOfWorkAsync(async () =>
         {
             var output = new GetCurrentLoginInformationsOutput
@@ -77,22 +78,17 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
                     IsQrLoginEnabled = isQrLoginEnabled,
                     TwoFactorCodeExpireSeconds = TwoFactorCodeCacheItem.DefaultSlidingExpireTime.TotalSeconds,
                     PasswordlessLoginCodeExpireSeconds =
-                        PasswordlessLoginCodeCacheItem.DefaultSlidingExpireTime.TotalSeconds,
+                        PasswordlessLoginCodeCacheItem.DefaultSlidingExpireTime.TotalSeconds
                 }
             };
 
             var uiCustomizer = await _uiThemeCustomizerFactory.GetCurrentUiCustomizer();
             output.Theme = await uiCustomizer.GetUiSettings();
 
-            if (AbpSession.TenantId.HasValue)
-            {
-                output.Tenant = await GetTenantLoginInfo(AbpSession.GetTenantId());
-            }
+            if (AbpSession.TenantId.HasValue) output.Tenant = await GetTenantLoginInfo(AbpSession.GetTenantId());
 
             if (AbpSession.ImpersonatorTenantId.HasValue)
-            {
                 output.ImpersonatorTenant = await GetTenantLoginInfo(AbpSession.ImpersonatorTenantId.Value);
-            }
 
             if (AbpSession.UserId.HasValue)
             {
@@ -101,14 +97,9 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
             }
 
             if (AbpSession.ImpersonatorUserId.HasValue)
-            {
                 output.ImpersonatorUser = ObjectMapper.Map<UserLoginInfoDto>(await GetImpersonatorUserAsync());
-            }
 
-            if (output.Tenant == null)
-            {
-                return output;
-            }
+            if (output.Tenant == null) return output;
 
             if (output.Tenant.Edition != null)
             {
@@ -116,10 +107,8 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
                     await _subscriptionPaymentRepository.GetLastCompletedPaymentOrDefaultAsync(output.Tenant.Id,
                         null, null);
                 if (lastPayment != null)
-                {
                     output.Tenant.Edition.IsHighestEdition = IsEditionHighest(output.Tenant.Edition.Id,
                         lastPayment.GetPaymentPeriodType());
-                }
             }
 
             output.Tenant.SubscriptionDateString = GetTenantSubscriptionDateString(output);
@@ -127,6 +116,22 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
 
             return output;
         });
+    }
+
+    public async Task<UpdateUserSignInTokenOutput> UpdateUserSignInToken()
+    {
+        if (AbpSession.UserId <= 0) throw new Exception(L("ThereIsNoLoggedInUser"));
+
+        var user = await UserManager.GetUserAsync(AbpSession.ToUserIdentifier());
+        user.SetSignInToken();
+        return new UpdateUserSignInTokenOutput
+        {
+            SignInToken = user.SignInToken,
+            EncodedUserId = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.Id.ToString())),
+            EncodedTenantId = user.TenantId.HasValue
+                ? Convert.ToBase64String(Encoding.UTF8.GetBytes(user.TenantId.Value.ToString()))
+                : ""
+        };
     }
 
     private async Task<TenantLoginInfoDto> GetTenantLoginInfo(int tenantId)
@@ -138,10 +143,7 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
         var tenantLoginInfo = ObjectMapper
             .Map<TenantLoginInfoDto>(tenant);
 
-        if (!tenant.EditionId.HasValue)
-        {
-            return tenantLoginInfo;
-        }
+        if (!tenant.EditionId.HasValue) return tenantLoginInfo;
 
         var features = FeatureManager
             .GetAll()
@@ -164,10 +166,7 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
     private bool IsEditionHighest(int editionId, PaymentPeriodType paymentPeriodType)
     {
         var topEdition = GetHighestEditionOrNullByPaymentPeriodType(paymentPeriodType);
-        if (topEdition == null)
-        {
-            return false;
-        }
+        if (topEdition == null) return false;
 
         return editionId == topEdition.Id;
     }
@@ -175,10 +174,7 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
     private SubscribableEdition GetHighestEditionOrNullByPaymentPeriodType(PaymentPeriodType paymentPeriodType)
     {
         var editions = TenantManager.EditionManager.Editions;
-        if (editions == null || !editions.Any())
-        {
-            return null;
-        }
+        if (editions == null || !editions.Any()) return null;
 
         var query = editions.Cast<SubscribableEdition>();
 
@@ -202,34 +198,12 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
             : output.Tenant.SubscriptionEndDateUtc?.ToString("d");
     }
 
-    public async Task<UpdateUserSignInTokenOutput> UpdateUserSignInToken()
-    {
-        if (AbpSession.UserId <= 0)
-        {
-            throw new Exception(L("ThereIsNoLoggedInUser"));
-        }
-
-        var user = await UserManager.GetUserAsync(AbpSession.ToUserIdentifier());
-        user.SetSignInToken();
-        return new UpdateUserSignInTokenOutput
-        {
-            SignInToken = user.SignInToken,
-            EncodedUserId = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.Id.ToString())),
-            EncodedTenantId = user.TenantId.HasValue
-                ? Convert.ToBase64String(Encoding.UTF8.GetBytes(user.TenantId.Value.ToString()))
-                : ""
-        };
-    }
-
     protected virtual async Task<User> GetImpersonatorUserAsync()
     {
         using (CurrentUnitOfWork.SetTenantId(AbpSession.ImpersonatorTenantId))
         {
             var user = await UserManager.FindByIdAsync(AbpSession.ImpersonatorUserId.ToString());
-            if (user == null)
-            {
-                throw new Exception("User not found!");
-            }
+            if (user == null) throw new Exception("User not found!");
 
             return user;
         }
@@ -237,10 +211,7 @@ public class SessionAppService : LotteryDetectionAppServiceBase, ISessionAppServ
 
     private async Task<LoginType> GetUserLoginTypeAsync(long userId)
     {
-        if (await UserHasLoginRecordAAsync(userId))
-        {
-            return LoginType.External;
-        }
+        if (await UserHasLoginRecordAAsync(userId)) return LoginType.External;
 
         return LoginType.Local;
     }

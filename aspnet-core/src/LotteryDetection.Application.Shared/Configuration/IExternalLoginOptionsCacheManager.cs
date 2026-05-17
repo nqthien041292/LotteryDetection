@@ -4,4 +4,3 @@ public interface IExternalLoginOptionsCacheManager
 {
     void ClearCache();
 }
-

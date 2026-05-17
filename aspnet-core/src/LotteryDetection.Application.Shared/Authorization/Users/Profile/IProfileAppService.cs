@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Abp.Application.Services;
 using LotteryDetection.Authorization.Users.Dto;
 using LotteryDetection.Authorization.Users.Profile.Dto;
-using LotteryDetection.Dto;
 
 namespace LotteryDetection.Authorization.Users.Profile;
 
@@ -45,4 +43,3 @@ public interface IProfileAppService : IApplicationService
 
     Task<UpdateGoogleAuthenticatorKeyOutput> ViewRecoveryCodes(VerifyAuthenticatorCodeInput input);
 }
-

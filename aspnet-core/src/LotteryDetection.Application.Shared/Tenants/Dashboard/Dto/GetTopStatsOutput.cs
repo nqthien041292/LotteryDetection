@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LotteryDetection.Tenants.Dashboard.Dto;
+﻿namespace LotteryDetection.Tenants.Dashboard.Dto;
 
 public class GetTopStatsOutput
 {
@@ -14,4 +10,3 @@ public class GetTopStatsOutput
 
     public int NewUsers { get; set; }
 }
-

@@ -24,4 +24,3 @@ public interface IAuditLogAppService : IApplicationService
 
     List<NameValueDto> GetEntityHistoryObjectTypes();
 }
-

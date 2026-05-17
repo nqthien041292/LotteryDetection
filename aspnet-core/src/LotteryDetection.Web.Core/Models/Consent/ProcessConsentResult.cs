@@ -15,4 +15,3 @@ public class ProcessConsentResult
     public bool HasValidationError => ValidationError != null;
     public string ValidationError { get; set; }
 }
-

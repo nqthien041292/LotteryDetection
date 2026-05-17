@@ -16,12 +16,8 @@ public class GetUsersInput : PagedAndSortedInputDto, IShouldNormalize, IGetUsers
 
     public void Normalize()
     {
-        if (string.IsNullOrEmpty(Sorting))
-        {
-            Sorting = "Name,Surname";
-        }
+        if (string.IsNullOrEmpty(Sorting)) Sorting = "Name,Surname";
 
         Filter = Filter?.Trim();
     }
 }
-

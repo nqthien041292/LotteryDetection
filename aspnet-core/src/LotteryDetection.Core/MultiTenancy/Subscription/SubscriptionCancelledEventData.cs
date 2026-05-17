@@ -8,4 +8,3 @@ public class SubscriptionCancelledEventData : EventData
 
     public string ExternalPaymentId { get; set; }
 }
-

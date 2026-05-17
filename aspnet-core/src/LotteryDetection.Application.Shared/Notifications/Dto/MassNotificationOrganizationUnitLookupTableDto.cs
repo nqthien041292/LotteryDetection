@@ -6,4 +6,3 @@ public class MassNotificationOrganizationUnitLookupTableDto
 
     public string DisplayName { get; set; }
 }
-

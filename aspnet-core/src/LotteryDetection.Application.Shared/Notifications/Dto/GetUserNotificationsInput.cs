@@ -12,4 +12,3 @@ public class GetUserNotificationsInput : PagedInputDto
 
     public DateTime? EndDate { get; set; }
 }
-

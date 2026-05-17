@@ -15,4 +15,3 @@ public static class LotteryDetectionDbContextConfigurer
         builder.UseSqlServer(connection);
     }
 }
-

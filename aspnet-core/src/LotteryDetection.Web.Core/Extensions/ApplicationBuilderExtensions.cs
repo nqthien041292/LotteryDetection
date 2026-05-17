@@ -18,4 +18,3 @@ public static class ApplicationBuilderExtensions
         return builder.UseForwardedHeaders(options);
     }
 }
-

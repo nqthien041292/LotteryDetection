@@ -18,4 +18,3 @@ public class EditionListDto : EntityDto
 
     public string ExpiringEditionDisplayName { get; set; }
 }
-

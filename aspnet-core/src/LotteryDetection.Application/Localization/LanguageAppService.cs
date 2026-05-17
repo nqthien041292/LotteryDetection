@@ -20,10 +20,10 @@ namespace LotteryDetection.Localization;
 [AbpAuthorize(AppPermissions.Pages_Administration_Languages)]
 public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppService
 {
+    private readonly IApplicationCulturesProvider _applicationCulturesProvider;
     private readonly IApplicationLanguageManager _applicationLanguageManager;
     private readonly IApplicationLanguageTextManager _applicationLanguageTextManager;
     private readonly IRepository<ApplicationLanguage> _languageRepository;
-    private readonly IApplicationCulturesProvider _applicationCulturesProvider;
 
     public LanguageAppService(
         IApplicationLanguageManager applicationLanguageManager,
@@ -54,10 +54,7 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
     public async Task<GetLanguageForEditOutput> GetLanguageForEdit(NullableIdDto input)
     {
         ApplicationLanguage language = null;
-        if (input.Id.HasValue)
-        {
-            language = await _languageRepository.GetAsync(input.Id.Value);
-        }
+        if (input.Id.HasValue) language = await _languageRepository.GetAsync(input.Id.Value);
 
         var output = new GetLanguageForEditOutput();
 
@@ -70,7 +67,7 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
         output.LanguageNames = _applicationCulturesProvider
             .GetAllCultures()
             .Select(c => new ComboboxItemDto(c.Name, c.EnglishName + " (" + c.Name + ")")
-            { IsSelected = output.Language.Name == c.Name })
+                { IsSelected = output.Language.Name == c.Name })
             .ToList();
 
         //Flags
@@ -78,7 +75,7 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
             .FlagClassNames
             .OrderBy(f => f)
             .Select(f => new ComboboxItemDto(f, FamFamFamFlagsHelper.GetCountryCode(f))
-            { IsSelected = output.Language.Icon == f })
+                { IsSelected = output.Language.Icon == f })
             .ToList();
 
         return output;
@@ -87,13 +84,9 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
     public async Task CreateOrUpdateLanguage(CreateOrUpdateLanguageInput input)
     {
         if (input.Language.Id.HasValue)
-        {
             await UpdateLanguageAsync(input);
-        }
         else
-        {
             await CreateLanguageAsync(input);
-        }
     }
 
     public async Task DeleteLanguage(EntityDto input)
@@ -126,10 +119,7 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
             {
                 defaultLanguage = (await _applicationLanguageManager.GetLanguagesAsync(AbpSession.TenantId))
                     .FirstOrDefault();
-                if (defaultLanguage == null)
-                {
-                    throw new Exception("No language found in the application!");
-                }
+                if (defaultLanguage == null) throw new Exception("No language found in the application!");
             }
 
             input.BaseLanguageName = defaultLanguage.Name;
@@ -162,41 +152,29 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
         }).AsQueryable();
 
         //Filters
-        if (input.TargetValueFilter == "EMPTY")
-        {
-            languageTexts = languageTexts.Where(s => s.TargetValue.IsNullOrEmpty());
-        }
+        if (input.TargetValueFilter == "EMPTY") languageTexts = languageTexts.Where(s => s.TargetValue.IsNullOrEmpty());
 
         if (!input.FilterText.IsNullOrEmpty())
-        {
-            languageTexts = languageTexts.Where(
-                l => (l.Key != null &&
-                      l.Key.IndexOf(input.FilterText, StringComparison.CurrentCultureIgnoreCase) >= 0) ||
-                     (l.BaseValue != null &&
-                      l.BaseValue.IndexOf(input.FilterText, StringComparison.CurrentCultureIgnoreCase) >= 0) ||
-                     (l.TargetValue != null &&
-                      l.TargetValue.IndexOf(input.FilterText, StringComparison.CurrentCultureIgnoreCase) >= 0)
+            languageTexts = languageTexts.Where(l => (l.Key != null &&
+                                                      l.Key.IndexOf(input.FilterText,
+                                                          StringComparison.CurrentCultureIgnoreCase) >= 0) ||
+                                                     (l.BaseValue != null &&
+                                                      l.BaseValue.IndexOf(input.FilterText,
+                                                          StringComparison.CurrentCultureIgnoreCase) >= 0) ||
+                                                     (l.TargetValue != null &&
+                                                      l.TargetValue.IndexOf(input.FilterText,
+                                                          StringComparison.CurrentCultureIgnoreCase) >= 0)
             );
-        }
 
         var totalCount = languageTexts.Count();
 
         //Ordering
-        if (!input.Sorting.IsNullOrEmpty())
-        {
-            languageTexts = languageTexts.OrderBy(input.Sorting);
-        }
+        if (!input.Sorting.IsNullOrEmpty()) languageTexts = languageTexts.OrderBy(input.Sorting);
 
         //Paging
-        if (input.SkipCount > 0)
-        {
-            languageTexts = languageTexts.Skip(input.SkipCount);
-        }
+        if (input.SkipCount > 0) languageTexts = languageTexts.Skip(input.SkipCount);
 
-        if (input.MaxResultCount > 0)
-        {
-            languageTexts = languageTexts.Take(input.MaxResultCount);
-        }
+        if (input.MaxResultCount > 0) languageTexts = languageTexts.Take(input.MaxResultCount);
 
         return new PagedResultDto<LanguageTextListDto>(
             totalCount,
@@ -222,9 +200,7 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
     protected virtual async Task CreateLanguageAsync(CreateOrUpdateLanguageInput input)
     {
         if (AbpSession.MultiTenancySide != MultiTenancySides.Host)
-        {
             throw new UserFriendlyException(L("TenantsCannotCreateLanguage"));
-        }
 
         var culture = CultureHelper.GetCultureInfoByChecking(input.Language.Name);
 
@@ -246,7 +222,7 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
     [AbpAuthorize(AppPermissions.Pages_Administration_Languages_Edit)]
     protected virtual async Task UpdateLanguageAsync(CreateOrUpdateLanguageInput input)
     {
-        Debug.Assert(input.Language.Id != null, "input.Language.Id != null");
+        Debug.Assert(input.Language.Id != null);
 
         var culture = CultureHelper.GetCultureInfoByChecking(input.Language.Name);
 
@@ -267,15 +243,9 @@ public class LanguageAppService : LotteryDetectionAppServiceBase, ILanguageAppSe
         var existingLanguage = (await _applicationLanguageManager.GetLanguagesAsync(AbpSession.TenantId))
             .FirstOrDefault(l => l.Name == languageName);
 
-        if (existingLanguage == null)
-        {
-            return;
-        }
+        if (existingLanguage == null) return;
 
-        if (expectedId != null && existingLanguage.Id == expectedId.Value)
-        {
-            return;
-        }
+        if (expectedId != null && existingLanguage.Id == expectedId.Value) return;
 
         throw new UserFriendlyException(L("ThisLanguageAlreadyExists"));
     }

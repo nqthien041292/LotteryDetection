@@ -8,4 +8,3 @@ public class Dashboard
 
     public List<Page> Pages { get; set; }
 }
-

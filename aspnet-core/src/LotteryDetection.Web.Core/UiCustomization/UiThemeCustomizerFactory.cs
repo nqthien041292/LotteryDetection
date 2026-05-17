@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Abp.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using LotteryDetection.Configuration;
 using LotteryDetection.UiCustomization;
 using LotteryDetection.Web.UiCustomization.Metronic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetection.Web.UiCustomization;
 
 public class UiThemeCustomizerFactory : IUiThemeCustomizerFactory
 {
-    private readonly ISettingManager _settingManager;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ISettingManager _settingManager;
 
     public UiThemeCustomizerFactory(
         ISettingManager settingManager,
@@ -36,67 +36,42 @@ public class UiThemeCustomizerFactory : IUiThemeCustomizerFactory
     private IUiCustomizer GetUiCustomizerInternal(string theme)
     {
         if (theme.Equals(AppConsts.Theme8, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme8UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme2, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme2UiCustomizer>();
-        }
 
 
         if (theme.Equals(AppConsts.Theme4, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme4UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme5, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme5UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme11, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme11UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme3, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme3UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme6, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme6UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme9, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme9UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme7, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme7UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme10, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme10UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme12, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme12UiCustomizer>();
-        }
 
         if (theme.Equals(AppConsts.Theme13, StringComparison.InvariantCultureIgnoreCase))
-        {
             return _serviceProvider.GetService<Theme13UiCustomizer>();
-        }
 
         return _serviceProvider.GetService<ThemeDefaultUiCustomizer>();
     }
 }
-

@@ -15,4 +15,3 @@ public class GetExpiringTenantsOutput
 
     public DateTime SubscriptionEndDateEnd { get; set; }
 }
-

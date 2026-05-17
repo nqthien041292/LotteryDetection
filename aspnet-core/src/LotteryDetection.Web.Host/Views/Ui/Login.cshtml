@@ -1,7 +1,6 @@
-﻿@using Abp.Web.Security.AntiForgery
+﻿@using Abp.Configuration.Startup
+@using Abp.Web.Security.AntiForgery
 @using LotteryDetection
-@using Abp.Configuration.Startup
-@using LotteryDetection.Web.TagHelpers
 @model LotteryDetection.Web.Models.Ui.LoginModel
 @inject IAbpAntiForgeryManager AbpAntiForgeryManager
 @inject IMultiTenancyConfig MultiTenancyConfig
@@ -11,13 +10,13 @@
 <head>
     <title>LotteryDetection</title>
 
-    <link abp-href="/view-resources/Views/Ui/Login.css" rel="stylesheet" asp-append-version="true" />
+    <link abp-href="/view-resources/Views/Ui/Login.css" rel="stylesheet" asp-append-version="true"/>
 </head>
 <div class="login-form">
     <h1>@L("LogIn")</h1>
     <form method="post">
         <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl"/>
-        
+
         @if (MultiTenancyConfig.IsEnabled)
         {
             <div class="login-form-row">
@@ -25,7 +24,7 @@
                 <input type="text" id="TenancyName" name="TenancyName" placeholder="@L("TenancyName")">
             </div>
         }
-    
+
         <div class="login-form-row">
             <label for="UsernameOrEmailAddress">@L("UserNameOrEmail")</label>
             <input type="text" id="UsernameOrEmailAddress" name="UserNameOrEmailAddress" placeholder="@L("UserNameOrEmail")">

@@ -23,12 +23,8 @@ public class UserDataCleaningJob : AsyncBackgroundJob<UserIdentifier>, ITransien
             {
                 var providers = scope.ResolveAll<IUserDataCleaner>();
 
-                foreach (var provider in providers)
-                {
-                    await provider.CleanUserData(args);
-                }
+                foreach (var provider in providers) await provider.CleanUserData(args);
             }
         });
     }
 }
-

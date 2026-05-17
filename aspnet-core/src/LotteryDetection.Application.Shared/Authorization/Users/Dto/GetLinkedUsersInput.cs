@@ -10,24 +10,17 @@ public class GetLinkedUsersInput : IPagedResultRequest, ISortedResultRequest, IS
 
     public int SkipCount { get; set; }
 
-    public string Sorting { get; set; }
-
     public void Normalize()
     {
-        if (string.IsNullOrEmpty(Sorting) || Sorting == "userName ASC")
-        {
-            Sorting = "TenancyName, Username";
-        }
+        if (string.IsNullOrEmpty(Sorting) || Sorting == "userName ASC") Sorting = "TenancyName, Username";
 
         Sorting = DtoSortingHelper.ReplaceSorting(Sorting, s =>
         {
-            if (s == "userName DESC")
-            {
-                s = "TenancyName DESC, UserName DESC";
-            }
+            if (s == "userName DESC") s = "TenancyName DESC, UserName DESC";
 
             return s;
         });
     }
-}
 
+    public string Sorting { get; set; }
+}

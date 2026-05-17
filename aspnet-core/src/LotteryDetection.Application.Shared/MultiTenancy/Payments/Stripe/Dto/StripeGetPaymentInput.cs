@@ -4,4 +4,3 @@ public class StripeGetPaymentInput
 {
     public long PaymentId { get; set; }
 }
-

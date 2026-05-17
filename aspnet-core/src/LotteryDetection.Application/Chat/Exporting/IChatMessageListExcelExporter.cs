@@ -4,10 +4,9 @@ using Abp;
 using LotteryDetection.Chat.Dto;
 using LotteryDetection.Dto;
 
-namespace LotteryDetection.Chat.Exporting
+namespace LotteryDetection.Chat.Exporting;
+
+public interface IChatMessageListExcelExporter
 {
-    public interface IChatMessageListExcelExporter
-    {
-        Task<FileDto> ExportToFile(UserIdentifier user, List<ChatMessageExportDto> messages);
-    }
+    Task<FileDto> ExportToFile(UserIdentifier user, List<ChatMessageExportDto> messages);
 }

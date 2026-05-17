@@ -9,10 +9,9 @@ public static class FriendCacheItemExtensions
     {
         return items.Any(f => f.FriendTenantId == item.FriendTenantId && f.FriendUserId == item.FriendUserId);
     }
+
     public static int RemoveCachedFriend(this List<FriendCacheItem> items, FriendCacheItem item)
     {
         return items.RemoveAll(f => f.FriendTenantId == item.FriendTenantId && f.FriendUserId == item.FriendUserId);
     }
-
 }
-

@@ -8,4 +8,3 @@ public interface IEmailSettingsChecker
 
     Task<bool> EmailSettingsValidAsync();
 }
-

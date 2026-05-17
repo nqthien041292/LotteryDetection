@@ -7,9 +7,9 @@ namespace LotteryDetection.Friendships.Cache;
 public class FriendCacheItem
 {
     public const string CacheName = "AppUserFriendCache";
-    
+
     public static readonly TimeSpan DefaultSlidingExpireTime = TimeSpan.FromMinutes(30);
-    
+
     public long FriendUserId { get; set; }
 
     public int? FriendTenantId { get; set; }
@@ -24,4 +24,3 @@ public class FriendCacheItem
 
     public FriendshipState State { get; set; }
 }
-

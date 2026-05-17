@@ -17,4 +17,3 @@ public interface ISubscriptionAppService : IApplicationService
 
     Task<long> StartTrialToBuySubscription(StartTrialToBuySubscriptionInput input);
 }
-

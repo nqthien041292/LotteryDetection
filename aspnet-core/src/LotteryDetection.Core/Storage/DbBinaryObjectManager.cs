@@ -29,4 +29,3 @@ public class DbBinaryObjectManager : IBinaryObjectManager, ITransientDependency
         return _binaryObjectRepository.DeleteAsync(id);
     }
 }
-

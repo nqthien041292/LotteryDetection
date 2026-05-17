@@ -35,4 +35,3 @@ public class TempFileCacheManager : ITempFileCacheManager
         return _cache.GetOrDefault(token);
     }
 }
-

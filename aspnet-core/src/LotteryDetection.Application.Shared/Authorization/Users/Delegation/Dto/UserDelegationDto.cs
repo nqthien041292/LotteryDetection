@@ -11,4 +11,3 @@ public class UserDelegationDto : EntityDto<long>
 
     public DateTime EndTime { get; set; }
 }
-

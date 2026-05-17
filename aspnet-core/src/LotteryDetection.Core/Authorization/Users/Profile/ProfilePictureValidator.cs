@@ -1,9 +1,9 @@
-﻿using Abp.Configuration;
+﻿using System;
+using System.Threading.Tasks;
+using Abp.Configuration;
 using Abp.UI;
 using LotteryDetection.Configuration;
 using LotteryDetection.Graphics;
-using System;
-using System.Threading.Tasks;
 
 namespace LotteryDetection.Authorization.Users.Profile;
 
@@ -28,9 +28,8 @@ public class ProfilePictureValidator : LotteryDetectionDomainServiceBase, IProfi
         var maxProfilePictureSizeInByte = await GetMaxProfilePictureSizeInByte();
 
         if (imageBytes.Length > maxProfilePictureSizeInByte)
-        {
-            throw new UserFriendlyException(L("ResizedProfilePicture_Warn_SizeLimit", await GetMaxProfilePictureSizeInMb()));
-        }
+            throw new UserFriendlyException(L("ResizedProfilePicture_Warn_SizeLimit",
+                await GetMaxProfilePictureSizeInMb()));
     }
 
     private async Task<int> GetMaxProfilePictureSizeInByte()
@@ -49,9 +48,11 @@ public class ProfilePictureValidator : LotteryDetectionDomainServiceBase, IProfi
 
     private async Task<(int Width, int Height)> GetMaxProfilePictureDimensions()
     {
-        var maxProfilePictureWidth = await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.MaxProfilePictureWidth);
+        var maxProfilePictureWidth =
+            await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.MaxProfilePictureWidth);
 
-        var maxProfilePictureHeight = await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.MaxProfilePictureHeight);
+        var maxProfilePictureHeight =
+            await SettingManager.GetSettingValueAsync<int>(AppSettings.UserManagement.MaxProfilePictureHeight);
 
         return (maxProfilePictureWidth, maxProfilePictureHeight);
     }

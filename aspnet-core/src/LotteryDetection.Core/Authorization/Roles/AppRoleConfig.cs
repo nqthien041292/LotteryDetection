@@ -13,8 +13,8 @@ public static class AppRoleConfig
             new StaticRoleDefinition(
                 StaticRoleNames.Host.Admin,
                 MultiTenancySides.Host,
-                grantAllPermissionsByDefault: true)
-            );
+                true)
+        );
 
         //Static tenant roles
 
@@ -22,14 +22,13 @@ public static class AppRoleConfig
             new StaticRoleDefinition(
                 StaticRoleNames.Tenants.Admin,
                 MultiTenancySides.Tenant,
-                grantAllPermissionsByDefault: true)
-            );
+                true)
+        );
 
         roleManagementConfig.StaticRoles.Add(
             new StaticRoleDefinition(
                 StaticRoleNames.Tenants.User,
                 MultiTenancySides.Tenant)
-            );
+        );
     }
 }
-

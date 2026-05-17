@@ -12,4 +12,3 @@ public class UserRoleDto
 
     public bool InheritedFromOrganizationUnit { get; set; }
 }
-

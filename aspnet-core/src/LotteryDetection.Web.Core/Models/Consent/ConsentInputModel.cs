@@ -13,4 +13,3 @@ public class ConsentInputModel
     public bool RememberConsent { get; set; }
     public string ReturnUrl { get; set; }
 }
-

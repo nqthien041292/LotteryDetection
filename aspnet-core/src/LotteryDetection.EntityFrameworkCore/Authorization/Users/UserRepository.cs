@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Abp.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore.Repositories;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Authorization.Users;
@@ -51,4 +51,3 @@ public class UserRepository : LotteryDetectionRepositoryBase<User, long>, IUserR
             .ExecuteUpdate(setters => setters.SetProperty(b => b.ShouldChangePasswordOnNextLogin, true));
     }
 }
-

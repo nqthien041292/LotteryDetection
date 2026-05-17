@@ -8,9 +8,9 @@ namespace LotteryDetection.Authorization.Users.Password;
 public class PasswordExpirationBackgroundWorker : PeriodicBackgroundWorkerBase, ISingletonDependency
 {
     private const int CheckPeriodAsMilliseconds = 1 * 60 * 60 * 1000 * 24; //1 day
+    private readonly IPasswordExpirationService _passwordExpirationService;
 
     private readonly IUnitOfWorkManager _unitOfWorkManager;
-    private readonly IPasswordExpirationService _passwordExpirationService;
 
     public PasswordExpirationBackgroundWorker(
         AbpTimer timer,
@@ -35,4 +35,3 @@ public class PasswordExpirationBackgroundWorker : PeriodicBackgroundWorkerBase, 
         });
     }
 }
-

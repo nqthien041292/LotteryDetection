@@ -7,4 +7,3 @@ public class LocalizableComboboxItemDto
 
     public string DisplayText { get; set; }
 }
-

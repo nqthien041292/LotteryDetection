@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Abp.Authorization;
 using Abp.Dependency;
 using Abp.MultiTenancy;
 using Abp.Runtime.Session;
@@ -11,18 +10,14 @@ namespace LotteryDetection.DashboardCustomization.Definitions;
 
 public class DashboardConfiguration : ITransientDependency
 {
-    public string TenantWidgetDefinitionsCacheName = "TenantWidgetDefinitionsCache";
     public const string HostWidgetDefinitionsCacheName = "HostWidgetDefinitionsCache";
+
+    private readonly IAbpSession _abpSession;
 
     private readonly IDashboardDefinitionCacheManager _dashboardDefinitionCacheManager;
     private readonly IWidgetDefinitionCacheManager _widgetDefinitionCacheManager;
     private readonly IWidgetFilterDefinitionCacheManager _widgetFilterDefinitionCacheManager;
-
-    private readonly IAbpSession _abpSession;
-
-    private List<DashboardDefinition> DashboardDefinitions { get; } = new();
-    private List<WidgetDefinition> WidgetDefinitions { get; } = new();
-    private List<WidgetFilterDefinition> WidgetFilterDefinitions { get; } = new();
+    public string TenantWidgetDefinitionsCacheName = "TenantWidgetDefinitionsCache";
 
     public DashboardConfiguration(
         IDashboardDefinitionCacheManager dashboardDefinitionCacheManager,
@@ -43,11 +38,11 @@ public class DashboardConfiguration : ITransientDependency
             "FilterDateRangePicker"
         );
 
-        WidgetFilterDefinitions.AddRange(new List<WidgetFilterDefinition>()
-            {
-                dateRangeFilter
-                // Add your filters here
-            });
+        WidgetFilterDefinitions.AddRange(new List<WidgetFilterDefinition>
+        {
+            dateRangeFilter
+            // Add your filters here
+        });
 
         #endregion
 
@@ -63,17 +58,17 @@ public class DashboardConfiguration : ITransientDependency
         var dailySales = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.DailySales,
             "WidgetDailySales",
-            side: MultiTenancySides.Tenant,
-            usedWidgetFilters: new List<string> { dateRangeFilter.Id },
-            permissionDependency: simplePermissionDependencyForTenantDashboard
+            MultiTenancySides.Tenant,
+            new List<string> { dateRangeFilter.Id },
+            simplePermissionDependencyForTenantDashboard
         );
 
         var generalStats = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.GeneralStats,
             "WidgetGeneralStats",
-            side: MultiTenancySides.Tenant,
+            MultiTenancySides.Tenant,
             permissionDependency: new LotteryDetectionSimplePermissionDependency(
-                requiresAll: true,
+                true,
                 AppPermissions.Pages_Tenant_Dashboard,
                 AppPermissions.Pages_Administration_AuditLogs
             )
@@ -82,28 +77,28 @@ public class DashboardConfiguration : ITransientDependency
         var profitShare = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.ProfitShare,
             "WidgetProfitShare",
-            side: MultiTenancySides.Tenant,
+            MultiTenancySides.Tenant,
             permissionDependency: simplePermissionDependencyForTenantDashboard
         );
 
         var memberActivity = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.MemberActivity,
             "WidgetMemberActivity",
-            side: MultiTenancySides.Tenant,
+            MultiTenancySides.Tenant,
             permissionDependency: simplePermissionDependencyForTenantDashboard
         );
 
         var regionalStats = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.RegionalStats,
             "WidgetRegionalStats",
-            side: MultiTenancySides.Tenant,
+            MultiTenancySides.Tenant,
             permissionDependency: simplePermissionDependencyForTenantDashboard
         );
 
         var salesSummary = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.SalesSummary,
             "WidgetSalesSummary",
-            usedWidgetFilters: new List<string>() { dateRangeFilter.Id },
+            usedWidgetFilters: new List<string> { dateRangeFilter.Id },
             side: MultiTenancySides.Tenant,
             permissionDependency: simplePermissionDependencyForTenantDashboard
         );
@@ -111,20 +106,20 @@ public class DashboardConfiguration : ITransientDependency
         var topStats = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Tenant.TopStats,
             "WidgetTopStats",
-            side: MultiTenancySides.Tenant,
+            MultiTenancySides.Tenant,
             permissionDependency: simplePermissionDependencyForTenantDashboard
         );
 
         WidgetDefinitions.AddRange(
             new List<WidgetDefinition>
             {
-                    generalStats,
-                    dailySales,
-                    profitShare,
-                    memberActivity,
-                    regionalStats,
-                    topStats,
-                    salesSummary
+                generalStats,
+                dailySales,
+                profitShare,
+                memberActivity,
+                regionalStats,
+                topStats,
+                salesSummary
                 // Add your tenant side widgets here
             });
 
@@ -138,48 +133,48 @@ public class DashboardConfiguration : ITransientDependency
         var incomeStatistics = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Host.IncomeStatistics,
             "WidgetIncomeStatistics",
-            side: MultiTenancySides.Host,
+            MultiTenancySides.Host,
             permissionDependency: simplePermissionDependencyForHostDashboard
         );
 
         var hostTopStats = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Host.TopStats,
             "WidgetTopStats",
-            side: MultiTenancySides.Host,
+            MultiTenancySides.Host,
             permissionDependency: simplePermissionDependencyForHostDashboard
         );
 
         var editionStatistics = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Host.EditionStatistics,
             "WidgetEditionStatistics",
-            side: MultiTenancySides.Host,
+            MultiTenancySides.Host,
             permissionDependency: simplePermissionDependencyForHostDashboard
         );
 
         var subscriptionExpiringTenants = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Host.SubscriptionExpiringTenants,
             "WidgetSubscriptionExpiringTenants",
-            side: MultiTenancySides.Host,
+            MultiTenancySides.Host,
             permissionDependency: simplePermissionDependencyForHostDashboard
         );
 
         var recentTenants = new WidgetDefinition(
             LotteryDetectionDashboardCustomizationConsts.Widgets.Host.RecentTenants,
             "WidgetRecentTenants",
-            side: MultiTenancySides.Host,
-            usedWidgetFilters: new List<string>() { dateRangeFilter.Id },
-            permissionDependency: simplePermissionDependencyForHostDashboard
+            MultiTenancySides.Host,
+            new List<string> { dateRangeFilter.Id },
+            simplePermissionDependencyForHostDashboard
         );
 
-        WidgetDefinitions.AddRange(new List<WidgetDefinition>()
-            {
-                incomeStatistics,
-                hostTopStats,
-                editionStatistics,
-                subscriptionExpiringTenants,
-                recentTenants
-                // Add your host side widgets here
-            });
+        WidgetDefinitions.AddRange(new List<WidgetDefinition>
+        {
+            incomeStatistics,
+            hostTopStats,
+            editionStatistics,
+            subscriptionExpiringTenants,
+            recentTenants
+            // Add your host side widgets here
+        });
 
         #endregion
 
@@ -192,8 +187,8 @@ public class DashboardConfiguration : ITransientDependency
             LotteryDetectionDashboardCustomizationConsts.DashboardNames.DefaultTenantDashboard,
             new List<string>
             {
-                    generalStats.Id, dailySales.Id, profitShare.Id, memberActivity.Id, regionalStats.Id, topStats.Id,
-                    salesSummary.Id
+                generalStats.Id, dailySales.Id, profitShare.Id, memberActivity.Id, regionalStats.Id, topStats.Id,
+                salesSummary.Id
             });
 
         DashboardDefinitions.Add(defaultTenantDashboard);
@@ -202,11 +197,11 @@ public class DashboardConfiguration : ITransientDependency
             LotteryDetectionDashboardCustomizationConsts.DashboardNames.DefaultHostDashboard,
             new List<string>
             {
-                    incomeStatistics.Id,
-                    hostTopStats.Id,
-                    editionStatistics.Id,
-                    subscriptionExpiringTenants.Id,
-                    recentTenants.Id
+                incomeStatistics.Id,
+                hostTopStats.Id,
+                editionStatistics.Id,
+                subscriptionExpiringTenants.Id,
+                recentTenants.Id
             });
 
         DashboardDefinitions.Add(defaultHostDashboard);
@@ -215,6 +210,10 @@ public class DashboardConfiguration : ITransientDependency
 
         #endregion
     }
+
+    private List<DashboardDefinition> DashboardDefinitions { get; } = new();
+    private List<WidgetDefinition> WidgetDefinitions { get; } = new();
+    private List<WidgetFilterDefinition> WidgetFilterDefinitions { get; } = new();
 
     public DashboardDefinition GetDashboardDefinition(string name)
     {
@@ -262,4 +261,3 @@ public class DashboardConfiguration : ITransientDependency
         return filterDefinitions;
     }
 }
-

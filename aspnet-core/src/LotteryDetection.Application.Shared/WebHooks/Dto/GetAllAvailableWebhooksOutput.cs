@@ -3,20 +3,19 @@
 public class GetAllAvailableWebhooksOutput
 {
     /// <summary>
-    /// Unique name of the webhook.
+    ///     Unique name of the webhook.
     /// </summary>
     public string Name { get; set; }
 
     /// <summary>
-    /// Display name of the webhook.
-    /// Optional.
+    ///     Display name of the webhook.
+    ///     Optional.
     /// </summary>
     public string DisplayName { get; set; }
 
     /// <summary>
-    /// Description for the webhook.
-    /// Optional.
+    ///     Description for the webhook.
+    ///     Optional.
     /// </summary>
     public string Description { get; set; }
 }
-

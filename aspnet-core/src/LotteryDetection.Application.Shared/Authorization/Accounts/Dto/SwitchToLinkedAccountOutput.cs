@@ -6,4 +6,3 @@ public class SwitchToLinkedAccountOutput
 
     public string TenancyName { get; set; }
 }
-

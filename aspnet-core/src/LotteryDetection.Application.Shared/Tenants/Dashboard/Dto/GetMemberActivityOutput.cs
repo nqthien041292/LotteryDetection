@@ -10,7 +10,4 @@ public class GetMemberActivityOutput
     }
 
     public List<MemberActivity> MemberActivities { get; set; }
-
-
 }
-

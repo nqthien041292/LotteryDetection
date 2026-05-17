@@ -16,4 +16,3 @@ public static class UserManagerExtensions
         return userManager.FindByNameOrEmail(AbpUserBase.AdminUserName);
     }
 }
-

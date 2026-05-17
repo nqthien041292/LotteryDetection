@@ -14,4 +14,3 @@ public class ApplicationLanguageListDto : FullAuditedEntityDto
 
     public bool IsDisabled { get; set; }
 }
-

@@ -17,4 +17,3 @@ public class Invoice : Entity<int>
 
     public string TenantTaxNo { get; set; }
 }
-

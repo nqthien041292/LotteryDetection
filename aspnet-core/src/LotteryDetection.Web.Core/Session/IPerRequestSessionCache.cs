@@ -7,4 +7,3 @@ public interface IPerRequestSessionCache
 {
     Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformationsAsync();
 }
-

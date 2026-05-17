@@ -5,4 +5,3 @@ public enum EndSubscriptionResult
     TenantSetInActive,
     AssignedToAnotherEdition
 }
-

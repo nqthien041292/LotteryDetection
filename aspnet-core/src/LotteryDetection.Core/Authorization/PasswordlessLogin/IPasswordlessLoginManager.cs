@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Domain.Services;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using LotteryDetection.Authorization.Users;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LotteryDetection.Authorization.PasswordlessLogin;
 
@@ -18,4 +18,3 @@ public interface IPasswordlessLoginManager : IDomainService
 
     List<SelectListItem> GetProviders();
 }
-

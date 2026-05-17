@@ -19,12 +19,15 @@ public interface IAppNotifier
 
     Task GdprDataPrepared(UserIdentifier user, Guid binaryObjectId);
 
-    Task SendMessageAsync(UserIdentifier user, string message, NotificationSeverity severity = NotificationSeverity.Info);
+    Task SendMessageAsync(UserIdentifier user, string message,
+        NotificationSeverity severity = NotificationSeverity.Info);
 
     Task SendMessageAsync(string notificationName, string message, UserIdentifier[] userIds = null,
         NotificationSeverity severity = NotificationSeverity.Info);
 
-    Task SendMessageAsync(UserIdentifier user, LocalizableString localizableMessage, IDictionary<string, object> localizableMessageData = null, NotificationSeverity severity = NotificationSeverity.Info);
+    Task SendMessageAsync(UserIdentifier user, LocalizableString localizableMessage,
+        IDictionary<string, object> localizableMessageData = null,
+        NotificationSeverity severity = NotificationSeverity.Info);
 
     Task TenantsMovedToEdition(UserIdentifier user, string sourceEditionName, string targetEditionName);
 
@@ -33,4 +36,3 @@ public interface IAppNotifier
     Task SendMassNotificationAsync(string message, UserIdentifier[] userIds = null,
         NotificationSeverity severity = NotificationSeverity.Info, Type[] targetNotifiers = null);
 }
-

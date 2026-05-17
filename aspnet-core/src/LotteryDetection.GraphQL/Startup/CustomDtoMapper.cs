@@ -13,4 +13,3 @@ public static class CustomDtoMapper
             .ForMember(dto => dto.OrganizationUnits, options => options.Ignore());
     }
 }
-

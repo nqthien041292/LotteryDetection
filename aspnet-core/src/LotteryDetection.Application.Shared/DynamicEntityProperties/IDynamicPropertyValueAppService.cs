@@ -16,4 +16,3 @@ public interface IDynamicPropertyValueAppService
 
     Task Delete(int id);
 }
-

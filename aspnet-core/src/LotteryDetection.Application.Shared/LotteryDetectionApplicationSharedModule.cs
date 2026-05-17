@@ -11,4 +11,3 @@ public class LotteryDetectionApplicationSharedModule : AbpModule
         IocManager.RegisterAssemblyByConvention(typeof(LotteryDetectionApplicationSharedModule).GetAssembly());
     }
 }
-

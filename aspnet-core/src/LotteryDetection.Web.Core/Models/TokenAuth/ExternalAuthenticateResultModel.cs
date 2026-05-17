@@ -16,4 +16,3 @@ public class ExternalAuthenticateResultModel
 
     public int RefreshTokenExpireInSeconds { get; set; }
 }
-

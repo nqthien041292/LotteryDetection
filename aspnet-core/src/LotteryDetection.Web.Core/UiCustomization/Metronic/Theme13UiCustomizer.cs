@@ -31,7 +31,7 @@ public class Theme13UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
                     FixedAside = await GetSettingValueAsync<bool>(AppSettings.UiManagement.LeftAside.FixedAside),
                     SearchActive = await GetSettingValueAsync<bool>(AppSettings.UiManagement.SearchActive)
                 },
-                Footer = new ThemeFooterSettingsDto()
+                Footer = new ThemeFooterSettingsDto
                 {
                     FooterWidthType = await GetSettingValueAsync(AppSettings.UiManagement.Footer.FooterWidthType)
                 }
@@ -64,22 +64,32 @@ public class Theme13UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
 
         await ChangeSettingForUserAsync(user, AppSettings.UiManagement.LayoutType, settings.Layout.LayoutType);
         await ChangeSettingForUserAsync(user, AppSettings.UiManagement.DarkMode, settings.Layout.DarkMode.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Header.MobileFixedHeader, settings.Header.MobileFixedHeader.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.LeftAside.FixedAside, settings.Menu.FixedAside.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.SearchActive, settings.Menu.SearchActive.ToString());
-        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Footer.FooterWidthType, settings.Footer.FooterWidthType);
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Header.MobileFixedHeader,
+            settings.Header.MobileFixedHeader.ToString());
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.LeftAside.FixedAside,
+            settings.Menu.FixedAside.ToString());
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.SearchActive,
+            settings.Menu.SearchActive.ToString());
+        await ChangeSettingForUserAsync(user, AppSettings.UiManagement.Footer.FooterWidthType,
+            settings.Footer.FooterWidthType);
     }
 
-    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings, UserIdentifier changerUser)
+    public async Task UpdateTenantUiManagementSettingsAsync(int tenantId, ThemeSettingsDto settings,
+        UserIdentifier changerUser)
     {
         await SettingManager.ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Theme, ThemeName);
 
         await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.LayoutType, settings.Layout.LayoutType);
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.DarkMode, settings.Layout.DarkMode.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Header.MobileFixedHeader, settings.Header.MobileFixedHeader.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.LeftAside.FixedAside, settings.Menu.FixedAside.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.SearchActive, settings.Menu.SearchActive.ToString());
-        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Footer.FooterWidthType, settings.Footer.FooterWidthType);
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.DarkMode,
+            settings.Layout.DarkMode.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Header.MobileFixedHeader,
+            settings.Header.MobileFixedHeader.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.LeftAside.FixedAside,
+            settings.Menu.FixedAside.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.SearchActive,
+            settings.Menu.SearchActive.ToString());
+        await ChangeSettingForTenantAsync(tenantId, AppSettings.UiManagement.Footer.FooterWidthType,
+            settings.Footer.FooterWidthType);
 
         await ResetDarkModeSettingsAsync(changerUser);
     }
@@ -90,10 +100,14 @@ public class Theme13UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
 
         await ChangeSettingForApplicationAsync(AppSettings.UiManagement.LayoutType, settings.Layout.LayoutType);
         await ChangeSettingForApplicationAsync(AppSettings.UiManagement.DarkMode, settings.Layout.DarkMode.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Header.MobileFixedHeader, settings.Header.MobileFixedHeader.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.LeftAside.FixedAside, settings.Menu.FixedAside.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.SearchActive, settings.Menu.SearchActive.ToString());
-        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType, settings.Footer.FooterWidthType);
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Header.MobileFixedHeader,
+            settings.Header.MobileFixedHeader.ToString());
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.LeftAside.FixedAside,
+            settings.Menu.FixedAside.ToString());
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.SearchActive,
+            settings.Menu.SearchActive.ToString());
+        await ChangeSettingForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType,
+            settings.Footer.FooterWidthType);
 
         await ResetDarkModeSettingsAsync(changerUser);
     }
@@ -112,16 +126,18 @@ public class Theme13UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
             },
             Menu = new ThemeMenuSettingsDto
             {
-                FixedAside = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.LeftAside.FixedAside),
+                FixedAside =
+                    await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.LeftAside.FixedAside),
                 SearchActive = await GetSettingValueForApplicationAsync<bool>(AppSettings.UiManagement.SearchActive)
             },
             SubHeader = new ThemeSubHeaderSettingsDto
             {
                 FixedSubHeader = true
             },
-            Footer = new ThemeFooterSettingsDto()
+            Footer = new ThemeFooterSettingsDto
             {
-                FooterWidthType = await GetSettingValueForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType)
+                FooterWidthType =
+                    await GetSettingValueForApplicationAsync(AppSettings.UiManagement.Footer.FooterWidthType)
             }
         };
     }
@@ -136,20 +152,23 @@ public class Theme13UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
             Layout = new ThemeLayoutSettingsDto
             {
                 LayoutType = await GetSettingValueForTenantAsync(AppSettings.UiManagement.LayoutType, tenantId),
-                DarkMode = await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.DarkMode, tenantId),
+                DarkMode = await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.DarkMode, tenantId)
             },
             Menu = new ThemeMenuSettingsDto
             {
-                FixedAside = await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.LeftAside.FixedAside, tenantId),
-                SearchActive = await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.SearchActive, tenantId)
+                FixedAside =
+                    await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.LeftAside.FixedAside, tenantId),
+                SearchActive =
+                    await GetSettingValueForTenantAsync<bool>(AppSettings.UiManagement.SearchActive, tenantId)
             },
             SubHeader = new ThemeSubHeaderSettingsDto
             {
                 FixedSubHeader = true
             },
-            Footer = new ThemeFooterSettingsDto()
+            Footer = new ThemeFooterSettingsDto
             {
-                FooterWidthType = await GetSettingValueForTenantAsync(AppSettings.UiManagement.Footer.FooterWidthType, tenantId)
+                FooterWidthType =
+                    await GetSettingValueForTenantAsync(AppSettings.UiManagement.Footer.FooterWidthType, tenantId)
             }
         };
     }
@@ -166,4 +185,3 @@ public class Theme13UiCustomizer : UiThemeCustomizerBase, IUiCustomizer
         return Task.FromResult("--kt-toolbar-height:55px;--kt-toolbar-height-tablet-and-mobile:55px");
     }
 }
-

@@ -9,14 +9,6 @@ namespace LotteryDetection.Storage;
 [Table("AppBinaryObjects")]
 public class BinaryObject : Entity<Guid>, IMayHaveTenant
 {
-    public virtual int? TenantId { get; set; }
-
-    public virtual string Description { get; set; }
-
-    [Required]
-    [MaxLength(BinaryObjectConsts.BytesMaxSize)]
-    public virtual byte[] Bytes { get; set; }
-
     public BinaryObject()
     {
         Id = SequentialGuidGenerator.Instance.Create();
@@ -29,5 +21,12 @@ public class BinaryObject : Entity<Guid>, IMayHaveTenant
         Bytes = bytes;
         Description = description;
     }
-}
 
+    public virtual string Description { get; set; }
+
+    [Required]
+    [MaxLength(BinaryObjectConsts.BytesMaxSize)]
+    public virtual byte[] Bytes { get; set; }
+
+    public virtual int? TenantId { get; set; }
+}

@@ -13,4 +13,3 @@ public interface IChatAppService : IApplicationService
 
     Task MarkAllUnreadMessagesOfUserAsRead(MarkAllUnreadMessagesOfUserAsReadInput input);
 }
-

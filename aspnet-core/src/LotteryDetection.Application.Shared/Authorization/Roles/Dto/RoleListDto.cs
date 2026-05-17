@@ -16,4 +16,3 @@ public class RoleListDto : EntityDto, IHasCreationTime
 
     public DateTime CreationTime { get; set; }
 }
-

@@ -14,17 +14,17 @@ namespace LotteryDetection.WebHooks;
 [AbpAuthorize(AppPermissions.Pages_Administration_WebhookSubscription)]
 public class WebhookSubscriptionAppService : LotteryDetectionAppServiceBase, IWebhookSubscriptionAppService
 {
-    private readonly IWebhookSubscriptionManager _webHookSubscriptionManager;
     private readonly IAppWebhookPublisher _appWebhookPublisher;
-    private readonly IWebhookDefinitionManager _webhookDefinitionManager;
     private readonly ILocalizationContext _localizationContext;
+    private readonly IWebhookDefinitionManager _webhookDefinitionManager;
+    private readonly IWebhookSubscriptionManager _webHookSubscriptionManager;
 
     public WebhookSubscriptionAppService(
         IWebhookSubscriptionManager webHookSubscriptionManager,
         IAppWebhookPublisher appWebhookPublisher,
         IWebhookDefinitionManager webhookDefinitionManager,
         ILocalizationContext localizationContext
-        )
+    )
     {
         _webHookSubscriptionManager = webHookSubscriptionManager;
         _appWebhookPublisher = appWebhookPublisher;
@@ -32,24 +32,18 @@ public class WebhookSubscriptionAppService : LotteryDetectionAppServiceBase, IWe
         _localizationContext = localizationContext;
     }
 
-    public async Task<string> PublishTestWebhook()
-    {
-        await _appWebhookPublisher.PublishTestWebhook();
-        return L("WebhookSendAttemptInQueue") + "(" + L("YouHaveToSubscribeToTestWebhookToReceiveTestEvent") + ")";
-    }
-
     public async Task<ListResultDto<GetAllSubscriptionsOutput>> GetAllSubscriptions()
     {
         var subscriptions = await _webHookSubscriptionManager.GetAllSubscriptionsAsync(AbpSession.TenantId);
         return new ListResultDto<GetAllSubscriptionsOutput>(
             ObjectMapper.Map<List<GetAllSubscriptionsOutput>>(subscriptions)
-            );
+        );
     }
 
     [AbpAuthorize(
-        AppPermissions.Pages_Administration_WebhookSubscription_Create,
-        AppPermissions.Pages_Administration_WebhookSubscription_Edit,
-        AppPermissions.Pages_Administration_WebhookSubscription_Detail
+            AppPermissions.Pages_Administration_WebhookSubscription_Create,
+            AppPermissions.Pages_Administration_WebhookSubscription_Edit,
+            AppPermissions.Pages_Administration_WebhookSubscription_Detail
         )
     ]
     public async Task<WebhookSubscription> GetSubscription(string subscriptionId)
@@ -68,10 +62,7 @@ public class WebhookSubscriptionAppService : LotteryDetectionAppServiceBase, IWe
     [AbpAuthorize(AppPermissions.Pages_Administration_WebhookSubscription_Edit)]
     public async Task UpdateSubscription(WebhookSubscription subscription)
     {
-        if (subscription.Id == default)
-        {
-            throw new ArgumentNullException(nameof(subscription.Id));
-        }
+        if (subscription.Id == default) throw new ArgumentNullException(nameof(subscription.Id));
 
         subscription.TenantId = AbpSession.TenantId;
 
@@ -91,7 +82,9 @@ public class WebhookSubscriptionAppService : LotteryDetectionAppServiceBase, IWe
 
     public async Task<ListResultDto<GetAllSubscriptionsOutput>> GetAllSubscriptionsIfFeaturesGranted(string webhookName)
     {
-        var subscriptions = await _webHookSubscriptionManager.GetAllSubscriptionsIfFeaturesGrantedAsync(AbpSession.TenantId, webhookName);
+        var subscriptions =
+            await _webHookSubscriptionManager.GetAllSubscriptionsIfFeaturesGrantedAsync(AbpSession.TenantId,
+                webhookName);
         return new ListResultDto<GetAllSubscriptionsOutput>(
             ObjectMapper.Map<List<GetAllSubscriptionsOutput>>(subscriptions)
         );
@@ -103,18 +96,20 @@ public class WebhookSubscriptionAppService : LotteryDetectionAppServiceBase, IWe
         var definitions = new List<GetAllAvailableWebhooksOutput>();
 
         foreach (var webhookDefinition in webhooks)
-        {
             if (await _webhookDefinitionManager.IsAvailableAsync(AbpSession.TenantId, webhookDefinition.Name))
-            {
-                definitions.Add(new GetAllAvailableWebhooksOutput()
+                definitions.Add(new GetAllAvailableWebhooksOutput
                 {
                     Name = webhookDefinition.Name,
                     Description = webhookDefinition.Description?.Localize(_localizationContext),
                     DisplayName = webhookDefinition.DisplayName?.Localize(_localizationContext)
                 });
-            }
-        }
 
         return new ListResultDto<GetAllAvailableWebhooksOutput>(definitions.OrderBy(d => d.Name).ToList());
+    }
+
+    public async Task<string> PublishTestWebhook()
+    {
+        await _appWebhookPublisher.PublishTestWebhook();
+        return L("WebhookSendAttemptInQueue") + "(" + L("YouHaveToSubscribeToTestWebhookToReceiveTestEvent") + ")";
     }
 }

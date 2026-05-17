@@ -18,4 +18,3 @@ public class SubscriptionPaymentProductDto : EntityDto<long>
         return Amount * Count;
     }
 }
-

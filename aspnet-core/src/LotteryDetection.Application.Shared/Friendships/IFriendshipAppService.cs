@@ -20,4 +20,3 @@ public interface IFriendshipAppService : IApplicationService
 
     Task RemoveFriend(RemoveFriendInput input);
 }
-

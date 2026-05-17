@@ -1,4 +1,8 @@
-﻿using Abp.Application.Features;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp.Application.Features;
 using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using Abp.Configuration;
@@ -9,38 +13,30 @@ using Abp.Timing;
 using Abp.UI;
 using Abp.Zero.Configuration;
 using LotteryDetection.Configuration;
-using LotteryDetection.Debugging;
 using LotteryDetection.Editions;
 using LotteryDetection.Editions.Dto;
+using LotteryDetection.ExtraProperties;
 using LotteryDetection.Features;
 using LotteryDetection.MultiTenancy.Dto;
-using LotteryDetection.MultiTenancy.Payments.Dto;
+using LotteryDetection.MultiTenancy.Payments;
+using LotteryDetection.MultiTenancy.Subscription;
 using LotteryDetection.Notifications;
 using LotteryDetection.Security.Recaptcha;
 using LotteryDetection.Url;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Abp.Extensions;
-using LotteryDetection.ExtraProperties;
-using LotteryDetection.MultiTenancy.Payments;
-using LotteryDetection.MultiTenancy.Subscription;
 
 namespace LotteryDetection.MultiTenancy;
 
 public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITenantRegistrationAppService
 {
-    public IAppUrlService AppUrlService { get; set; }
+    private readonly IAppNotifier _appNotifier;
+    private readonly EditionManager _editionManager;
+    private readonly ILocalizationContext _localizationContext;
 
     private readonly IMultiTenancyConfig _multiTenancyConfig;
-    private readonly IRecaptchaValidator _recaptchaValidator;
-    private readonly EditionManager _editionManager;
-    private readonly IAppNotifier _appNotifier;
-    private readonly ILocalizationContext _localizationContext;
-    private readonly TenantManager _tenantManager;
     private readonly IPaymentManager _paymentManager;
+    private readonly IRecaptchaValidator _recaptchaValidator;
     private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
+    private readonly TenantManager _tenantManager;
     private readonly IWebUrlService _webUrlService;
 
     public TenantRegistrationAppService(
@@ -67,25 +63,20 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         AppUrlService = NullAppUrlService.Instance;
     }
 
+    public IAppUrlService AppUrlService { get; set; }
+
     public async Task<RegisterTenantOutput> RegisterTenant(RegisterTenantInput input)
     {
         if (input.EditionId.HasValue)
-        {
             await CheckEditionSubscriptionAsync(input.EditionId.Value, input.SubscriptionStartType);
-        }
         else
-        {
             await CheckRegistrationWithoutEdition();
-        }
 
         using (CurrentUnitOfWork.SetTenantId(null))
         {
             CheckTenantRegistrationIsEnabled();
 
-            if (UseCaptchaOnRegistration())
-            {
-                await _recaptchaValidator.ValidateAsync(input.CaptchaResponse);
-            }
+            if (UseCaptchaOnRegistration()) await _recaptchaValidator.ValidateAsync(input.CaptchaResponse);
 
             //Getting host-specific settings
             var isActive = await IsNewRegisteredTenantActiveByDefault(input.SubscriptionStartType);
@@ -115,13 +106,13 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
                 null,
                 isActive,
                 input.EditionId,
-                shouldChangePasswordOnNextLogin: false,
-                sendActivationEmail: true,
+                false,
+                true,
                 subscriptionEndDate,
                 isInTrialPeriod,
                 AppUrlService.CreateEmailActivationUrlFormat(input.TenancyName),
-                adminName: input.AdminName,
-                adminSurname: input.AdminSurname
+                input.AdminName,
+                input.AdminSurname
             );
 
             var tenant = await TenantManager.GetByIdAsync(tenantId);
@@ -142,27 +133,27 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
                     SuccessUrl = input.SuccessUrl,
                     ErrorUrl = input.ErrorUrl,
                     ExtraProperties = new ExtraPropertyDictionary
-                        {
-                            {PaymentConsts.PlanType, PaymentConsts.EditionSubscriptionPlan},
-                            {PaymentConsts.PlanId, edition.GetPlanId(input.PaymentPeriodType.Value)}
-                        },
+                    {
+                        { PaymentConsts.PlanType, PaymentConsts.EditionSubscriptionPlan },
+                        { PaymentConsts.PlanId, edition.GetPlanId(input.PaymentPeriodType.Value) }
+                    },
                     SubscriptionPaymentProducts =
                     [
                         new SubscriptionPaymentProduct(
-                                edition.DisplayName,
-                                edition.GetPaymentAmount(input.PaymentPeriodType),
-                                1,
-                                edition.GetPaymentAmount(input.PaymentPeriodType),
-                                new ExtraPropertyDictionary
+                            edition.DisplayName,
+                            edition.GetPaymentAmount(input.PaymentPeriodType),
+                            1,
+                            edition.GetPaymentAmount(input.PaymentPeriodType),
+                            new ExtraPropertyDictionary
+                            {
+                                { PaymentConsts.TenantId, tenantId.ToString() },
+                                { PaymentConsts.EditionId, edition.Id.ToString() },
                                 {
-                                    {PaymentConsts.TenantId, tenantId.ToString()},
-                                    {PaymentConsts.EditionId, edition.Id.ToString()},
-                                    {
-                                        PaymentConsts.SubscriptionStartType,
-                                        ((int) input.SubscriptionStartType).ToString()
-                                    }
+                                    PaymentConsts.SubscriptionStartType,
+                                    ((int)input.SubscriptionStartType).ToString()
                                 }
-                            )
+                            }
+                        )
                     ]
                 });
             }
@@ -187,27 +178,19 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         var payment = await _subscriptionPaymentRepository.GetPaymentWithProducts(paymentId);
 
         if (!payment.SubscriptionPaymentProducts.Any())
-        {
             throw new ApplicationException("There is product in this payment !");
-        }
 
         var editionId = payment.GetEditionId();
         var tenantId = payment.TenantId;
 
         if (AbpSession.GetTenantId() != tenantId)
-        {
             throw new ApplicationException("This payment belongs to another tenant !");
-        }
 
         if (payment.Status != SubscriptionPaymentStatus.Paid)
-        {
             throw new ApplicationException("Your payment is not completed !");
-        }
 
         if (!editionId.HasValue)
-        {
             throw new ApplicationException("There is no edition information in the payment record !");
-        }
 
         payment.SetAsCompleted();
 
@@ -227,9 +210,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         var editionId = payment.GetEditionId();
 
         if (payment.Status != SubscriptionPaymentStatus.Paid)
-        {
             throw new ApplicationException("Your payment is not completed !");
-        }
 
         payment.SetAsCompleted();
 
@@ -249,9 +230,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         var editionId = payment.GetTargetEditionId();
 
         if (payment.Status != SubscriptionPaymentStatus.Paid)
-        {
             throw new ApplicationException("Your payment is not completed !");
-        }
 
         payment.SetAsCompleted();
 
@@ -271,9 +250,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         var editionId = payment.SubscriptionPaymentProducts.First().GetProperty<int>("EditionId");
 
         if (payment.Status != SubscriptionPaymentStatus.Paid)
-        {
             throw new ApplicationException("Your payment is not completed !");
-        }
 
         payment.SetAsCompleted();
 
@@ -308,9 +285,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
 
         var editionWithFeatures = new List<EditionWithFeaturesDto>();
         foreach (var edition in editions)
-        {
             editionWithFeatures.Add(await CreateEditionWithFeaturesDto(edition, featureDictionary));
-        }
 
         if (AbpSession.UserId.HasValue)
         {
@@ -322,7 +297,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
                 editionWithFeatures = editionWithFeatures.Where(e => e.Edition.Id != currentEditionId).ToList();
 
                 var currentEdition =
-                    (SubscribableEdition)(await _editionManager.GetByIdAsync(currentEditionId.Value));
+                    (SubscribableEdition)await _editionManager.GetByIdAsync(currentEditionId.Value);
                 if (!currentEdition.IsFree)
                 {
                     var lastPayment = await _subscriptionPaymentRepository.GetLastCompletedPaymentOrDefaultAsync(
@@ -331,14 +306,12 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
                         null);
 
                     if (lastPayment != null)
-                    {
                         editionWithFeatures = editionWithFeatures
                             .Where(e =>
                                 e.Edition.GetPaymentAmount(lastPayment.PaymentPeriodType) >
                                 currentEdition.GetPaymentAmount(lastPayment.PaymentPeriodType)
                             )
                             .ToList();
-                    }
                 }
             }
         }
@@ -346,7 +319,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         return new EditionsSelectOutput
         {
             AllFeatures = flatFeatures,
-            EditionsWithFeatures = editionWithFeatures,
+            EditionsWithFeatures = editionWithFeatures
         };
     }
 
@@ -360,10 +333,7 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
 
     private async Task<bool> IsNewRegisteredTenantActiveByDefault(SubscriptionStartType subscriptionStartType)
     {
-        if (subscriptionStartType == SubscriptionStartType.Paid)
-        {
-            return false;
-        }
+        if (subscriptionStartType == SubscriptionStartType.Paid) return false;
 
         return await SettingManager.GetSettingValueForApplicationAsync<bool>(AppSettings.TenantManagement
             .IsNewRegisteredTenantActiveByDefault);
@@ -373,10 +343,8 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
     {
         var editions = await _editionManager.GetAllAsync();
         if (editions.Any())
-        {
             throw new Exception(
                 "Tenant registration is not allowed without edition because there are editions defined !");
-        }
     }
 
     private async Task<EditionWithFeaturesDto> CreateEditionWithFeaturesDto(SubscribableEdition edition,
@@ -398,14 +366,9 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
     private void CheckTenantRegistrationIsEnabled()
     {
         if (!IsSelfRegistrationEnabled())
-        {
             throw new UserFriendlyException(L("SelfTenantRegistrationIsDisabledMessage_Detail"));
-        }
 
-        if (!_multiTenancyConfig.IsEnabled)
-        {
-            throw new UserFriendlyException(L("MultiTenancyIsNotEnabled"));
-        }
+        if (!_multiTenancyConfig.IsEnabled) throw new UserFriendlyException(L("MultiTenancyIsNotEnabled"));
     }
 
     private bool IsSelfRegistrationEnabled()
@@ -433,24 +396,15 @@ public class TenantRegistrationAppService : LotteryDetectionAppServiceBase, ITen
         switch (subscriptionStartType)
         {
             case SubscriptionStartType.Free:
-                if (!edition.IsFree)
-                {
-                    throw new Exception("This is not a free edition !");
-                }
+                if (!edition.IsFree) throw new Exception("This is not a free edition !");
 
                 break;
             case SubscriptionStartType.Trial:
-                if (!edition.HasTrial())
-                {
-                    throw new Exception("Trial is not available for this edition !");
-                }
+                if (!edition.HasTrial()) throw new Exception("Trial is not available for this edition !");
 
                 break;
             case SubscriptionStartType.Paid:
-                if (edition.IsFree)
-                {
-                    throw new Exception("This is a free edition and cannot be subscribed as paid !");
-                }
+                if (edition.IsFree) throw new Exception("This is a free edition and cannot be subscribed as paid !");
 
                 break;
         }

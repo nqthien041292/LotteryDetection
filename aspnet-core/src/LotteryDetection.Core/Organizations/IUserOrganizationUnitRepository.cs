@@ -10,4 +10,3 @@ public interface IUserOrganizationUnitRepository : IRepository<UserOrganizationU
 {
     Task<List<UserIdentifier>> GetAllUsersInOrganizationUnitHierarchical(long[] organizationUnitIds);
 }
-

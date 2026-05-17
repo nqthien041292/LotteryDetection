@@ -13,4 +13,3 @@ public class OpenIddictTokenRepository : EfCoreOpenIddictTokenRepository<Lottery
     {
     }
 }
-

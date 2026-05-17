@@ -1,14 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Abp.Extensions;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Web.Url;
 
 public abstract class WebUrlServiceBase
 {
     public const string TenancyNamePlaceHolder = "{TENANCY_NAME}";
+
+    private readonly IConfigurationRoot _appConfiguration;
+
+    public WebUrlServiceBase(IAppConfigurationAccessor configurationAccessor)
+    {
+        _appConfiguration = configurationAccessor.Configuration;
+    }
 
     public abstract string WebSiteRootAddressFormatKey { get; }
 
@@ -41,13 +48,6 @@ public abstract class WebUrlServiceBase
         }
     }
 
-    readonly IConfigurationRoot _appConfiguration;
-
-    public WebUrlServiceBase(IAppConfigurationAccessor configurationAccessor)
-    {
-        _appConfiguration = configurationAccessor.Configuration;
-    }
-
     public string GetSiteRootAddress(string tenancyName = null)
     {
         return ReplaceTenancyNameInUrl(WebSiteRootAddressFormat, tenancyName);
@@ -66,17 +66,11 @@ public abstract class WebUrlServiceBase
 
     private string ReplaceTenancyNameInUrl(string siteRootFormat, string tenancyName)
     {
-        if (!siteRootFormat.Contains(TenancyNamePlaceHolder))
-        {
-            return siteRootFormat;
-        }
+        if (!siteRootFormat.Contains(TenancyNamePlaceHolder)) return siteRootFormat;
 
         if (siteRootFormat.Contains(TenancyNamePlaceHolder + ".") && tenancyName.IsNullOrEmpty())
-        {
             return siteRootFormat.Replace(TenancyNamePlaceHolder + ".", "");
-        }
 
         return siteRootFormat.Replace(TenancyNamePlaceHolder, tenancyName);
     }
 }
-

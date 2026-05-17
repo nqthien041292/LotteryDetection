@@ -6,4 +6,3 @@ public class HostBillingSettingsEditDto
 
     public string Address { get; set; }
 }
-

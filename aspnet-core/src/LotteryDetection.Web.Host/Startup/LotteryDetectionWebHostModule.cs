@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Abp.AspNetZeroCore;
 using Abp.AspNetZeroCore.Web.Authentication.External;
 using Abp.AspNetZeroCore.Web.Authentication.External.Facebook;
 using Abp.AspNetZeroCore.Web.Authentication.External.Google;
@@ -13,16 +12,14 @@ using Abp.Extensions;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Abp.Threading.BackgroundWorkers;
-using Abp.Timing;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using LotteryDetection.Auditing;
 using LotteryDetection.Authorization.Users.Password;
 using LotteryDetection.Configuration;
 using LotteryDetection.EntityFrameworkCore;
-using LotteryDetection.MultiTenancy;
 using LotteryDetection.MultiTenancy.Subscription;
 using LotteryDetection.Web.Startup.ExternalLoginInfoProviders;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace LotteryDetection.Web.Startup;
 
@@ -31,8 +28,8 @@ namespace LotteryDetection.Web.Startup;
 )]
 public class LotteryDetectionWebHostModule : AbpModule
 {
-    private readonly IWebHostEnvironment _env;
     private readonly IConfigurationRoot _appConfiguration;
+    private readonly IWebHostEnvironment _env;
 
     public LotteryDetectionWebHostModule(
         IWebHostEnvironment env)
@@ -56,10 +53,7 @@ public class LotteryDetectionWebHostModule : AbpModule
     {
         using (var scope = IocManager.CreateScope())
         {
-            if (!scope.Resolve<DatabaseCheckHelper>().Exist(_appConfiguration["ConnectionStrings:Default"]))
-            {
-                return;
-            }
+            if (!scope.Resolve<DatabaseCheckHelper>().Exist(_appConfiguration["ConnectionStrings:Default"])) return;
         }
 
         var workManager = IocManager.Resolve<IBackgroundWorkerManager>();
@@ -72,9 +66,7 @@ public class LotteryDetectionWebHostModule : AbpModule
 
         var expiredAuditLogDeleterWorker = IocManager.Resolve<ExpiredAuditLogDeleterWorker>();
         if (Configuration.Auditing.IsEnabled && expiredAuditLogDeleterWorker.IsEnabled)
-        {
             workManager.Add(expiredAuditLogDeleterWorker);
-        }
 
         workManager.Add(IocManager.Resolve<PasswordExpirationBackgroundWorker>());
 
@@ -138,17 +130,13 @@ public class LotteryDetectionWebHostModule : AbpModule
         if (bool.Parse(_appConfiguration["Authentication:Facebook:IsEnabled"]))
         {
             if (bool.Parse(_appConfiguration["Authentication:AllowSocialLoginSettingsPerTenant"]))
-            {
                 externalAuthConfiguration.ExternalLoginInfoProviders.Add(
                     IocManager.Resolve<TenantBasedFacebookExternalLoginInfoProvider>());
-            }
             else
-            {
                 externalAuthConfiguration.ExternalLoginInfoProviders.Add(new FacebookExternalLoginInfoProvider(
                     _appConfiguration["Authentication:Facebook:AppId"],
                     _appConfiguration["Authentication:Facebook:AppSecret"]
                 ));
-            }
         }
 
         if (bool.Parse(_appConfiguration["Authentication:Twitter:IsEnabled"]))
@@ -173,12 +161,9 @@ public class LotteryDetectionWebHostModule : AbpModule
         if (bool.Parse(_appConfiguration["Authentication:Google:IsEnabled"]))
         {
             if (bool.Parse(_appConfiguration["Authentication:AllowSocialLoginSettingsPerTenant"]))
-            {
                 externalAuthConfiguration.ExternalLoginInfoProviders.Add(
                     IocManager.Resolve<TenantBasedGoogleExternalLoginInfoProvider>());
-            }
             else
-            {
                 externalAuthConfiguration.ExternalLoginInfoProviders.Add(
                     new GoogleExternalLoginInfoProvider(
                         _appConfiguration["Authentication:Google:ClientId"],
@@ -186,26 +171,20 @@ public class LotteryDetectionWebHostModule : AbpModule
                         _appConfiguration["Authentication:Google:UserInfoEndpoint"]
                     )
                 );
-            }
         }
 
         if (bool.Parse(_appConfiguration["Authentication:Microsoft:IsEnabled"]))
         {
             if (bool.Parse(_appConfiguration["Authentication:AllowSocialLoginSettingsPerTenant"]))
-            {
                 externalAuthConfiguration.ExternalLoginInfoProviders.Add(
                     IocManager.Resolve<TenantBasedMicrosoftExternalLoginInfoProvider>());
-            }
             else
-            {
                 externalAuthConfiguration.ExternalLoginInfoProviders.Add(
                     new MicrosoftExternalLoginInfoProvider(
                         _appConfiguration["Authentication:Microsoft:ConsumerKey"],
                         _appConfiguration["Authentication:Microsoft:ConsumerSecret"]
                     )
                 );
-            }
         }
     }
 }
-

@@ -7,12 +7,12 @@ namespace LotteryDetection.Migrator;
 
 public class Log : ITransientDependency
 {
-    public ILogger Logger { get; set; }
-
     public Log()
     {
         Logger = NullLogger.Instance;
     }
+
+    public ILogger Logger { get; set; }
 
     public void Write(string text)
     {
@@ -20,4 +20,3 @@ public class Log : ITransientDependency
         Logger.Info(text);
     }
 }
-

@@ -19,4 +19,3 @@ public class FeatureMetadata
 
     public Func<string, string> TextHtmlColor { get; set; }
 }
-

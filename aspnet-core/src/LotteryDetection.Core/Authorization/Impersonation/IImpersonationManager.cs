@@ -11,4 +11,3 @@ public interface IImpersonationManager : IDomainService
 
     Task<string> GetBackToImpersonatorToken();
 }
-

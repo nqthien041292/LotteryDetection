@@ -16,11 +16,11 @@ namespace LotteryDetection.Friendships;
 [AbpAuthorize]
 public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipAppService
 {
+    private readonly IChatCommunicator _chatCommunicator;
+    private readonly IChatFeatureChecker _chatFeatureChecker;
     private readonly IFriendshipManager _friendshipManager;
     private readonly IOnlineClientManager _onlineClientManager;
-    private readonly IChatCommunicator _chatCommunicator;
     private readonly ITenantCache _tenantCache;
-    private readonly IChatFeatureChecker _chatFeatureChecker;
 
     public FriendshipAppService(
         IFriendshipManager friendshipManager,
@@ -44,9 +44,7 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
         _chatFeatureChecker.CheckChatFeatures(userIdentifier.TenantId, probableFriend.TenantId);
 
         if (await _friendshipManager.GetFriendshipOrNullAsync(userIdentifier, probableFriend) != null)
-        {
             throw new UserFriendlyException(L("YouAlreadySentAFriendshipRequestToThisUser"));
-        }
 
         var user = await UserManager.FindByIdAsync(AbpSession.GetUserId().ToString());
 
@@ -94,17 +92,6 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
         return sourceFriendshipRequest;
     }
 
-    private async Task<string> GetTenancyNameAsync(int? tenantId)
-    {
-        if (tenantId.HasValue)
-        {
-            var tenant = await _tenantCache.GetAsync(tenantId.Value);
-            return tenant.TenancyName;
-        }
-
-        return null;
-    }
-
     public async Task<FriendDto> CreateFriendshipWithDifferentTenant(CreateFriendshipWithDifferentTenantInput input)
     {
         var probableFriend = await GetUserIdentifier(input.TenancyName, input.UserName);
@@ -121,9 +108,7 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
         {
             var user = await UserManager.FindByNameOrEmailAsync(input.UserName);
             if (user == null)
-            {
                 throw new UserFriendlyException(L("ThereIsNoUserRegisteredWithNameOrEmail{0}", input.UserName));
-            }
 
             var probableFriend = user.ToUserIdentifier();
 
@@ -133,7 +118,6 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
                 UserId = probableFriend.UserId
             });
         }
-
     }
 
     public async Task BlockUser(BlockUserInput input)
@@ -144,10 +128,8 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
 
         var clients = await _onlineClientManager.GetAllByUserIdAsync(userIdentifier);
         if (clients.Any())
-        {
             await _chatCommunicator.SendUserStateChangeToClients(clients, friendIdentifier,
                 FriendshipState.Blocked);
-        }
     }
 
     public async Task UnblockUser(UnblockUserInput input)
@@ -158,10 +140,8 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
 
         var clients = await _onlineClientManager.GetAllByUserIdAsync(userIdentifier);
         if (clients.Any())
-        {
             await _chatCommunicator.SendUserStateChangeToClients(clients, friendIdentifier,
                 FriendshipState.Accepted);
-        }
     }
 
     public async Task AcceptFriendshipRequest(AcceptFriendshipRequestInput input)
@@ -172,10 +152,26 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
 
         var clients = await _onlineClientManager.GetAllByUserIdAsync(userIdentifier);
         if (clients.Any())
-        {
             await _chatCommunicator.SendUserStateChangeToClients(clients, friendIdentifier,
                 FriendshipState.Blocked);
+    }
+
+    public async Task RemoveFriend(RemoveFriendInput input)
+    {
+        var userIdentifier = AbpSession.ToUserIdentifier();
+        var friendIdentifier = new UserIdentifier(input.TenantId, input.UserId);
+        await _friendshipManager.RemoveFriendAsync(userIdentifier, friendIdentifier);
+    }
+
+    private async Task<string> GetTenancyNameAsync(int? tenantId)
+    {
+        if (tenantId.HasValue)
+        {
+            var tenant = await _tenantCache.GetAsync(tenantId.Value);
+            return tenant.TenancyName;
         }
+
+        return null;
     }
 
     private async Task<UserIdentifier> GetUserIdentifier(string tenancyName, string userName)
@@ -185,26 +181,19 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
         await CheckFeatures(tenancyName);
 
         if (!tenancyName.IsNullOrEmpty())
-        {
             using (CurrentUnitOfWork.SetTenantId(null))
             {
                 var tenant = await TenantManager.FindByTenancyNameAsync(tenancyName);
                 if (tenant == null)
-                {
                     throw new UserFriendlyException(L("ThereIsNoTenantDefinedWithName{0}", tenancyName));
-                }
 
                 tenantId = tenant.Id;
             }
-        }
 
         using (CurrentUnitOfWork.SetTenantId(tenantId))
         {
             var user = await UserManager.FindByNameOrEmailAsync(userName);
-            if (user == null)
-            {
-                throw new UserFriendlyException(L("ThereIsNoUserRegisteredWithNameOrEmail{0}", userName));
-            }
+            if (user == null) throw new UserFriendlyException(L("ThereIsNoUserRegisteredWithNameOrEmail{0}", userName));
 
             return user.ToUserIdentifier();
         }
@@ -212,10 +201,7 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
 
     private async Task CheckFeatures(string tenancyName)
     {
-        if (AbpSession.TenantId == null)
-        {
-            return;
-        }
+        if (AbpSession.TenantId == null) return;
 
         var tenantToTenantAllowed = await FeatureChecker.IsEnabledAsync
             ("App.ChatFeature.TenantToTenant");
@@ -225,24 +211,11 @@ public class FriendshipAppService : LotteryDetectionAppServiceBase, IFriendshipA
 
         if (tenancyName.IsNullOrEmpty())
         {
-            if (!tenantToHostAllowed)
-            {
-                throw new UserFriendlyException(L("TenantToHostChatIsNotEnabled"));
-            }
+            if (!tenantToHostAllowed) throw new UserFriendlyException(L("TenantToHostChatIsNotEnabled"));
         }
         else
         {
-            if (!tenantToTenantAllowed)
-            {
-                throw new UserFriendlyException(L("TenantToTenantChatIsNotEnabled"));
-            }
+            if (!tenantToTenantAllowed) throw new UserFriendlyException(L("TenantToTenantChatIsNotEnabled"));
         }
-    }
-
-    public async Task RemoveFriend(RemoveFriendInput input)
-    {
-        var userIdentifier = AbpSession.ToUserIdentifier();
-        var friendIdentifier = new UserIdentifier(input.TenantId, input.UserId);
-        await _friendshipManager.RemoveFriendAsync(userIdentifier, friendIdentifier);
     }
 }

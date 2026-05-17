@@ -12,4 +12,3 @@ public class DynamicEntityPropertyDto : EntityDto
 
     public int? TenantId { get; set; }
 }
-

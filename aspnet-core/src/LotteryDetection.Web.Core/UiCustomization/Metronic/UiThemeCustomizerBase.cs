@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Abp;
 using Abp.Configuration;
 using Abp.Extensions;
@@ -73,14 +72,10 @@ public class UiThemeCustomizerBase
     {
         string applicationDefault;
         if (user.TenantId.HasValue)
-        {
-            applicationDefault = await GetSettingValueForTenantAsync(AppSettings.UiManagement.DarkMode, user.TenantId.Value);
-        }
+            applicationDefault =
+                await GetSettingValueForTenantAsync(AppSettings.UiManagement.DarkMode, user.TenantId.Value);
         else
-        {
-
             applicationDefault = await GetSettingValueForApplicationAsync(AppSettings.UiManagement.DarkMode);
-        }
 
         await ChangeSettingForUserAsync(user, AppSettings.UiManagement.DarkMode, applicationDefault);
     }
@@ -95,4 +90,3 @@ public class UiThemeCustomizerBase
         return Task.FromResult("");
     }
 }
-

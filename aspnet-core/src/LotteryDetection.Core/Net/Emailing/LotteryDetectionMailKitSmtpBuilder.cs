@@ -11,8 +11,8 @@ namespace LotteryDetection.Net.Emailing;
 
 public class LotteryDetectionMailKitSmtpBuilder : DefaultMailKitSmtpBuilder
 {
-    private readonly ILocalizationManager _localizationManager;
     private readonly IEmailSettingsChecker _emailSettingsChecker;
+    private readonly ILocalizationManager _localizationManager;
 
     public LotteryDetectionMailKitSmtpBuilder(
         ISmtpEmailSenderConfiguration smtpEmailSenderConfiguration,
@@ -27,9 +27,7 @@ public class LotteryDetectionMailKitSmtpBuilder : DefaultMailKitSmtpBuilder
     protected override void ConfigureClient(SmtpClient client)
     {
         if (!_emailSettingsChecker.EmailSettingsValid())
-        {
             throw new UserFriendlyException(L("SMTPSettingsNotProvidedWarningText"));
-        }
 
         client.ServerCertificateValidationCallback = SslCertificateValidationCallback;
         base.ConfigureClient(client);
@@ -40,7 +38,8 @@ public class LotteryDetectionMailKitSmtpBuilder : DefaultMailKitSmtpBuilder
         return _localizationManager.GetString(LotteryDetectionConsts.LocalizationSourceName, name);
     }
 
-    private static bool SslCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+    private static bool SslCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain,
+        SslPolicyErrors sslPolicyErrors)
     {
         // If there are no errors, then everything went smoothly.
         if (sslPolicyErrors == SslPolicyErrors.None)
@@ -59,9 +58,12 @@ public class LotteryDetectionMailKitSmtpBuilder : DefaultMailKitSmtpBuilder
         if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
         {
             // This means that the server's SSL certificate did not match the host name that we are trying to connect to.
-            var cn = certificate is X509Certificate2 certificate2 ? certificate2.GetNameInfo(X509NameType.SimpleName, false) : certificate.Subject;
+            var cn = certificate is X509Certificate2 certificate2
+                ? certificate2.GetNameInfo(X509NameType.SimpleName, false)
+                : certificate.Subject;
 
-            Console.WriteLine("The Common Name for the SSL certificate did not match {0}. Instead, it was {1}.", host, cn);
+            Console.WriteLine("The Common Name for the SSL certificate did not match {0}. Instead, it was {1}.", host,
+                cn);
             return false;
         }
 
@@ -80,13 +82,10 @@ public class LotteryDetectionMailKitSmtpBuilder : DefaultMailKitSmtpBuilder
 
             Console.WriteLine("\u2022 {0}", element.Certificate.Subject);
             foreach (var error in element.ChainElementStatus)
-            {
                 // `error.StatusInformation` contains a human-readable error string while `error.Status` is the corresponding enum value.
                 Console.WriteLine("\t\u2022 {0}", error.StatusInformation);
-            }
         }
 
         return false;
     }
 }
-

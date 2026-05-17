@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services;
-using LotteryDetection.MultiTenancy.Payments.Dto;
 using Abp.Application.Services.Dto;
+using LotteryDetection.MultiTenancy.Payments.Dto;
 
 namespace LotteryDetection.MultiTenancy.Payments;
 
@@ -26,4 +26,3 @@ public interface IPaymentAppService : IApplicationService
 
     Task<bool> HasAnyPayment();
 }
-

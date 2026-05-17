@@ -8,4 +8,3 @@ public class GetPublishedNotificationsInput
 
     public DateTime? EndDate { get; set; }
 }
-

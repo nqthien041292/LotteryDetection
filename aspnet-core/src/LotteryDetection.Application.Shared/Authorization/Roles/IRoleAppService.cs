@@ -6,7 +6,7 @@ using LotteryDetection.Authorization.Roles.Dto;
 namespace LotteryDetection.Authorization.Roles;
 
 /// <summary>
-/// Application service that is used by 'role management' page.
+///     Application service that is used by 'role management' page.
 /// </summary>
 public interface IRoleAppService : IApplicationService
 {
@@ -18,4 +18,3 @@ public interface IRoleAppService : IApplicationService
 
     Task DeleteRole(EntityDto input);
 }
-

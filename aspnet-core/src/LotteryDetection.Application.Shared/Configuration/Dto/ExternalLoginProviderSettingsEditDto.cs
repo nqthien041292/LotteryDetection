@@ -33,4 +33,3 @@ public class ExternalLoginProviderSettingsEditDto
 
     public List<JsonClaimMapDto> WsFederationClaimsMapping { get; set; }
 }
-

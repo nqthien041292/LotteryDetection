@@ -9,4 +9,3 @@ public class SendTestEmailInput
     [MaxLength(AbpUserBase.MaxEmailAddressLength)]
     public string EmailAddress { get; set; }
 }
-

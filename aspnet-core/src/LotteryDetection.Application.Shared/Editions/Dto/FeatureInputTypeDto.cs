@@ -14,4 +14,3 @@ public class FeatureInputTypeDto
 
     public LocalizableComboboxItemSourceDto ItemSource { get; set; }
 }
-

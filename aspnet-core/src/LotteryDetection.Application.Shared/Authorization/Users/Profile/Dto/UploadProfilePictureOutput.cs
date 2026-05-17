@@ -6,7 +6,6 @@ public class UploadProfilePictureOutput : ErrorInfo
 {
     public UploadProfilePictureOutput()
     {
-
     }
 
     public UploadProfilePictureOutput(ErrorInfo error)
@@ -17,4 +16,3 @@ public class UploadProfilePictureOutput : ErrorInfo
         ValidationErrors = error.ValidationErrors;
     }
 }
-

@@ -2,10 +2,6 @@
 
 public class TempFileInfo
 {
-    public string FileName { get; set; }
-    public string FileType { get; set; }
-    public byte[] File { get; set; }
-
     public TempFileInfo()
     {
     }
@@ -21,5 +17,8 @@ public class TempFileInfo
         FileType = fileType;
         File = file;
     }
-}
 
+    public string FileName { get; set; }
+    public string FileType { get; set; }
+    public byte[] File { get; set; }
+}

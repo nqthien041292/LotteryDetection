@@ -18,4 +18,3 @@ public class AppDynamicEntityPropertyDefinitionProvider : DynamicEntityPropertyD
         context.Manager.AddEntity<User, long>();
     }
 }
-

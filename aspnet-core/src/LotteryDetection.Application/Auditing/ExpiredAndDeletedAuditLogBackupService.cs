@@ -14,9 +14,8 @@ namespace LotteryDetection.Auditing;
 public class ExpiredAndDeletedAuditLogBackupService : MiniExcelExcelExporterBase,
     IExpiredAndDeletedAuditLogBackupService
 {
-    private readonly bool _isBackupEnabled;
-
     private readonly IAppConfigurationAccessor _configurationAccessor;
+    private readonly bool _isBackupEnabled;
     private readonly ITempFileCacheManager _tempFileCacheManager;
 
     public ExpiredAndDeletedAuditLogBackupService(
@@ -32,39 +31,37 @@ public class ExpiredAndDeletedAuditLogBackupService : MiniExcelExcelExporterBase
             true.ToString();
     }
 
-    public bool CanBackup() => _isBackupEnabled;
+    public bool CanBackup()
+    {
+        return _isBackupEnabled;
+    }
 
     public async Task Backup(List<AuditLog> auditLogs)
     {
-        if (auditLogs.Count == 0)
-        {
-            return;
-        }
+        if (auditLogs.Count == 0) return;
 
         var items = new List<Dictionary<string, object>>();
 
         foreach (var auditLog in auditLogs)
-        {
-            items.Add(new Dictionary<string, object>()
+            items.Add(new Dictionary<string, object>
             {
-                {L("TenantId"), auditLog.TenantId},
-                {L("UserId"), auditLog.UserId},
-                {L("ServiceName"), auditLog.ServiceName},
-                {L("MethodName"), auditLog.MethodName},
-                {L("Parameters"), auditLog.Parameters},
-                {L("ReturnValue"), auditLog.ReturnValue},
-                {L("ExecutionTime"), auditLog.ExecutionTime},
-                {L("ExecutionDuration"), auditLog.ExecutionDuration},
-                {L("ClientIpAddress"), auditLog.ClientIpAddress},
-                {L("ClientName"), auditLog.ClientName},
-                {L("BrowserInfo"), auditLog.BrowserInfo},
-                {L("Exception"), auditLog.Exception},
-                {L("ExceptionMessage"), auditLog.ExceptionMessage},
-                {L("ImpersonatorUserId"), auditLog.ImpersonatorUserId},
-                {L("ImpersonatorTenantId"), auditLog.ImpersonatorTenantId},
-                {L("CustomData"), auditLog.CustomData},
+                { L("TenantId"), auditLog.TenantId },
+                { L("UserId"), auditLog.UserId },
+                { L("ServiceName"), auditLog.ServiceName },
+                { L("MethodName"), auditLog.MethodName },
+                { L("Parameters"), auditLog.Parameters },
+                { L("ReturnValue"), auditLog.ReturnValue },
+                { L("ExecutionTime"), auditLog.ExecutionTime },
+                { L("ExecutionDuration"), auditLog.ExecutionDuration },
+                { L("ClientIpAddress"), auditLog.ClientIpAddress },
+                { L("ClientName"), auditLog.ClientName },
+                { L("BrowserInfo"), auditLog.BrowserInfo },
+                { L("Exception"), auditLog.Exception },
+                { L("ExceptionMessage"), auditLog.ExceptionMessage },
+                { L("ImpersonatorUserId"), auditLog.ImpersonatorUserId },
+                { L("ImpersonatorTenantId"), auditLog.ImpersonatorTenantId },
+                { L("CustomData"), auditLog.CustomData }
             });
-        }
 
         await CreateExcelPackageAsync(
             "AuditLogBackup_" + DateTime.UtcNow.ToString("yyyy-MM-ddTHH.mm.ss.FFFZ") + ".xlsx",
@@ -76,15 +73,9 @@ public class ExpiredAndDeletedAuditLogBackupService : MiniExcelExcelExporterBase
     {
         var backupFilePath =
             _configurationAccessor.Configuration["App:AuditLog:AutoDeleteExpiredLogs:ExcelBackup:FilePath"];
-        if (string.IsNullOrWhiteSpace(backupFilePath))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(backupFilePath)) return;
 
-        if (!Directory.Exists(backupFilePath))
-        {
-            Directory.CreateDirectory(backupFilePath);
-        }
+        if (!Directory.Exists(backupFilePath)) Directory.CreateDirectory(backupFilePath);
 
         using (var stream = new MemoryStream())
         {

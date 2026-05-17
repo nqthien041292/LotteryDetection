@@ -7,11 +7,11 @@ using Abp.Collections.Extensions;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Runtime.Session;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization;
 using LotteryDetection.Common.Dto;
 using LotteryDetection.Editions;
 using LotteryDetection.Editions.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Common;
 
@@ -25,14 +25,16 @@ public class CommonLookupAppService : LotteryDetectionAppServiceBase, ICommonLoo
         _editionManager = editionManager;
     }
 
-    public async Task<ListResultDto<SubscribableEditionComboboxItemDto>> GetEditionsForCombobox(bool onlyFreeItems = false)
+    public async Task<ListResultDto<SubscribableEditionComboboxItemDto>> GetEditionsForCombobox(
+        bool onlyFreeItems = false)
     {
         var subscribableEditions = (await _editionManager.Editions.Cast<SubscribableEdition>().ToListAsync())
             .WhereIf(onlyFreeItems, e => e.IsFree)
             .OrderBy(e => e.MonthlyPrice);
 
         return new ListResultDto<SubscribableEditionComboboxItemDto>(
-            subscribableEditions.Select(e => new SubscribableEditionComboboxItemDto(e.Id.ToString(), e.DisplayName, e.IsFree)).ToList()
+            subscribableEditions
+                .Select(e => new SubscribableEditionComboboxItemDto(e.Id.ToString(), e.DisplayName, e.IsFree)).ToList()
         );
     }
 
@@ -40,10 +42,8 @@ public class CommonLookupAppService : LotteryDetectionAppServiceBase, ICommonLoo
     public async Task<PagedResultDto<FindUsersOutputDto>> FindUsers(FindUsersInput input)
     {
         if (AbpSession.TenantId != null)
-        {
             //Prevent tenants to get other tenant's users.
             input.TenantId = AbpSession.TenantId;
-        }
 
         using (CurrentUnitOfWork.SetTenantId(input.TenantId))
         {

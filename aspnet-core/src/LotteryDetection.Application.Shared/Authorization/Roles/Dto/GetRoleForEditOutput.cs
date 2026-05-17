@@ -11,4 +11,3 @@ public class GetRoleForEditOutput
 
     public List<string> GrantedPermissionNames { get; set; }
 }
-

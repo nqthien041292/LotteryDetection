@@ -6,4 +6,3 @@ public class StripePaymentResultOutput
 
     public string CallbackUrl { get; set; }
 }
-

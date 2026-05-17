@@ -15,8 +15,8 @@ public static class PasswordlessLoginDependencyInjectionExtensions
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             options.AddPolicy("PasswordlessLoginLimiter", httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                    factory: _ => new FixedWindowRateLimiterOptions
+                    httpContext.Connection.RemoteIpAddress?.ToString(),
+                    _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 5,
                         Window = TimeSpan.FromSeconds(60)
@@ -26,4 +26,3 @@ public static class PasswordlessLoginDependencyInjectionExtensions
         });
     }
 }
-

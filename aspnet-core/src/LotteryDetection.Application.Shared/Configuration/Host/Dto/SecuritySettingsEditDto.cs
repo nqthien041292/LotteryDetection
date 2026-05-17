@@ -17,6 +17,4 @@ public class SecuritySettingsEditDto
     public TwoFactorLoginSettingsEditDto TwoFactorLogin { get; set; }
 
     public UserPasswordSettingsEditDto UserPasswordSettings { get; set; }
-
 }
-

@@ -11,18 +11,6 @@ namespace LotteryDetection.MultiTenancy.Payments;
 [MultiTenancySide(MultiTenancySides.Host)]
 public class SubscriptionPaymentProduct : FullAuditedEntity<long>, IHasExtraProperties
 {
-    public long SubscriptionPaymentId { get; set; }
-
-    public string Description { get; set; }
-
-    public decimal Amount { get; set; }
-
-    public int Count { get; private set; }
-
-    public decimal TotalAmount { get; private set; }
-
-    public ExtraPropertyDictionary ExtraProperties { get; set; }
-
     protected SubscriptionPaymentProduct()
     {
         ExtraProperties = new ExtraPropertyDictionary();
@@ -51,13 +39,24 @@ public class SubscriptionPaymentProduct : FullAuditedEntity<long>, IHasExtraProp
 
         Amount = amount.Value;
         Count = count;
-        TotalAmount = totalAmount ?? (amount.Value * Count);
+        TotalAmount = totalAmount ?? amount.Value * Count;
         ExtraProperties = extraProperties ?? new ExtraPropertyDictionary();
     }
+
+    public long SubscriptionPaymentId { get; set; }
+
+    public string Description { get; set; }
+
+    public decimal Amount { get; set; }
+
+    public int Count { get; }
+
+    public decimal TotalAmount { get; private set; }
+
+    public ExtraPropertyDictionary ExtraProperties { get; set; }
 
     public decimal GetTotalAmount()
     {
         return Amount * Count;
     }
 }
-

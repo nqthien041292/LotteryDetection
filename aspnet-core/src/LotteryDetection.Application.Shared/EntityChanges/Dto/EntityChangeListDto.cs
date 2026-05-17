@@ -1,6 +1,6 @@
-﻿using Abp.Application.Services.Dto;
+﻿using System;
+using Abp.Application.Services.Dto;
 using Abp.Events.Bus.Entities;
-using System;
 
 namespace LotteryDetection.EntityChanges.Dto;
 
@@ -24,4 +24,3 @@ public class EntityChangeListDto : EntityDto<long>
 
     public string ImpersonatorUserName { get; set; }
 }
-

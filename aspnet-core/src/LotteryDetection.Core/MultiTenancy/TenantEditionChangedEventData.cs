@@ -10,4 +10,3 @@ public class TenantEditionChangedEventData : EventData
 
     public int? NewEditionId { get; set; }
 }
-

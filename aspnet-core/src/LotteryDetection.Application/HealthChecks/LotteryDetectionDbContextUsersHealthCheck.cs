@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abp.Domain.Uow;
 using Abp.EntityFrameworkCore;
+using LotteryDetection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using LotteryDetection.EntityFrameworkCore;
 
 namespace LotteryDetection.HealthChecks;
 
@@ -17,13 +17,14 @@ public class LotteryDetectionDbContextUsersHealthCheck : IHealthCheck
     public LotteryDetectionDbContextUsersHealthCheck(
         IDbContextProvider<LotteryDetectionDbContext> dbContextProvider,
         IUnitOfWorkManager unitOfWorkManager
-        )
+    )
     {
         _dbContextProvider = dbContextProvider;
         _unitOfWorkManager = unitOfWorkManager;
     }
 
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+        CancellationToken cancellationToken = new())
     {
         try
         {
@@ -34,22 +35,19 @@ public class LotteryDetectionDbContextUsersHealthCheck : IHealthCheck
                 {
                     var dbContext = await _dbContextProvider.GetDbContextAsync();
                     if (!await dbContext.Database.CanConnectAsync(cancellationToken))
-                    {
                         return HealthCheckResult.Unhealthy(
                             "LotteryDetectionDbContext could not connect to database"
                         );
-                    }
 
                     var user = await dbContext.Users.AnyAsync(cancellationToken);
                     await uow.CompleteAsync();
 
                     if (user)
-                    {
-                        return HealthCheckResult.Healthy("LotteryDetectionDbContext connected to database and checked whether user added");
-                    }
+                        return HealthCheckResult.Healthy(
+                            "LotteryDetectionDbContext connected to database and checked whether user added");
 
-                    return HealthCheckResult.Unhealthy("LotteryDetectionDbContext connected to database but there is no user.");
-
+                    return HealthCheckResult.Unhealthy(
+                        "LotteryDetectionDbContext connected to database but there is no user.");
                 }
             }
         }

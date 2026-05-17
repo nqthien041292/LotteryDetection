@@ -10,4 +10,3 @@ public interface IUserLoginAppService : IApplicationService
     Task<PagedResultDto<UserLoginAttemptDto>> GetUserLoginAttempts(GetLoginAttemptsInput input);
     Task<string> GetExternalLoginProviderNameByUser(long userId);
 }
-

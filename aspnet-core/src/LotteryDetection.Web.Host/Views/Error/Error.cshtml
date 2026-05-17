@@ -1,6 +1,5 @@
 ﻿@using Abp.Collections.Extensions
 @using Abp.Extensions
-@using LotteryDetection.Web.TagHelpers
 @model Abp.Web.Mvc.Models.ErrorViewModel
 @{
     ViewBag.DisableTenantChange = true;
@@ -17,7 +16,7 @@
 <head>
     <title>LotteryDetection - Error</title>
 
-    <link abp-href="/view-resources/Views/Error/Index.css" rel="stylesheet" asp-append-version="true" />
+    <link abp-href="/view-resources/Views/Error/Index.css" rel="stylesheet" asp-append-version="true"/>
 </head>
 <div class="m-error_container">
     <span class="m-error_title">
@@ -33,12 +32,14 @@
         @if (!Model.ErrorInfo.ValidationErrors.IsNullOrEmpty())
         {
             foreach (var validationError in Model.ErrorInfo.ValidationErrors)
-                {
-                <text>* </text>@(validationError.Message)
+            {
+                <text>* </text>
+                @(validationError.Message)
                 if (validationError.Members != null && validationError.Members.Any())
-                    {
+                {
                     <text>(@string.Join(", ", validationError.Members))</text>
                 }
+
                 <br/>
             }
         }

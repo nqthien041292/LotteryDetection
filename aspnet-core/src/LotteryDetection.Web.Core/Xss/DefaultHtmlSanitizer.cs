@@ -2,7 +2,6 @@
 
 namespace LotteryDetection.Web.Xss;
 
-
 public class DefaultHtmlSanitizer : IHtmlSanitizer
 {
     public string Sanitize(string html)
@@ -10,4 +9,3 @@ public class DefaultHtmlSanitizer : IHtmlSanitizer
         return Regex.Replace(html, "<.*?>|&.*?;", string.Empty);
     }
 }
-

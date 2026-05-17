@@ -7,4 +7,3 @@ public interface IWebhookEventAppService
 {
     Task<WebhookEvent> Get(string id);
 }
-

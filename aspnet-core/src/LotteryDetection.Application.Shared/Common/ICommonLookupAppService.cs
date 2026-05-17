@@ -14,4 +14,3 @@ public interface ICommonLookupAppService : IApplicationService
 
     GetDefaultEditionNameOutput GetDefaultEditionName();
 }
-

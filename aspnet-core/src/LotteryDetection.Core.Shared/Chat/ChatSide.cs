@@ -6,4 +6,3 @@ public enum ChatSide
 
     Receiver = 2
 }
-

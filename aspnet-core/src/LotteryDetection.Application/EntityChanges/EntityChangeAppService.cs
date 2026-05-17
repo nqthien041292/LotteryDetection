@@ -1,13 +1,12 @@
-﻿using Abp.Application.Services.Dto;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.EntityHistory;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.EntityChanges.Dto;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.EntityChanges;
 
@@ -30,24 +29,28 @@ public class EntityChangeAppService : LotteryDetectionAppServiceBase, IEntityCha
         _entityPropertyChangeRepository = entityPropertyChangeRepository;
     }
 
-    public async Task<ListResultDto<EntityAndPropertyChangeListDto>> GetEntityChangesByEntity(GetEntityChangesByEntityInput input)
+    public async Task<ListResultDto<EntityAndPropertyChangeListDto>> GetEntityChangesByEntity(
+        GetEntityChangesByEntityInput input)
     {
         var entityId = "\"" + input.EntityId + "\"";
 
         var query = from entityChange in _entityChangeRepository.GetAll()
-                    join entityChangeSet in _entityChangeSetRepository.GetAll() on entityChange.EntityChangeSetId equals entityChangeSet.Id
-                    join user in _userRepository.GetAll() on entityChangeSet.UserId equals user.Id
-                    join entityPropertyChange in _entityPropertyChangeRepository.GetAll() on entityChange.Id equals entityPropertyChange.EntityChangeId into propertyChanges
-                    select new EntityChangePropertyAndUser
-                    {
-                        EntityChange = entityChange,
-                        EntityChangeSet = entityChangeSet,
-                        User = user,
-                        PropertyChanges = propertyChanges.ToList()
-                    };
+            join entityChangeSet in _entityChangeSetRepository.GetAll() on entityChange.EntityChangeSetId equals
+                entityChangeSet.Id
+            join user in _userRepository.GetAll() on entityChangeSet.UserId equals user.Id
+            join entityPropertyChange in _entityPropertyChangeRepository.GetAll() on entityChange.Id equals
+                entityPropertyChange.EntityChangeId into propertyChanges
+            select new EntityChangePropertyAndUser
+            {
+                EntityChange = entityChange,
+                EntityChangeSet = entityChangeSet,
+                User = user,
+                PropertyChanges = propertyChanges.ToList()
+            };
 
         var filteredQuery = query.Where(q => q.EntityChange.EntityTypeFullName == input.EntityTypeFullName &&
-                                                           (q.EntityChange.EntityId == input.EntityId || q.EntityChange.EntityId == entityId));
+                                             (q.EntityChange.EntityId == input.EntityId ||
+                                              q.EntityChange.EntityId == entityId));
 
         var results = await filteredQuery
             .OrderByDescending(q => q.EntityChange.ChangeTime)
@@ -65,7 +68,8 @@ public class EntityChangeAppService : LotteryDetectionAppServiceBase, IEntityCha
         return new ListResultDto<EntityAndPropertyChangeListDto>(dtoList);
     }
 
-    private List<EntityAndPropertyChangeListDto> ConvertToEntityAndPropertyChangeListDtos(List<EntityChangePropertyAndUser> results)
+    private List<EntityAndPropertyChangeListDto> ConvertToEntityAndPropertyChangeListDtos(
+        List<EntityChangePropertyAndUser> results)
     {
         var impersonatorUsers = GetImpersonatorUserNames(results);
 
@@ -93,13 +97,15 @@ public class EntityChangeAppService : LotteryDetectionAppServiceBase, IEntityCha
     private Dictionary<long, string> GetImpersonatorUserNames(List<EntityChangePropertyAndUser> results)
     {
         var tenantSpecificUserIds = results
-            .Where(e => e.EntityChangeSet.ImpersonatorUserId.HasValue && e.EntityChangeSet.ImpersonatorTenantId.HasValue)
+            .Where(e => e.EntityChangeSet.ImpersonatorUserId.HasValue &&
+                        e.EntityChangeSet.ImpersonatorTenantId.HasValue)
             .Select(e => e.EntityChangeSet.ImpersonatorUserId!.Value)
             .Distinct()
             .ToList();
 
         var crossTenantUserIds = results
-            .Where(e => e.EntityChangeSet.ImpersonatorUserId.HasValue && !e.EntityChangeSet.ImpersonatorTenantId.HasValue)
+            .Where(e => e.EntityChangeSet.ImpersonatorUserId.HasValue &&
+                        !e.EntityChangeSet.ImpersonatorTenantId.HasValue)
             .Select(e => e.EntityChangeSet.ImpersonatorUserId!.Value)
             .Distinct()
             .ToList();
@@ -113,14 +119,10 @@ public class EntityChangeAppService : LotteryDetectionAppServiceBase, IEntityCha
                 .Select(u => new { u.Id, u.UserName })
                 .ToDictionary(u => u.Id, u => u.UserName);
 
-            foreach (var user in tenantUsers)
-            {
-                impersonatorUsers[user.Key] = user.Value;
-            }
+            foreach (var user in tenantUsers) impersonatorUsers[user.Key] = user.Value;
         }
 
         if (crossTenantUserIds.Any())
-        {
             using (CurrentUnitOfWork.SetTenantId(null))
             {
                 var crossTenantUsers = _userRepository.GetAll()
@@ -128,12 +130,8 @@ public class EntityChangeAppService : LotteryDetectionAppServiceBase, IEntityCha
                     .Select(u => new { u.Id, u.UserName })
                     .ToDictionary(u => u.Id, u => u.UserName);
 
-                foreach (var user in crossTenantUsers)
-                {
-                    impersonatorUsers[user.Key] = user.Value;
-                }
+                foreach (var user in crossTenantUsers) impersonatorUsers[user.Key] = user.Value;
             }
-        }
 
         return impersonatorUsers;
     }

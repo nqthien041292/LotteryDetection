@@ -2,17 +2,17 @@
 using LotteryDetection.Schemas;
 using Xunit;
 
-namespace LotteryDetection.GraphQL.Tests.Users
-{
-    // ReSharper disable once InconsistentNaming
-    public class UserQuery_Tests : GraphQLTestBase<MainSchema>
-    {
-        [Fact]
-        public async Task Should_Get_Users()
-        {
-            LoginAsDefaultTenantAdmin();
+namespace LotteryDetection.GraphQL.Tests.Users;
 
-            const string query = @"
+// ReSharper disable once InconsistentNaming
+public class UserQuery_Tests : GraphQLTestBase<MainSchema>
+{
+    [Fact]
+    public async Task Should_Get_Users()
+    {
+        LoginAsDefaultTenantAdmin();
+
+        const string query = @"
              query MyQuery {
                 users (id:2){
                     totalCount
@@ -36,9 +36,9 @@ namespace LotteryDetection.GraphQL.Tests.Users
              }";
 
 
-            const string expectedResult = "{\"data\": {\"users\": {\"totalCount\": 1,\"items\": [{\"name\": \"admin\",\"surname\": \"admin\",\"roles\": [{\"id\": 2,\"name\": \"Admin\",\"displayName\": \"Admin\"}],\"organizationUnits\": []}]}}}";
+        const string expectedResult =
+            "{\"data\": {\"users\": {\"totalCount\": 1,\"items\": [{\"name\": \"admin\",\"surname\": \"admin\",\"roles\": [{\"id\": 2,\"name\": \"Admin\",\"displayName\": \"Admin\"}],\"organizationUnits\": []}]}}}";
 
-            await AssertQuerySuccessAsync(query, expectedResult);
-        }
+        await AssertQuerySuccessAsync(query, expectedResult);
     }
 }

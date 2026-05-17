@@ -1,77 +1,76 @@
-﻿using Abp.Runtime.Caching;
-using LotteryDetection.Authorization.Accounts;
-using LotteryDetection.Authorization.PasswordlessLogin;
-using LotteryDetection.Authorization.Accounts.Dto;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Abp.Runtime.Caching;
 using Abp.UI;
+using LotteryDetection.Authorization.Accounts;
+using LotteryDetection.Authorization.Accounts.Dto;
+using LotteryDetection.Authorization.PasswordlessLogin;
 using Shouldly;
 using Xunit;
 
-namespace LotteryDetection.Tests.Authorization.PasswordlessLogin
+namespace LotteryDetection.Tests.Authorization.PasswordlessLogin;
+
+public class AccountAppService_VerifyPasswordlessLoginCode_Tests : PasswordlessLognTestBase
 {
-    public class AccountAppService_VerifyPasswordlessLoginCode_Tests : PasswordlessLognTestBase
+    private readonly IAccountAppService _accountAppService;
+    private readonly ICacheManager _cacheManager;
+
+    public AccountAppService_VerifyPasswordlessLoginCode_Tests()
     {
-        private readonly IAccountAppService _accountAppService;
-        private readonly ICacheManager _cacheManager;
+        _accountAppService = Resolve<IAccountAppService>();
+        _cacheManager = Resolve<ICacheManager>();
 
-        public AccountAppService_VerifyPasswordlessLoginCode_Tests()
+        SetMockCode();
+    }
+
+    [Fact]
+    public async Task Verify_Valid_Passwordless_Login_Code()
+    {
+        await CreateAndSetUser();
+
+        var cacheItem = new PasswordlessLoginCodeCacheItem
         {
-            _accountAppService = Resolve<IAccountAppService>();
-            _cacheManager = Resolve<ICacheManager>();
+            Code = MockCode
+        };
 
-            SetMockCode();
-        }
-
-        [Fact]
-        public async Task Verify_Valid_Passwordless_Login_Code()
+        var input = new VerifyPasswordlessLoginCodeInput
         {
-            await CreateAndSetUser();
+            ProviderValue = ProviderKeyEmail,
+            Code = MockCode
+        };
 
-            var cacheItem = new PasswordlessLoginCodeCacheItem
-            {
-                Code = MockCode
-            };
+        await _cacheManager.GetPasswordlessVerificationCodeCache().SetAsync(
+            GetPasswordlessLoginCodeCacheKey(AbpSession.TenantId, ProviderKeyEmail),
+            cacheItem
+        );
 
-            var input = new VerifyPasswordlessLoginCodeInput
-            {
-                ProviderValue = ProviderKeyEmail,
-                Code = MockCode
-            };
+        await _accountAppService.VerifyPasswordlessLoginCode(input);
+    }
 
-            await _cacheManager.GetPasswordlessVerificationCodeCache().SetAsync(
-                GetPasswordlessLoginCodeCacheKey(AbpSession.TenantId, ProviderKeyEmail),
-                cacheItem
-            );
+    [Fact]
+    public async Task Verify_Invalid_Passwordless_Login_Code()
+    {
+        await CreateAndSetUser();
 
+        var cacheItem = new PasswordlessLoginCodeCacheItem
+        {
+            Code = MockCode
+        };
+
+        var input = new VerifyPasswordlessLoginCodeInput
+        {
+            ProviderValue = ProviderKeyEmail,
+            Code = "123456"
+        };
+
+        await _cacheManager.GetPasswordlessVerificationCodeCache().SetAsync(
+            GetPasswordlessLoginCodeCacheKey(AbpSession.TenantId, ProviderKeyEmail),
+            cacheItem
+        );
+
+        var exception = await Assert.ThrowsAsync<UserFriendlyException>(async () =>
+        {
             await _accountAppService.VerifyPasswordlessLoginCode(input);
-        }
-
-        [Fact]
-        public async Task Verify_Invalid_Passwordless_Login_Code()
-        {
-            await CreateAndSetUser();
-
-            var cacheItem = new PasswordlessLoginCodeCacheItem
-            {
-                Code = MockCode
-            };
-
-            var input = new VerifyPasswordlessLoginCodeInput
-            {
-                ProviderValue = ProviderKeyEmail,
-                Code = "123456"
-            };
-
-            await _cacheManager.GetPasswordlessVerificationCodeCache().SetAsync(
-                GetPasswordlessLoginCodeCacheKey(AbpSession.TenantId, ProviderKeyEmail),
-                cacheItem
-            );
-
-            var exception = await Assert.ThrowsAsync<UserFriendlyException>(async () =>
-            {
-                await _accountAppService.VerifyPasswordlessLoginCode(input);
-            });
-            exception.Message.ShouldBe("Wrong verification code!");
-        }
+        });
+        exception.Message.ShouldBe("Wrong verification code!");
     }
 }

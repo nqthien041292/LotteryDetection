@@ -6,4 +6,3 @@ public class StartExtendSubscriptionInput
 
     public string ErrorUrl { get; set; }
 }
-

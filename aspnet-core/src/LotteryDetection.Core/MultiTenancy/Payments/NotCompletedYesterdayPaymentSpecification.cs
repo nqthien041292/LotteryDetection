@@ -18,4 +18,3 @@ public class NotCompletedYesterdayPaymentSpecification : Specification<Subscript
             payment.CreationTime < todaysDate;
     }
 }
-

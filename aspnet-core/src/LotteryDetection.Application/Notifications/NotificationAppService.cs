@@ -6,43 +6,39 @@ using Abp;
 using Abp.Application.Services.Dto;
 using Abp.Auditing;
 using Abp.Authorization;
-using Abp.Authorization.Users;
 using Abp.BackgroundJobs;
 using Abp.Collections.Extensions;
 using Abp.Configuration;
 using Abp.Domain.Repositories;
-using Abp.Domain.Uow;
 using Abp.Linq;
 using Abp.Linq.Extensions;
 using Abp.Notifications;
 using Abp.Organizations;
 using Abp.Runtime.Session;
 using Abp.UI;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Notifications.Dto;
 using LotteryDetection.Organizations;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Notifications;
 
 [AbpAuthorize]
 public class NotificationAppService : LotteryDetectionAppServiceBase, INotificationAppService
 {
-    private readonly INotificationDefinitionManager _notificationDefinitionManager;
-    private readonly IUserNotificationManager _userNotificationManager;
-    private readonly INotificationSubscriptionManager _notificationSubscriptionManager;
-    private readonly IRepository<User, long> _userRepository;
-    private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
     private readonly IAppNotifier _appNotifier;
-    private readonly IUserOrganizationUnitRepository _userOrganizationUnitRepository;
-    private readonly INotificationConfiguration _notificationConfiguration;
-    private readonly INotificationStore _notificationStore;
     private readonly IBackgroundJobManager _backgroundJobManager;
+    private readonly INotificationConfiguration _notificationConfiguration;
+    private readonly INotificationDefinitionManager _notificationDefinitionManager;
     private readonly IRepository<NotificationInfo, Guid> _notificationRepository;
+    private readonly INotificationStore _notificationStore;
+    private readonly INotificationSubscriptionManager _notificationSubscriptionManager;
+    private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
     private readonly IRepository<TenantNotificationInfo, Guid> _tenantNotificationRepository;
-
-    public IAsyncQueryableExecuter AsyncQueryableExecuter { get; set; }
+    private readonly IUserNotificationManager _userNotificationManager;
+    private readonly IUserOrganizationUnitRepository _userOrganizationUnitRepository;
+    private readonly IRepository<User, long> _userRepository;
 
     public NotificationAppService(
         INotificationDefinitionManager notificationDefinitionManager,
@@ -73,6 +69,8 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
 
         AsyncQueryableExecuter = NullAsyncQueryableExecuter.Instance;
     }
+
+    public IAsyncQueryableExecuter AsyncQueryableExecuter { get; set; }
 
     [DisableAuditing]
     public async Task<GetNotificationsOutput> GetUserNotifications(GetUserNotificationsInput input)
@@ -111,17 +109,11 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
             .Where(x => x.Notification.NotificationName == AppNotificationNames.NewVersionAvailable)
             .ToList();
 
-        if (!filteredNotifications.Any())
-        {
-            return new SetNotificationAsReadOutput(false);
-        }
+        if (!filteredNotifications.Any()) return new SetNotificationAsReadOutput(false);
 
         foreach (var notification in filteredNotifications)
         {
-            if (notification.State == UserNotificationState.Read)
-            {
-                continue;
-            }
+            if (notification.State == UserNotificationState.Read) continue;
 
             await _userNotificationManager.UpdateUserNotificationStateAsync(
                 notification.TenantId,
@@ -145,22 +137,14 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
     {
         var userNotification =
             await _userNotificationManager.GetUserNotificationAsync(AbpSession.TenantId, input.Id);
-        if (userNotification == null)
-        {
-            return new SetNotificationAsReadOutput(false);
-        }
+        if (userNotification == null) return new SetNotificationAsReadOutput(false);
 
         if (userNotification.UserId != AbpSession.GetUserId())
-        {
             throw new Exception(
                 $"Given user notification id ({input.Id}) is not belong to the current user ({AbpSession.GetUserId()})"
             );
-        }
 
-        if (userNotification.State == UserNotificationState.Read)
-        {
-            return new SetNotificationAsReadOutput(false);
-        }
+        if (userNotification.State == UserNotificationState.Read) return new SetNotificationAsReadOutput(false);
 
         await _userNotificationManager.UpdateUserNotificationStateAsync(AbpSession.TenantId, input.Id,
             UserNotificationState.Read);
@@ -198,32 +182,21 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
             NotificationSettingNames.ReceiveNotifications, input.ReceiveNotifications.ToString());
 
         foreach (var notification in input.Notifications)
-        {
             if (notification.IsSubscribed)
-            {
                 await _notificationSubscriptionManager.SubscribeAsync(AbpSession.ToUserIdentifier(),
                     notification.Name);
-            }
             else
-            {
                 await _notificationSubscriptionManager.UnsubscribeAsync(AbpSession.ToUserIdentifier(),
                     notification.Name);
-            }
-        }
     }
 
     public async Task DeleteNotification(EntityDto<Guid> input)
     {
         var notification = await _userNotificationManager.GetUserNotificationAsync(AbpSession.TenantId, input.Id);
-        if (notification == null)
-        {
-            return;
-        }
+        if (notification == null) return;
 
         if (notification.UserId != AbpSession.GetUserId())
-        {
             throw new UserFriendlyException(L("ThisNotificationDoesntBelongToYou"));
-        }
 
         await _userNotificationManager.DeleteUserNotificationAsync(AbpSession.TenantId, input.Id);
     }
@@ -237,100 +210,28 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
             input.EndDate);
     }
 
-    [AbpAuthorize(AppPermissions.Pages_Administration_MassNotification)]
-    public async Task<PagedResultDto<MassNotificationUserLookupTableDto>> GetAllUserForLookupTable(
-        GetAllForLookupTableInput input)
-    {
-        var query = _userRepository.GetAll()
-            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
-                e =>
-                    (e.Name != null && e.Name.Contains(input.Filter)) ||
-                    (e.Surname != null && e.Surname.Contains(input.Filter)) ||
-                    (e.EmailAddress != null && e.EmailAddress.Contains(input.Filter))
-            );
-
-        var totalCount = await query.CountAsync();
-
-        var userList = await query
-            .PageBy(input)
-            .ToListAsync();
-
-        var lookupTableDtoList = new List<MassNotificationUserLookupTableDto>();
-        foreach (var user in userList)
-        {
-            lookupTableDtoList.Add(new MassNotificationUserLookupTableDto
-            {
-                Id = user.Id,
-                DisplayName = user.Name + " " + user.Surname + " (" + user.EmailAddress + ")"
-            });
-        }
-
-        return new PagedResultDto<MassNotificationUserLookupTableDto>(
-            totalCount,
-            lookupTableDtoList
-        );
-    }
-
-    [AbpAuthorize(AppPermissions.Pages_Administration_MassNotification)]
-    public async Task<PagedResultDto<MassNotificationOrganizationUnitLookupTableDto>>
-        GetAllOrganizationUnitForLookupTable(GetAllForLookupTableInput input)
-    {
-        var query = _organizationUnitRepository.GetAll()
-            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
-                e => e.DisplayName != null && e.DisplayName.Contains(input.Filter));
-
-        var totalCount = await query.CountAsync();
-
-        var organizationUnitList = await query
-            .PageBy(input)
-            .ToListAsync();
-
-        var lookupTableDtoList = new List<MassNotificationOrganizationUnitLookupTableDto>();
-        foreach (var organizationUnit in organizationUnitList)
-        {
-            lookupTableDtoList.Add(new MassNotificationOrganizationUnitLookupTableDto
-            {
-                Id = organizationUnit.Id,
-                DisplayName = organizationUnit.DisplayName
-            });
-        }
-
-        return new PagedResultDto<MassNotificationOrganizationUnitLookupTableDto>(
-            totalCount,
-            lookupTableDtoList
-        );
-    }
-
     [AbpAuthorize(AppPermissions.Pages_Administration_MassNotification_Create)]
     public async Task CreateMassNotification(CreateMassNotificationInput input)
     {
         if (input.TargetNotifiers.IsNullOrEmpty())
-        {
             throw new UserFriendlyException(L("MassNotificationTargetNotifiersFieldIsRequiredMessage"));
-        }
 
         var userIds = new List<UserIdentifier>();
 
         if (!input.UserIds.IsNullOrEmpty())
-        {
             userIds.AddRange(input.UserIds.Select(i => new UserIdentifier(AbpSession.TenantId, i)));
-        }
 
         if (!input.OrganizationUnitIds.IsNullOrEmpty())
-        {
             userIds.AddRange(
                 await _userOrganizationUnitRepository.GetAllUsersInOrganizationUnitHierarchical(
                     input.OrganizationUnitIds)
             );
-        }
 
         if (userIds.Count == 0)
         {
             if (input.OrganizationUnitIds.IsNullOrEmpty())
-            {
                 // tried to get users from organization, but could not find any user
                 throw new UserFriendlyException(L("MassNotificationNoUsersFoundInOrganizationUnitMessage"));
-            }
 
             throw new UserFriendlyException(L("MassNotificationUserOrOrganizationUnitFieldIsRequiredMessage"));
         }
@@ -338,12 +239,8 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
         var targetNotifiers = new List<Type>();
 
         foreach (var notifier in _notificationConfiguration.Notifiers)
-        {
             if (input.TargetNotifiers.Contains(notifier.FullName))
-            {
                 targetNotifiers.Add(notifier);
-            }
-        }
 
         await _appNotifier.SendMassNotificationAsync(
             input.Message,
@@ -379,23 +276,19 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
             .Where(n => n.NotificationName == AppNotificationNames.MassNotification);
 
         if (input.StartDate.HasValue)
-        {
             queryForNotPublishedNotifications = queryForNotPublishedNotifications
                 .Where(x => x.CreationTime >= input.StartDate);
-        }
 
         if (input.EndDate.HasValue)
-        {
             queryForNotPublishedNotifications = queryForNotPublishedNotifications
                 .Where(x => x.CreationTime <= input.EndDate);
-        }
 
         var result = new List<GetNotificationsCreatedByUserOutput>();
 
         var unPublishedNotifications = await AsyncQueryableExecuter.ToListAsync(
             queryForNotPublishedNotifications
                 .Select(x =>
-                    new GetNotificationsCreatedByUserOutput()
+                    new GetNotificationsCreatedByUserOutput
                     {
                         Data = x.Data,
                         Severity = x.Severity,
@@ -412,23 +305,19 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
             .Where(n => n.NotificationName == AppNotificationNames.MassNotification);
 
         if (input.StartDate.HasValue)
-        {
             queryForPublishedNotifications = queryForPublishedNotifications
                 .Where(x => x.CreationTime >= input.StartDate);
-        }
 
         if (input.EndDate.HasValue)
-        {
             queryForPublishedNotifications = queryForPublishedNotifications
                 .Where(x => x.CreationTime <= input.EndDate);
-        }
 
         queryForPublishedNotifications = queryForPublishedNotifications
             .OrderByDescending(n => n.CreationTime);
 
         var publishedNotifications = await AsyncQueryableExecuter.ToListAsync(queryForPublishedNotifications
             .Select(x =>
-                new GetNotificationsCreatedByUserOutput()
+                new GetNotificationsCreatedByUserOutput
                 {
                     Data = x.Data,
                     Severity = x.Severity,
@@ -441,5 +330,65 @@ public class NotificationAppService : LotteryDetectionAppServiceBase, INotificat
 
         result.AddRange(publishedNotifications);
         return new GetPublishedNotificationsOutput(result);
+    }
+
+    [AbpAuthorize(AppPermissions.Pages_Administration_MassNotification)]
+    public async Task<PagedResultDto<MassNotificationUserLookupTableDto>> GetAllUserForLookupTable(
+        GetAllForLookupTableInput input)
+    {
+        var query = _userRepository.GetAll()
+            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
+                e =>
+                    (e.Name != null && e.Name.Contains(input.Filter)) ||
+                    (e.Surname != null && e.Surname.Contains(input.Filter)) ||
+                    (e.EmailAddress != null && e.EmailAddress.Contains(input.Filter))
+            );
+
+        var totalCount = await query.CountAsync();
+
+        var userList = await query
+            .PageBy(input)
+            .ToListAsync();
+
+        var lookupTableDtoList = new List<MassNotificationUserLookupTableDto>();
+        foreach (var user in userList)
+            lookupTableDtoList.Add(new MassNotificationUserLookupTableDto
+            {
+                Id = user.Id,
+                DisplayName = user.Name + " " + user.Surname + " (" + user.EmailAddress + ")"
+            });
+
+        return new PagedResultDto<MassNotificationUserLookupTableDto>(
+            totalCount,
+            lookupTableDtoList
+        );
+    }
+
+    [AbpAuthorize(AppPermissions.Pages_Administration_MassNotification)]
+    public async Task<PagedResultDto<MassNotificationOrganizationUnitLookupTableDto>>
+        GetAllOrganizationUnitForLookupTable(GetAllForLookupTableInput input)
+    {
+        var query = _organizationUnitRepository.GetAll()
+            .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
+                e => e.DisplayName != null && e.DisplayName.Contains(input.Filter));
+
+        var totalCount = await query.CountAsync();
+
+        var organizationUnitList = await query
+            .PageBy(input)
+            .ToListAsync();
+
+        var lookupTableDtoList = new List<MassNotificationOrganizationUnitLookupTableDto>();
+        foreach (var organizationUnit in organizationUnitList)
+            lookupTableDtoList.Add(new MassNotificationOrganizationUnitLookupTableDto
+            {
+                Id = organizationUnit.Id,
+                DisplayName = organizationUnit.DisplayName
+            });
+
+        return new PagedResultDto<MassNotificationOrganizationUnitLookupTableDto>(
+            totalCount,
+            lookupTableDtoList
+        );
     }
 }

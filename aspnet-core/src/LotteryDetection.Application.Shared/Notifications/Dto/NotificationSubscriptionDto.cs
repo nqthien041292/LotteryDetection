@@ -11,4 +11,3 @@ public class NotificationSubscriptionDto
 
     public bool IsSubscribed { get; set; }
 }
-

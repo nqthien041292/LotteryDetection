@@ -16,31 +16,25 @@ public static class SubscriptionPaymentExtensions
     public static string GetPlanId(this SubscriptionPayment payment)
     {
         if (!payment.IsRecurring.HasValue || !payment.IsRecurring.Value)
-        {
             throw new ApplicationException("Only recurring payment has plan name!");
-        }
 
-        return payment.GetProperty(Payments.PaymentConsts.PlanId, "");
+        return payment.GetProperty(PaymentConsts.PlanId, "");
     }
 
     public static decimal GetPlanAmount(this SubscriptionPayment payment)
     {
         if (!payment.IsRecurring.HasValue || !payment.IsRecurring.Value)
-        {
             throw new ApplicationException("Only recurring payment has plan name!");
-        }
 
-        return payment.GetProperty<decimal>(Payments.PaymentConsts.PlanAmount, 0);
+        return payment.GetProperty<decimal>(PaymentConsts.PlanAmount);
     }
 
     public static string GetPlanType(this SubscriptionPayment payment)
     {
         if (!payment.IsRecurring.HasValue || !payment.IsRecurring.Value)
-        {
             throw new ApplicationException("Only recurring payment has plan type!");
-        }
 
-        return payment.GetProperty(Payments.PaymentConsts.PlanType, "");
+        return payment.GetProperty(PaymentConsts.PlanType, "");
     }
 
     public static int? GetEditionId(this SubscriptionPayment payment)
@@ -50,4 +44,3 @@ public static class SubscriptionPaymentExtensions
         return editionId > 0 ? editionId : null;
     }
 }
-

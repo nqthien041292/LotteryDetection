@@ -6,4 +6,3 @@ public interface IPasswordComplexitySettingStore
 {
     Task<PasswordComplexitySetting> GetSettingsAsync();
 }
-

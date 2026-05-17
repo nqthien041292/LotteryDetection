@@ -1,4 +1,8 @@
-﻿using Abp.Application.Services.Dto;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
 using Abp.Auditing;
 using Abp.Authorization;
 using Abp.Configuration.Startup;
@@ -6,7 +10,6 @@ using Abp.Domain.Repositories;
 using Abp.EntityHistory;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Auditing.Dto;
 using LotteryDetection.Auditing.Exporting;
 using LotteryDetection.Authorization;
@@ -14,10 +17,7 @@ using LotteryDetection.Authorization.Users;
 using LotteryDetection.Dto;
 using LotteryDetection.EntityChanges.Dto;
 using LotteryDetection.EntityHistory;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using EntityHistoryHelper = LotteryDetection.EntityHistory.EntityHistoryHelper;
 
 namespace LotteryDetection.Auditing;
@@ -26,14 +26,14 @@ namespace LotteryDetection.Auditing;
 [AbpAuthorize(AppPermissions.Pages_Administration_AuditLogs)]
 public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppService
 {
+    private readonly IAbpStartupConfiguration _abpStartupConfiguration;
+    private readonly IAuditLogListExcelExporter _auditLogListExcelExporter;
     private readonly IRepository<AuditLog, long> _auditLogRepository;
     private readonly IRepository<EntityChange, long> _entityChangeRepository;
     private readonly IRepository<EntityChangeSet, long> _entityChangeSetRepository;
     private readonly IRepository<EntityPropertyChange, long> _entityPropertyChangeRepository;
-    private readonly IRepository<User, long> _userRepository;
-    private readonly IAuditLogListExcelExporter _auditLogListExcelExporter;
     private readonly INamespaceStripper _namespaceStripper;
-    private readonly IAbpStartupConfiguration _abpStartupConfiguration;
+    private readonly IRepository<User, long> _userRepository;
 
     public AuditLogAppService(
         IRepository<AuditLog, long> auditLogRepository,
@@ -85,39 +85,46 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
 
     private List<AuditLogListDto> ConvertToAuditLogListDtos(List<AuditLogAndUser> results)
     {
-        return results.Select(
-            result =>
-            {
-                var auditLogListDto = ObjectMapper.Map<AuditLogListDto>(result.AuditLog);
-                auditLogListDto.UserName = result.User?.UserName;
-                auditLogListDto.ServiceName = _namespaceStripper.StripNameSpace(auditLogListDto.ServiceName);
-                return auditLogListDto;
-            }).ToList();
+        return results.Select(result =>
+        {
+            var auditLogListDto = ObjectMapper.Map<AuditLogListDto>(result.AuditLog);
+            auditLogListDto.UserName = result.User?.UserName;
+            auditLogListDto.ServiceName = _namespaceStripper.StripNameSpace(auditLogListDto.ServiceName);
+            return auditLogListDto;
+        }).ToList();
     }
 
     private IQueryable<AuditLogAndUser> CreateAuditLogAndUsersQuery(GetAuditLogsInput input)
     {
         var query = from auditLog in _auditLogRepository.GetAllReadonly()
-                    join user in _userRepository.GetAll() on auditLog.UserId equals user.Id into userJoin
-                    from joinedUser in userJoin.DefaultIfEmpty()
-                    where auditLog.ExecutionTime >= input.StartDate && auditLog.ExecutionTime <= input.EndDate
-                    select new AuditLogAndUser { AuditLog = auditLog, User = joinedUser };
+            join user in _userRepository.GetAll() on auditLog.UserId equals user.Id into userJoin
+            from joinedUser in userJoin.DefaultIfEmpty()
+            where auditLog.ExecutionTime >= input.StartDate && auditLog.ExecutionTime <= input.EndDate
+            select new AuditLogAndUser { AuditLog = auditLog, User = joinedUser };
 
         query = query
             .WhereIf(!input.UserName.IsNullOrWhiteSpace(), item => item.User.UserName.Contains(input.UserName))
-            .WhereIf(!input.ServiceName.IsNullOrWhiteSpace(), item => item.AuditLog.ServiceName.Contains(input.ServiceName))
-            .WhereIf(!input.MethodName.IsNullOrWhiteSpace(), item => item.AuditLog.MethodName.Contains(input.MethodName))
-            .WhereIf(!input.BrowserInfo.IsNullOrWhiteSpace(), item => item.AuditLog.BrowserInfo.Contains(input.BrowserInfo))
-            .WhereIf(input.MinExecutionDuration.HasValue && input.MinExecutionDuration > 0, item => item.AuditLog.ExecutionDuration >= input.MinExecutionDuration.Value)
-            .WhereIf(input.MaxExecutionDuration.HasValue && input.MaxExecutionDuration < int.MaxValue, item => item.AuditLog.ExecutionDuration <= input.MaxExecutionDuration.Value)
-            .WhereIf(input.HasException == true, item => item.AuditLog.Exception != null && item.AuditLog.Exception != "")
-            .WhereIf(input.HasException == false, item => item.AuditLog.Exception == null || item.AuditLog.Exception == "");
+            .WhereIf(!input.ServiceName.IsNullOrWhiteSpace(),
+                item => item.AuditLog.ServiceName.Contains(input.ServiceName))
+            .WhereIf(!input.MethodName.IsNullOrWhiteSpace(),
+                item => item.AuditLog.MethodName.Contains(input.MethodName))
+            .WhereIf(!input.BrowserInfo.IsNullOrWhiteSpace(),
+                item => item.AuditLog.BrowserInfo.Contains(input.BrowserInfo))
+            .WhereIf(input.MinExecutionDuration.HasValue && input.MinExecutionDuration > 0,
+                item => item.AuditLog.ExecutionDuration >= input.MinExecutionDuration.Value)
+            .WhereIf(input.MaxExecutionDuration.HasValue && input.MaxExecutionDuration < int.MaxValue,
+                item => item.AuditLog.ExecutionDuration <= input.MaxExecutionDuration.Value)
+            .WhereIf(input.HasException == true,
+                item => item.AuditLog.Exception != null && item.AuditLog.Exception != "")
+            .WhereIf(input.HasException == false,
+                item => item.AuditLog.Exception == null || item.AuditLog.Exception == "");
         return query;
     }
 
     #endregion
 
-    #region entity changes 
+    #region entity changes
+
     public List<NameValueDto> GetEntityHistoryObjectTypes()
     {
         var entityHistoryObjectTypes = new List<NameValueDto>();
@@ -126,18 +133,14 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
             .Value as EntityHistoryUiSetting)?.EnabledEntities ?? new List<string>();
 
         if (AbpSession.TenantId == null)
-        {
-            enabledEntities = EntityHistoryHelper.HostSideTrackedTypes.Select(t => t.FullName).Intersect(enabledEntities).ToList();
-        }
+            enabledEntities = EntityHistoryHelper.HostSideTrackedTypes.Select(t => t.FullName)
+                .Intersect(enabledEntities).ToList();
         else
-        {
-            enabledEntities = EntityHistoryHelper.TenantSideTrackedTypes.Select(t => t.FullName).Intersect(enabledEntities).ToList();
-        }
+            enabledEntities = EntityHistoryHelper.TenantSideTrackedTypes.Select(t => t.FullName)
+                .Intersect(enabledEntities).ToList();
 
         foreach (var enabledEntity in enabledEntities)
-        {
             entityHistoryObjectTypes.Add(new NameValueDto(L(enabledEntity), enabledEntity));
-        }
 
         return entityHistoryObjectTypes;
     }
@@ -163,15 +166,16 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
         var entityId = "\"" + input.EntityId + "\"";
 
         var query = from entityChangeSet in _entityChangeSetRepository.GetAll()
-                    join entityChange in _entityChangeRepository.GetAll() on entityChangeSet.Id equals entityChange.EntityChangeSetId
-                    join user in _userRepository.GetAll() on entityChangeSet.UserId equals user.Id
-                    where entityChange.EntityTypeFullName == input.EntityTypeFullName &&
-                          (entityChange.EntityId == input.EntityId || entityChange.EntityId == entityId)
-                    select new EntityChangeAndUser
-                    {
-                        EntityChange = entityChange,
-                        User = user
-                    };
+            join entityChange in _entityChangeRepository.GetAll() on entityChangeSet.Id equals entityChange
+                .EntityChangeSetId
+            join user in _userRepository.GetAll() on entityChangeSet.UserId equals user.Id
+            where entityChange.EntityTypeFullName == input.EntityTypeFullName &&
+                  (entityChange.EntityId == input.EntityId || entityChange.EntityId == entityId)
+            select new EntityChangeAndUser
+            {
+                EntityChange = entityChange,
+                User = user
+            };
 
         var resultCount = await query.CountAsync();
         var results = await query
@@ -199,7 +203,8 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
 
     public async Task<List<EntityPropertyChangeDto>> GetEntityPropertyChanges(long entityChangeId)
     {
-        var entityPropertyChanges = await _entityPropertyChangeRepository.GetAllListAsync(epc => epc.EntityChangeId == entityChangeId);
+        var entityPropertyChanges =
+            await _entityPropertyChangeRepository.GetAllListAsync(epc => epc.EntityChangeId == entityChangeId);
 
         return ObjectMapper.Map<List<EntityPropertyChangeDto>>(entityPropertyChanges);
     }
@@ -228,23 +233,24 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
     private IQueryable<EntityChangeAndUser> CreateEntityChangesAndUsersQuery(GetEntityChangeInput input)
     {
         var baseQuery = from entityChangeSet in _entityChangeSetRepository.GetAll()
-                        join entityChange in _entityChangeRepository.GetAll()
-                            on entityChangeSet.Id equals entityChange.EntityChangeSetId
-                        join user in _userRepository.GetAll()
-                            on entityChangeSet.UserId equals user.Id into userJoin
-                        from user in userJoin.DefaultIfEmpty()
-                        select new EntityChangeAndUser
-                        {
-                            EntityChange = entityChange,
-                            User = user,
-                            EntityChangeSet = entityChangeSet
-                        };
+            join entityChange in _entityChangeRepository.GetAll()
+                on entityChangeSet.Id equals entityChange.EntityChangeSetId
+            join user in _userRepository.GetAll()
+                on entityChangeSet.UserId equals user.Id into userJoin
+            from user in userJoin.DefaultIfEmpty()
+            select new EntityChangeAndUser
+            {
+                EntityChange = entityChange,
+                User = user,
+                EntityChangeSet = entityChangeSet
+            };
 
         var filteredQuery = baseQuery
             .Where(item => item.EntityChange.ChangeTime >= input.StartDate &&
                            item.EntityChange.ChangeTime <= input.EndDate)
             .WhereIf(!input.UserName.IsNullOrWhiteSpace(), item => item.User.UserName.Contains(input.UserName))
-            .WhereIf(!input.EntityTypeFullName.IsNullOrWhiteSpace(), item => item.EntityChange.EntityTypeFullName.Contains(input.EntityTypeFullName));
+            .WhereIf(!input.EntityTypeFullName.IsNullOrWhiteSpace(),
+                item => item.EntityChange.EntityTypeFullName.Contains(input.EntityTypeFullName));
 
         return filteredQuery;
     }
@@ -272,14 +278,10 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
                 .Select(u => new { u.Id, u.UserName })
                 .ToDictionary(u => u.Id, u => u.UserName);
 
-            foreach (var user in tenantUsers)
-            {
-                impersonatorUsers[user.Key] = user.Value;
-            }
+            foreach (var user in tenantUsers) impersonatorUsers[user.Key] = user.Value;
         }
 
         if (crossTenantUserIds.Any())
-        {
             using (CurrentUnitOfWork.SetTenantId(null))
             {
                 var crossTenantUsers = _userRepository.GetAll()
@@ -287,14 +289,11 @@ public class AuditLogAppService : LotteryDetectionAppServiceBase, IAuditLogAppSe
                     .Select(u => new { u.Id, u.UserName })
                     .ToDictionary(u => u.Id, u => $"Host/{u.UserName}");
 
-                foreach (var user in crossTenantUsers)
-                {
-                    impersonatorUsers[user.Key] = user.Value;
-                }
+                foreach (var user in crossTenantUsers) impersonatorUsers[user.Key] = user.Value;
             }
-        }
 
         return impersonatorUsers;
     }
+
     #endregion
 }

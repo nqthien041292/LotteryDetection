@@ -7,32 +7,26 @@ using Abp.Domain.Repositories;
 using Abp.Organizations;
 using GraphQL;
 using GraphQL.Types;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization;
 using LotteryDetection.Core.Base;
 using LotteryDetection.Core.Extensions;
 using LotteryDetection.Dto;
 using LotteryDetection.Types;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Queries;
 
-public class OrganizationUnitQuery : LotteryDetectionQueryBase<ListGraphType<OrganizationUnitType>, List<OrganizationUnitDto>>
+public class
+    OrganizationUnitQuery : LotteryDetectionQueryBase<ListGraphType<OrganizationUnitType>, List<OrganizationUnitDto>>
 {
     private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
-
-    public static class Args
-    {
-        public const string Id = "id";
-        public const string TenantId = "tenantId";
-        public const string Code = "code";
-    }
 
     public OrganizationUnitQuery(IRepository<OrganizationUnit, long> organizationUnitRepository)
         : base("organizationUnits", new Dictionary<string, Type>
         {
-                {Args.Id, typeof(IdGraphType)},
-                {Args.TenantId, typeof(IntGraphType)},
-                {Args.Code, typeof(StringGraphType)}
+            { Args.Id, typeof(IdGraphType) },
+            { Args.TenantId, typeof(IntGraphType) },
+            { Args.Code, typeof(StringGraphType) }
         })
     {
         _organizationUnitRepository = organizationUnitRepository;
@@ -50,5 +44,11 @@ public class OrganizationUnitQuery : LotteryDetectionQueryBase<ListGraphType<Org
 
         return await ProjectToListAsync<OrganizationUnitDto>(query);
     }
-}
 
+    public static class Args
+    {
+        public const string Id = "id";
+        public const string TenantId = "tenantId";
+        public const string Code = "code";
+    }
+}

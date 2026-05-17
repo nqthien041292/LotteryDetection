@@ -1,13 +1,15 @@
 ﻿@using Microsoft.Extensions.Primitives
 <div class="jumbotron">
     <h1>Authorization</h1>
-    <p class="lead text-left"><strong>@string.Format("Do you want to grant {0} access to your data?", Model.ApplicationName)</strong></p>
+    <p class="lead text-left">
+        <strong>@string.Format("Do you want to grant {0} access to your data?", Model.ApplicationName)</strong>
+    </p>
     <p class="fw-light">ScopesRequested: @Model.Scope</p>
 
-    <form method="post" action="~/connect/authorize/callback" >
+    <form method="post" action="~/connect/authorize/callback">
         @Html.AntiForgeryToken()
         @* Flow the request parameters so they can be received by the Accept/Reject actions: *@
-        @foreach (var parameter in Context.Request.HasFormContentType ? (IEnumerable<KeyValuePair<string, StringValues>>) Context.Request.Form : Context.Request.Query)
+        @foreach (var parameter in Context.Request.HasFormContentType ? (IEnumerable<KeyValuePair<string, StringValues>>)Context.Request.Form : Context.Request.Query)
         {
             <input type="hidden" name="@parameter.Key" value="@parameter.Value"/>
         }

@@ -13,8 +13,8 @@ namespace LotteryDetection.Web.Startup.ExternalLoginInfoProviders;
 
 public class ExternalLoginOptionsCacheManager : IExternalLoginOptionsCacheManager, ITransientDependency
 {
-    private readonly ICacheManager _cacheManager;
     private readonly IAbpSession _abpSession;
+    private readonly ICacheManager _cacheManager;
 
     public ExternalLoginOptionsCacheManager(ICacheManager cacheManager, IAbpSession abpSession)
     {
@@ -34,12 +34,8 @@ public class ExternalLoginOptionsCacheManager : IExternalLoginOptionsCacheManage
 
     private string GetCacheKey(string name)
     {
-        if (_abpSession.TenantId.HasValue)
-        {
-            return $"{name}-{_abpSession.TenantId.Value}";
-        }
+        if (_abpSession.TenantId.HasValue) return $"{name}-{_abpSession.TenantId.Value}";
 
         return $"{name}";
     }
 }
-

@@ -19,31 +19,23 @@ public static class HasExtraPropertiesExtensions
     {
         var value = source.GetProperty(name);
 
-        if (value is null)
-        {
-            return defaultValue;
-        }
+        if (value is null) return defaultValue;
 
-        if (!IsPrimitive(typeof(TProperty), includeEnums: true))
+        if (!IsPrimitive(typeof(TProperty), true))
             throw new AbpException(
                 "GetProperty<TProperty> does not support non-primitive types. Use non-generic GetProperty method and handle type casting manually.");
 
         var conversionType = typeof(TProperty);
 
         if (conversionType == typeof(Guid) ||
-            conversionType == typeof(Int32) ||
-            conversionType == typeof(String) ||
-            conversionType == typeof(Int64) ||
+            conversionType == typeof(int) ||
+            conversionType == typeof(string) ||
+            conversionType == typeof(long) ||
             conversionType == typeof(decimal))
-        {
             return (TProperty)TypeDescriptor.GetConverter(conversionType)
                 .ConvertFromInvariantString(value.ToString());
-        }
 
-        if (conversionType.IsEnum)
-        {
-            return (TProperty)value;
-        }
+        if (conversionType.IsEnum) return (TProperty)value;
 
         return (TProperty)Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
     }
@@ -68,15 +60,9 @@ public static class HasExtraPropertiesExtensions
 
     private static bool IsPrimitive(Type type, bool includeEnums)
     {
-        if (type.IsPrimitive)
-        {
-            return true;
-        }
+        if (type.IsPrimitive) return true;
 
-        if (includeEnums && type.IsEnum)
-        {
-            return true;
-        }
+        if (includeEnums && type.IsEnum) return true;
 
         return type == typeof(string) ||
                type == typeof(decimal) ||
@@ -86,4 +72,3 @@ public static class HasExtraPropertiesExtensions
                type == typeof(Guid);
     }
 }
-

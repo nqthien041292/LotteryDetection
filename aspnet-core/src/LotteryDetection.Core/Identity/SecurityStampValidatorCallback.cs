@@ -5,14 +5,15 @@ using Microsoft.AspNetCore.Identity;
 namespace LotteryDetection.Identity;
 
 /// <summary>
-/// Implements callback for SecurityStampValidator's OnRefreshingPrincipal event.
-/// Taken from https://github.com/IdentityServer/IdentityServer4/blob/main/src/AspNetIdentity/src/SecurityStampValidatorCallback.cs
+///     Implements callback for SecurityStampValidator's OnRefreshingPrincipal event.
+///     Taken from
+///     https://github.com/IdentityServer/IdentityServer4/blob/main/src/AspNetIdentity/src/SecurityStampValidatorCallback.cs
 /// </summary>
 public class SecurityStampValidatorCallback
 {
     /// <summary>
-    /// Maintains the claims captured at login time that are not being created by ASP.NET Identity.
-    /// This is needed to preserve claims such as idp, auth_time, amr.
+    ///     Maintains the claims captured at login time that are not being created by ASP.NET Identity.
+    ///     This is needed to preserve claims such as idp, auth_time, amr.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <returns></returns>
@@ -27,4 +28,3 @@ public class SecurityStampValidatorCallback
         return Task.CompletedTask;
     }
 }
-

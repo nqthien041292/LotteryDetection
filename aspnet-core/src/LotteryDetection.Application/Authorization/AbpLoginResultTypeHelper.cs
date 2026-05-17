@@ -6,7 +6,8 @@ namespace LotteryDetection.Authorization;
 
 public class AbpLoginResultTypeHelper : LotteryDetectionServiceBase, ITransientDependency
 {
-    public Exception CreateExceptionForFailedLoginAttempt(AbpLoginResultType result, string usernameOrEmailAddress, string tenancyName)
+    public Exception CreateExceptionForFailedLoginAttempt(AbpLoginResultType result, string usernameOrEmailAddress,
+        string tenancyName)
     {
         switch (result)
         {
@@ -25,13 +26,15 @@ public class AbpLoginResultTypeHelper : LotteryDetectionServiceBase, ITransientD
                 return new AbpAuthorizationException(L("UserEmailIsNotConfirmedAndCanNotLogin"));
             case AbpLoginResultType.LockedOut:
                 return new AbpAuthorizationException(L("UserLockedOutMessage"));
-            default: //Can not fall to default actually. But other result types can be added in the future and we may forget to handle it
+            default
+                : //Can not fall to default actually. But other result types can be added in the future and we may forget to handle it
                 Logger.Warn("Unhandled login fail reason: " + result);
                 return new AbpAuthorizationException(L("LoginFailed"));
         }
     }
 
-    public string CreateLocalizedMessageForFailedLoginAttempt(AbpLoginResultType result, string usernameOrEmailAddress, string tenancyName)
+    public string CreateLocalizedMessageForFailedLoginAttempt(AbpLoginResultType result, string usernameOrEmailAddress,
+        string tenancyName)
     {
         switch (result)
         {
@@ -50,7 +53,8 @@ public class AbpLoginResultTypeHelper : LotteryDetectionServiceBase, ITransientD
                 return L("UserEmailIsNotConfirmedAndCanNotLogin");
             case AbpLoginResultType.LockedOut:
                 return L("UserLockedOutMessage");
-            default: //Can not fall to default actually. But other result types can be added in the future and we may forget to handle it
+            default
+                : //Can not fall to default actually. But other result types can be added in the future and we may forget to handle it
                 Logger.Warn("Unhandled login fail reason: " + result);
                 return L("LoginFailed");
         }

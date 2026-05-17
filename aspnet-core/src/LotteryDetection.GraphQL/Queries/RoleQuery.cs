@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Abp.Authorization;
 using GraphQL;
 using GraphQL.Types;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Core.Base;
 using LotteryDetection.Core.Extensions;
 using LotteryDetection.Dto;
 using LotteryDetection.Types;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Queries;
 
@@ -19,17 +19,11 @@ public class RoleQuery : LotteryDetectionQueryBase<ListGraphType<RoleType>, List
 {
     private readonly RoleManager _roleManager;
 
-    public static class Args
-    {
-        public const string Id = "id";
-        public const string Name = "name";
-    }
-
     public RoleQuery(RoleManager roleManager)
         : base("roles", new Dictionary<string, Type>
             {
-                    {Args.Id, typeof(IdGraphType)},
-                    {Args.Name, typeof(StringGraphType)}
+                { Args.Id, typeof(IdGraphType) },
+                { Args.Name, typeof(StringGraphType) }
             }
         )
     {
@@ -47,5 +41,10 @@ public class RoleQuery : LotteryDetectionQueryBase<ListGraphType<RoleType>, List
 
         return await ProjectToListAsync<RoleDto>(query);
     }
-}
 
+    public static class Args
+    {
+        public const string Id = "id";
+        public const string Name = "name";
+    }
+}

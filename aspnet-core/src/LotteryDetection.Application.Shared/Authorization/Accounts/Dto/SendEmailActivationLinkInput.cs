@@ -1,14 +1,11 @@
-﻿using Abp.Auditing;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Abp.Auditing;
 
 namespace LotteryDetection.Authorization.Accounts.Dto;
 
 public class SendEmailActivationLinkInput
 {
-    [Required]
-    public string EmailAddress { get; set; }
+    [Required] public string EmailAddress { get; set; }
 
-    [DisableAuditing]
-    public string CaptchaResponse { get; set; }
+    [DisableAuditing] public string CaptchaResponse { get; set; }
 }
-

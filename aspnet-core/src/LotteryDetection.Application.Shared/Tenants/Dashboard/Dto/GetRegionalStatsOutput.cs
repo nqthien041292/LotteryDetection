@@ -15,6 +15,4 @@ public class GetRegionalStatsOutput
     }
 
     public List<RegionalStatCountry> Stats { get; set; }
-
 }
-

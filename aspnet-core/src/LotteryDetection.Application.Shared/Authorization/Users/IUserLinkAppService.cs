@@ -15,4 +15,3 @@ public interface IUserLinkAppService : IApplicationService
 
     Task UnlinkUser(UnlinkUserInput input);
 }
-

@@ -1,16 +1,16 @@
 ﻿using Abp.Auditing;
+using LotteryDetection.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using LotteryDetection.Configuration;
 
 namespace LotteryDetection.Web.Controllers;
 
 public class HomeController : LotteryDetectionControllerBase
 {
+    private readonly IConfigurationRoot _appConfiguration;
     private readonly IWebHostEnvironment _webHostEnvironment;
-    readonly IConfigurationRoot _appConfiguration;
 
     public HomeController(
         IWebHostEnvironment webHostEnvironment,
@@ -23,18 +23,11 @@ public class HomeController : LotteryDetectionControllerBase
     [DisableAuditing]
     public IActionResult Index()
     {
-        if (_webHostEnvironment.IsDevelopment())
-        {
-            return RedirectToAction("Index", "Ui");
-        }
+        if (_webHostEnvironment.IsDevelopment()) return RedirectToAction("Index", "Ui");
 
         var homePageUrl = _appConfiguration["App:HomePageUrl"];
-        if (string.IsNullOrEmpty(homePageUrl))
-        {
-            return RedirectToAction("Index", "Ui");
-        }
+        if (string.IsNullOrEmpty(homePageUrl)) return RedirectToAction("Index", "Ui");
 
         return Redirect(homePageUrl);
     }
 }
-

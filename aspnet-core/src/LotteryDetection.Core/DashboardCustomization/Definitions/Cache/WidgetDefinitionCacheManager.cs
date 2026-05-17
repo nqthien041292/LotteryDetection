@@ -31,4 +31,3 @@ public class WidgetDefinitionCacheManager : IWidgetDefinitionCacheManager
         return _cache.GetOrDefault(name);
     }
 }
-

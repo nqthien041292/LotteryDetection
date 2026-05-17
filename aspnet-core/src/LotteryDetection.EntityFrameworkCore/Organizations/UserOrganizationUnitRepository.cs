@@ -7,10 +7,9 @@ using Abp.Collections.Extensions;
 using Abp.EntityFrameworkCore;
 using Abp.Organizations;
 using Abp.UI;
-using Castle.Core.Internal;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.EntityFrameworkCore.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Organizations;
 
@@ -24,10 +23,7 @@ public class UserOrganizationUnitRepository : LotteryDetectionRepositoryBase<Use
 
     public async Task<List<UserIdentifier>> GetAllUsersInOrganizationUnitHierarchical(long[] organizationUnitIds)
     {
-        if (organizationUnitIds.IsNullOrEmpty())
-        {
-            return new List<UserIdentifier>();
-        }
+        if (organizationUnitIds.IsNullOrEmpty()) return new List<UserIdentifier>();
 
         var context = await GetContextAsync();
 
@@ -35,17 +31,12 @@ public class UserOrganizationUnitRepository : LotteryDetectionRepositoryBase<Use
             .Where(ou => organizationUnitIds.Contains(ou.Id))
             .ToListAsync();
 
-        if (selectedOrganizationUnitCodes == null)
-        {
-            throw new UserFriendlyException("Can not find an organization unit");
-        }
+        if (selectedOrganizationUnitCodes == null) throw new UserFriendlyException("Can not find an organization unit");
 
         var predicate = PredicateBuilder.New<OrganizationUnit>();
 
         foreach (var selectedOrganizationUnitCode in selectedOrganizationUnitCodes)
-        {
             predicate = predicate.Or(ou => ou.Code.StartsWith(selectedOrganizationUnitCode.Code));
-        }
 
         var userIdQueryHierarchical = await context.UserOrganizationUnits
             .Join(
@@ -62,4 +53,3 @@ public class UserOrganizationUnitRepository : LotteryDetectionRepositoryBase<Use
             .ToList();
     }
 }
-

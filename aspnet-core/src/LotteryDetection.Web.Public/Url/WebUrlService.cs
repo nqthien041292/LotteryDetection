@@ -17,4 +17,3 @@ public class WebUrlService : WebUrlServiceBase, IWebUrlService, ITransientDepend
 
     public override string ServerRootAddressFormatKey => "App:AdminWebSiteRootAddress";
 }
-

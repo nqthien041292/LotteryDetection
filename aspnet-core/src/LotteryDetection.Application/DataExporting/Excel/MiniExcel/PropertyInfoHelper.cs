@@ -17,15 +17,14 @@ public class PropertyInfoHelper : IPropertyInfoHelper
         _timeZoneConverter = timeZoneConverter;
     }
 
-    public object? GetConvertedPropertyValue(PropertyInfo property, object item, Func<PropertyInfo, object, object?>? handleComplexTypes = null)
+    public object? GetConvertedPropertyValue(PropertyInfo property, object item,
+        Func<PropertyInfo, object, object?>? handleComplexTypes = null)
     {
         var propertyType = property.PropertyType;
 
         if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-        {
             // It's a nullable type, get the underlying type
             propertyType = Nullable.GetUnderlyingType(propertyType);
-        }
 
         var typeCode = Type.GetTypeCode(propertyType);
 
@@ -38,10 +37,7 @@ public class PropertyInfoHelper : IPropertyInfoHelper
                 {
                     var value = property.GetValue(item);
 
-                    if (value is null)
-                    {
-                        return "";
-                    }
+                    if (value is null) return "";
 
                     return _timeZoneConverter.Convert((DateTime)value, _abpSession.TenantId, _abpSession.GetUserId());
                 }
@@ -51,13 +47,11 @@ public class PropertyInfoHelper : IPropertyInfoHelper
             case TypeCode.Object:
                 if (propertyType != null)
                 {
-                    if (propertyType == typeof(Guid) || propertyType == typeof(Guid?))
-                    {
-                        return property.GetValue(item);
-                    }
+                    if (propertyType == typeof(Guid) || propertyType == typeof(Guid?)) return property.GetValue(item);
 
                     return handleComplexTypes?.Invoke(property, item);
                 }
+
                 break;
 
             // Handle other specific types if needed

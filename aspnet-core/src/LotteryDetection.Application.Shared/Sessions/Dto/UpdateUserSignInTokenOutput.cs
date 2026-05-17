@@ -8,4 +8,3 @@ public class UpdateUserSignInTokenOutput
 
     public string EncodedTenantId { get; set; }
 }
-

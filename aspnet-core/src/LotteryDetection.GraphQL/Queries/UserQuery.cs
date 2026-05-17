@@ -10,57 +10,43 @@ using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
 using Abp.Organizations;
+using GraphQL;
 using GraphQL.Types;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.Core.Base;
+using LotteryDetection.Core.Extensions;
 using LotteryDetection.Dto;
 using LotteryDetection.Types;
-using LotteryDetection.Core.Extensions;
-using GraphQL;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Queries;
 
 public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, PagedResultDto<UserDto>>
 {
-    private readonly UserManager _userManager;
     private readonly IRepository<OrganizationUnit, long> _organizationUnitRepository;
-    private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
     private readonly RoleManager _roleManager;
-
-    public static class Args
-    {
-        public const string Id = "id";
-        public const string Name = "name";
-        public const string Surname = "surname";
-        public const string EmailAddress = "emailAddress";
-        public const string RoleId = "roleId";
-        public const string Filter = "filter";
-        public const string OnlyLockedUsers = "onlyLockedUsers";
-        public const string Sorting = "sorting";
-        public const string SkipCount = "skipCount";
-        public const string MaxResultCount = "MaxResultCount";
-    }
+    private readonly UserManager _userManager;
+    private readonly IRepository<UserOrganizationUnit, long> _userOrganizationUnitRepository;
 
     public UserQuery(UserManager userManager,
         IRepository<UserOrganizationUnit, long> userOrganizationUnitRepository,
         IRepository<OrganizationUnit, long> organizationUnitRepository,
         RoleManager roleManager)
-    : base("users", new Dictionary<string, Type>
-    {
-            {Args.Id, typeof(IdGraphType)},
-            {Args.Name, typeof(StringGraphType)},
-            {Args.Surname, typeof(StringGraphType)},
-            {Args.EmailAddress, typeof(StringGraphType)},
-            {Args.RoleId, typeof(IntGraphType)},
-            {Args.OnlyLockedUsers, typeof(BooleanGraphType)},
-            {Args.Sorting, typeof(StringGraphType)},
-            {Args.Filter, typeof(StringGraphType)},
-            {Args.SkipCount, typeof(IntGraphType)},
-            {Args.MaxResultCount, typeof(IntGraphType)}
-    })
+        : base("users", new Dictionary<string, Type>
+        {
+            { Args.Id, typeof(IdGraphType) },
+            { Args.Name, typeof(StringGraphType) },
+            { Args.Surname, typeof(StringGraphType) },
+            { Args.EmailAddress, typeof(StringGraphType) },
+            { Args.RoleId, typeof(IntGraphType) },
+            { Args.OnlyLockedUsers, typeof(BooleanGraphType) },
+            { Args.Sorting, typeof(StringGraphType) },
+            { Args.Filter, typeof(StringGraphType) },
+            { Args.SkipCount, typeof(IntGraphType) },
+            { Args.MaxResultCount, typeof(IntGraphType) }
+        })
     {
         _userManager = userManager;
         _userOrganizationUnitRepository = userOrganizationUnitRepository;
@@ -100,14 +86,10 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
     private async Task IncludeDetails(IResolveFieldContext context, List<User> users, List<UserDto> userDtos)
     {
         if (context.HasSelectionField(UserType.ChildFields.GetFieldSelector(UserType.ChildFields.Roles)))
-        {
             AddRolesOfUsers(users, userDtos);
-        }
 
         if (context.HasSelectionField(UserType.ChildFields.GetFieldSelector(UserType.ChildFields.OrganizationUnits)))
-        {
             await AddOrganizationUnitsOfUsers(users, userDtos);
-        }
     }
 
     private void AddRolesOfUsers(List<User> users, List<UserDto> userDtos)
@@ -115,23 +97,17 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
         var roles = GetRolesOfUsers(users);
 
         foreach (var user in users)
-        {
             userDtos
                 .Single(x => x.Id == user.Id)
                 .Roles = roles.Where(role => user.Roles.Select(x => x.RoleId).Contains(role.Id)).ToList();
-        }
     }
 
     private List<UserDto.RoleDto> GetRolesOfUsers(List<User> users)
     {
         var roleIds = new List<int>();
         foreach (var user in users)
-        {
-            foreach (var roleId in user.Roles.Select(x => x.RoleId))
-            {
-                roleIds.AddIfNotContains(roleId);
-            }
-        }
+        foreach (var roleId in user.Roles.Select(x => x.RoleId))
+            roleIds.AddIfNotContains(roleId);
 
         var roles = _roleManager.Roles.Where(x => roleIds.Contains(x.Id));
         return Mapper.Map<List<UserDto.RoleDto>>(roles);
@@ -145,11 +121,9 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
         {
             var orgUnitOfUser = organizationUnitsOfUsers.FirstOrDefault(ou => ou.UserId == userDto.Id);
             if (orgUnitOfUser != null)
-            {
                 userDto.OrganizationUnits = Mapper.Map<List<UserDto.OrganizationUnitDto>>(
                     orgUnitOfUser.OrganizationUnits
                 );
-            }
         });
 
         return userDtos;
@@ -157,15 +131,12 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
 
     private async Task<List<OrganizationUnitsOfUser>> GetOrganizationUnitsOfUsersAsync(IEnumerable<long> userIdList)
     {
-        if (userIdList == null)
-        {
-            return new List<OrganizationUnitsOfUser>();
-        }
+        if (userIdList == null) return new List<OrganizationUnitsOfUser>();
 
         //TODO: Try to reduce to single query
 
         var userOrgUnits = (await _userOrganizationUnitRepository.GetAll().Where(x => userIdList.Contains(x.UserId))
-            .Select(u => new { u.UserId, u.OrganizationUnitId }).ToListAsync()
+                .Select(u => new { u.UserId, u.OrganizationUnitId }).ToListAsync()
             )
             .GroupBy(x => x.UserId)
             .Select(x => new
@@ -176,12 +147,8 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
 
         var distinctOrgUnitIds = new List<long>();
         foreach (var organizationUnitsOfUser in userOrgUnits)
-        {
-            foreach (var organizationUnitId in organizationUnitsOfUser.OrganizationUnitIds)
-            {
-                distinctOrgUnitIds.AddIfNotContains(organizationUnitId);
-            }
-        }
+        foreach (var organizationUnitId in organizationUnitsOfUser.OrganizationUnitIds)
+            distinctOrgUnitIds.AddIfNotContains(organizationUnitId);
 
         var organizationUnits = await _organizationUnitRepository
             .GetAll()
@@ -198,14 +165,10 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
     private static IQueryable<User> IncludeQuery(IQueryable<User> query, IResolveFieldContext context)
     {
         if (context.HasSelectionField(UserType.ChildFields.GetFieldSelector(UserType.ChildFields.Roles)))
-        {
             query = query.Include(x => x.Roles);
-        }
 
         if (context.HasSelectionField(UserType.ChildFields.GetFieldSelector(UserType.ChildFields.OrganizationUnits)))
-        {
             query = query.Include(x => x.OrganizationUnits);
-        }
 
         return query;
     }
@@ -227,12 +190,26 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
                 onlyLocked => query = query.WhereIf(onlyLocked,
                     u => u.LockoutEndDateUtc.HasValue && u.LockoutEndDateUtc.Value > DateTime.UtcNow))
             .ContainsArgument<string>(Args.Filter, filter => query = query.WhereIf(!string.IsNullOrWhiteSpace(filter),
-                    u => u.Name.Contains(filter) ||
-                    u.Surname.Contains(filter) ||
-                    u.UserName.Contains(filter) ||
-                    u.EmailAddress.Contains(filter)));
+                u => u.Name.Contains(filter) ||
+                     u.Surname.Contains(filter) ||
+                     u.UserName.Contains(filter) ||
+                     u.EmailAddress.Contains(filter)));
 
         return query;
+    }
+
+    public static class Args
+    {
+        public const string Id = "id";
+        public const string Name = "name";
+        public const string Surname = "surname";
+        public const string EmailAddress = "emailAddress";
+        public const string RoleId = "roleId";
+        public const string Filter = "filter";
+        public const string OnlyLockedUsers = "onlyLockedUsers";
+        public const string Sorting = "sorting";
+        public const string SkipCount = "skipCount";
+        public const string MaxResultCount = "MaxResultCount";
     }
 
     private class OrganizationUnitsOfUser
@@ -242,4 +219,3 @@ public class UserQuery : LotteryDetectionQueryBase<UserPagedResultGraphType, Pag
         public List<OrganizationUnit> OrganizationUnits { get; set; }
     }
 }
-

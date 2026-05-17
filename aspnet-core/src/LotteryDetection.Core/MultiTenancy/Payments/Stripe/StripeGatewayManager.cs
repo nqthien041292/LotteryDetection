@@ -16,13 +16,10 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
     ISupportsRecurringPayments,
     ITransientDependency
 {
-    private readonly TenantManager _tenantManager;
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
-    private readonly IPaymentManager _paymentManager;
-
     public static string StripeSessionIdSubscriptionPaymentExtensionDataKey = "StripeSessionId";
-
-    public IEventBus EventBus { get; set; }
+    private readonly IPaymentManager _paymentManager;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
+    private readonly TenantManager _tenantManager;
 
     public StripeGatewayManager(
         TenantManager tenantManager,
@@ -36,18 +33,100 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
         _paymentManager = paymentManager;
     }
 
+    public IEventBus EventBus { get; set; }
+
+    public void HandleEvent(RecurringPaymentsDisabledEventData eventData)
+    {
+        var subscriptionPayment = _paymentManager.GetLastCompletedSubscriptionPayment(eventData.TenantId);
+
+        var subscriptionService = new SubscriptionService();
+        subscriptionService.Update(subscriptionPayment.ExternalPaymentId, new SubscriptionUpdateOptions
+        {
+            CancelAtPeriodEnd = false,
+            CollectionMethod = "send_invoice",
+            DaysUntilDue = eventData.DaysUntilDue
+        });
+    }
+
+    public void HandleEvent(RecurringPaymentsEnabledEventData eventData)
+    {
+        var subscriptionPayment = _paymentManager.GetLastCompletedSubscriptionPayment(eventData.TenantId);
+
+        if (subscriptionPayment == null || subscriptionPayment.ExternalPaymentId.IsNullOrEmpty()) return;
+
+        var subscriptionService = new SubscriptionService();
+        subscriptionService.Update(subscriptionPayment.ExternalPaymentId, new SubscriptionUpdateOptions
+        {
+            CancelAtPeriodEnd = false,
+            CollectionMethod = "charge_automatically"
+        });
+    }
+
+    public void HandleEvent(SubscriptionCancelledEventData eventData)
+    {
+        AsyncHelper.RunSync(() => CancelSubscription(eventData.ExternalPaymentId));
+    }
+
+    public void HandleEvent(SubscriptionUpdatedEventData eventData)
+    {
+        var subscriptionPayment = _subscriptionPaymentRepository.Get(eventData.PaymentId);
+
+        if (subscriptionPayment == null || subscriptionPayment.ExternalPaymentId.IsNullOrEmpty())
+            // no subscription on stripe !
+            return;
+
+        if (eventData.NewPlanId.IsNullOrEmpty() || (eventData.NewPlanAmount ?? 0) == 0)
+        {
+            AsyncHelper.RunSync(() => CancelSubscription(subscriptionPayment.ExternalPaymentId));
+            return;
+        }
+
+        var payment = new SubscriptionPayment
+        {
+            TenantId = eventData.TenantId,
+            PaymentPeriodType = subscriptionPayment.GetPaymentPeriodType(),
+            Gateway = SubscriptionPaymentGatewayType.Stripe,
+            IsRecurring = true,
+            DayCount = subscriptionPayment.DayCount,
+            SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>
+            {
+                new(
+                    eventData.Description,
+                    eventData.NewPlanAmount,
+                    extraProperties: eventData.ExtraProperties
+                )
+            }
+        };
+
+        _subscriptionPaymentRepository.InsertAndGetId(payment);
+
+        CurrentUnitOfWork.SaveChanges();
+
+        if (!AsyncHelper.RunSync(() => DoesPlanExistAsync(eventData.NewPlanId)))
+            AsyncHelper.RunSync(() =>
+                CreatePlanAsync(
+                    eventData.NewPlanId,
+                    subscriptionPayment.GetPlanType(),
+                    eventData.NewPlanAmount.Value,
+                    GetPlanInterval(subscriptionPayment.PaymentPeriodType),
+                    LotteryDetectionConsts.ProductName
+                )
+            );
+
+        AsyncHelper.RunSync(() => UpdateSubscription(subscriptionPayment.ExternalPaymentId, eventData.NewPlanId));
+    }
+
     public async Task UpdateSubscription(SubscriptionPayment payment, bool isProrateCharged = false)
     {
         var lastPayment = await _subscriptionPaymentRepository.GetLastCompletedPaymentOrDefaultAsync(
-            tenantId: payment.TenantId,
+            payment.TenantId,
             SubscriptionPaymentGatewayType.Stripe,
-            isRecurring: true);
+            true);
 
         var newPlanId = payment.GetPlanId();
         decimal? newPlanAmount = payment.GetPlanAmount();
 
-        if (!(await DoesPlanExistAsync(newPlanId)))
-        {
+        if (!await DoesPlanExistAsync(newPlanId))
             await CreatePlanAsync(
                 newPlanId,
                 payment.GetPlanType(),
@@ -55,7 +134,6 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
                 GetPlanInterval(payment.PaymentPeriodType),
                 LotteryDetectionConsts.ProductName
             );
-        }
 
         await UpdateSubscription(lastPayment.ExternalPaymentId, newPlanId, isProrateCharged);
     }
@@ -71,10 +149,10 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
             Items =
             [
                 new SubscriptionItemOptions
-                    {
-                        Id = subscription.Items.Data[0].Id,
-                        Plan = newPlanId
-                    }
+                {
+                    Id = subscription.Items.Data[0].Id,
+                    Plan = newPlanId
+                }
             ],
             ProrationBehavior = !isProrateCharged ? "always_invoice" : "none"
         });
@@ -84,9 +162,9 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
         );
 
         var payment = await _subscriptionPaymentRepository.GetLastPaymentOrDefaultAsync(
-            tenantId: lastRecurringPayment.TenantId,
+            lastRecurringPayment.TenantId,
             SubscriptionPaymentGatewayType.Stripe,
-            isRecurring: true);
+            true);
 
         // This is a one-time payment to upgrade subscription!
         payment.IsRecurring = false;
@@ -95,7 +173,7 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
     public async Task CancelSubscription(string subscriptionId)
     {
         var subscriptionService = new SubscriptionService();
-        await subscriptionService.CancelAsync(subscriptionId, null);
+        await subscriptionService.CancelAsync(subscriptionId);
 
         var payment = await _subscriptionPaymentRepository.GetByGatewayAndPaymentIdAsync(
             SubscriptionPaymentGatewayType.Stripe,
@@ -164,10 +242,7 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
 
     public string GetPlanInterval(PaymentPeriodType? paymentPeriod)
     {
-        if (!paymentPeriod.HasValue)
-        {
-            throw new ArgumentNullException(nameof(paymentPeriod));
-        }
+        if (!paymentPeriod.HasValue) throw new ArgumentNullException(nameof(paymentPeriod));
 
         switch (paymentPeriod.Value)
         {
@@ -198,106 +273,15 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
         var customerService = new CustomerService();
 
         if (session.CustomerId.IsNullOrEmpty())
-        {
             return await customerService.CreateAsync(new CustomerCreateOptions
             {
                 Description = description
             });
-        }
 
         return await customerService.UpdateAsync(session.CustomerId, new CustomerUpdateOptions
         {
             Description = description
         });
-    }
-
-    public void HandleEvent(RecurringPaymentsDisabledEventData eventData)
-    {
-        var subscriptionPayment = _paymentManager.GetLastCompletedSubscriptionPayment(eventData.TenantId);
-
-        var subscriptionService = new SubscriptionService();
-        subscriptionService.Update(subscriptionPayment.ExternalPaymentId, new SubscriptionUpdateOptions
-        {
-            CancelAtPeriodEnd = false,
-            CollectionMethod = "send_invoice",
-            DaysUntilDue = eventData.DaysUntilDue
-        });
-    }
-
-    public void HandleEvent(RecurringPaymentsEnabledEventData eventData)
-    {
-        var subscriptionPayment = _paymentManager.GetLastCompletedSubscriptionPayment(eventData.TenantId);
-
-        if (subscriptionPayment == null || subscriptionPayment.ExternalPaymentId.IsNullOrEmpty())
-        {
-            return;
-        }
-
-        var subscriptionService = new SubscriptionService();
-        subscriptionService.Update(subscriptionPayment.ExternalPaymentId, new SubscriptionUpdateOptions
-        {
-            CancelAtPeriodEnd = false,
-            CollectionMethod = "charge_automatically"
-        });
-    }
-
-    public void HandleEvent(SubscriptionCancelledEventData eventData)
-    {
-        AsyncHelper.RunSync(() => CancelSubscription(eventData.ExternalPaymentId));
-    }
-
-    public void HandleEvent(SubscriptionUpdatedEventData eventData)
-    {
-        var subscriptionPayment = _subscriptionPaymentRepository.Get(eventData.PaymentId);
-
-        if (subscriptionPayment == null || subscriptionPayment.ExternalPaymentId.IsNullOrEmpty())
-        {
-            // no subscription on stripe !
-            return;
-        }
-
-        if (eventData.NewPlanId.IsNullOrEmpty() || (eventData.NewPlanAmount ?? 0) == 0)
-        {
-            AsyncHelper.RunSync(() => CancelSubscription(subscriptionPayment.ExternalPaymentId));
-            return;
-        }
-
-        var payment = new SubscriptionPayment
-        {
-            TenantId = eventData.TenantId,
-            PaymentPeriodType = subscriptionPayment.GetPaymentPeriodType(),
-            Gateway = SubscriptionPaymentGatewayType.Stripe,
-            IsRecurring = true,
-            DayCount = subscriptionPayment.DayCount,
-            SubscriptionPaymentProducts = new List<SubscriptionPaymentProduct>
-                {
-                    new(
-                        description: eventData.Description,
-                        amount: eventData.NewPlanAmount,
-                        count: 1,
-                        extraProperties: eventData.ExtraProperties
-                    )
-                }
-        };
-
-        _subscriptionPaymentRepository.InsertAndGetId(payment);
-
-        CurrentUnitOfWork.SaveChanges();
-
-        if (!AsyncHelper.RunSync(() => DoesPlanExistAsync(eventData.NewPlanId)))
-        {
-            AsyncHelper.RunSync(() =>
-                CreatePlanAsync(
-                    eventData.NewPlanId,
-                    subscriptionPayment.GetPlanType(),
-                    eventData.NewPlanAmount.Value,
-                    GetPlanInterval(subscriptionPayment.PaymentPeriodType),
-                    LotteryDetectionConsts.ProductName
-                )
-            );
-        }
-
-        AsyncHelper.RunSync(() => UpdateSubscription(subscriptionPayment.ExternalPaymentId, eventData.NewPlanId));
     }
 
     public async Task HandleInvoicePaymentSucceededAsync(Invoice invoice)
@@ -352,9 +336,9 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
             Product = productId,
             Currency = LotteryDetectionConsts.Currency,
             Metadata = new Dictionary<string, string>
-                {
-                    {PaymentConsts.PlanType, planType}
-                }
+            {
+                { PaymentConsts.PlanType, planType }
+            }
         });
 
         return new StripeIdResponse
@@ -397,4 +381,3 @@ public class StripeGatewayManager : LotteryDetectionServiceBase,
         );
     }
 }
-

@@ -4,14 +4,8 @@ namespace LotteryDetection.MultiTenancy.HostDashboard.Dto;
 
 public class IncomeStastistic
 {
-    public string Label { get; set; }
-    public DateTime Date { get; set; }
-    public decimal Amount { get; set; }
-
     public IncomeStastistic()
     {
-
-
     }
 
     public IncomeStastistic(DateTime date)
@@ -24,5 +18,8 @@ public class IncomeStastistic
         Date = date;
         Amount = amount;
     }
-}
 
+    public string Label { get; set; }
+    public DateTime Date { get; set; }
+    public decimal Amount { get; set; }
+}

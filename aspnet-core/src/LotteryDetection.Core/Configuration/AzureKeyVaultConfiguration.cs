@@ -1,11 +1,8 @@
-﻿using Abp.Extensions;
-
-namespace LotteryDetection.Configuration;
+﻿namespace LotteryDetection.Configuration;
 
 public class AzureKeyVaultConfiguration
 {
     /// <summary>
-    /// 
     /// </summary>
     public string TenantId { get; set; }
 
@@ -17,4 +14,3 @@ public class AzureKeyVaultConfiguration
 
     public string KeyVaultName { get; set; }
 }
-

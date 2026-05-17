@@ -6,12 +6,12 @@ using LotteryDetection.Authorization;
 namespace LotteryDetection;
 
 /// <summary>
-/// Application layer module of the application.
+///     Application layer module of the application.
 /// </summary>
 [DependsOn(
     typeof(LotteryDetectionApplicationSharedModule),
     typeof(LotteryDetectionCoreModule)
-    )]
+)]
 public class LotteryDetectionApplicationModule : AbpModule
 {
     public override void PreInitialize()

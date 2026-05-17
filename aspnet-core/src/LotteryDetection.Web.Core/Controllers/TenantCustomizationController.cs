@@ -9,24 +9,23 @@ using Abp.MimeTypes;
 using Abp.Runtime.Session;
 using Abp.UI;
 using Abp.Web.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using LotteryDetection.Authorization;
-using LotteryDetection.Authorization.Users.Profile.Dto;
 using LotteryDetection.Graphics;
 using LotteryDetection.MultiTenancy;
 using LotteryDetection.Storage;
 using LotteryDetection.Tenants;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LotteryDetection.Web.Controllers;
 
 [AbpMvcAuthorize]
 public class TenantCustomizationController : LotteryDetectionControllerBase
 {
-    private readonly TenantManager _tenantManager;
     private readonly IBinaryObjectManager _binaryObjectManager;
-    private readonly IMimeTypeMap _mimeTypeMap;
     private readonly IImageValidator _imageValidator;
+    private readonly IMimeTypeMap _mimeTypeMap;
+    private readonly TenantManager _tenantManager;
 
     public TenantCustomizationController(
         TenantManager tenantManager,
@@ -54,7 +53,7 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
 
             return Json(new AjaxResponse(new
             {
-                id = logoObject.id,
+                logoObject.id,
                 TenantId = tenant.Id,
                 fileType = tenant.LightLogoFileType
             }));
@@ -79,7 +78,7 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
 
             return Json(new AjaxResponse(new
             {
-                id = logoObject.id,
+                logoObject.id,
                 TenantId = tenant.Id,
                 fileType = tenant.LightLogoMinimalFileType
             }));
@@ -104,7 +103,7 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
 
             return Json(new AjaxResponse(new
             {
-                id = logoObject.id,
+                logoObject.id,
                 TenantId = tenant.Id,
                 fileType = tenant.DarkLogoFileType
             }));
@@ -129,7 +128,7 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
 
             return Json(new AjaxResponse(new
             {
-                id = logoObject.id,
+                logoObject.id,
                 TenantId = tenant.Id,
                 fileType = tenant.DarkLogoMinimalFileType
             }));
@@ -145,15 +144,10 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
         var logoFile = Request.Form.Files.First();
 
         //Check input
-        if (logoFile == null)
-        {
-            throw new UserFriendlyException(L("File_Empty_Error"));
-        }
+        if (logoFile == null) throw new UserFriendlyException(L("File_Empty_Error"));
 
         if (logoFile.Length > 102400) //100KB
-        {
             throw new UserFriendlyException(L("File_SizeLimit_Error"));
-        }
 
         byte[] fileBytes;
         await using (var stream = logoFile.OpenReadStream())
@@ -176,15 +170,10 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
             var cssFile = Request.Form.Files.First();
 
             //Check input
-            if (cssFile == null)
-            {
-                throw new UserFriendlyException(L("File_Empty_Error"));
-            }
+            if (cssFile == null) throw new UserFriendlyException(L("File_Empty_Error"));
 
             if (cssFile.Length > 1048576) //1MB
-            {
                 throw new UserFriendlyException(L("File_SizeLimit_Error"));
-            }
 
             byte[] fileBytes;
             using (var stream = cssFile.OpenReadStream())
@@ -210,29 +199,17 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
     [AllowAnonymous]
     public async Task<ActionResult> GetLogo(int? tenantId)
     {
-        if (tenantId == null)
-        {
-            tenantId = AbpSession.TenantId;
-        }
+        if (tenantId == null) tenantId = AbpSession.TenantId;
 
-        if (!tenantId.HasValue)
-        {
-            return StatusCode((int)HttpStatusCode.NotFound);
-        }
+        if (!tenantId.HasValue) return StatusCode((int)HttpStatusCode.NotFound);
 
         var tenant = await _tenantManager.FindByIdAsync(tenantId.Value);
-        if (tenant == null || !tenant.HasLogo())
-        {
-            return StatusCode((int)HttpStatusCode.NotFound);
-        }
+        if (tenant == null || !tenant.HasLogo()) return StatusCode((int)HttpStatusCode.NotFound);
 
         using (CurrentUnitOfWork.SetTenantId(tenantId.Value))
         {
             var logoObject = await _binaryObjectManager.GetOrNullAsync(tenant.LightLogoId.Value);
-            if (logoObject == null)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound);
-            }
+            if (logoObject == null) return StatusCode((int)HttpStatusCode.NotFound);
 
             return File(logoObject.Bytes, tenant.LightLogoFileType);
         }
@@ -253,24 +230,15 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
         var mimeType = _mimeTypeMap.GetMimeType("." + extension);
         var defaultLogo = "/Common/Images/app-logo-on-" + skin + "." + extension;
 
-        if (tenantId == null)
-        {
-            return File(defaultLogo, mimeType);
-        }
+        if (tenantId == null) return File(defaultLogo, mimeType);
 
         var tenant = await _tenantManager.FindByIdAsync(tenantId.Value);
-        if (tenant == null || !tenant.HasLogo())
-        {
-            return File(defaultLogo, mimeType);
-        }
+        if (tenant == null || !tenant.HasLogo()) return File(defaultLogo, mimeType);
 
         async Task<ActionResult> GetLogoInternal(Guid id, string logoFileType)
         {
             var logoObject = await _binaryObjectManager.GetOrNullAsync(id);
-            if (logoObject == null)
-            {
-                return File(defaultLogo, mimeType);
-            }
+            if (logoObject == null) return File(defaultLogo, mimeType);
 
             return File(logoObject.Bytes, logoFileType);
         }
@@ -281,27 +249,19 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
             {
                 case "dark":
                     if (tenant.HasDarkLogo())
-                    {
                         return await GetLogoInternal(tenant.DarkLogoId.Value, tenant.DarkLogoFileType);
-                    }
                     break;
                 case "dark-sm":
                     if (tenant.HasDarkLogoMinimal())
-                    {
                         return await GetLogoInternal(tenant.DarkLogoMinimalId.Value, tenant.DarkLogoMinimalFileType);
-                    }
                     break;
                 case "light":
                     if (tenant.HasLightLogo())
-                    {
                         return await GetLogoInternal(tenant.LightLogoId.Value, tenant.LightLogoFileType);
-                    }
                     break;
                 case "light-sm":
                     if (tenant.HasLightLogoMinimal())
-                    {
                         return await GetLogoInternal(tenant.LightLogoMinimalId.Value, tenant.LightLogoMinimalFileType);
-                    }
                     break;
             }
         }
@@ -313,18 +273,12 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
     public async Task<ActionResult> GetTenantLogoOrNull(string skin, int tenantId)
     {
         var tenant = await _tenantManager.FindByIdAsync(tenantId);
-        if (tenant == null || !tenant.HasLogo())
-        {
-            return Ok(new GetTenantLogoOutput());
-        }
+        if (tenant == null || !tenant.HasLogo()) return Ok(new GetTenantLogoOutput());
 
         async Task<ActionResult> GetLogoInternal(Guid id, string logoFileType)
         {
             var logoObject = await _binaryObjectManager.GetOrNullAsync(id);
-            if (logoObject == null)
-            {
-                return null;
-            }
+            if (logoObject == null) return null;
 
             return Ok(new GetTenantLogoOutput(Convert.ToBase64String(logoObject.Bytes), logoFileType));
         }
@@ -334,26 +288,18 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
             if (skin.ToLower() == "dark" || skin.ToLower() == "dark-sm")
             {
                 if (tenant.HasDarkLogo())
-                {
                     return await GetLogoInternal(tenant.DarkLogoId.Value, tenant.DarkLogoFileType);
-                }
 
                 if (tenant.HasLightLogo())
-                {
                     return await GetLogoInternal(tenant.LightLogoId.Value, tenant.LightLogoFileType);
-                }
             }
             else
             {
                 if (tenant.HasLightLogo())
-                {
                     return await GetLogoInternal(tenant.LightLogoId.Value, tenant.LightLogoFileType);
-                }
 
                 if (tenant.HasDarkLogo())
-                {
                     return await GetLogoInternal(tenant.DarkLogoId.Value, tenant.DarkLogoFileType);
-                }
             }
         }
 
@@ -363,32 +309,19 @@ public class TenantCustomizationController : LotteryDetectionControllerBase
     [AllowAnonymous]
     public async Task<ActionResult> GetCustomCss(int? tenantId)
     {
-        if (tenantId == null)
-        {
-            tenantId = AbpSession.TenantId;
-        }
+        if (tenantId == null) tenantId = AbpSession.TenantId;
 
-        if (!tenantId.HasValue)
-        {
-            return StatusCode((int)HttpStatusCode.NotFound);
-        }
+        if (!tenantId.HasValue) return StatusCode((int)HttpStatusCode.NotFound);
 
         var tenant = await _tenantManager.FindByIdAsync(tenantId.Value);
-        if (tenant == null || !tenant.CustomCssId.HasValue)
-        {
-            return StatusCode((int)HttpStatusCode.NotFound);
-        }
+        if (tenant == null || !tenant.CustomCssId.HasValue) return StatusCode((int)HttpStatusCode.NotFound);
 
         using (CurrentUnitOfWork.SetTenantId(tenantId.Value))
         {
             var cssFileObject = await _binaryObjectManager.GetOrNullAsync(tenant.CustomCssId.Value);
-            if (cssFileObject == null)
-            {
-                return StatusCode((int)HttpStatusCode.NotFound);
-            }
+            if (cssFileObject == null) return StatusCode((int)HttpStatusCode.NotFound);
 
             return File(cssFileObject.Bytes, MimeTypeNames.TextCss);
         }
     }
 }
-

@@ -16,4 +16,3 @@ public class EntityPropertyChangeDto : EntityDto<long>
 
     public int? TenantId { get; set; }
 }
-

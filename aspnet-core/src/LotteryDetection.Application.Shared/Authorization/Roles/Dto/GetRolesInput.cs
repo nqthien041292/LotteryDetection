@@ -6,4 +6,3 @@ public class GetRolesInput
 {
     public List<string> Permissions { get; set; }
 }
-

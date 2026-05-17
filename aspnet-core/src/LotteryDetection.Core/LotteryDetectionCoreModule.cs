@@ -1,40 +1,23 @@
 ﻿using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Abp;
 using Abp.AspNetZeroCore;
 using Abp.AspNetZeroCore.Timing;
 using Abp.AutoMapper;
-using Abp.BackgroundJobs;
+using Abp.Configuration.Startup;
 using Abp.Dependency;
+using Abp.MailKit;
 using Abp.Modules;
 using Abp.Net.Mail;
-using Abp.Reflection.Extensions;
-using Abp.Timing;
-using Abp.Configuration.Startup;
-using Abp.Domain.Uow;
-using Abp.Events.Bus;
-using Abp.Events.Bus.Exceptions;
-using Abp.Json;
-using Abp.Localization.Dictionaries.Xml;
-using Abp.Localization.Sources;
-using Abp.MailKit;
 using Abp.Net.Mail.Smtp;
 using Abp.OpenIddict;
-using Abp.Threading;
-using Abp.Threading.BackgroundWorkers;
-using Abp.Threading.Timers;
+using Abp.Reflection.Extensions;
+using Abp.Timing;
 using Abp.Zero;
 using Abp.Zero.Configuration;
 using Abp.Zero.Ldap;
-using Abp.Zero.Ldap.Configuration;
 using Castle.MicroKernel.Registration;
-using MailKit.Security;
 using LotteryDetection.Authentication.TwoFactor;
 using LotteryDetection.Authorization.Delegation;
 using LotteryDetection.Authorization.Impersonation;
-using LotteryDetection.Authorization.Ldap;
 using LotteryDetection.Authorization.PasswordlessLogin;
 using LotteryDetection.Authorization.QrLogin;
 using LotteryDetection.Authorization.Roles;
@@ -52,6 +35,7 @@ using LotteryDetection.MultiTenancy;
 using LotteryDetection.Net.Emailing;
 using LotteryDetection.Notifications;
 using LotteryDetection.WebHooks;
+using MailKit.Security;
 
 namespace LotteryDetection;
 
@@ -108,23 +92,22 @@ public class LotteryDetectionCoreModule : AbpModule
 
         // MailKit configuration
         Configuration.Modules.AbpMailKit().SecureSocketOption = SecureSocketOptions.Auto;
-        Configuration.ReplaceService<IMailKitSmtpBuilder, LotteryDetectionMailKitSmtpBuilder>(DependencyLifeStyle.Transient);
+        Configuration.ReplaceService<IMailKitSmtpBuilder, LotteryDetectionMailKitSmtpBuilder>(DependencyLifeStyle
+            .Transient);
 
         //Configure roles
         AppRoleConfig.Configure(Configuration.Modules.Zero().RoleManagement);
 
         if (DebugHelper.IsDebug)
-        {
             //Disabling email sending in debug mode
             Configuration.ReplaceService<IEmailSender, NullEmailSender>(DependencyLifeStyle.Transient);
-        }
 
         Configuration.ReplaceService(typeof(IEmailSenderConfiguration), () =>
         {
             Configuration.IocManager.IocContainer.Register(
                 Component.For<IEmailSenderConfiguration, ISmtpEmailSenderConfiguration>()
-                         .ImplementedBy<LotteryDetectionSmtpEmailSenderConfiguration>()
-                         .LifestyleTransient()
+                    .ImplementedBy<LotteryDetectionSmtpEmailSenderConfiguration>()
+                    .LifestyleTransient()
             );
         });
 
@@ -153,35 +136,22 @@ public class LotteryDetectionCoreModule : AbpModule
 
     private void ConfigureCaching()
     {
-        Configuration.Caching.Configure(FriendCacheItem.CacheName, cache =>
-        {
-            cache.DefaultSlidingExpireTime = FriendCacheItem.DefaultSlidingExpireTime;
-        });
+        Configuration.Caching.Configure(FriendCacheItem.CacheName,
+            cache => { cache.DefaultSlidingExpireTime = FriendCacheItem.DefaultSlidingExpireTime; });
 
-        Configuration.Caching.Configure(TwoFactorCodeCacheItem.CacheName, cache =>
-        {
-            cache.DefaultSlidingExpireTime = TwoFactorCodeCacheItem.DefaultSlidingExpireTime;
-        });
+        Configuration.Caching.Configure(TwoFactorCodeCacheItem.CacheName,
+            cache => { cache.DefaultSlidingExpireTime = TwoFactorCodeCacheItem.DefaultSlidingExpireTime; });
 
-        Configuration.Caching.Configure(PasswordlessLoginCodeCacheItem.CacheName, cache =>
-        {
-            cache.DefaultSlidingExpireTime = PasswordlessLoginCodeCacheItem.DefaultSlidingExpireTime;
-        });
+        Configuration.Caching.Configure(PasswordlessLoginCodeCacheItem.CacheName,
+            cache => { cache.DefaultSlidingExpireTime = PasswordlessLoginCodeCacheItem.DefaultSlidingExpireTime; });
 
-        Configuration.Caching.Configure(ImpersonationCacheItem.CacheName, cache =>
-        {
-            cache.DefaultSlidingExpireTime = ImpersonationCacheItem.DefaultSlidingExpireTime;
-        });
+        Configuration.Caching.Configure(ImpersonationCacheItem.CacheName,
+            cache => { cache.DefaultSlidingExpireTime = ImpersonationCacheItem.DefaultSlidingExpireTime; });
 
-        Configuration.Caching.Configure(SwitchToLinkedAccountCacheItem.CacheName, cache =>
-        {
-            cache.DefaultSlidingExpireTime = SwitchToLinkedAccountCacheItem.DefaultSlidingExpireTime;
-        });
+        Configuration.Caching.Configure(SwitchToLinkedAccountCacheItem.CacheName,
+            cache => { cache.DefaultSlidingExpireTime = SwitchToLinkedAccountCacheItem.DefaultSlidingExpireTime; });
 
-        Configuration.Caching.Configure(QrLoginSessionIdCacheItem.CacheName, cache =>
-        {
-            cache.DefaultSlidingExpireTime = QrLoginSessionIdCacheItem.DefaultSlidingExpireTime;
-        });
+        Configuration.Caching.Configure(QrLoginSessionIdCacheItem.CacheName,
+            cache => { cache.DefaultSlidingExpireTime = QrLoginSessionIdCacheItem.DefaultSlidingExpireTime; });
     }
 }
-

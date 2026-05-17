@@ -28,24 +28,16 @@ public class GetAuditLogsInput : PagedAndSortedInputDto, IShouldNormalize
 
     public void Normalize()
     {
-        if (Sorting.IsNullOrWhiteSpace())
-        {
-            Sorting = "ExecutionTime DESC";
-        }
+        if (Sorting.IsNullOrWhiteSpace()) Sorting = "ExecutionTime DESC";
 
         Sorting = DtoSortingHelper.ReplaceSorting(Sorting, s =>
         {
             if (s.IndexOf("UserName", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
                 s = "User." + s;
-            }
             else
-            {
                 s = "AuditLog." + s;
-            }
 
             return s;
         });
     }
 }
-

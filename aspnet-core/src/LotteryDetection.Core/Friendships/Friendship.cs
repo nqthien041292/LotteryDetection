@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp;
@@ -13,9 +12,33 @@ namespace LotteryDetection.Friendships;
 [Table("AppFriendships")]
 public class Friendship : Entity<long>, IHasCreationTime, IMayHaveTenant
 {
-    public long UserId { get; set; }
+    public Friendship(UserIdentifier user, UserIdentifier probableFriend, string probableFriendTenancyName,
+        string probableFriendUserName, Guid? probableFriendProfilePictureId, FriendshipState state)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
 
-    public int? TenantId { get; set; }
+        if (probableFriend == null) throw new ArgumentNullException(nameof(probableFriend));
+
+        if (!Enum.IsDefined(typeof(FriendshipState), state))
+            throw new Exception("Invalid FriendshipState value: " + state);
+
+        UserId = user.UserId;
+        TenantId = user.TenantId;
+        FriendUserId = probableFriend.UserId;
+        FriendTenantId = probableFriend.TenantId;
+        FriendTenancyName = probableFriendTenancyName;
+        FriendUserName = probableFriendUserName;
+        State = state;
+        FriendProfilePictureId = probableFriendProfilePictureId;
+
+        CreationTime = Clock.Now;
+    }
+
+    protected Friendship()
+    {
+    }
+
+    public long UserId { get; set; }
 
     public long FriendUserId { get; set; }
 
@@ -33,38 +56,5 @@ public class Friendship : Entity<long>, IHasCreationTime, IMayHaveTenant
 
     public DateTime CreationTime { get; set; }
 
-    public Friendship(UserIdentifier user, UserIdentifier probableFriend, string probableFriendTenancyName, string probableFriendUserName, Guid? probableFriendProfilePictureId, FriendshipState state)
-    {
-        if (user == null)
-        {
-            throw new ArgumentNullException(nameof(user));
-        }
-
-        if (probableFriend == null)
-        {
-            throw new ArgumentNullException(nameof(probableFriend));
-        }
-
-        if (!Enum.IsDefined(typeof(FriendshipState), state))
-        {
-            throw new Exception("Invalid FriendshipState value: " + state);
-        }
-
-        UserId = user.UserId;
-        TenantId = user.TenantId;
-        FriendUserId = probableFriend.UserId;
-        FriendTenantId = probableFriend.TenantId;
-        FriendTenancyName = probableFriendTenancyName;
-        FriendUserName = probableFriendUserName;
-        State = state;
-        FriendProfilePictureId = probableFriendProfilePictureId;
-
-        CreationTime = Clock.Now;
-    }
-
-    protected Friendship()
-    {
-
-    }
+    public int? TenantId { get; set; }
 }
-

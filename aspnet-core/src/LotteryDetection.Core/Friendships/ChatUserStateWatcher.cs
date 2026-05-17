@@ -12,8 +12,8 @@ namespace LotteryDetection.Friendships;
 public class ChatUserStateWatcher : ISingletonDependency
 {
     private readonly IChatCommunicator _chatCommunicator;
-    private readonly IUserFriendsCache _userFriendsCache;
     private readonly IOnlineClientManager _onlineClientManager;
+    private readonly IUserFriendsCache _userFriendsCache;
 
     public ChatUserStateWatcher(
         IChatCommunicator chatCommunicator,
@@ -47,14 +47,13 @@ public class ChatUserStateWatcher : ISingletonDependency
 
         foreach (var friend in cacheItem.Friends)
         {
-            var friendUserClients = await _onlineClientManager.GetAllByUserIdAsync(new UserIdentifier(friend.FriendTenantId, friend.FriendUserId));
-            if (!friendUserClients.Any())
-            {
-                continue;
-            }
+            var friendUserClients =
+                await _onlineClientManager.GetAllByUserIdAsync(new UserIdentifier(friend.FriendTenantId,
+                    friend.FriendUserId));
+            if (!friendUserClients.Any()) continue;
 
-            AsyncHelper.RunSync(() => _chatCommunicator.SendUserConnectionChangeToClients(friendUserClients, user, isConnected));
+            AsyncHelper.RunSync(() =>
+                _chatCommunicator.SendUserConnectionChangeToClients(friendUserClients, user, isConnected));
         }
     }
 }
-

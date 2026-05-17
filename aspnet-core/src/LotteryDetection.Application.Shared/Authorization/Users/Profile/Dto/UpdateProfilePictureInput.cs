@@ -7,8 +7,7 @@ namespace LotteryDetection.Authorization.Users.Profile.Dto;
 
 public class UpdateProfilePictureInput : ICustomValidate
 {
-    [MaxLength(400)]
-    public string FileToken { get; set; }
+    [MaxLength(400)] public string FileToken { get; set; }
 
     public bool UseGravatarProfilePicture { get; set; }
 
@@ -16,10 +15,6 @@ public class UpdateProfilePictureInput : ICustomValidate
 
     public void AddValidationErrors(CustomValidationContext context)
     {
-        if (!UseGravatarProfilePicture && FileToken.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(FileToken));
-        }
+        if (!UseGravatarProfilePicture && FileToken.IsNullOrEmpty()) throw new ArgumentNullException(nameof(FileToken));
     }
 }
-

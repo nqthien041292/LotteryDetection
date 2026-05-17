@@ -14,4 +14,3 @@ public interface IUserDelegationManager : IDomainService
 
     Task<UserDelegation> GetAsync(long userDelegationId);
 }
-

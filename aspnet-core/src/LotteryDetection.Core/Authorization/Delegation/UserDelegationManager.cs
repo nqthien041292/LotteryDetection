@@ -8,10 +8,11 @@ namespace LotteryDetection.Authorization.Delegation;
 
 public class UserDelegationManager : LotteryDetectionServiceBase, IUserDelegationManager
 {
-    private readonly IRepository<UserDelegation, long> _userDelegationRepository;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
+    private readonly IRepository<UserDelegation, long> _userDelegationRepository;
 
-    public UserDelegationManager(IRepository<UserDelegation, long> userDelegationRepository, IUnitOfWorkManager unitOfWorkManager)
+    public UserDelegationManager(IRepository<UserDelegation, long> userDelegationRepository,
+        IUnitOfWorkManager unitOfWorkManager)
     {
         _userDelegationRepository = userDelegationRepository;
         _unitOfWorkManager = unitOfWorkManager;
@@ -48,10 +49,7 @@ public class UserDelegationManager : LotteryDetectionServiceBase, IUserDelegatio
             e.Id == userDelegationId && e.SourceUserId == currentUser.UserId
         );
 
-        if (delegation == null)
-        {
-            throw new Exception("Only source user can delete a user delegation !");
-        }
+        if (delegation == null) throw new Exception("Only source user can delete a user delegation !");
 
         await _userDelegationRepository.DeleteAsync(delegation);
     }
@@ -61,4 +59,3 @@ public class UserDelegationManager : LotteryDetectionServiceBase, IUserDelegatio
         return await _userDelegationRepository.GetAsync(userDelegationId);
     }
 }
-

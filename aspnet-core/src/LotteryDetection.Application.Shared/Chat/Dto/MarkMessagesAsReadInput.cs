@@ -13,4 +13,3 @@ public class MarkAllUnreadMessagesOfUserAsReadInput
         return new UserIdentifier(TenantId, UserId);
     }
 }
-

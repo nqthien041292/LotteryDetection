@@ -22,13 +22,9 @@ public class LocalProfileImageService : IProfileImageService, ITransientDependen
     public async Task<string> GetProfilePictureContentForUser(UserIdentifier userIdentifier)
     {
         var user = await _userManager.GetUserOrNullAsync(userIdentifier);
-        if (user?.ProfilePictureId == null)
-        {
-            return "";
-        }
+        if (user?.ProfilePictureId == null) return "";
 
         var file = await _binaryObjectManager.GetOrNullAsync(user.ProfilePictureId.Value);
         return file == null ? "" : Convert.ToBase64String(file.Bytes);
     }
 }
-

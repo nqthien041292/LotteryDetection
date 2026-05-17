@@ -7,4 +7,3 @@ public interface IUserPolicy : IPolicy
 {
     Task CheckMaxUserCountAsync(int tenantId);
 }
-

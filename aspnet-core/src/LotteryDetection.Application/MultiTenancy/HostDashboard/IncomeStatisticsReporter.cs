@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.MultiTenancy.HostDashboard.Dto;
 using LotteryDetection.MultiTenancy.Payments;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.MultiTenancy.HostDashboard;
 
@@ -16,6 +16,31 @@ public class IncomeStatisticsService : LotteryDetectionDomainServiceBase, IIncom
     public IncomeStatisticsService(ISubscriptionPaymentRepository subscriptionPaymentRepository)
     {
         _subscriptionPaymentRepository = subscriptionPaymentRepository;
+    }
+
+    public async Task<List<IncomeStastistic>> GetIncomeStatisticsData(DateTime startDate, DateTime endDate,
+        ChartDateInterval dateInterval)
+    {
+        List<IncomeStastistic> incomeStastistics;
+
+        switch (dateInterval)
+        {
+            case ChartDateInterval.Daily:
+                incomeStastistics = await GetDailyIncomeStatisticsData(startDate, endDate);
+                break;
+            case ChartDateInterval.Weekly:
+                incomeStastistics = await GetWeeklyIncomeStatisticsData(startDate, endDate);
+                break;
+            case ChartDateInterval.Monthly:
+                incomeStastistics = await GetMonthlyIncomeStatisticsData(startDate, endDate);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(dateInterval), dateInterval, null);
+        }
+
+        incomeStastistics.ForEach(i => { i.Label = i.Date.ToString(L("DateFormatShort")); });
+
+        return incomeStastistics.OrderBy(i => i.Date).ToList();
     }
 
     private async Task<List<IncomeStastistic>> GetDailyIncomeStatisticsData(DateTime startDate, DateTime endDate)
@@ -51,38 +76,10 @@ public class IncomeStatisticsService : LotteryDetectionDomainServiceBase, IIncom
         var currentDay = startDate;
         while (currentDay <= endDate)
         {
-            if (dailyRecords.All(d => d.Date != currentDay.Date))
-            {
-                dailyRecords.Add(new IncomeStastistic(currentDay));
-            }
+            if (dailyRecords.All(d => d.Date != currentDay.Date)) dailyRecords.Add(new IncomeStastistic(currentDay));
 
             currentDay = currentDay.AddDays(1);
         }
-    }
-
-    public async Task<List<IncomeStastistic>> GetIncomeStatisticsData(DateTime startDate, DateTime endDate,
-        ChartDateInterval dateInterval)
-    {
-        List<IncomeStastistic> incomeStastistics;
-
-        switch (dateInterval)
-        {
-            case ChartDateInterval.Daily:
-                incomeStastistics = await GetDailyIncomeStatisticsData(startDate, endDate);
-                break;
-            case ChartDateInterval.Weekly:
-                incomeStastistics = await GetWeeklyIncomeStatisticsData(startDate, endDate);
-                break;
-            case ChartDateInterval.Monthly:
-                incomeStastistics = await GetMonthlyIncomeStatisticsData(startDate, endDate);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(dateInterval), dateInterval, null);
-        }
-
-        incomeStastistics.ForEach(i => { i.Label = i.Date.ToString(L("DateFormatShort")); });
-
-        return incomeStastistics.OrderBy(i => i.Date).ToList();
     }
 
     private async Task<List<IncomeStastistic>> GetWeeklyIncomeStatisticsData(DateTime startDate, DateTime endDate)
@@ -101,10 +98,7 @@ public class IncomeStatisticsService : LotteryDetectionDomainServiceBase, IIncom
         {
             if (dailyRecord.Date.DayOfWeek == firstDayOfWeek)
             {
-                if (!isFirstWeek)
-                {
-                    incomeStastistics.Add(new IncomeStastistic(weekStart, weeklyAmount));
-                }
+                if (!isFirstWeek) incomeStastistics.Add(new IncomeStastistic(weekStart, weeklyAmount));
 
                 isFirstWeek = false;
                 weekStart = dailyRecord.Date;
@@ -122,10 +116,10 @@ public class IncomeStatisticsService : LotteryDetectionDomainServiceBase, IIncom
     {
         var dailyRecords = await GetDailyIncomeStatisticsData(startDate, endDate);
         var query = dailyRecords.GroupBy(d => new
-        {
-            d.Date.Year,
-            d.Date.Month
-        })
+            {
+                d.Date.Year,
+                d.Date.Month
+            })
             .Select(grouping => new IncomeStastistic
             {
                 Date = FindMonthlyDate(startDate, grouping.Key.Year, grouping.Key.Month),
@@ -138,9 +132,7 @@ public class IncomeStatisticsService : LotteryDetectionDomainServiceBase, IIncom
     private static DateTime FindMonthlyDate(DateTime startDate, int groupYear, int groupMonth)
     {
         if (groupYear == startDate.Year && groupMonth == startDate.Month)
-        {
             return new DateTime(groupYear, groupMonth, startDate.Day);
-        }
 
         return new DateTime(groupYear, groupMonth, 1);
     }

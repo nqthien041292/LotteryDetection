@@ -21,4 +21,3 @@ public interface ITenantRegistrationAppService : IApplicationService
 
     Task ExtendSucceed(long paymentId);
 }
-

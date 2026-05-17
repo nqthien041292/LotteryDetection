@@ -1,16 +1,12 @@
 ﻿using System.Linq;
 using Abp;
-using Abp.Authorization;
-using Abp.Authorization.Roles;
 using Abp.Authorization.Users;
-using Abp.MultiTenancy;
 using Abp.Notifications;
-using Microsoft.EntityFrameworkCore;
-using LotteryDetection.Authorization;
 using LotteryDetection.Authorization.Roles;
 using LotteryDetection.Authorization.Users;
 using LotteryDetection.EntityFrameworkCore;
 using LotteryDetection.Notifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Migrations.Seed.Host;
 
@@ -32,16 +28,19 @@ public class HostRoleAndUserCreator
     {
         //Admin role for host
 
-        var adminRoleForHost = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == null && r.Name == StaticRoleNames.Host.Admin);
+        var adminRoleForHost = _context.Roles.IgnoreQueryFilters()
+            .FirstOrDefault(r => r.TenantId == null && r.Name == StaticRoleNames.Host.Admin);
         if (adminRoleForHost == null)
         {
-            adminRoleForHost = _context.Roles.Add(new Role(null, StaticRoleNames.Host.Admin, StaticRoleNames.Host.Admin) { IsStatic = true, IsDefault = true }).Entity;
+            adminRoleForHost = _context.Roles.Add(new Role(null, StaticRoleNames.Host.Admin, StaticRoleNames.Host.Admin)
+                { IsStatic = true, IsDefault = true }).Entity;
             _context.SaveChanges();
         }
 
         //admin user for host
 
-        var adminUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == null && u.UserName == AbpUserBase.AdminUserName);
+        var adminUserForHost = _context.Users.IgnoreQueryFilters()
+            .FirstOrDefault(u => u.TenantId == null && u.UserName == AbpUserBase.AdminUserName);
         if (adminUserForHost == null)
         {
             var user = new User
@@ -78,11 +77,14 @@ public class HostRoleAndUserCreator
             _context.SaveChanges();
 
             //Notification subscriptions
-            _context.NotificationSubscriptions.Add(new NotificationSubscriptionInfo(SequentialGuidGenerator.Instance.Create(), null, adminUserForHost.Id, AppNotificationNames.NewTenantRegistered));
-            _context.NotificationSubscriptions.Add(new NotificationSubscriptionInfo(SequentialGuidGenerator.Instance.Create(), null, adminUserForHost.Id, AppNotificationNames.NewUserRegistered));
+            _context.NotificationSubscriptions.Add(new NotificationSubscriptionInfo(
+                SequentialGuidGenerator.Instance.Create(), null, adminUserForHost.Id,
+                AppNotificationNames.NewTenantRegistered));
+            _context.NotificationSubscriptions.Add(new NotificationSubscriptionInfo(
+                SequentialGuidGenerator.Instance.Create(), null, adminUserForHost.Id,
+                AppNotificationNames.NewUserRegistered));
 
             _context.SaveChanges();
         }
     }
 }
-

@@ -58,10 +58,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         var dashboard = await GetDashboardWithAuthorizedWidgets(input.Application, input.DashboardName);
 
         var page = dashboard.Pages.FirstOrDefault(p => p.Id == input.Id);
-        if (page == null)
-        {
-            return;
-        }
+        if (page == null) return;
 
         page.Name = input.Name;
 
@@ -75,7 +72,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         var page = new Page($"Page_{Guid.NewGuid().ToString().Replace("-", "")}")
         {
             Name = input.Name,
-            Widgets = new List<Widget>(),
+            Widgets = new List<Widget>()
         };
 
         dashboard.Pages.Add(page);
@@ -91,9 +88,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         dashboard.Pages.RemoveAll(p => p.Id == input.Id);
 
         if (dashboard.Pages.Count == 0) // return to default
-        {
             dashboard = await GetDefaultDashboardValue(input.Application, input.DashboardName);
-        }
 
         await SaveDashboardSettingForUser(input.Application, dashboard);
     }
@@ -102,10 +97,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
     {
         var widgetDefinition = _dashboardConfiguration.GetWidgetDefinition(input.WidgetId);
 
-        if (widgetDefinition == null)
-        {
-            throw new UserFriendlyException(L("WidgetNotFound"));
-        }
+        if (widgetDefinition == null) throw new UserFriendlyException(L("WidgetNotFound"));
 
         var dashboard = await GetDashboardWithAuthorizedWidgets(input.Application, input.DashboardName);
 
@@ -113,9 +105,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
 
         if (!widgetDefinition.AllowMultipleInstanceInSamePage &&
             page.Widgets.Any(w => w.WidgetId == widgetDefinition.Id))
-        {
             throw new UserFriendlyException(L("WidgetCanNotBePlacedMoreThanOnceInAPageWarning"));
-        }
 
         var widget = new Widget
         {
@@ -135,10 +125,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
     public DashboardOutput GetDashboardDefinition(GetDashboardInput input)
     {
         var dashboardDefinition = _dashboardConfiguration.GetDashboardDefinition(input.DashboardName);
-        if (dashboardDefinition == null)
-        {
-            throw new UserFriendlyException(L("UnknownDashboard", input.DashboardName));
-        }
+        if (dashboardDefinition == null) throw new UserFriendlyException(L("UnknownDashboard", input.DashboardName));
 
         //widgets which used in that dashboard
         var usedWidgetDefinitions = GetWidgetDefinitionsFilteredPermissionAndMultiTenancySide(dashboardDefinition);
@@ -146,9 +133,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         List<WidgetFilterOutput> GetNeededWidgetFiltersOutput(WidgetDefinition widget)
         {
             if (widget.UsedWidgetFilters == null || !widget.UsedWidgetFilters.Any())
-            {
                 return new List<WidgetFilterOutput>();
-            }
 
             var allNeededFilters = widget.UsedWidgetFilters.Distinct().ToList();
 
@@ -165,7 +150,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
                     widget.Id,
                     widget.Name,
                     widget.Description,
-                    filters: GetNeededWidgetFiltersOutput(widget))
+                    GetNeededWidgetFiltersOutput(widget))
                 ).ToList()
         );
     }
@@ -173,10 +158,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
     public List<WidgetOutput> GetAllWidgetDefinitions(GetDashboardInput input)
     {
         var dashboardDefinition = _dashboardConfiguration.GetDashboardDefinition(input.DashboardName);
-        if (dashboardDefinition == null)
-        {
-            throw new UserFriendlyException(L("UnknownDashboard", input.DashboardName));
-        }
+        if (dashboardDefinition == null) throw new UserFriendlyException(L("UnknownDashboard", input.DashboardName));
 
         return GetWidgetDefinitionsFilteredPermissionAndMultiTenancySide(dashboardDefinition)
             .Select(widget => new WidgetOutput(widget.Id, widget.Name, widget.Description)).ToList();
@@ -186,22 +168,16 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         GetAvailableWidgetDefinitionsForPageInput input)
     {
         var dashboardDefinition = _dashboardConfiguration.GetDashboardDefinition(input.DashboardName);
-        if (dashboardDefinition == null)
-        {
-            throw new UserFriendlyException(L("UnknownDashboard", input.DashboardName));
-        }
+        if (dashboardDefinition == null) throw new UserFriendlyException(L("UnknownDashboard", input.DashboardName));
 
-        var dashboard = await GetUserDashboard(new GetDashboardInput()
+        var dashboard = await GetUserDashboard(new GetDashboardInput
         {
             Application = input.Application,
             DashboardName = input.DashboardName
         });
 
         var page = dashboard.Pages.FirstOrDefault(p => p.Id == input.PageId);
-        if (page == null)
-        {
-            throw new UserFriendlyException(L("UnknownPage"));
-        }
+        if (page == null) throw new UserFriendlyException(L("UnknownPage"));
 
         var widgetsAlreadyInPage = page.Widgets.Select(w => w.WidgetId).ToList();
 
@@ -218,22 +194,13 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         var dashboardConfigAsJsonString =
             await SettingManager.GetSettingValueAsync(GetSettingName(application, dashboardName));
 
-        if (string.IsNullOrWhiteSpace(dashboardConfigAsJsonString))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(dashboardConfigAsJsonString)) return null;
 
         var dashboard = JsonSerializer.Deserialize<Dashboard>(dashboardConfigAsJsonString);
-        if (dashboard == null)
-        {
-            throw new UserFriendlyException(L("UnknownDashboard", dashboardName));
-        }
+        if (dashboard == null) throw new UserFriendlyException(L("UnknownDashboard", dashboardName));
 
         var dashboardDefinition = _dashboardConfiguration.GetDashboardDefinition(dashboardName);
-        if (dashboardDefinition == null)
-        {
-            throw new UserFriendlyException(L("UnknownDashboard", dashboardName));
-        }
+        if (dashboardDefinition == null) throw new UserFriendlyException(L("UnknownDashboard", dashboardName));
 
         //widgets which used in that dashboard
         var authorizedWidgetIdsForDashboardAndUser =
@@ -242,27 +209,20 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
 
         //if user's permission changed, we should remove all widgets which are not allowed for user
         foreach (var dashboardPage in dashboard.Pages)
-        {
             dashboardPage.Widgets = dashboardPage.Widgets
                 .Where(widget => authorizedWidgetIdsForDashboardAndUser.Contains(widget.WidgetId)).ToList();
-        }
 
         return dashboard;
     }
 
     private async Task SaveDashboardSettingForUser(string application, Dashboard dashboard)
     {
-        if (dashboard == null)
-        {
-            return;
-        }
+        if (dashboard == null) return;
 
         //check if dashboard is available for user to prevent saving unauthorized widgets to dashboard
         var dashboardDefinition = _dashboardConfiguration.GetDashboardDefinition(dashboard.DashboardName);
         if (dashboardDefinition == null)
-        {
             throw new UserFriendlyException(L("UnknownDashboard", dashboard.DashboardName));
-        }
 
         //we can save dashboard now since it is authorized for user
         var dashboardJson = JsonSerializer.Serialize(dashboard);
@@ -274,10 +234,7 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
 
     private byte CalculatePositionY(List<Widget> widgets)
     {
-        if (widgets == null || !widgets.Any())
-        {
-            return 0;
-        }
+        if (widgets == null || !widgets.Any()) return 0;
 
         return (byte)widgets.Max(w => w.PositionY + w.Height);
     }
@@ -287,16 +244,12 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
         string dashboardConfigAsJsonString;
 
         if (AbpSession.MultiTenancySide == MultiTenancySides.Host)
-        {
             dashboardConfigAsJsonString =
                 await SettingManager.GetSettingValueForApplicationAsync(GetSettingName(application, dashboardName));
-        }
         else
-        {
             dashboardConfigAsJsonString =
                 await SettingManager.GetSettingValueForTenantAsync(GetSettingName(application, dashboardName),
                     AbpSession.GetTenantId());
-        }
 
         return string.IsNullOrWhiteSpace(dashboardConfigAsJsonString)
             ? null
@@ -328,16 +281,12 @@ public class DashboardCustomizationAppService : LotteryDetectionAppServiceBase, 
             foreach (var widget in widgetDefinitions)
             {
                 if (widget.PermissionDependency != null &&
-                    (!widget.PermissionDependency.IsSatisfied(permissionDependencyContext)))
-                {
+                    !widget.PermissionDependency.IsSatisfied(permissionDependencyContext))
                     continue;
-                }
 
                 if (widget.FeatureDependency != null &&
-                    (!widget.FeatureDependency.IsSatisfied(featureDependencyContext)))
-                {
+                    !widget.FeatureDependency.IsSatisfied(featureDependencyContext))
                     continue;
-                }
 
                 filteredWidgets.Add(widget);
             }

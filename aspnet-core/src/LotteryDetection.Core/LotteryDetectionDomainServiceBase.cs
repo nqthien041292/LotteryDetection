@@ -11,4 +11,3 @@ public abstract class LotteryDetectionDomainServiceBase : DomainService
         LocalizationSourceName = LotteryDetectionConsts.LocalizationSourceName;
     }
 }
-

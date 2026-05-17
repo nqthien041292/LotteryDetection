@@ -15,12 +15,10 @@ namespace LotteryDetection.Web.MultiTenancy;
 
 public class DomainTenantCheckMiddleware : IMiddleware, ITransientDependency
 {
-    private readonly IWebMultiTenancyConfiguration _multiTenancyConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWebMultiTenancyConfiguration _multiTenancyConfiguration;
     private readonly ITenantStore _tenantStore;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
-
-    public ILogger Logger { get; set; }
 
     public DomainTenantCheckMiddleware(
         IWebMultiTenancyConfiguration multiTenancyConfiguration,
@@ -33,6 +31,8 @@ public class DomainTenantCheckMiddleware : IMiddleware, ITransientDependency
         _tenantStore = tenantStore;
         _unitOfWorkManager = unitOfWorkManager;
     }
+
+    public ILogger Logger { get; set; }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -101,13 +101,9 @@ public class DomainTenantCheckMiddleware : IMiddleware, ITransientDependency
             var domainFormat = item.RemovePreFix("http://", "https://").Split(':')[0].RemovePostFix("/");
             var result = new FormattedStringValueExtracter().Extract(hostName, domainFormat, true, '/');
 
-            if (result.IsMatch && result.Matches.Any())
-            {
-                return result;
-            }
+            if (result.IsMatch && result.Matches.Any()) return result;
         }
 
         return null;
     }
 }
-

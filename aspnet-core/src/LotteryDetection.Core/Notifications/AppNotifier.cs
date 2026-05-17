@@ -89,7 +89,7 @@ public class AppNotifier : LotteryDetectionDomainServiceBase, IAppNotifier
     {
         var tenants = NotificationPublisher.AllTenants;
         await _notificationPublisher.PublishAsync(
-            notificationName: notificationName,
+            notificationName,
             new MessageNotificationData(message),
             severity: severity,
             userIds: userIds
@@ -104,23 +104,6 @@ public class AppNotifier : LotteryDetectionDomainServiceBase, IAppNotifier
             localizableMessageData, severity);
     }
 
-    protected async Task SendNotificationAsync(string notificationName, UserIdentifier user,
-        LocalizableString localizableMessage, IDictionary<string, object> localizableMessageData = null,
-        NotificationSeverity severity = NotificationSeverity.Info)
-    {
-        var notificationData = new LocalizableMessageNotificationData(localizableMessage);
-        if (localizableMessageData != null)
-        {
-            foreach (var pair in localizableMessageData)
-            {
-                notificationData[pair.Key] = pair.Value;
-            }
-        }
-
-        await _notificationPublisher.PublishAsync(notificationName, notificationData, severity: severity,
-            userIds: new[] { user });
-    }
-
     public Task TenantsMovedToEdition(UserIdentifier user, string sourceEditionName, string targetEditionName)
     {
         return SendNotificationAsync(AppNotificationNames.TenantsMovedToEdition, user,
@@ -130,15 +113,9 @@ public class AppNotifier : LotteryDetectionDomainServiceBase, IAppNotifier
             ),
             new Dictionary<string, object>
             {
-                    {"sourceEditionName", sourceEditionName},
-                    {"targetEditionName", targetEditionName}
+                { "sourceEditionName", sourceEditionName },
+                { "targetEditionName", targetEditionName }
             });
-    }
-
-    public Task<TResult> TenantsMovedToEdition<TResult>(UserIdentifier argsUser, int sourceEditionId,
-        int targetEditionId)
-    {
-        throw new NotImplementedException();
     }
 
     public Task SomeUsersCouldntBeImported(UserIdentifier user, string fileToken, string fileType, string fileName)
@@ -150,14 +127,14 @@ public class AppNotifier : LotteryDetectionDomainServiceBase, IAppNotifier
             ),
             new Dictionary<string, object>
             {
-                    { "fileToken", fileToken },
-                    { "fileType", fileType },
-                    { "fileName", fileName }
+                { "fileToken", fileToken },
+                { "fileType", fileType },
+                { "fileName", fileName }
             });
     }
 
     public async Task SendMassNotificationAsync(string message, UserIdentifier[] userIds = null,
-         NotificationSeverity severity = NotificationSeverity.Info,
+        NotificationSeverity severity = NotificationSeverity.Info,
         Type[] targetNotifiers = null
     )
     {
@@ -169,5 +146,23 @@ public class AppNotifier : LotteryDetectionDomainServiceBase, IAppNotifier
             targetNotifiers: targetNotifiers
         );
     }
-}
 
+    protected async Task SendNotificationAsync(string notificationName, UserIdentifier user,
+        LocalizableString localizableMessage, IDictionary<string, object> localizableMessageData = null,
+        NotificationSeverity severity = NotificationSeverity.Info)
+    {
+        var notificationData = new LocalizableMessageNotificationData(localizableMessage);
+        if (localizableMessageData != null)
+            foreach (var pair in localizableMessageData)
+                notificationData[pair.Key] = pair.Value;
+
+        await _notificationPublisher.PublishAsync(notificationName, notificationData, severity: severity,
+            userIds: new[] { user });
+    }
+
+    public Task<TResult> TenantsMovedToEdition<TResult>(UserIdentifier argsUser, int sourceEditionId,
+        int targetEditionId)
+    {
+        throw new NotImplementedException();
+    }
+}

@@ -6,4 +6,3 @@ public enum SubscriptionPaymentType
     RecurringAutomatic = 1,
     RecurringManual = 2
 }
-

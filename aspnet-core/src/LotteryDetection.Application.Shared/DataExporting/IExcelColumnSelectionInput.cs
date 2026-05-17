@@ -6,4 +6,3 @@ public interface IExcelColumnSelectionInput
 {
     List<string> SelectedColumns { get; set; }
 }
-

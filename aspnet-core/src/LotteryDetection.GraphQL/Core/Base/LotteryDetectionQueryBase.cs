@@ -15,6 +15,14 @@ namespace LotteryDetection.Core.Base;
 
 public abstract class LotteryDetectionQueryBase<TField, TResult> : ITransientDependency
 {
+    protected LotteryDetectionQueryBase(string fieldName,
+        Dictionary<string, Type> arguments = null)
+    {
+        PermissionChecker = NullPermissionChecker.Instance;
+        FieldName = fieldName;
+        Arguments = arguments ?? new Dictionary<string, Type>();
+    }
+
     public IPermissionChecker PermissionChecker { protected get; set; }
 
     public Dictionary<string, Type> Arguments { get; set; }
@@ -24,14 +32,6 @@ public abstract class LotteryDetectionQueryBase<TField, TResult> : ITransientDep
     public ResolveFieldContext<object> Context { get; set; }
 
     public IMapper Mapper { protected get; set; }
-
-    protected LotteryDetectionQueryBase(string fieldName,
-        Dictionary<string, Type> arguments = null)
-    {
-        PermissionChecker = NullPermissionChecker.Instance;
-        FieldName = fieldName;
-        Arguments = arguments ?? new Dictionary<string, Type>();
-    }
 
     public List<QueryArgument> GetQueryArguments()
     {
@@ -73,4 +73,3 @@ public abstract class LotteryDetectionQueryBase<TField, TResult> : ITransientDep
             .ToListAsync();
     }
 }
-

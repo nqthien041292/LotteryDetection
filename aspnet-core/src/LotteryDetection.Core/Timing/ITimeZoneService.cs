@@ -16,4 +16,3 @@ public interface ITimeZoneService
 
     void ValidateTimezone(string timeZone);
 }
-

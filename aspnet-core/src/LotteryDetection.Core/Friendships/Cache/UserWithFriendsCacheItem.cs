@@ -17,4 +17,3 @@ public class UserWithFriendsCacheItem
 
     public List<FriendCacheItem> Friends { get; set; }
 }
-

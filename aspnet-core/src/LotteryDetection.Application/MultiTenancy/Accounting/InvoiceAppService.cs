@@ -8,10 +8,8 @@ using Abp.Domain.Uow;
 using Abp.Runtime.Session;
 using Abp.Timing;
 using Abp.UI;
-using Microsoft.EntityFrameworkCore;
 using LotteryDetection.Configuration;
 using LotteryDetection.Editions;
-using LotteryDetection.ExtraProperties;
 using LotteryDetection.MultiTenancy.Accounting.Dto;
 using LotteryDetection.MultiTenancy.Payments;
 using LotteryDetection.MultiTenancy.Payments.Dto;
@@ -20,10 +18,10 @@ namespace LotteryDetection.MultiTenancy.Accounting;
 
 public class InvoiceAppService : LotteryDetectionAppServiceBase, IInvoiceAppService
 {
-    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
-    private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
     private readonly EditionManager _editionManager;
+    private readonly IInvoiceNumberGenerator _invoiceNumberGenerator;
     private readonly IRepository<Invoice> _invoiceRepository;
+    private readonly ISubscriptionPaymentRepository _subscriptionPaymentRepository;
 
     public InvoiceAppService(
         ISubscriptionPaymentRepository subscriptionPaymentRepository,
@@ -43,21 +41,12 @@ public class InvoiceAppService : LotteryDetectionAppServiceBase, IInvoiceAppServ
         var payment = ObjectMapper.Map<SubscriptionPaymentDto>(paymentEntity);
         var invoiceNo = payment.InvoiceNo.ToString();
 
-        if (string.IsNullOrEmpty(invoiceNo))
-        {
-            throw new Exception("There is no invoice for this payment !");
-        }
+        if (string.IsNullOrEmpty(invoiceNo)) throw new Exception("There is no invoice for this payment !");
 
-        if (payment.TenantId != AbpSession.GetTenantId())
-        {
-            throw new UserFriendlyException(L("ThisInvoiceIsNotYours"));
-        }
+        if (payment.TenantId != AbpSession.GetTenantId()) throw new UserFriendlyException(L("ThisInvoiceIsNotYours"));
 
         var invoice = await _invoiceRepository.FirstOrDefaultAsync(b => b.InvoiceNo == invoiceNo);
-        if (invoice == null)
-        {
-            throw new UserFriendlyException();
-        }
+        if (invoice == null) throw new UserFriendlyException();
 
         var hostAddress = await SettingManager.GetSettingValueAsync(AppSettings.HostManagement.BillingAddress);
 
@@ -84,14 +73,10 @@ public class InvoiceAppService : LotteryDetectionAppServiceBase, IInvoiceAppServ
         var payment = await _subscriptionPaymentRepository.GetAsync(input.SubscriptionPaymentId);
 
         if (payment.Status != SubscriptionPaymentStatus.Completed)
-        {
             throw new UserFriendlyException("A membership with unpaid dues cannot have an invoice created!");
-        }
 
         if (!string.IsNullOrEmpty(payment.InvoiceNo))
-        {
             throw new UserFriendlyException("Invoice is already generated for this payment.");
-        }
 
         var invoiceNo = await _invoiceNumberGenerator.GetNewInvoiceNumber();
 
@@ -100,9 +85,7 @@ public class InvoiceAppService : LotteryDetectionAppServiceBase, IInvoiceAppServ
         var tenantTaxNo = await SettingManager.GetSettingValueAsync(AppSettings.TenantManagement.BillingTaxVatNo);
 
         if (string.IsNullOrEmpty(tenantLegalName) || string.IsNullOrEmpty(tenantAddress))
-        {
             throw new UserFriendlyException(L("InvoiceInfoIsMissingOrNotCompleted"));
-        }
 
         await _invoiceRepository.InsertAsync(new Invoice
         {

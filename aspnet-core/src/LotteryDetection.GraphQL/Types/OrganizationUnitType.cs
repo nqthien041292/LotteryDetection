@@ -12,7 +12,6 @@ public class OrganizationUnitType : ObjectGraphType<OrganizationUnitDto>
         Field(x => x.Id);
         Field(x => x.Code);
         Field(x => x.DisplayName);
-        Field(x => x.TenantId, nullable: true);
+        Field(x => x.TenantId, true);
     }
 }
-

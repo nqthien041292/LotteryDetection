@@ -10,4 +10,3 @@ public class PasswordlessLoginSettingsEditDto
 
     public bool IsSmsProviderEnabled { get; set; }
 }
-

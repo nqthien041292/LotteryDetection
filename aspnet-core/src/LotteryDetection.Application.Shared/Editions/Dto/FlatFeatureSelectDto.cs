@@ -18,4 +18,3 @@ public class FlatFeatureSelectDto
 
     public string TextHtmlColor { get; set; }
 }
-

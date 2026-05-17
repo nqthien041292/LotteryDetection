@@ -21,4 +21,3 @@ public class InitialHostDbBuilder
         _context.SaveChanges();
     }
 }
-

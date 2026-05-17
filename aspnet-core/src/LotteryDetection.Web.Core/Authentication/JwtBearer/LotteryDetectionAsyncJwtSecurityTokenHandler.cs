@@ -4,17 +4,17 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Abp;
-using Abp.UI;
 using Abp.Dependency;
 using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.Runtime.Caching;
 using Abp.Runtime.Security;
 using Abp.Timing;
-using Microsoft.IdentityModel.Tokens;
-using LotteryDetection.Authorization.Users;
-using LotteryDetection.Authorization.Delegation;
+using Abp.UI;
 using LotteryDetection.Authorization;
+using LotteryDetection.Authorization.Delegation;
+using LotteryDetection.Authorization.Users;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LotteryDetection.Web.Authentication.JwtBearer;
 
@@ -41,10 +41,7 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
     {
         var principal = _tokenHandler.ValidateToken(securityToken, validationParameters, out var validatedToken);
 
-        if (!HasTokenType(principal, TokenType.AccessToken))
-        {
-            throw new SecurityTokenException("invalid token type");
-        }
+        if (!HasTokenType(principal, TokenType.AccessToken)) throw new SecurityTokenException("invalid token type");
 
         return await ValidateTokenInternal(principal, validatedToken);
     }
@@ -54,10 +51,7 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
     {
         var principal = _tokenHandler.ValidateToken(securityToken, validationParameters, out var validatedToken);
 
-        if (!HasTokenType(principal, TokenType.RefreshToken))
-        {
-            throw new SecurityTokenException("invalid token type");
-        }
+        if (!HasTokenType(principal, TokenType.RefreshToken)) throw new SecurityTokenException("invalid token type");
 
         return await ValidateTokenInternal(principal, validatedToken);
     }
@@ -70,17 +64,13 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
 
         var tokenValidityKeyClaim = principal.Claims.First(c => c.Type == AppConsts.TokenValidityKey);
         if (await TokenValidityKeyExistsInCache(tokenValidityKeyClaim, cacheManager))
-        {
             return (principal, validatedToken);
-        }
 
         var userIdentifierString = principal.Claims.First(c => c.Type == AppConsts.UserIdentifier);
         var userIdentifier = UserIdentifier.Parse(userIdentifierString.Value);
 
         if (!await ValidateTokenValidityKey(tokenValidityKeyClaim, userIdentifier))
-        {
             throw new SecurityTokenException("invalid");
-        }
 
         var tokenAuthConfiguration = IocManager.Instance.Resolve<TokenAuthConfiguration>();
 
@@ -138,10 +128,7 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
 
         using (var securityStampHandler = IocManager.Instance.ResolveAsDisposable<IJwtSecurityStampHandler>())
         {
-            if (!await securityStampHandler.Object.Validate(principal))
-            {
-                throw new SecurityTokenException("invalid");
-            }
+            if (!await securityStampHandler.Object.Validate(principal)) throw new SecurityTokenException("invalid");
         }
     }
 
@@ -154,19 +141,13 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
     private static void ValidateUserDelegation(ClaimsPrincipal principal)
     {
         var userDelegationConfiguration = IocManager.Instance.Resolve<IUserDelegationConfiguration>();
-        if (!userDelegationConfiguration.IsEnabled)
-        {
-            return;
-        }
+        if (!userDelegationConfiguration.IsEnabled) return;
 
         var impersonatorTenant = principal.Claims.FirstOrDefault(c => c.Type == AbpClaimTypes.ImpersonatorTenantId);
         var user = principal.Claims.FirstOrDefault(c => c.Type == AbpClaimTypes.UserId);
         var impersonatorUser = principal.Claims.FirstOrDefault(c => c.Type == AbpClaimTypes.ImpersonatorUserId);
 
-        if (impersonatorUser == null || user == null)
-        {
-            return;
-        }
+        if (impersonatorUser == null || user == null) return;
 
         var impersonatorTenantId = impersonatorTenant == null ? null :
             impersonatorTenant.Value.IsNullOrEmpty() ? (int?)null : Convert.ToInt32(impersonatorTenant.Value);
@@ -179,9 +160,7 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
                     new UserIdentifier(impersonatorTenantId, impersonatorUserId),
                     AppPermissions.Pages_Administration_Users_Impersonation)
                )
-            {
                 return;
-            }
         }
 
         using (var userDelegationManager = IocManager.Instance.ResolveAsDisposable<IUserDelegationManager>())
@@ -192,10 +171,7 @@ public class LotteryDetectionAsyncJwtSecurityTokenHandler : IAsyncSecurityTokenV
             );
 
             if (!hasActiveDelegation)
-            {
                 throw new UserFriendlyException("ThereIsNoActiveUserDelegationBetweenYourUserAndCurrentUser");
-            }
         }
     }
 }
-

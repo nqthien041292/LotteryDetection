@@ -14,4 +14,3 @@ public interface IExternalLoginInfoManager : ITransientDependency
 
     (string name, string surname) GetNameAndSurnameFromClaims(List<Claim> claims, IdentityOptions identityOptions);
 }
-

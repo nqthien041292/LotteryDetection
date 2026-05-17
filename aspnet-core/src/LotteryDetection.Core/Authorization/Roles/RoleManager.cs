@@ -11,15 +11,15 @@ using Abp.Organizations;
 using Abp.Runtime.Caching;
 using Abp.UI;
 using Abp.Zero.Configuration;
+using LotteryDetection.Authorization.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using LotteryDetection.Authorization.Users;
 
 namespace LotteryDetection.Authorization.Roles;
 
 /// <summary>
-/// Role manager.
-/// Used to implement domain logic for roles.
+///     Role manager.
+///     Used to implement domain logic for roles.
 /// </summary>
 public class RoleManager : AbpRoleManager<Role, User>
 {
@@ -64,10 +64,7 @@ public class RoleManager : AbpRoleManager<Role, User>
     public virtual async Task<Role> GetRoleByIdAsync(long roleId)
     {
         var role = await FindByIdAsync(roleId.ToString());
-        if (role == null)
-        {
-            throw new ApplicationException("There is no role with id: " + roleId);
-        }
+        if (role == null) throw new ApplicationException("There is no role with id: " + roleId);
 
         return role;
     }
@@ -77,9 +74,7 @@ public class RoleManager : AbpRoleManager<Role, User>
         if (role.Name == StaticRoleNames.Host.Admin &&
             (!permissions.Any(p => p.Name == AppPermissions.Pages_Administration_Roles_Edit) ||
              !permissions.Any(p => p.Name == AppPermissions.Pages_Administration_Users_ChangePermissions)))
-        {
             throw new UserFriendlyException(L("YouCannotRemoveUserRolePermissionsFromAdminRole"));
-        }
     }
 
     private new string L(string name)
@@ -87,4 +82,3 @@ public class RoleManager : AbpRoleManager<Role, User>
         return _localizationManager.GetString(LotteryDetectionConsts.LocalizationSourceName, name);
     }
 }
-

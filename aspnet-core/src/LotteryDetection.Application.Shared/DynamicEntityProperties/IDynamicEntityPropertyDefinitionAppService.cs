@@ -8,4 +8,3 @@ public interface IDynamicEntityPropertyDefinitionAppService
 
     List<string> GetAllEntities();
 }
-

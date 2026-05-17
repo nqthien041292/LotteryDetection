@@ -6,10 +6,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Abp" Version="10.0.0"/>
-        <PackageReference Include="Abp.Web.Common" Version="10.0.0"/>
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.3.0"/>
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.3"/>
+        <PackageReference Include="Abp" Version="10.1.0" />
+        <PackageReference Include="Abp.Web.Common" Version="10.1.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.6.0" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.3" />
     </ItemGroup>
 
 </Project>

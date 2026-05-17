@@ -12,4 +12,3 @@ public interface ITempFileCacheManager : ITransientDependency
 
     TempFileInfo GetFileInfo(string token);
 }
-

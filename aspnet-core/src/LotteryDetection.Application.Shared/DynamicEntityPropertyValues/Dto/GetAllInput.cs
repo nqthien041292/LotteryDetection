@@ -6,4 +6,3 @@ public class GetAllInput
 
     public int PropertyId { get; set; }
 }
-

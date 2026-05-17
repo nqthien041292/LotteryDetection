@@ -9,4 +9,3 @@ public static class ImpersonationCacheManagerExtensions
         return cacheManager.GetCache<string, ImpersonationCacheItem>(ImpersonationCacheItem.CacheName);
     }
 }
-
