@@ -1,0 +1,20 @@
+﻿version: '3.7'
+
+services:
+
+  lotterydetection.migrator:
+    image: ${DOCKER_REGISTRY-}lotterydetectionmigrator
+    container_name: lotterydetectionmigrator_container
+    build:
+      context: ../../
+      dockerfile: src/LotteryDetection.Migrator/Dockerfile
+    environment:
+      - ASPNETCORE_Docker_Enabled=true
+      - ConnectionStrings__Default=Server=mssqlDb;Database=LotteryDetectionDb;User=sa;Password=Super_Encrypted_Passw0rd!
+    networks:
+      - lotterydetection
+      
+networks:
+  lotterydetection:
+    external:
+      name: lotterydetection

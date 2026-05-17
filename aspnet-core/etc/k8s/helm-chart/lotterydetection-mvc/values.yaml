@@ -1,0 +1,10 @@
+﻿global:
+  wwwDomain: lotterydetection-www
+  wwwUrl: "https://lotterydetection-www"
+  nginxProxyBufferSize: "32k"
+  nginxProxyBuffersNumber: "8"
+  defaultConnString: "Server=anz-sql,1433;Database=LotteryDetectionDb;User ID=sa;Password=123qweX."
+www:
+  containerImage: "lotterydetection-mvc"
+dbmigrator:
+  containerImage: "lotterydetection-migrator"

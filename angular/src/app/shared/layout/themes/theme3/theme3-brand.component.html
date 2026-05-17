@@ -1,0 +1,8 @@
+﻿<a href="/">
+    <img
+        *ngIf="!appSession.tenant || !appSession.tenant.HasLogo()"
+        [src]="defaultLogoUrl"
+        alt="logo"
+        class="h-30px logo" />
+    <img *ngIf="appSession.tenant && appSession.tenant.HasLogo()" [src]="tenantLogoUrl" class="h-30px logo" />
+</a>

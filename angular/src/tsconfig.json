@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "experimentalDecorators": true,
+    "lib": ["es6", "dom"],
+    "mapRoot": "./",
+    "module": "esnext",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "outDir": "../dist/out-tsc",
+    "sourceMap": true,
+    "target": "ES2022",
+    "useDefineForClassFields": false,
+    "typeRoots": ["../node_modules/@types"],
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports":true,
+    "paths": {
+      "@app/*": ["./app/*"],
+      "@account/*": ["./account/*"],
+      "@shared/*": ["./shared/*"],
+      "@node_modules/*": ["../node_modules/*"],
+      "@metronic/*": ["./assets/metronic/*"]
+    }
+  },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    "strictTemplates": true,
+    "strictInputTypes": false,
+    "strictAttributeTypes": false,
+    "strictOutputEventTypes": false,
+    "strictDomEventTypes": false,
+    "strictLiteralTypes": false,
+    "strictInjectionParameters": false,
+  }
+}

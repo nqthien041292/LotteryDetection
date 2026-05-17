@@ -1,0 +1,22 @@
+﻿version: '3.7'
+
+services:      
+
+  lotterydetection.web.host:
+    image: ${DOCKER_REGISTRY-}lotterydetectionwebhost
+    container_name: lotterydetectionwebhost_container
+    build:
+      context: ../../
+      dockerfile: src/LotteryDetection.Web.Host/Dockerfile
+    environment:
+      - ConnectionStrings__Default=Server=mssqlDb;Database=LotteryDetectionDb;User=sa;Password=Super_Encrypted_Passw0rd!
+      - Abp__RedisCache__ConnectionString=localhost:6379
+    ports:
+      - "44301:443"
+    networks:
+      - lotterydetection
+
+networks:
+  lotterydetection:
+    external:
+      name: lotterydetection

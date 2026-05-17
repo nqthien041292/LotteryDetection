@@ -1,0 +1,24 @@
+﻿<div class="card card-custom">
+    <div class="card-header align-items-center border-0">
+        <h3 class="card-title align-items-start flex-column">
+            <span class="fw-bolder text-gray-900">Daily Sales</span>
+        </h3>
+    </div>
+    <ng-scrollbar externalViewport=".p-scroller" externalContentWrapper=".p-datatable-scrollable-table">
+        <div class="card-body">
+            <div class="row">
+                <div class="col" style="max-height: 200px; overflow-y: auto">
+                    <ngx-charts-bar-vertical
+                        [results]="dailySalesLineChart.chartData"
+                        [scheme]="dailySalesLineChart.scheme">
+                        <ng-template #tooltipTemplate let-model="model">
+                            <span>Day {{ model.name }}</span>
+                            <br />
+                            <span>{{ model.value }}</span>
+                        </ng-template>
+                    </ngx-charts-bar-vertical>
+                </div>
+            </div>
+        </div>
+    </ng-scrollbar>
+</div>

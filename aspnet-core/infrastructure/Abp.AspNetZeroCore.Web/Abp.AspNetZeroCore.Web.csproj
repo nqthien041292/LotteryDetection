@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Abp.AspNetZeroCore\Abp.AspNetZeroCore.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Abp.AspNetCore" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.16"/>
+        <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="8.3.0"/>
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.3.0"/>
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="8.3.0"/>
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.3"/>
+        <PackageReference Include="TweetinviAPI" Version="5.0.4"/>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+﻿<a href="/" [class]="customHrefClass">
+    <img
+        *ngIf="!appSession.tenant || !appSession.tenant.HasLogo()"
+        [src]="defaultLogoUrl"
+        alt="Logo"
+        class="h-25px app-sidebar-logo-default" />
+    <img
+        *ngIf="!appSession.tenant || !appSession.tenant.HasLogoMinimal()"
+        [src]="defaultSmallLogoUrl"
+        alt="Logo"
+        class="h-20px app-sidebar-logo-minimize" />
+    <img
+        *ngIf="appSession.tenant && appSession.tenant.HasLogo()"
+        [src]="tenantLogoUrl"
+        alt="Logo"
+        class="h-25px app-sidebar-logo-default" />
+    <img
+        *ngIf="appSession.tenant && appSession.tenant.HasLogoMinimal()"
+        [src]="tenantSmallLogoUrl"
+        alt="Logo"
+        class="h-20px app-sidebar-logo-minimize" />
+</a>

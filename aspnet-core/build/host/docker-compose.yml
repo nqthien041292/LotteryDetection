@@ -1,0 +1,14 @@
+﻿version: '3.7'
+
+services:
+      
+  lotterydetection.web.host:
+    image: lotterydetection.web.host
+    container_name: lotterydetection.web.host_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__Default=Server=192.168.1.37,1433;Database=LotteryDetectionDb;User=sa;Password=123qwe;TrustServerCertificate=True;
+    ports:
+      - "44301:443"

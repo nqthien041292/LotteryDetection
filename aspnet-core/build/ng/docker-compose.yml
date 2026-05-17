@@ -1,0 +1,13 @@
+﻿version: '3.7'
+
+services:
+
+    lotterydetection.web.angular:
+        image: lotterydetection.web.angular
+        build:
+          context: .
+          dockerfile: Dockerfile
+        ports:
+            - "4200:80"
+        volumes:
+            - "./nginx.conf:/etc/nginx/nginx.conf:ro"

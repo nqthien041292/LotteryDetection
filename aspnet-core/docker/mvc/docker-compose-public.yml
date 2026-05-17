@@ -1,0 +1,21 @@
+﻿version: '3.7'
+
+services:
+  
+  lotterydetection.web.public:
+    image: ${DOCKER_REGISTRY-}lotterydetectionwebpublic
+    container_name: lotterydetectionwebpublic_container
+    build:
+      context: ../../
+      dockerfile: src/LotteryDetection.Web.Public/Dockerfile
+    environment:
+      - ConnectionStrings__Default=Server=mssqlDb;Database=LotteryDetectionDb;User=sa;Password=Super_Encrypted_Passw0rd!
+    ports:
+      - "44303:443"
+    networks:
+      - lotterydetection
+
+networks:
+  lotterydetection:
+    external:
+      name: lotterydetection

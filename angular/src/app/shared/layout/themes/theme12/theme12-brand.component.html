@@ -1,0 +1,26 @@
+﻿<div class="header-logo me-5 me-md-10 flex-grow-1 flex-lg-grow-0">
+    <a href="/">
+        <!-- Default Logos -->
+        <img
+            alt="Logo"
+            *ngIf="!appSession.tenant || !appSession.tenant.HasLogo()"
+            [src]="defaultLogoUrl"
+            class="d-none d-lg-block h-30px" />
+        <img
+            alt="Logo"
+            *ngIf="!appSession.tenant || !appSession.tenant.HasLogo()"
+            [src]="defaultSmallLogoUrl"
+            class="d-lg-none h-25px" />
+        <!-- Tenant Logos -->
+        <img
+            alt="Logo"
+            *ngIf="appSession.tenant && appSession.tenant.HasLogo()"
+            [src]="tenantLogoUrl"
+            class="d-none d-lg-block h-30px" />
+        <img
+            alt="Logo"
+            *ngIf="appSession.tenant && appSession.tenant.HasLogo()"
+            [src]="tenantSmallLogoUrl"
+            class="d-lg-none h-25px" />
+    </a>
+</div>
