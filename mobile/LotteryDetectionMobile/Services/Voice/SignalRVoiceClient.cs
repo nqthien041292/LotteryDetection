@@ -1,3 +1,4 @@
+using LotteryDetectionMobile.Services.Configuration;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 
@@ -38,6 +39,12 @@ public class SignalRVoiceClient : IAsyncDisposable
             {
                 // Use async token provider for automatic refresh on connect/reconnect
                 if (_tokenProvider != null) httpOptions.AccessTokenProvider = async () => await _tokenProvider();
+#if DEBUG
+                // Trust the LotteryDetection.Web.Host dev cert (https://localhost:44301).
+                httpOptions.HttpMessageHandlerFactory = _ => DevHttpsHelper.CreateHandler(true);
+                httpOptions.WebSocketConfiguration = ws =>
+                    ws.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+#endif
             })
             .WithAutomaticReconnect(new[]
                 { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10) });

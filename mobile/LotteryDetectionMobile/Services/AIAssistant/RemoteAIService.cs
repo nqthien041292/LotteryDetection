@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LotteryDetectionMobile.Models.Family;
+using LotteryDetectionMobile.Services.Configuration;
 using LotteryDetectionMobile.Services.Interfaces;
 using LotteryDetectionMobile.Services.Voice;
 
@@ -26,7 +27,7 @@ public class RemoteAIService : IAIService
         // status 200). Following that redirect swallows the real auth failure
         // and produces a JSON-parse error downstream. With AllowAutoRedirect=false
         // the 302 stays as 302 and EnsureSuccessStatusCode surfaces it cleanly.
-        _httpClient = httpClient ?? new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
+        _httpClient = httpClient ?? new HttpClient(DevHttpsHelper.CreateHandler());
         _httpClient.BaseAddress = options.BaseUri;
         _httpClient.Timeout = TimeSpan.FromSeconds(60); // OpenAI can be slow
         _tokenProvider = options.GetBearerTokenAsync;

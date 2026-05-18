@@ -5,4 +5,14 @@
 		<domain includeSubdomains="true">10.0.2.2</domain>
 		<domain includeSubdomains="true">localhost</domain>
 	</domain-config>
+	<!-- Debug builds also trust user-installed CAs so the ASP.NET Core dev cert
+	     (exported and pushed to the emulator) is accepted by Android's TLS stack.
+	     This is in addition to the in-app ServerCertificateCustomValidationCallback,
+	     which only covers managed HttpClientHandler paths, not native AndroidMessageHandler. -->
+	<debug-overrides>
+		<trust-anchors>
+			<certificates src="system" />
+			<certificates src="user" />
+		</trust-anchors>
+	</debug-overrides>
 </network-security-config>

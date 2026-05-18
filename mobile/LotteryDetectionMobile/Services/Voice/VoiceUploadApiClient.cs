@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LotteryDetectionMobile.Models.Voice;
+using LotteryDetectionMobile.Services.Configuration;
 using LotteryDetectionMobile.Services.Logging;
 
 namespace LotteryDetectionMobile.Services.Voice;
@@ -26,7 +27,7 @@ public class VoiceUploadApiClient
         // Disable auto-redirect so an expired/missing bearer token surfaces as
         // 302 (caught by EnsureSuccessStatusCode) instead of silently following
         // the backend's redirect to a 200 HTML error page.
-        this.httpClient = httpClient ?? new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
+        this.httpClient = httpClient ?? new HttpClient(DevHttpsHelper.CreateHandler());
         this.httpClient.BaseAddress = options.BaseUri;
 
         Console.WriteLine($"[VoiceUploadApi] Initialized with BaseAddress: {this.httpClient.BaseAddress}");

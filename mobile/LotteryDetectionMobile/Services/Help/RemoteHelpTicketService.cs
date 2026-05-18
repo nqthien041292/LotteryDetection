@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using LotteryDetectionMobile.Models.Help;
+using LotteryDetectionMobile.Services.Configuration;
 using LotteryDetectionMobile.Services.Interfaces;
 using LotteryDetectionMobile.Services.Voice;
 
@@ -13,7 +14,7 @@ public class RemoteHelpTicketService : IHelpTicketService
 
     public RemoteHelpTicketService(VoiceApiOptions options, HttpClient? httpClient = null)
     {
-        _httpClient = httpClient ?? new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
+        _httpClient = httpClient ?? new HttpClient(DevHttpsHelper.CreateHandler());
         _httpClient.BaseAddress = options.BaseUri;
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _tokenProvider = options.GetBearerTokenAsync;

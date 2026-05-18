@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LotteryDetectionMobile.Models.Family;
+using LotteryDetectionMobile.Services.Configuration;
 using LotteryDetectionMobile.Services.Interfaces;
 using LotteryDetectionMobile.Services.Voice;
 
@@ -21,7 +22,7 @@ public class RemoteCalendarService : ICalendarService
 
     public RemoteCalendarService(VoiceApiOptions options, HttpClient? httpClient = null)
     {
-        _httpClient = httpClient ?? new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
+        _httpClient = httpClient ?? new HttpClient(DevHttpsHelper.CreateHandler());
         _httpClient.BaseAddress = options.BaseUri;
         _httpClient.Timeout = TimeSpan.FromSeconds(30);
         _tokenProvider = options.GetBearerTokenAsync;

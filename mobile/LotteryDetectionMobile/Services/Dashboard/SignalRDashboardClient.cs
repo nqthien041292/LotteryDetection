@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using LotteryDetectionMobile.Models.Dashboard;
+using LotteryDetectionMobile.Services.Configuration;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace LotteryDetectionMobile.Services.Dashboard;
@@ -21,6 +22,12 @@ public class SignalRDashboardClient : IAsyncDisposable
                 if (tokenProvider != null)
                     options.AccessTokenProvider = async () => await tokenProvider();
                 options.Headers["X-User-Timezone"] = TimeZoneInfo.Local.Id;
+#if DEBUG
+                // Trust the LotteryDetection.Web.Host dev cert (https://localhost:44301).
+                options.HttpMessageHandlerFactory = _ => DevHttpsHelper.CreateHandler(true);
+                options.WebSocketConfiguration = ws =>
+                    ws.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+#endif
             })
             .WithAutomaticReconnect(new[]
             {

@@ -72,9 +72,10 @@ public static class AppConfiguration
 
     private static string GetPlatformFallbackUrl()
     {
-        // Android emulator can't reach localhost; 10.0.2.2 maps to host machine.
+        // Targets LotteryDetection.Web.Host's default Kestrel binding (https://localhost:44301).
+        // Android emulator can't reach the host machine via "localhost" — 10.0.2.2 maps to it instead.
         if (DeviceInfo.Platform == DevicePlatform.Android)
-            return "http://10.0.2.2:44301/";
-        return "http://localhost:44301/";
+            return "https://10.0.2.2:44301/";
+        return "https://localhost:44301/";
     }
 }
