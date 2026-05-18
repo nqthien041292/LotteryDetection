@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetectionMobile.Views.Forms.SplashPage"
+             Shell.NavBarIsVisible="False"
+             ios:Page.UseSafeArea="False"
+             BackgroundColor="#F4F8FE">
+
+    <Grid Padding="0"
+          RowDefinitions="*,Auto">
+
+        <!-- Brand mark + wordmark (fades + scales in via code-behind) -->
+        <VerticalStackLayout x:Name="BrandStack"
+                             Grid.Row="0"
+                             Spacing="22"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Opacity="0">
+
+            <!-- FamilyMark logo (rounded gradient tile + 3 orbs) -->
+            <Image Source="logo.png" 
+                   WidthRequest="100" 
+                   HeightRequest="100" 
+                   HorizontalOptions="Center" />
+
+            <!-- "Family AI" wordmark — "AI" in primary -->
+            <Label HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   FontFamily="Geist" FontSize="32" FontAttributes="Bold"
+                   CharacterSpacing="-0.025"
+                   LineHeight="1"
+                   TextColor="#172033">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="Family " />
+                        <Span Text="AI"
+                              TextColor="#1E5BFF" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </VerticalStackLayout>
+
+        <!-- Loading indicator -->
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="True"
+                           HeightRequest="28" WidthRequest="28"
+                           Margin="0,0,0,56"
+                           HorizontalOptions="Center"
+                           Color="#1E5BFF" />
+    </Grid>
+</ContentPage>

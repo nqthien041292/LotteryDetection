@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:LotteryDetectionMobile.ViewModel"
+             xmlns:components="clr-namespace:LotteryDetectionMobile.Views.Components"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetectionMobile.Views.OnBoarding.OnboardingPage"
+             x:DataType="viewModel:OnboardingViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+
+    <ContentPage.BindingContext>
+        <viewModel:OnboardingViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid>
+        <Grid Padding="0"
+              RowDefinitions="Auto,*,Auto,Auto"
+              BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+        <!-- Top bar: optional back + Skip -->
+        <Grid Grid.Row="0"
+              Padding="20,40,20,0"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Text="‹"
+                    FontFamily="Geist"
+                    FontSize="28"
+                    Padding="0"
+                    HeightRequest="36"
+                    WidthRequest="36"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                    IsVisible="{Binding ShowBackButton}"
+                    Command="{Binding BackCommand}" />
+            <Button Grid.Column="2"
+                    Text="Skip"
+                    FontFamily="Geist"
+                    FontSize="14"
+                    FontAttributes="None"
+                    Padding="0"
+                    HeightRequest="36"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                    IsVisible="{Binding ShowSkipButton}"
+                    Command="{Binding SkipCommand}" />
+        </Grid>
+
+        <!-- Hero illustration area -->
+        <Grid Grid.Row="1"
+              VerticalOptions="Center"
+              HorizontalOptions="Center"
+              Padding="24,12">
+
+            <!-- Slide 0 — OrbScene -->
+            <Grid IsVisible="{Binding IsSlide0}"
+                  WidthRequest="260"
+                  HeightRequest="260"
+                  HorizontalOptions="Center">
+                <!-- Halo (soft radial fade matching mockup) -->
+                <Ellipse WidthRequest="260" HeightRequest="260">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush Center="0.5,0.45" Radius="0.5">
+                            <GradientStop Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryTintLight}, Dark={DynamicResource FamilyPrimaryTintDark}}" Offset="0" />
+                            <GradientStop Color="Transparent" Offset="1" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <!-- Center orb -->
+                <Ellipse WidthRequest="130"
+                         HeightRequest="130"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Start"
+                         Margin="0,18,0,0">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush Center="0.35,0.3" Radius="0.65">
+                            <GradientStop Color="#5B8FFF" Offset="0" />
+                            <GradientStop Color="#1E5BFF" Offset="0.55" />
+                            <GradientStop Color="#0A2E8A" Offset="1" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                    <Ellipse.Shadow>
+                        <Shadow Brush="#1E5BFF" Offset="0,18" Radius="20" Opacity="0.4" />
+                    </Ellipse.Shadow>
+                </Ellipse>
+                <!-- Orb highlight (soft white glow, top-left of orb) -->
+                <Ellipse WidthRequest="32"
+                         HeightRequest="22"
+                         Opacity="0.55"
+                         Fill="White"
+                         HorizontalOptions="Start"
+                         VerticalOptions="Start"
+                         Margin="89,36,0,0" />
+                <!-- Orb sparkle -->
+                <Label Text="✦"
+                       FontSize="18"
+                       TextColor="White"
+                       HorizontalOptions="Start"
+                       VerticalOptions="Start"
+                       Margin="149,52,0,0" />
+                <!-- Connector threads (avatars → orb), below avatars in z-order -->
+                <shapes:Path Data="M70 170 Q 130 130 130 90"
+                             Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimary2Light}, Dark={DynamicResource FamilyPrimary2Dark}}"
+                             StrokeThickness="1"
+                             Opacity="0.35"
+                             StrokeDashArray="2,4"
+                             HorizontalOptions="Start"
+                             VerticalOptions="Start" />
+                <shapes:Path Data="M120 215 Q 130 150 130 110"
+                             Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimary2Light}, Dark={DynamicResource FamilyPrimary2Dark}}"
+                             StrokeThickness="1"
+                             Opacity="0.35"
+                             StrokeDashArray="2,4"
+                             HorizontalOptions="Start"
+                             VerticalOptions="Start" />
+                <shapes:Path Data="M188 210 Q 150 150 145 100"
+                             Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimary2Light}, Dark={DynamicResource FamilyPrimary2Dark}}"
+                             StrokeThickness="1"
+                             Opacity="0.35"
+                             StrokeDashArray="2,4"
+                             HorizontalOptions="Start"
+                             VerticalOptions="Start" />
+                <shapes:Path Data="M230 165 Q 180 130 160 100"
+                             Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimary2Light}, Dark={DynamicResource FamilyPrimary2Dark}}"
+                             StrokeThickness="1"
+                             Opacity="0.35"
+                             StrokeDashArray="2,4"
+                             HorizontalOptions="Start"
+                             VerticalOptions="Start" />
+                <!-- Family avatars orbiting -->
+                <components:FamilyAvatar Member="alex" Name="A" Size="48" Ring="True"
+                                         HorizontalOptions="Start" VerticalOptions="Start" Margin="30,165,0,0" />
+                <components:FamilyAvatar Member="sam" Name="S" Size="56" Ring="True"
+                                         HorizontalOptions="Start" VerticalOptions="Start" Margin="92,198,0,0" />
+                <components:FamilyAvatar Member="jordan" Name="J" Size="52" Ring="True"
+                                         HorizontalOptions="Start" VerticalOptions="Start" Margin="162,192,0,0" />
+                <components:FamilyAvatar Member="riley" Name="R" Size="44" Ring="True"
+                                         HorizontalOptions="Start" VerticalOptions="Start" Margin="215,158,0,0" />
+            </Grid>
+
+            <!-- Slide 1 — BoardPreview -->
+            <Border IsVisible="{Binding IsSlide1}"
+                    WidthRequest="290"
+                    Padding="14"
+                    StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <shapes:RoundRectangle CornerRadius="18" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#1E5BFF" Offset="0,12" Radius="20" Opacity="0.08" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <Label Grid.Column="0" Text="This week" FontFamily="Geist" FontSize="18"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                        <HorizontalStackLayout Grid.Column="1" Spacing="-8">
+                            <components:FamilyAvatar Member="alex" Name="A" Size="20" Ring="True" />
+                            <components:FamilyAvatar Member="sam" Name="S" Size="20" Ring="True" />
+                            <components:FamilyAvatar Member="jordan" Name="J" Size="20" Ring="True" />
+                            <components:FamilyAvatar Member="riley" Name="R" Size="20" Ring="True" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <!-- Mini calendar 5 columns -->
+                    <Grid ColumnDefinitions="*,*,*,*,*"
+                          ColumnSpacing="5"
+                          HeightRequest="180">
+                        <!-- Mon -->
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="MON" FontFamily="Geist" FontSize="9" FontAttributes="Bold" CharacterSpacing="0.04" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            <Border BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}"
+                                    StrokeThickness="0" HeightRequest="165">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Grid>
+                                    <Border Margin="2,42,2,0" HeightRequest="25" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberSamBgLight}, Dark={DynamicResource FamilyMemberSamBgDark}}"
+                                            Stroke="{AppThemeBinding Light={DynamicResource FamilyMemberSamDotLight}, Dark={DynamicResource FamilyMemberSamDotDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Pickup" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberSamTextLight}, Dark={DynamicResource FamilyMemberSamTextDark}}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                        <!-- Tue -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="TUE" FontFamily="Geist" FontSize="9" FontAttributes="Bold" CharacterSpacing="0.04" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            <Border BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}"
+                                    StrokeThickness="0" HeightRequest="165">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Grid>
+                                    <Border Margin="2,70,2,0" HeightRequest="21" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberAlexBgLight}, Dark={DynamicResource FamilyMemberAlexBgDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Groceries" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberAlexTextLight}, Dark={DynamicResource FamilyMemberAlexTextDark}}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                        <!-- Wed -->
+                        <VerticalStackLayout Grid.Column="2" Spacing="4">
+                            <Label Text="WED" FontFamily="Geist" FontSize="9" FontAttributes="Bold" CharacterSpacing="0.04" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            <Border BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}"
+                                    StrokeThickness="0" HeightRequest="165">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Grid>
+                                    <Border Margin="2,35,2,0" HeightRequest="35" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberJordanBgLight}, Dark={DynamicResource FamilyMemberJordanBgDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Practice" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberJordanTextLight}, Dark={DynamicResource FamilyMemberJordanTextDark}}" />
+                                    </Border>
+                                    <Border Margin="2,91,2,0" HeightRequest="20" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberRileyBgLight}, Dark={DynamicResource FamilyMemberRileyBgDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Bath" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberRileyTextLight}, Dark={DynamicResource FamilyMemberRileyTextDark}}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                        <!-- Thu -->
+                        <VerticalStackLayout Grid.Column="3" Spacing="4">
+                            <Label Text="THU" FontFamily="Geist" FontSize="9" FontAttributes="Bold" CharacterSpacing="0.04" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            <Border BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}"
+                                    StrokeThickness="0" HeightRequest="165">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Grid>
+                                    <Border Margin="2,56,2,0" HeightRequest="28" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberHomeBgLight}, Dark={DynamicResource FamilyMemberHomeBgDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Dinner" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberHomeTextLight}, Dark={DynamicResource FamilyMemberHomeTextDark}}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                        <!-- Fri -->
+                        <VerticalStackLayout Grid.Column="4" Spacing="4">
+                            <Label Text="FRI" FontFamily="Geist" FontSize="9" FontAttributes="Bold" CharacterSpacing="0.04" HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            <Border BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}"
+                                    StrokeThickness="0" HeightRequest="165">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Grid>
+                                    <Border Margin="2,42,2,0" HeightRequest="39" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberSamBgLight}, Dark={DynamicResource FamilyMemberSamBgDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Vet" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberSamTextLight}, Dark={DynamicResource FamilyMemberSamTextDark}}" />
+                                    </Border>
+                                    <Border Margin="2,91,2,0" HeightRequest="20" VerticalOptions="Start"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyMemberAlexBgLight}, Dark={DynamicResource FamilyMemberAlexBgDark}}"
+                                            StrokeThickness="0" Padding="3,2">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                                        <Label Text="Bins" FontFamily="Geist" FontSize="8" FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyMemberAlexTextLight}, Dark={DynamicResource FamilyMemberAlexTextDark}}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Slide 2 — VoicePreview -->
+            <Grid IsVisible="{Binding IsSlide2}"
+                  WidthRequest="260"
+                  HeightRequest="260"
+                  HorizontalOptions="Center">
+                <Ellipse WidthRequest="220" HeightRequest="220" StrokeThickness="1" Opacity="0.45"
+                         Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                <Ellipse WidthRequest="172" HeightRequest="172" StrokeThickness="1" Opacity="0.35"
+                         Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                <Ellipse WidthRequest="121" HeightRequest="121" StrokeThickness="1" Opacity="0.25"
+                         Stroke="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                         HorizontalOptions="Center" VerticalOptions="Center" />
+                <Ellipse WidthRequest="92" HeightRequest="92"
+                         HorizontalOptions="Center" VerticalOptions="Center">
+                    <Ellipse.Fill>
+                        <LinearGradientBrush StartPoint="0.2,0" EndPoint="1,1">
+                            <GradientStop Color="#5B8FFF" Offset="0" />
+                            <GradientStop Color="#1E5BFF" Offset="0.6" />
+                            <GradientStop Color="#0A2E8A" Offset="1" />
+                        </LinearGradientBrush>
+                    </Ellipse.Fill>
+                    <Ellipse.Shadow>
+                        <Shadow Brush="#1E5BFF" Offset="0,12" Radius="22" Opacity="0.4" />
+                    </Ellipse.Shadow>
+                </Ellipse>
+                <!-- Mic icon glyph -->
+                <Label Text="🎙" FontSize="34" HorizontalOptions="Center" VerticalOptions="Center" />
+                <!-- Transcript bubble -->
+                <Border WidthRequest="170"
+                        Padding="10,8"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                        HorizontalOptions="Start" VerticalOptions="Start"
+                        Margin="0,18,0,0">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#1E5BFF" Offset="0,8" Radius="14" Opacity="0.10" />
+                    </Border.Shadow>
+                    <Label Text="&quot;Pick up Sam from soccer at 5pm Thursday&quot;"
+                           FontFamily="Geist" FontSize="12"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                </Border>
+                <!-- Toast confirmation -->
+                <Border Padding="10,7"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                        HorizontalOptions="End" VerticalOptions="End"
+                        Margin="0,0,4,26">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label Text="✓" FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimary2Light}, Dark={DynamicResource FamilyPrimary2Dark}}" VerticalOptions="Center" />
+                        <Label Text="Added to Sam · Thu" FontFamily="Geist" FontSize="11" TextColor="White" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Title + body + dots -->
+        <VerticalStackLayout Grid.Row="2"
+                             Padding="28,0,28,4"
+                             Spacing="12">
+            <!-- Slide 0 copy -->
+            <VerticalStackLayout IsVisible="{Binding IsSlide0}" Spacing="12">
+                <Label Text="An assistant for the&#10;whole household."
+                       FontFamily="Geist" FontSize="32" FontAttributes="Bold"
+                       LineHeight="1.1" CharacterSpacing="-0.025"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                <Label Text="Family AI organizes, prioritizes, and assigns tasks for everyone — so nothing falls through the cracks."
+                       FontFamily="Geist" FontSize="15" LineHeight="1.45"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+            </VerticalStackLayout>
+            <!-- Slide 1 copy -->
+            <VerticalStackLayout IsVisible="{Binding IsSlide1}" Spacing="12">
+                <Label Text="One board.&#10;Everyone in sync."
+                       FontFamily="Geist" FontSize="32" FontAttributes="Bold"
+                       LineHeight="1.1" CharacterSpacing="-0.025"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                <Label Text="A live, color-coded view of who's doing what — drag, reschedule, hand off."
+                       FontFamily="Geist" FontSize="15" LineHeight="1.45"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+            </VerticalStackLayout>
+            <!-- Slide 2 copy -->
+            <VerticalStackLayout IsVisible="{Binding IsSlide2}" Spacing="12">
+                <Label Text="Just say it.&#10;It's on the board."
+                       FontFamily="Geist" FontSize="32" FontAttributes="Bold"
+                       LineHeight="1.1" CharacterSpacing="-0.025"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                <Label Text="Speak a task aloud — Family AI transcribes, assigns, and schedules it instantly."
+                       FontFamily="Geist" FontSize="15" LineHeight="1.45"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+            </VerticalStackLayout>
+
+            <!-- Dots indicator -->
+            <HorizontalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,18,0,0">
+                <Border WidthRequest="22" HeightRequest="6" StrokeThickness="0"
+                        IsVisible="{Binding IsDot0Active}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
+                </Border>
+                <Border WidthRequest="6" HeightRequest="6" StrokeThickness="0"
+                        IsVisible="{Binding IsDot0Active, Converter={StaticResource InvertBool}}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
+                </Border>
+                
+                <Border WidthRequest="22" HeightRequest="6" StrokeThickness="0"
+                        IsVisible="{Binding IsDot1Active}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
+                </Border>
+                <Border WidthRequest="6" HeightRequest="6" StrokeThickness="0"
+                        IsVisible="{Binding IsDot1Active, Converter={StaticResource InvertBool}}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
+                </Border>
+                
+                <Border WidthRequest="22" HeightRequest="6" StrokeThickness="0"
+                        IsVisible="{Binding IsDot2Active}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
+                </Border>
+                <Border WidthRequest="6" HeightRequest="6" StrokeThickness="0"
+                        IsVisible="{Binding IsDot2Active, Converter={StaticResource InvertBool}}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
+                </Border>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <!-- Continue / Get started CTA -->
+        <Button Grid.Row="3"
+                Margin="24,24,24,40"
+                HeightRequest="56"
+                CornerRadius="14"
+                FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                Text="{Binding NextButtonText}"
+                Command="{Binding NextCommand}"
+                BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                TextColor="White" />
+        </Grid>
+
+        <!-- Custom Permission Popup Overlay -->
+        <Grid IsVisible="{Binding ShowPermissionPopup}"
+              BackgroundColor="#80000000"
+              Padding="24"
+              InputTransparent="False">
+            <Border BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                    VerticalOptions="Center"
+                    Padding="24,24,24,20"
+                    Margin="0,0,0,40">
+                <Border.StrokeShape>
+                    <shapes:RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,10" Radius="30" Opacity="0.15" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+                    <!-- Icon / Header -->
+                    <Grid WidthRequest="48" HeightRequest="48" HorizontalOptions="Start">
+                        <Ellipse Fill="{AppThemeBinding Light={DynamicResource PrimaryLighter}, Dark={DynamicResource PrimaryLighterDark}}" />
+                        <Label Text="🎙️" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+
+                    <Label Text="Enable microphone &amp; calendar?"
+                           FontFamily="Geist" FontSize="20" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+
+                    <Label Text="We use your microphone for voice capture and calendar to sync tasks and reminders."
+                           FontFamily="Geist" FontSize="15" LineHeight="1.4"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12,0,0">
+                        <Button Grid.Column="0"
+                                Text="Not now"
+                                FontFamily="Geist" FontSize="15" FontAttributes="Bold"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                                Command="{Binding NotNowCommand}"
+                                HeightRequest="48"
+                                CornerRadius="12" />
+                        <Button Grid.Column="1"
+                                Text="Allow"
+                                FontFamily="Geist" FontSize="15" FontAttributes="Bold"
+                                BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                                TextColor="White"
+                                Command="{Binding AllowCommand}"
+                                HeightRequest="48"
+                                CornerRadius="12" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+
+    <ContentPage.Resources>
+        <ResourceDictionary xmlns:cv="clr-namespace:LotteryDetectionMobile.Converters">
+            <cv:InvertBoolConverter x:Key="InvertBool" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+</ContentPage>

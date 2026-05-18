@@ -1,0 +1,218 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--
+	==============================================================================
+	  iOS / Mac developer setup (Xcode 26.3):
+	    .NET SDK + workload-set are pinned via repo-root global.json.
+	    Workload-set 10.0.107 ships iOS manifest 26.2.10233 — the latest pre-26.4
+	    that targets Xcode 26.2 SDK (works on Xcode 26.3). Newer sets (10.0.107.1+)
+	    require Xcode 26.4 → DO NOT BUMP without verifying Xcode availability.
+	    After cloning, run once to install matching workloads:
+	        bash mobile/scripts/setup-dev.sh        (macOS / Linux)
+	        pwsh mobile/scripts/setup-dev.ps1       (Windows)
+	==============================================================================
+	-->
+	<PropertyGroup>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
+
+		<OutputType>Exe</OutputType>
+		<RootNamespace>LotteryDetectionMobile</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisLevelSecurity>latest-recommended</AnalysisLevelSecurity>
+		<NoWarn>$(NoWarn);NU1803;XC0045;XC0024;XC0022;CS8600;CS8601;CS8602;CS8603;CS860;CS0618;CA1422;CS8625;CS8618;CA1416;CS8604;CA1418;</NoWarn>
+		<Nullable>enable</Nullable>
+		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+
+		<!-- Display name -->
+		<ApplicationTitle>LotteryDetectionMobile</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.lotterydetection.mobile</ApplicationId>
+
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">12.2</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion
+			Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+			15.0
+		</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<Configurations>Debug;Release;Release-Xml</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DefineConstants>TRACE;DEBUG;</DefineConstants>
+		<WarningLevel>5</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DefineConstants>TRACE;RELEASE;</DefineConstants>
+		<WarningLevel>5</WarningLevel>
+		<!-- NOTE: not recommended for Debug builds! -->
+		<AndroidLinkTool>r8</AndroidLinkTool>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(TargetFramework.Contains('-windows')) and '$(Configuration)' == 'Release'">
+		<GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+		<AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>d01aec76455c0352854b7caaf1544f9b169dce54</PackageCertificateThumbprint>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-Xml|AnyCPU' ">
+		<DefineConstants>TRACE;RELEASE;</DefineConstants>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningLevel>5</WarningLevel>
+		<!-- NOTE: not recommended for Debug builds! -->
+		<AndroidLinkTool>r8</AndroidLinkTool>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.83.3" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+	</ItemGroup>
+
+	<!-- iOS - Entitlements required for both simulator and device (keychain access for MSAL) -->
+	<PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+		<CodesignEntitlements>Platforms/iOS/Entitlements.plist</CodesignEntitlements>
+		<UILaunchStoryboardName>LaunchScreen</UILaunchStoryboardName>
+		<!-- SdkOnly link mode in Debug keeps incremental builds fast and avoids
+		     marshalling-stub issues with the pinned iOS 26.x SDK on Xcode 26.3. -->
+		<MtouchLink Condition="'$(Configuration)' == 'Debug'">SdkOnly</MtouchLink>
+	</PropertyGroup>
+
+	<!-- iOS Simulator (default when RID unset, or explicitly iossimulator-*): ad-hoc sign.
+	     EnableCodeSigning=true forces the _CodesignAppBundle target to run so Entitlements.plist
+	     (keychain-access-groups for MSAL) gets embedded into the simulator build. Without it,
+	     the binary is only linker-signed and MSAL's keychain writes fail. -->
+	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and !$(RuntimeIdentifier.StartsWith('ios-'))">
+		<CodesignKey>-</CodesignKey>
+		<EnableCodeSigning>true</EnableCodeSigning>
+		<!-- Ad-hoc sign has no provisioning profile, so $(AppIdentifierPrefix) in the
+		     default Entitlements.plist never expands. This file declares the literal,
+		     macro-free keychain groups MSAL computes on the simulator. -->
+		<CodesignEntitlements>Platforms/iOS/Entitlements.Simulator.plist</CodesignEntitlements>
+	</PropertyGroup>
+
+	<!-- iOS Device (RID = ios-arm64): real signing -->
+	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and $(RuntimeIdentifier.StartsWith('ios-'))">
+		<CodesignKey Condition="'$(Configuration)' == 'Debug'">Apple Development</CodesignKey>
+		<CodesignKey Condition="'$(Configuration)' == 'Release'">Apple Distribution</CodesignKey>
+		<CodesignProvision>Automatic</CodesignProvision>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<InterfaceDefinition Include="Platforms\iOS\LaunchScreen.storyboard" />
+
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.png" />
+
+		<!-- Splash Screen: force square base size so circular icon renders correctly -->
+		<MauiSplashScreen Include="Resources\Splash\blank.svg" Color="#F4F8FE" BaseSize="128,128"/>
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="Images\onboardingimage1.png" />
+		<None Remove="Images\onboardingimage2.png" />
+		<None Remove="Images\onboardingimage3.png" />
+		<None Remove="Resources\Fonts\Roboto-Medium.ttf" />
+		<None Remove="Resources\Fonts\Roboto-Regular.ttf" />
+		<None Remove="Resources\Fonts\Righteous-Regular.ttf" />
+		<None Remove="Resources\Fonts\UIFontIcons.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="SyncfusionLicense.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="appsettings.json" />
+		<EmbeddedResource Include="appsettings.Development.json" Condition="Exists('appsettings.Development.json')" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiImage Include="Images\onboardingimage1.png" />
+		<MauiImage Include="Images\onboardingimage2.png" />
+		<MauiImage Include="Images\onboardingimage3.png" />
+		<MauiImage Include="Images\familyai_logo.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="Syncfusion.Maui.Buttons" Version="29.1.33" />
+		<PackageReference Include="Syncfusion.Maui.Core" Version="29.1.33" />
+		<PackageReference Include="Syncfusion.Maui.Rotator" Version="29.1.33" />
+		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiXaml Update="Styles\AvatarViewStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\BorderStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\BoxViewStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\ButtonStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\Colors.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\FontIcons.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\LabelStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\RadioButtonStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Styles\SegmentedControlStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Themes\DarkTheme.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Themes\LightTheme.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Forms\LoginPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+	</ItemGroup>
+
+</Project>

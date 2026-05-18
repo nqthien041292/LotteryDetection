@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:LotteryDetectionMobile.Views.Components"
+             xmlns:viewModel="clr-namespace:LotteryDetectionMobile.ViewModel"
+             xmlns:voice="clr-namespace:LotteryDetectionMobile.Models.Voice"
+             x:Class="LotteryDetectionMobile.Views.Family.MyTasksPage"
+             x:DataType="viewModel:MyTasksViewModel"
+             x:Name="PageRoot"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+    <ContentPage.BindingContext>
+        <viewModel:MyTasksViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- Top bar -->
+        <Grid Grid.Row="0"
+              Padding="20,48,20,8"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Text="←"
+                    FontSize="20"
+                    WidthRequest="36" HeightRequest="36"
+                    Padding="0" CornerRadius="10"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                    Clicked="OnBackClicked" />
+            <Label Grid.Column="1"
+                   Text="My Tasks"
+                   HorizontalOptions="Center" VerticalOptions="Center"
+                   FontFamily="Geist" FontSize="17" FontAttributes="Bold"
+                   CharacterSpacing="-0.01"
+                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+            <BoxView Grid.Column="2" WidthRequest="36" HeightRequest="36" BackgroundColor="Transparent" />
+        </Grid>
+
+        <!-- Page title + count -->
+        <VerticalStackLayout Grid.Row="1" Padding="20,4,20,0" Spacing="3">
+            <Label Text="All tasks"
+                   FontFamily="Geist" FontSize="26" FontAttributes="Bold"
+                   LineHeight="1.1" CharacterSpacing="-0.025"
+                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+            <Label Text="{Binding SelectedFilter}"
+                   FontFamily="Geist" FontSize="13"
+                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+        </VerticalStackLayout>
+
+        <!-- Filter chips -->
+        <ScrollView Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Margin="0,12,0,4">
+            <HorizontalStackLayout Padding="20,0" Spacing="6">
+                <!-- All -->
+                <Button Text="All"
+                        HeightRequest="32" Padding="14,0" CornerRadius="16"
+                        FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                        Command="{Binding SetFilterCommand}" CommandParameter="All"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilyBackgroundLight}, Dark={StaticResource FamilyBackgroundDark}}"
+                        TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                        BorderWidth="1"
+                        BorderColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="All">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="TextColor" Value="White" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <!-- Open -->
+                <Button Text="Open"
+                        HeightRequest="32" Padding="14,0" CornerRadius="16"
+                        FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                        Command="{Binding SetFilterCommand}" CommandParameter="Open"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilyBackgroundLight}, Dark={StaticResource FamilyBackgroundDark}}"
+                        TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                        BorderWidth="1"
+                        BorderColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Open">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="TextColor" Value="White" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <!-- Due Today -->
+                <Button Text="Due Today"
+                        HeightRequest="32" Padding="14,0" CornerRadius="16"
+                        FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                        Command="{Binding SetFilterCommand}" CommandParameter="Due Today"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilyBackgroundLight}, Dark={StaticResource FamilyBackgroundDark}}"
+                        TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                        BorderWidth="1"
+                        BorderColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Due Today">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="TextColor" Value="White" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <!-- Completed -->
+                <Button Text="Completed"
+                        HeightRequest="32" Padding="14,0" CornerRadius="16"
+                        FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                        Command="{Binding SetFilterCommand}" CommandParameter="Completed"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilyBackgroundLight}, Dark={StaticResource FamilyBackgroundDark}}"
+                        TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                        BorderWidth="1"
+                        BorderColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Completed">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="TextColor" Value="White" />
+                            <Setter Property="BorderWidth" Value="0" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Task list -->
+        <RefreshView Grid.Row="3"
+                     Command="{Binding RefreshCommand}"
+                     IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView x:Name="TasksCollection"
+                            ItemsSource="{Binding GroupedTasks}"
+                            IsGrouped="True"
+                            SelectionMode="None"
+                            Margin="20,4,20,0">
+                <CollectionView.EmptyView>
+                    <components:EmptyStateView Title="All clear"
+                                               Subtitle="No tasks here — say something to add one." />
+                </CollectionView.EmptyView>
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate x:DataType="voice:TaskGroup">
+                        <Label Text="{Binding GroupName}"
+                               Style="{StaticResource FamilyEyebrowStyle}"
+                               Margin="0,16,0,8"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="voice:VoiceTaskListItem">
+                        <SwipeView SwipeStarted="OnSwipeStarted"
+                                   SwipeEnded="OnSwipeEnded">
+                            <!-- Swipe left → Delete (red) -->
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItemView Invoked="OnDeleteSwipeInvoked"
+                                                   CommandParameter="{Binding .}">
+                                        <Grid WidthRequest="80" BackgroundColor="#EF4444">
+                                            <Label Text="Delete"
+                                                   FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Grid>
+                                    </SwipeItemView>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <components:TaskCardView Title="{Binding Title}"
+                                                     Description="{Binding TranscriptPreview}"
+                                                     Owner="{Binding Assignee}"
+                                                     Priority="{Binding Priority}"
+                                                     DueDate="{Binding DueDateFormatted}"
+                                                     AutomationId="TaskCard"
+                                                     ItemTapped="OnTaskCardTapped" />
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <components:BottomBarView x:Name="BottomBar"
+                                  Grid.Row="4"
+                                  TabSelected="OnTabSelected" />
+
+        <!-- Initial load skeleton (only on first load — not pull-to-refresh) -->
+        <Grid Grid.Row="3"
+              IsVisible="{Binding ShowSkeleton}"
+              BackgroundColor="#F8FAFC"
+              Padding="20,8,20,0">
+            <components:TaskListSkeleton />
+        </Grid>
+
+        <!-- Delete in-progress overlay -->
+        <Grid Grid.RowSpan="5"
+              BackgroundColor="#40000000"
+              InputTransparent="True"
+              IsVisible="{Binding IsDeletingTask}">
+            <Border StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    Padding="28"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2D44}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,8" Radius="24" Opacity="0.14" />
+                </Border.Shadow>
+                <ActivityIndicator IsRunning="{Binding IsDeletingTask}"
+                                   Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                                   WidthRequest="32" HeightRequest="32" />
+            </Border>
+        </Grid>
+
+    </Grid>
+</ContentPage>

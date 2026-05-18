@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:LotteryDetectionMobile.Views.Components"
+             xmlns:viewModel="clr-namespace:LotteryDetectionMobile.ViewModel"
+             xmlns:family="clr-namespace:LotteryDetectionMobile.Models.Family"
+             xmlns:help="clr-namespace:LotteryDetectionMobile.Models.Help"
+             x:Class="LotteryDetectionMobile.Views.Family.HelpPage"
+             x:DataType="viewModel:HelpViewModel"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+    <ContentPage.BindingContext>
+        <viewModel:HelpViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <Grid Grid.Row="0" RowDefinitions="Auto,Auto,Auto,*">
+
+            <!-- Top bar -->
+            <Grid Grid.Row="0"
+                  Padding="20,48,20,4"
+                  ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0"
+                        Text="←"
+                        FontSize="20"
+                        WidthRequest="36" HeightRequest="36"
+                        Padding="0" CornerRadius="10"
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                        Clicked="OnBackClicked" />
+                <Label Grid.Column="1"
+                       Text="Help &amp; support"
+                       HorizontalOptions="Center" VerticalOptions="Center"
+                       FontFamily="Geist" FontSize="17" FontAttributes="Bold"
+                       CharacterSpacing="-0.01"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                <BoxView Grid.Column="2" WidthRequest="36" HeightRequest="36" BackgroundColor="Transparent" />
+            </Grid>
+
+            <!-- Display title + subtitle -->
+            <VerticalStackLayout Grid.Row="1" Padding="20,6,20,4" Spacing="4">
+                <Label Text="How can we help?"
+                       FontFamily="Geist" FontSize="26" FontAttributes="Bold"
+                       LineHeight="1.1" CharacterSpacing="-0.025"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                <Label Text="Tutorials, common questions, and a way to get hold of us."
+                       FontFamily="Geist" FontSize="12.5"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+            </VerticalStackLayout>
+
+            <!-- Tabs (Common Qs / Tutorials / Contact) — dark ink active state -->
+            <Border Grid.Row="2"
+                    Margin="20,14,20,12"
+                    Padding="4"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
+                    <Border Grid.Column="0"
+                            Padding="0,7"
+                            StrokeShape="RoundRectangle 9"
+                            StrokeThickness="0"
+                            BackgroundColor="Transparent">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsFaqTab}" Value="True">
+                                <Setter Property="BackgroundColor"
+                                        Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetTabCommand}" CommandParameter="faq" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Common Qs"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsFaqTab}" Value="True">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                    <Border Grid.Column="1"
+                            Padding="0,7"
+                            StrokeShape="RoundRectangle 9"
+                            StrokeThickness="0"
+                            BackgroundColor="Transparent">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsTutorialsTab}" Value="True">
+                                <Setter Property="BackgroundColor"
+                                        Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetTabCommand}" CommandParameter="tutorials" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Tutorials"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsTutorialsTab}" Value="True">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                    <Border Grid.Column="2"
+                            Padding="0,7"
+                            StrokeShape="RoundRectangle 9"
+                            StrokeThickness="0"
+                            BackgroundColor="Transparent">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsContactTab}" Value="True">
+                                <Setter Property="BackgroundColor"
+                                        Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetTabCommand}" CommandParameter="contact" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Contact"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsContactTab}" Value="True">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Scroll body -->
+            <ScrollView Grid.Row="3" BackgroundColor="Transparent">
+                <VerticalStackLayout Padding="16,0,16,20" Spacing="0">
+
+                    <!-- FAQ tab — accordion card -->
+                    <Border IsVisible="{Binding IsFaqTab}"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}"
+                            Padding="0">
+                        <CollectionView ItemsSource="{Binding Faq}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="family:FaqItem">
+                                    <VerticalStackLayout Spacing="0">
+                                        <Grid Padding="16,14"
+                                              ColumnDefinitions="*,Auto"
+                                              ColumnSpacing="10">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleFaqCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Question}"
+                                                   FontFamily="Geist" FontSize="13.5" FontAttributes="Bold"
+                                                   LineHeight="1.35"
+                                                   CharacterSpacing="-0.005"
+                                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                            <Border Grid.Column="1"
+                                                    WidthRequest="22" HeightRequest="22"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    StrokeThickness="0"
+                                                    VerticalOptions="Center"
+                                                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsOpen}" Value="True">
+                                                        <Setter Property="BackgroundColor"
+                                                                Value="{AppThemeBinding Light={DynamicResource FamilyPrimaryTintLight}, Dark={DynamicResource FamilyPrimaryTintDark}}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Label Text="+"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsOpen}" Value="True">
+                                                            <Setter Property="Text" Value="×" />
+                                                            <Setter Property="TextColor"
+                                                                    Value="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </Grid>
+                                        <Label Padding="16,0,16,14"
+                                               Text="{Binding Answer}"
+                                               IsVisible="{Binding IsOpen}"
+                                               FontFamily="Geist" FontSize="12.5"
+                                               LineHeight="1.5"
+                                               CharacterSpacing="-0.005"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                                        <BoxView HeightRequest="1"
+                                                 BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Border>
+
+                    <!-- Tutorials tab -->
+                    <VerticalStackLayout IsVisible="{Binding IsTutorialsTab}" Spacing="8">
+
+                        <!-- Featured gradient hero -->
+                        <Border StrokeShape="RoundRectangle 16"
+                                StrokeThickness="0"
+                                Padding="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Offset="0" Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryDeepLight}, Dark={DynamicResource FamilyPrimaryDeepDark}}" />
+                                    <GradientStop Offset="1" Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="FEATURED · 3 MIN"
+                                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                       CharacterSpacing="0.06"
+                                       Opacity="0.85"
+                                       TextColor="White" />
+                                <Label Text="The 4-minute family setup"
+                                       FontFamily="Geist" FontSize="20" FontAttributes="Bold"
+                                       LineHeight="1.2" CharacterSpacing="-0.02"
+                                       TextColor="White" />
+                                <Label Text="Add your family, sync a calendar, and capture your first task — all in one go."
+                                       FontFamily="Geist" FontSize="12.5"
+                                       LineHeight="1.45"
+                                       Opacity="0.85"
+                                       Margin="0,0,0,8"
+                                       TextColor="White" />
+                                <Border HorizontalOptions="Start"
+                                        StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0"
+                                        BackgroundColor="White"
+                                        Padding="14,6">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenTutorialCommand}"
+                                                              CommandParameter="{Binding Tutorials[0]}" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="▶"
+                                               FontSize="11" FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                        <Label Text="Watch"
+                                               FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Tutorial list -->
+                        <CollectionView ItemsSource="{Binding Tutorials}" SelectionMode="None">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="help:Tutorial">
+                                    <Border Padding="12"
+                                            StrokeShape="RoundRectangle 14"
+                                            StrokeThickness="1"
+                                            Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenTutorialCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <!-- Tinted icon + play badge overlay -->
+                                            <Grid Grid.Column="0"
+                                                  WidthRequest="56" HeightRequest="56"
+                                                  VerticalOptions="Center">
+                                                <Border WidthRequest="56" HeightRequest="56"
+                                                        StrokeShape="RoundRectangle 12"
+                                                        StrokeThickness="0"
+                                                        BackgroundColor="{Binding TintColor}">
+                                                    <Label Text="{Binding IconGlyph}"
+                                                           FontSize="22"
+                                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                                           TextColor="{Binding ForegroundColor}" />
+                                                </Border>
+                                                <Border WidthRequest="22" HeightRequest="22"
+                                                        HorizontalOptions="End" VerticalOptions="End"
+                                                        Margin="0,0,-2,-2"
+                                                        StrokeShape="RoundRectangle 11"
+                                                        StrokeThickness="2"
+                                                        Stroke="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}"
+                                                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                                                    <Label Text="▶"
+                                                           FontSize="8" FontAttributes="Bold"
+                                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                                           TextColor="White" />
+                                                </Border>
+                                            </Grid>
+                                            <VerticalStackLayout Grid.Column="1"
+                                                                 VerticalOptions="Center"
+                                                                 Spacing="3">
+                                                <Label Text="{Binding Title}"
+                                                       FontFamily="Geist" FontSize="13.5" FontAttributes="Bold"
+                                                       LineHeight="1.3" CharacterSpacing="-0.005"
+                                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                                <Label Text="{Binding Duration, StringFormat='{0} · video'}"
+                                                       FontFamily="Courier" FontSize="11" FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                            </VerticalStackLayout>
+                                            <Label Grid.Column="2"
+                                                   Text="›"
+                                                   FontSize="18"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <!-- Contact tab -->
+                    <VerticalStackLayout IsVisible="{Binding IsContactTab}" Spacing="12">
+
+                        <!-- Quick-link tiles: Email us / Live chat -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Border Grid.Column="0"
+                                    Padding="12"
+                                    StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}">
+                                <VerticalStackLayout Spacing="0">
+                                    <Border WidthRequest="32" HeightRequest="32"
+                                            HorizontalOptions="Start"
+                                            Margin="0,0,0,8"
+                                            StrokeShape="RoundRectangle 9"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#E0EAFF">
+                                        <Label Text="✉"
+                                               HorizontalOptions="Center" VerticalOptions="Center"
+                                               FontSize="16"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                    </Border>
+                                    <Label Text="Email us"
+                                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                           CharacterSpacing="-0.005"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Label Text="support@familyai.app"
+                                           Margin="0,2,0,0"
+                                           FontFamily="Geist" FontSize="11"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Border Grid.Column="1"
+                                    Padding="12"
+                                    StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}">
+                                <VerticalStackLayout Spacing="0">
+                                    <Border WidthRequest="32" HeightRequest="32"
+                                            HorizontalOptions="Start"
+                                            Margin="0,0,0,8"
+                                            StrokeShape="RoundRectangle 9"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#DCFCE7">
+                                        <Label Text="💬"
+                                               HorizontalOptions="Center" VerticalOptions="Center"
+                                               FontSize="16"
+                                               TextColor="#15803D" />
+                                    </Border>
+                                    <Label Text="Live chat"
+                                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                           CharacterSpacing="-0.005"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Label Text="Avg reply 2 min"
+                                           Margin="0,2,0,0"
+                                           FontFamily="Geist" FontSize="11"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <!-- "Still stuck?" form card -->
+                        <Border Padding="16"
+                                StrokeShape="RoundRectangle 16"
+                                StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPaperLight}, Dark={StaticResource FamilyPaperDark}}">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="Still stuck?"
+                                       FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
+                                       CharacterSpacing="-0.005"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                <Label Text="Tell us what's happening — we usually answer within a couple of hours."
+                                       Margin="0,4,0,14"
+                                       FontFamily="Geist" FontSize="12"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+
+                                <Label Text="TOPIC"
+                                       FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
+                                       CharacterSpacing="0.08"
+                                       Margin="0,0,0,8"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+
+                                <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="Start"
+                                            Margin="0,0,0,14"
+                                            BindableLayout.ItemsSource="{Binding TopicChips}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="help:TopicChip">
+                                            <Border Margin="0,0,6,6"
+                                                    Padding="12,6"
+                                                    StrokeShape="RoundRectangle 999"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border"
+                                                                 Binding="{Binding IsSelected}"
+                                                                 Value="True">
+                                                        <Setter Property="BackgroundColor"
+                                                                Value="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetTopicCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="{Binding Label}"
+                                                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label"
+                                                                     Binding="{Binding IsSelected}"
+                                                                     Value="True">
+                                                            <Setter Property="TextColor" Value="White" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+
+                                <Label Text="MESSAGE"
+                                       FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
+                                       CharacterSpacing="0.08"
+                                       Margin="0,0,0,8"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+
+                                <Border Padding="12"
+                                        StrokeShape="RoundRectangle 10"
+                                        StrokeThickness="1"
+                                        Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}">
+                                    <Editor Text="{Binding ContactMessage}"
+                                            Placeholder="Describe what you're seeing…"
+                                            AutoSize="TextChanges"
+                                            MinimumHeightRequest="110"
+                                            BackgroundColor="Transparent"
+                                            FontFamily="Geist" FontSize="13"
+                                            TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                                            PlaceholderColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                                </Border>
+
+                                <Grid Margin="0,12,0,14"
+                                      ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="📎 Attach screenshot"
+                                           FontFamily="Geist" FontSize="11.5"
+                                           VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding MessageCounter}"
+                                           FontFamily="Courier" FontSize="11"
+                                           VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                                </Grid>
+
+                                <Button Text="Send message"
+                                        Command="{Binding SendContactCommand}"
+                                        HeightRequest="48"
+                                        CornerRadius="12"
+                                        FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                                        TextColor="White">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding CanSend}" Value="False">
+                                            <Setter Property="Opacity" Value="0.55" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Button" Binding="{Binding IsSending}" Value="True">
+                                            <Setter Property="Text" Value="Sending…" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+
+                                <Label Text="We attach your device + app version automatically."
+                                       FontFamily="Geist" FontSize="10.5"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,8,0,0"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+
+        <!-- Bottom nav -->
+        <components:BottomBarView x:Name="BottomBar"
+                                  Grid.Row="1"
+                                  TabSelected="OnTabSelected" />
+
+        <!-- Toast overlay -->
+        <Border Grid.Row="0"
+                IsVisible="{Binding ShowToast}"
+                InputTransparent="True"
+                VerticalOptions="Start"
+                HorizontalOptions="Center"
+                Margin="0,90,0,0"
+                Padding="16,10"
+                StrokeShape="RoundRectangle 999"
+                StrokeThickness="0"
+                BackgroundColor="#0F172A">
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <Label Text="✓"
+                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="#22C55E" />
+                <Label Text="Sent — we'll be in touch"
+                       FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="White" />
+            </HorizontalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Simulator-only entitlements.
+  The simulator is ad-hoc signed with no provisioning profile, so the
+  $(AppIdentifierPrefix) macro used in Entitlements.plist is never expanded.
+  MSAL resolves the keychain seed prefix to the bundle id's first segment
+  ("com") and requests "com.<group>". These literal, macro-free groups match
+  exactly what MSAL computes on the simulator so the keychain write succeeds:
+    - com.com.lotterydetection.mobile   -> seed "com" + WithIosKeychainSecurityGroup group
+    - com.com.microsoft.adalcache -> seed "com" + MSAL default cache group
+-->
+<plist version="1.0">
+<dict>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>com.com.lotterydetection.mobile</string>
+		<string>com.com.microsoft.adalcache</string>
+	</array>
+</dict>
+</plist>

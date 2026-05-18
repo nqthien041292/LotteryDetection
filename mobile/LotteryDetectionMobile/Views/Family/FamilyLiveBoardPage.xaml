@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:LotteryDetectionMobile.Views.Components"
+             xmlns:viewModel="clr-namespace:LotteryDetectionMobile.ViewModel"
+             xmlns:boardModels="clr-namespace:LotteryDetectionMobile.Models.Board"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetectionMobile.Views.Family.FamilyLiveBoardPage"
+             x:Name="_root"
+             x:DataType="viewModel:FamilyLiveBoardViewModel"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- Back row -->
+        <Button Grid.Row="0" Text="←" FontSize="20"
+                HorizontalOptions="Start"
+                WidthRequest="36" HeightRequest="36"
+                Margin="14,40,0,0"
+                Padding="0" CornerRadius="10"
+                BackgroundColor="Transparent"
+                TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                Clicked="OnBackClicked" />
+
+        <!-- This week + presence -->
+        <Grid Grid.Row="1"
+              Padding="20,12,20,10"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="12">
+            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                <Label Text="This week"
+                       FontFamily="Geist" FontSize="28" FontAttributes="Bold"
+                       LineHeight="1.1" CharacterSpacing="-0.025"
+                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="4"
+                             BackgroundColor="#22C55E"
+                             VerticalOptions="Center" />
+                    <Label Text="{Binding PresenceLabel}"
+                           FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="1" Spacing="-8" VerticalOptions="Center"
+                                   BindableLayout.ItemsSource="{Binding Presence}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="boardModels:PresenceMember">
+                        <components:FamilyAvatar Member="{Binding Member}"
+                                                  Name="{Binding Initial}"
+                                                  Size="26"
+                                                  Ring="True" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Column tabs -->
+        <Grid Grid.Row="2"
+              Padding="20,4,20,10"
+              ColumnDefinitions="*,*,*"
+              ColumnSpacing="6">
+            <Button Grid.Column="0"
+                    Text="{Binding TodoTabLabel}"
+                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                    Command="{Binding SelectColumnCommand}" CommandParameter="todo"
+                    HeightRequest="36" Padding="6,0" CornerRadius="12"
+                    MinimumWidthRequest="0" MinimumHeightRequest="0"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                    IsVisible="{Binding IsTodoActive}" />
+            <Button Grid.Column="0"
+                    Text="{Binding TodoTabLabel}"
+                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                    Command="{Binding SelectColumnCommand}" CommandParameter="todo"
+                    HeightRequest="36" Padding="6,0" CornerRadius="12"
+                    MinimumWidthRequest="0" MinimumHeightRequest="0"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                    IsVisible="{Binding IsTodoActive, Converter={StaticResource InverseBool}}" />
+            <Button Grid.Column="1"
+                    Text="{Binding DoingTabLabel}"
+                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                    Command="{Binding SelectColumnCommand}" CommandParameter="doing"
+                    HeightRequest="36" Padding="6,0" CornerRadius="12"
+                    MinimumWidthRequest="0" MinimumHeightRequest="0"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                    IsVisible="{Binding IsDoingActive}" />
+            <Button Grid.Column="1"
+                    Text="{Binding DoingTabLabel}"
+                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                    Command="{Binding SelectColumnCommand}" CommandParameter="doing"
+                    HeightRequest="36" Padding="6,0" CornerRadius="12"
+                    MinimumWidthRequest="0" MinimumHeightRequest="0"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                    IsVisible="{Binding IsDoingActive, Converter={StaticResource InverseBool}}" />
+            <Button Grid.Column="2"
+                    Text="{Binding DoneTabLabel}"
+                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                    Command="{Binding SelectColumnCommand}" CommandParameter="done"
+                    HeightRequest="36" Padding="6,0" CornerRadius="12"
+                    MinimumWidthRequest="0" MinimumHeightRequest="0"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                    IsVisible="{Binding IsDoneActive}" />
+            <Button Grid.Column="2"
+                    Text="{Binding DoneTabLabel}"
+                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                    Command="{Binding SelectColumnCommand}" CommandParameter="done"
+                    HeightRequest="36" Padding="6,0" CornerRadius="12"
+                    MinimumWidthRequest="0" MinimumHeightRequest="0"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                    IsVisible="{Binding IsDoneActive, Converter={StaticResource InverseBool}}" />
+        </Grid>
+
+        <!-- Snap-paged columns -->
+        <CarouselView Grid.Row="3"
+                      x:Name="ColumnsCarousel"
+                      ItemsSource="{Binding Columns}"
+                      Position="{Binding SelectedColumnIndex, Mode=TwoWay}"
+                      PeekAreaInsets="28"
+                      Loop="False"
+                      HorizontalScrollBarVisibility="Never"
+                      BackgroundColor="Transparent">
+            <CarouselView.ItemTemplate>
+                <DataTemplate x:DataType="boardModels:KanbanColumn">
+                    <Border Margin="6,0"
+                            Padding="0"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}">
+                        <Border.StrokeShape>
+                            <shapes:RoundRectangle CornerRadius="18" />
+                        </Border.StrokeShape>
+                        <Grid RowDefinitions="Auto,*">
+                            <!-- column header -->
+                            <Grid Grid.Row="0"
+                                  Padding="14,12"
+                                  ColumnDefinitions="Auto,Auto,*,Auto"
+                                  ColumnSpacing="8">
+                                <BoxView Grid.Column="0"
+                                         WidthRequest="8" HeightRequest="8" CornerRadius="4"
+                                         BackgroundColor="{Binding DotColor}"
+                                         VerticalOptions="Center" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Label}"
+                                       FontFamily="Geist" FontSize="13.5" FontAttributes="Bold"
+                                       CharacterSpacing="-0.005"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding Count}"
+                                       FontFamily="GeistMono" FontSize="11" FontAttributes="Bold"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                            </Grid>
+                            <!-- cards -->
+                            <ScrollView Grid.Row="1"
+                                        BackgroundColor="Transparent">
+                                <VerticalStackLayout Padding="10,10,10,12" Spacing="0"
+                                                     BindableLayout.ItemsSource="{Binding Cards}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="boardModels:BoardCard">
+                                            <components:BoardCardView
+                                                Card="{Binding .}"
+                                                TapCommand="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCardCommand}"
+                                                LongPressCommand="{Binding Source={x:Reference _root}, Path=LongPressMoveCommand}" />
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                    <Border Margin="0,4,0,0"
+                                            Padding="14"
+                                            StrokeThickness="1"
+                                            Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                            BackgroundColor="Transparent">
+                                        <Border.StrokeShape>
+                                            <shapes:RoundRectangle CornerRadius="12" />
+                                        </Border.StrokeShape>
+                                        <Label Text="DROP HERE"
+                                               FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                               CharacterSpacing="0.04"
+                                               HorizontalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </ScrollView>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <Grid Grid.Row="3"
+              IsVisible="{Binding ShowSkeleton}"
+              BackgroundColor="#F8FAFC"
+              Padding="20,0,20,0">
+            <components:BoardSkeleton />
+        </Grid>
+
+        <components:BottomBarView x:Name="BottomBar"
+                                  Grid.Row="4"
+                                  TabSelected="OnTabSelected" />
+    </Grid>
+
+    <ContentPage.Resources>
+        <ResourceDictionary xmlns:cv="clr-namespace:LotteryDetectionMobile.Converters">
+            <cv:InverseBoolConverter x:Key="InverseBool" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+</ContentPage>
