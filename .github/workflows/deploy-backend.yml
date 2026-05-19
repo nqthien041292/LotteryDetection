@@ -3,61 +3,34 @@ name: Deploy backend to Cloud Run
 # Deploys LotteryDetection.Web.Host to GCP Cloud Run using Workload Identity
 # Federation (no service-account JSON key stored in GitHub).
 #
-# ─── One-time GCP setup (run locally as a project owner) ─────────────────────
-# 1. Pick a project and enable the APIs:
-#      gcloud config set project <PROJECT_ID>
-#      gcloud services enable run.googleapis.com aiplatform.googleapis.com \
-#                              artifactregistry.googleapis.com iamcredentials.googleapis.com
+# Pipeline:
+#   1. Build + push BOTH images (web-host service, migrator job).
+#   2. Create/update a Cloud Run Job for the migrator and execute it
+#      against Cloud SQL. Wait for it to succeed.
+#   3. Only then promote the Web.Host service to the new revision.
 #
-# 2. Create an Artifact Registry repo (one-time):
-#      gcloud artifacts repositories create lottery-detection \
-#        --repository-format=docker --location=asia-southeast1
+# ─── One-time GCP setup ──────────────────────────────────────────────────────
+# Run `aspnet-core/scripts/setup-gcp.sh --project-id <PID> --github-repo
+# <OWNER>/<REPO>` once. It enables APIs, creates the Artifact Registry repo,
+# runtime + deployer service accounts, WIF pool/provider, and prints the
+# GitHub secret/variable values to paste below.
 #
-# 3. Create the runtime service account (Cloud Run uses this for ADC →
-#    `VertexAITicketAnalyzer` reads credentials from it automatically):
-#      gcloud iam service-accounts create lottery-runtime
-#      gcloud projects add-iam-policy-binding <PROJECT_ID> \
-#        --member="serviceAccount:lottery-runtime@<PROJECT_ID>.iam.gserviceaccount.com" \
-#        --role="roles/aiplatform.user"
+# Additional one-off setup for the database:
+#   gcloud sql instances create lottery-detection-db --database-version=POSTGRES_15 ...
+#   gcloud sql databases create LotteryDetectionDb --instance=lottery-detection-db
+#   gcloud sql users create lottery_app --instance=lottery-detection-db --password=...
+#   gcloud projects add-iam-policy-binding <PID> \
+#     --member=serviceAccount:lottery-runtime@... --role=roles/cloudsql.client
+#   echo -n "Host=/cloudsql/<PID>:<REGION>:<INSTANCE>;Database=...;Username=...;Password=..." \
+#     | gcloud secrets create db-connection-string --data-file=-
+#   gcloud secrets add-iam-policy-binding db-connection-string \
+#     --member=serviceAccount:lottery-runtime@... --role=roles/secretmanager.secretAccessor
 #
-# 4. Create the deployer service account + grant deploy permissions:
-#      gcloud iam service-accounts create lottery-deployer
-#      for ROLE in roles/run.admin roles/artifactregistry.writer \
-#                  roles/iam.serviceAccountUser; do
-#        gcloud projects add-iam-policy-binding <PROJECT_ID> \
-#          --member="serviceAccount:lottery-deployer@<PROJECT_ID>.iam.gserviceaccount.com" \
-#          --role="$ROLE"
-#      done
-#
-# 5. Workload Identity Federation pool + provider for this GitHub repo:
-#      gcloud iam workload-identity-pools create github \
-#        --location=global --display-name=GitHub
-#      gcloud iam workload-identity-pools providers create-oidc github-provider \
-#        --location=global --workload-identity-pool=github \
-#        --issuer-uri=https://token.actions.githubusercontent.com \
-#        --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
-#        --attribute-condition='assertion.repository=="<OWNER>/<REPO>"'
-#      PROJECT_NUMBER=$(gcloud projects describe <PROJECT_ID> --format='value(projectNumber)')
-#      gcloud iam service-accounts add-iam-policy-binding \
-#        lottery-deployer@<PROJECT_ID>.iam.gserviceaccount.com \
-#        --role=roles/iam.workloadIdentityUser \
-#        --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/attribute.repository/<OWNER>/<REPO>"
+# Deployer SA also needs roles/run.jobs.invoker (or run.admin already covers it).
 #
 # ─── GitHub repo configuration ───────────────────────────────────────────────
-# Settings → Secrets and variables → Actions
-#
-# Variables:
-#   GCP_PROJECT_ID         e.g. "lottery-detection-dev"
-#   GCP_LOCATION           e.g. "asia-southeast1" (optional, defaults below)
-#
-# Secrets:
-#   GCP_WIF_PROVIDER       projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github/providers/github-provider
-#   GCP_DEPLOYER_SA        lottery-deployer@<PROJECT_ID>.iam.gserviceaccount.com
-#   GCP_RUNTIME_SA         lottery-runtime@<PROJECT_ID>.iam.gserviceaccount.com
-#
-# Note: the deployed service still needs a real database. Until Cloud SQL is
-# wired (see TODO in the deploy step below), ABP startup will crash trying to
-# reach the LocalDB ConnectionString from appsettings.json.
+# Variables:  GCP_PROJECT_ID, GCP_LOCATION
+# Secrets:    GCP_WIF_PROVIDER, GCP_DEPLOYER_SA, GCP_RUNTIME_SA, CLOUDSQL_INSTANCE
 
 on:
   push:
@@ -70,8 +43,10 @@ on:
 env:
   REGION: asia-southeast1
   ARTIFACT_REPO: lottery-detection
-  IMAGE_NAME: web-host
+  WEB_HOST_IMAGE: web-host
+  MIGRATOR_IMAGE: migrator
   SERVICE_NAME: lottery-detection-api
+  MIGRATOR_JOB: lottery-detection-migrator
 
 permissions:
   id-token: write
@@ -96,38 +71,75 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      - name: Build and push container image
+      - name: Build and push images
         working-directory: aspnet-core
-        run: |
-          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${IMAGE_NAME}:${GITHUB_SHA}"
-          docker build \
-            -f src/LotteryDetection.Web.Host/Dockerfile.cloudrun \
-            -t "$IMAGE_URI" \
-            .
-          docker push "$IMAGE_URI"
-          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
         env:
           PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+        run: |
+          WEB_HOST_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${WEB_HOST_IMAGE}:${GITHUB_SHA}"
+          MIGRATOR_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${MIGRATOR_IMAGE}:${GITHUB_SHA}"
 
-      - name: Deploy to Cloud Run
+          docker build -f src/LotteryDetection.Web.Host/Dockerfile.cloudrun -t "$WEB_HOST_URI" .
+          docker build -f src/LotteryDetection.Migrator/Dockerfile.cloudrun -t "$MIGRATOR_URI" .
+
+          docker push "$WEB_HOST_URI"
+          docker push "$MIGRATOR_URI"
+
+          echo "WEB_HOST_URI=$WEB_HOST_URI" >> "$GITHUB_ENV"
+          echo "MIGRATOR_URI=$MIGRATOR_URI" >> "$GITHUB_ENV"
+
+      - name: Create or update Migrator Cloud Run Job
+        env:
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+        run: |
+          # `jobs deploy` creates the job on first run and updates it on
+          # subsequent runs — single command handles both paths.
+          gcloud run jobs deploy "$MIGRATOR_JOB" \
+            --image="$MIGRATOR_URI" \
+            --region="$REGION" \
+            --project="$PROJECT_ID" \
+            --service-account="${{ secrets.GCP_RUNTIME_SA }}" \
+            --set-cloudsql-instances="${{ secrets.CLOUDSQL_INSTANCE }}" \
+            --set-secrets="ConnectionStrings__Default=db-connection-string:latest" \
+            --max-retries=1 \
+            --task-timeout=600s \
+            --memory=1Gi \
+            --cpu=1
+
+      - name: Execute Migrator job (apply migrations + seed)
+        env:
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+        run: |
+          # --wait blocks until the execution completes and exits non-zero on
+          # failure, so a broken migration fails the workflow before we
+          # promote the Web.Host revision.
+          gcloud run jobs execute "$MIGRATOR_JOB" \
+            --region="$REGION" \
+            --project="$PROJECT_ID" \
+            --wait
+
+      - name: Deploy Web.Host to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
-          image: ${{ env.IMAGE_URI }}
+          image: ${{ env.WEB_HOST_URI }}
           # TODO: tighten to --no-allow-unauthenticated once mobile auth is wired
           flags: >-
             --allow-unauthenticated
-            --memory=1Gi
+            --memory=2Gi
             --cpu=1
             --min-instances=0
             --max-instances=4
-            --timeout=120s
+            --timeout=300s
             --service-account=${{ secrets.GCP_RUNTIME_SA }}
+            --add-cloudsql-instances=${{ secrets.CLOUDSQL_INSTANCE }}
           env_vars: |
             GoogleCloud__ProjectId=${{ vars.GCP_PROJECT_ID }}
             GoogleCloud__Location=${{ vars.GCP_LOCATION || 'asia-southeast1' }}
             ASPNETCORE_ENVIRONMENT=Production
+          secrets: |
+            ConnectionStrings__Default=db-connection-string:latest
 
       - name: Show service URL
         run: |

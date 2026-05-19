@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1.7
+#
+# Cloud Run Job image for LotteryDetection.Migrator. Build context must be
+# the `aspnet-core/` directory.
+#
+# The Migrator is a console app: it boots ABP, applies EF Core migrations to
+# the Default connection string, seeds the host DB, then exits. Run it as a
+# Cloud Run Job that the deploy workflow executes before promoting the
+# Web.Host service to a new revision.
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+COPY common.props ./
+COPY infrastructure/ infrastructure/
+COPY src/LotteryDetection.Migrator/LotteryDetection.Migrator.csproj            src/LotteryDetection.Migrator/
+COPY src/LotteryDetection.EntityFrameworkCore/LotteryDetection.EntityFrameworkCore.csproj \
+                                                                               src/LotteryDetection.EntityFrameworkCore/
+COPY src/LotteryDetection.Core/LotteryDetection.Core.csproj                    src/LotteryDetection.Core/
+COPY src/LotteryDetection.Core.Shared/LotteryDetection.Core.Shared.csproj      src/LotteryDetection.Core.Shared/
+
+RUN dotnet restore src/LotteryDetection.Migrator/LotteryDetection.Migrator.csproj
+
+COPY . .
+RUN dotnet publish src/LotteryDetection.Migrator/LotteryDetection.Migrator.csproj \
+        -c Release \
+        -o /app/publish \
+        /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# `-s` skips the interactive connection-string confirmation prompt; the
+# ASPNETCORE_Docker_Enabled flag tells Program.cs to exit without ReadLine.
+ENV ASPNETCORE_Docker_Enabled=true \
+    DOTNET_RUNNING_IN_CONTAINER=true
+
+ENTRYPOINT ["dotnet", "LotteryDetection.Migrator.dll", "-s"]
