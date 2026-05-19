@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetection.Mobile.Views.Forms.SplashPage"
+             Shell.NavBarIsVisible="False"
+             ios:Page.UseSafeArea="False"
+             BackgroundColor="#F6F8F2">
+
+    <Grid RowDefinitions="*,Auto" Padding="24">
+        <VerticalStackLayout x:Name="BrandStack"
+                             Grid.Row="0"
+                             Spacing="20"
+                             Opacity="0"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center">
+            <Image Source="logo.png"
+                   WidthRequest="120"
+                   HeightRequest="120"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center" />
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="DoVeSo AI"
+                       FontFamily="Geist"
+                       FontSize="30"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       TextColor="#142116" />
+                <Label Text="Chụp ảnh và tự động dò vé số"
+                       FontFamily="Geist"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"
+                       TextColor="#66736A" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="True"
+                           HeightRequest="28"
+                           WidthRequest="28"
+                           Margin="0,0,0,38"
+                           HorizontalOptions="Center"
+                           Color="#173D2A" />
+    </Grid>
+</ContentPage>

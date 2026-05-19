@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetection.Mobile.Views.Components.HeaderView"
+             x:Name="HeaderRoot">
+    <!-- Header bar only - popup is injected into parent page at runtime -->
+    <Grid Padding="{OnPlatform iOS='16,12,16,8', Android='16,12,16,8', Default='16,12,16,8'}"
+          ColumnDefinitions="Auto,*,Auto"
+          BackgroundColor="{AppThemeBinding Light={DynamicResource FamilySurfaceLight}, Dark={DynamicResource FamilyBackgroundDark}}"
+          HeightRequest="64">
+        <Grid Grid.Column="0"
+              x:Name="BackButton"
+              HorizontalOptions="Start"
+              VerticalOptions="Center"
+              Padding="0"
+              WidthRequest="48"
+              HeightRequest="48"
+              BackgroundColor="Transparent"
+              IsVisible="{Binding ShowBackButton, Source={x:Reference HeaderRoot}}"
+              AutomationId="BackButton"
+              SemanticProperties.Description="Go back">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnBackButtonClicked" />
+            </Grid.GestureRecognizers>
+            <shapes:Path
+                Data="M560.23-267.69 347.69-480.23l212.54-213.31 22.23 22.23-190.31 191.08 190.31 190.31-22.23 22.23Z"
+                Fill="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                Aspect="Uniform"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                WidthRequest="22"
+                HeightRequest="22"
+                InputTransparent="True" />
+        </Grid>
+
+        <Label Grid.Column="1"
+               Text="{Binding HeaderTitle, Source={x:Reference HeaderRoot}}"
+               FontFamily="{StaticResource FamilyFontFamily}"
+               FontAttributes="Bold"
+               FontSize="{StaticResource FontSizeHeading}"
+               VerticalOptions="Center"
+               HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={DynamicResource FamilyTextPrimaryLight}, Dark={DynamicResource FamilyTextPrimaryDark}}"
+               IsVisible="{Binding HasTitle, Source={x:Reference HeaderRoot}}" />
+
+        <!-- Menu button -->
+        <Grid Grid.Column="2"
+              x:Name="MenuButton"
+              HorizontalOptions="End"
+              VerticalOptions="Center"
+              Padding="0"
+              WidthRequest="48"
+              HeightRequest="48"
+              BackgroundColor="Transparent"
+              IsVisible="{Binding ShowMenuButton, Source={x:Reference HeaderRoot}}"
+              AutomationId="MenuButton"
+              SemanticProperties.Description="Open menu">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMenuButtonClicked" />
+            </Grid.GestureRecognizers>
+            <shapes:Path Data="M120-240v-60h720v60H120Zm0-210v-60h720v60H120Zm0-210v-60h720v60H120Z"
+                         Fill="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                         Aspect="Uniform"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center"
+                         WidthRequest="24"
+                         HeightRequest="24"
+                         InputTransparent="True" />
+        </Grid>
+    </Grid>
+</ContentView>

@@ -24,8 +24,8 @@ if ($installedSdks -notcontains $RequiredSdk) {
 
 Write-Host "Active SDK:       $(& dotnet --version)"
 Write-Host ''
-Write-Host 'Restoring MAUI workloads against mobile/LotteryDetectionMobile/LotteryDetectionMobile.csproj ...'
-& dotnet workload restore (Join-Path $RepoRoot 'mobile\LotteryDetectionMobile\LotteryDetectionMobile.csproj')
+Write-Host 'Restoring MAUI workloads against mobile/LotteryDetection.Mobile/LotteryDetection.Mobile.csproj ...'
+& dotnet workload restore (Join-Path $RepoRoot 'mobile\LotteryDetection.Mobile\LotteryDetection.Mobile.csproj')
 
 Write-Host ''
 Write-Host 'Installed workloads:'
@@ -33,4 +33,4 @@ Write-Host 'Installed workloads:'
 
 Write-Host ''
 Write-Host 'Done. You can now build:'
-Write-Host '    dotnet build mobile/LotteryDetectionMobile -f net9.0-android'
+Write-Host '    dotnet build mobile/LotteryDetection.Mobile -f net9.0-android'

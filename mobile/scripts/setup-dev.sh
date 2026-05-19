@@ -44,8 +44,8 @@ echo "Active SDK: $CURRENT_SDK"
 echo
 
 # 2. Restore workloads (this honors global.json — keeps workload-set in sync with the SDK).
-echo "Restoring MAUI workloads against mobile/LotteryDetectionMobile/LotteryDetectionMobile.csproj ..."
-dotnet workload restore mobile/LotteryDetectionMobile/LotteryDetectionMobile.csproj
+echo "Restoring MAUI workloads against mobile/LotteryDetection.Mobile/LotteryDetection.Mobile.csproj ..."
+dotnet workload restore mobile/LotteryDetection.Mobile/LotteryDetection.Mobile.csproj
 
 echo
 echo "Installed workloads:"
@@ -64,5 +64,5 @@ fi
 
 echo
 echo "Done. You can now build:"
-echo "    dotnet build mobile/LotteryDetectionMobile -f net9.0-ios"
-echo "    dotnet build mobile/LotteryDetectionMobile -f net9.0-android"
+echo "    dotnet build mobile/LotteryDetection.Mobile -f net9.0-ios"
+echo "    dotnet build mobile/LotteryDetection.Mobile -f net9.0-android"

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
+             xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
+             xmlns:models="clr-namespace:LotteryDetection.Mobile.Models.Family"
+             xmlns:behaviors="clr-namespace:LotteryDetection.Mobile.Behaviors"
+             x:Class="LotteryDetection.Mobile.Views.Family.NotificationsPage"
+             x:DataType="viewModel:NotificationsViewModel"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+    <ContentPage.BindingContext>
+        <viewModel:NotificationsViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- Top bar: back + Clear all -->
+        <Grid Grid.Row="0"
+              Padding="20,48,20,4"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Text="←"
+                    FontSize="20"
+                    WidthRequest="36" HeightRequest="36"
+                    Padding="0" CornerRadius="10"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                    Clicked="OnBackClicked" />
+            <Button Grid.Column="2"
+                    Text="Clear all"
+                    FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                    Padding="10,0"
+                    HeightRequest="32"
+                    CornerRadius="10"
+                    Command="{Binding ClearAllCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+        </Grid>
+
+        <!-- Heading: N unread + subtitle -->
+        <VerticalStackLayout Grid.Row="1"
+                             Padding="20,4,20,12"
+                             Spacing="2">
+            <Label Text="{Binding UnreadHeader}"
+                   FontFamily="Geist" FontSize="28" FontAttributes="Bold"
+                   CharacterSpacing="-0.02"
+                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+            <Label Text="{Binding UnreadSubtitle}"
+                   FontFamily="Geist" FontSize="13"
+                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+        </VerticalStackLayout>
+
+        <!-- Filter chips -->
+        <ScrollView Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Padding="20,4,20,12">
+            <HorizontalStackLayout Spacing="8">
+                <Border StrokeShape="RoundRectangle 999"
+                        Padding="16,9"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsAllSelected}" Value="True">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="StrokeThickness" Value="0" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Border.Behaviors>
+                        <behaviors:TapAnimationBehavior />
+                    </Border.Behaviors>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="All" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{Binding AllChipLabel}"
+                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsAllSelected}" Value="True">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 999"
+                        Padding="16,9"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsTaskSelected}" Value="True">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="StrokeThickness" Value="0" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Border.Behaviors>
+                        <behaviors:TapAnimationBehavior />
+                    </Border.Behaviors>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="Task" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{Binding TaskChipLabel}"
+                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsTaskSelected}" Value="True">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 999"
+                        Padding="16,9"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsCalendarSelected}" Value="True">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="StrokeThickness" Value="0" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Border.Behaviors>
+                        <behaviors:TapAnimationBehavior />
+                    </Border.Behaviors>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="Calendar" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{Binding CalendarChipLabel}"
+                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsCalendarSelected}" Value="True">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 999"
+                        Padding="16,9"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsConflictSelected}" Value="True">
+                            <Setter Property="BackgroundColor"
+                                    Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                            <Setter Property="StrokeThickness" Value="0" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Border.Behaviors>
+                        <behaviors:TapAnimationBehavior />
+                    </Border.Behaviors>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="Conflict" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{Binding ConflictChipLabel}"
+                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsConflictSelected}" Value="True">
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Notifications}"
+                        SelectionMode="None"
+                        Margin="20,0,20,0">
+            <CollectionView.EmptyView>
+                <components:EmptyStateView Title="You're all caught up"
+                                           Subtitle="No notifications match this filter." />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:NotificationItem">
+                    <SwipeView Margin="0,0,0,10"
+                               SwipeStarted="OnNotificationSwipeStarted"
+                               SwipeEnded="OnNotificationSwipeEnded">
+                        <SwipeView.LeftItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem Text="Mark read"
+                                           BackgroundColor="{AppThemeBinding Light={StaticResource FamilyPrimaryLight}, Dark={StaticResource FamilyPrimaryDark}}"
+                                           CommandParameter="{Binding .}"
+                                           Invoked="OnNotificationSwipeInvoked" />
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Execute">
+                                <SwipeItem Text="Dismiss"
+                                           BackgroundColor="#DC2626"
+                                           CommandParameter="{Binding .}"
+                                           Invoked="OnNotificationSwipeInvoked" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Border Padding="14,12"
+                                StrokeShape="RoundRectangle 16"
+                                StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                            <Grid ColumnDefinitions="44,*,Auto"
+                                  ColumnSpacing="12">
+                                <!-- Icon square -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="44" HeightRequest="44"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding IconBackground}"
+                                        VerticalOptions="Start">
+                                    <Label Text="{Binding Icon}"
+                                           FontSize="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Title + subtitle -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="2"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding Title}"
+                                           FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Label Text="{Binding Subtitle}"
+                                           FontFamily="Geist" FontSize="12.5"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                </VerticalStackLayout>
+
+                                <!-- Unread dot -->
+                                <Ellipse Grid.Column="2"
+                                         WidthRequest="8" HeightRequest="8"
+                                         Fill="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                                         VerticalOptions="Center"
+                                         IsVisible="{Binding IsUnread}" />
+                            </Grid>
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="3"
+              IsVisible="{Binding ShowSkeleton}"
+              BackgroundColor="#F8FAFC"
+              Padding="20,0,20,0">
+            <components:NotificationSkeleton />
+        </Grid>
+
+        <components:BottomBarView x:Name="BottomBar"
+                                  Grid.Row="4"
+                                  TabSelected="OnTabSelected" />
+    </Grid>
+</ContentPage>

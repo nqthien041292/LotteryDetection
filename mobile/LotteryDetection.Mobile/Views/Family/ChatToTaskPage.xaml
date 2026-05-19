@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
+             xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
+             xmlns:family="clr-namespace:LotteryDetection.Mobile.Models.Family"
+             x:Class="LotteryDetection.Mobile.Views.Family.ChatToTaskPage"
+             x:DataType="viewModel:ChatToTaskViewModel"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+    <Grid>
+        <Grid RowDefinitions="Auto,*,Auto,Auto">
+
+            <!-- Top bar -->
+            <Grid Grid.Row="0"
+                  Padding="20,48,20,8"
+                  ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0"
+                        Text="←"
+                        FontSize="20"
+                        WidthRequest="36" HeightRequest="36"
+                        Padding="0" CornerRadius="10"
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                        Clicked="OnBackClicked" />
+                <Grid Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="1">
+                        <Label Text="Chat to Task"
+                               FontFamily="Geist" FontSize="17" FontAttributes="Bold"
+                               CharacterSpacing="-0.01" HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                        <Label Text="Tap ✚ on any message to make a task"
+                               FontFamily="Geist" FontSize="10.5"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                    </VerticalStackLayout>
+                </Grid>
+                <BoxView Grid.Column="2" WidthRequest="36" HeightRequest="36" BackgroundColor="Transparent" />
+            </Grid>
+
+            <!-- Chat + tasks -->
+            <ScrollView Grid.Row="1" BackgroundColor="Transparent">
+                <VerticalStackLayout Padding="20,8,20,8" Spacing="0">
+
+                    <!-- Messages -->
+                    <CollectionView ItemsSource="{Binding Messages}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="family:ChatMessage">
+                                <Grid Margin="0,0,0,8" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                    <Border Grid.Column="0"
+                                            Padding="12,10"
+                                            MaximumWidthRequest="280"
+                                            HorizontalOptions="Start"
+                                            StrokeShape="RoundRectangle 14,14,14,4"
+                                            StrokeThickness="1"
+                                            Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsUser}" Value="True">
+                                                <Setter Property="HorizontalOptions" Value="End" />
+                                                <Setter Property="BackgroundColor"
+                                                        Value="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                                <Setter Property="StrokeThickness" Value="0" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding Sender}"
+                                                   FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
+                                                   CharacterSpacing="0.04"
+                                                   TextTransform="Uppercase"
+                                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsUser}" Value="True">
+                                                        <Setter Property="TextColor" Value="#FFFFFFAA" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            <Label Text="{Binding Message}"
+                                                   FontFamily="Geist" FontSize="14"
+                                                   LineHeight="1.45"
+                                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsUser}" Value="True">
+                                                        <Setter Property="TextColor" Value="White" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                            <Label Text="{Binding Timestamp, StringFormat='{0:h:mm tt}'}"
+                                                   FontFamily="Geist" FontSize="10.5"
+                                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsUser}" Value="True">
+                                                        <Setter Property="TextColor" Value="#FFFFFFAA" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                    <!-- Make-task affordance (visible for non-user messages) -->
+                                    <Button Grid.Column="1"
+                                            Text="✚"
+                                            FontSize="13"
+                                            WidthRequest="32" HeightRequest="32"
+                                            Padding="0" CornerRadius="16"
+                                            VerticalOptions="Center"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MakeTaskFromBubbleCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryTintLight}, Dark={DynamicResource FamilyPrimaryTintDark}}"
+                                            TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button" Binding="{Binding IsUser}" Value="True">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- AI thinking indicator (shown while IsBusy) -->
+                    <Border IsVisible="{Binding IsBusy}"
+                            Padding="12,10"
+                            Margin="0,4,0,4"
+                            MaximumWidthRequest="220"
+                            HorizontalOptions="Start"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                        <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                               HeightRequest="16" WidthRequest="16"
+                                               Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                            <Label Text="AI is thinking…"
+                                   FontFamily="Geist" FontSize="13"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!-- AI extracted tasks (collapsible) -->
+                    <Grid Margin="0,8,0,4" ColumnDefinitions="*,Auto">
+                        <components:SectionHeader Title="AI extracted" />
+                        <Button Grid.Column="1"
+                                Text="{Binding ExtractedToggleLabel}"
+                                Command="{Binding ToggleExtractedExpandedCommand}"
+                                FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                Padding="8,0"
+                                HeightRequest="28"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding GeneratedTasks}"
+                                    IsVisible="{Binding IsExtractedExpanded}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="family:TaskItem">
+                                <components:TaskCardView Title="{Binding Title}"
+                                                         Description="{Binding Description}"
+                                                         Owner="{Binding Owner}"
+                                                         DueDate="{Binding DueDate, StringFormat='{0:MMM d}'}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Save all generated tasks to board -->
+                    <Button Text="{Binding ConfirmAllLabel}"
+                            Command="{Binding ConfirmAllTasksCommand}"
+                            IsVisible="{Binding HasGeneratedTasks}"
+                            Margin="0,8,0,0"
+                            HeightRequest="50" CornerRadius="14"
+                            FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                            TextColor="White">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsBusy}" Value="True">
+                                <Setter Property="Text" Value="Saving…" />
+                                <Setter Property="Opacity" Value="0.7" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Input bar -->
+            <Border Grid.Row="2"
+                    Padding="12,10"
+                    StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                <Border.Shadow>
+                    <Shadow Brush="#0A1628" Offset="0,-2" Radius="8" Opacity="0.06" />
+                </Border.Shadow>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <Border Grid.Column="0"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource FamilyCream2Light}, Dark={StaticResource FamilyCream2Dark}}"
+                            Padding="14,0">
+                        <Entry Text="{Binding MessageText}"
+                               Placeholder="Type or paste a message…"
+                               BackgroundColor="Transparent"
+                               FontFamily="Geist" FontSize="14"
+                               HeightRequest="46"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                               PlaceholderColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                    </Border>
+                    <Button Grid.Column="1"
+                            Text="Send"
+                            Command="{Binding SendCommand}"
+                            HeightRequest="46"
+                            Padding="18,0"
+                            CornerRadius="14"
+                            FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                            BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                            TextColor="White">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsBusy}" Value="True">
+                                <Setter Property="Text" Value="⋯" />
+                                <Setter Property="Opacity" Value="0.7" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <components:BottomBarView x:Name="BottomBar"
+                                      Grid.Row="3"
+                                      TabSelected="OnTabSelected" />
+        </Grid>
+
+        <!-- Make Task bottom-sheet overlay -->
+        <Grid IsVisible="{Binding ShowMakeTaskSheet}"
+              BackgroundColor="#BB000000"
+              InputTransparent="False">
+            <Grid RowDefinitions="*,Auto">
+                <Grid Grid.Row="0" BackgroundColor="Transparent">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DismissMakeTaskCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+                <Border Grid.Row="1"
+                        StrokeShape="RoundRectangle 24,24,0,0"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,-6" Radius="24" Opacity="0.18" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Padding="20,14,20,28" Spacing="14">
+                        <BoxView WidthRequest="40" HeightRequest="4" CornerRadius="2"
+                                 BackgroundColor="{AppThemeBinding Light=#D1D5DB, Dark=#374151}"
+                                 HorizontalOptions="Center" />
+                        <Label Text="Make a task from this?"
+                               FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+
+                        <!-- Title -->
+                        <Border Padding="12"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="1"
+                                Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                                BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}">
+                            <Editor Text="{Binding MakeTaskTitle}"
+                                    AutoSize="TextChanges"
+                                    Placeholder="Task title"
+                                    BackgroundColor="Transparent"
+                                    FontFamily="Geist" FontSize="15"
+                                    MinimumHeightRequest="56"
+                                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                                    PlaceholderColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                        </Border>
+
+                        <!-- Owner / When / Priority -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Border Grid.Column="0"
+                                    Padding="10,8"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPickOwnerTapped" />
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="OWNER" FontFamily="Geist" FontSize="9.5" FontAttributes="Bold"
+                                           CharacterSpacing="0.04"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                    <Label Text="{Binding MakeTaskOwner}"
+                                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Padding="10,8"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPickWhenTapped" />
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="WHEN" FontFamily="Geist" FontSize="9.5" FontAttributes="Bold"
+                                           CharacterSpacing="0.04"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                    <Label Text="{Binding MakeTaskWhen, StringFormat='{0:MMM d · h:mm tt}'}"
+                                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="2"
+                                    Padding="10,8"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={DynamicResource FamilyBorderLight}, Dark={DynamicResource FamilyBorderDark}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource FamilySurfaceLight}, Dark={StaticResource FamilySurfaceDark}}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CycleMakeTaskPriorityCommand}" />
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="PRIORITY" FontFamily="Geist" FontSize="9.5" FontAttributes="Bold"
+                                           CharacterSpacing="0.04"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                    <Label Text="{Binding MakeTaskPriority}"
+                                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <!-- Actions -->
+                        <Grid ColumnDefinitions="*,1.4*" ColumnSpacing="10">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    Command="{Binding DismissMakeTaskCommand}"
+                                    HeightRequest="50" CornerRadius="14"
+                                    FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}"
+                                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                            <Button Grid.Column="1"
+                                    Text="Add to board"
+                                    Command="{Binding ConfirmMakeTaskCommand}"
+                                    HeightRequest="50" CornerRadius="14"
+                                    FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                                    TextColor="White" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentPage>

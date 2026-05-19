@@ -1,4 +1,4 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
@@ -7,9 +7,8 @@
 /mobile/.claude
 /mobile/.idea
 /mobile/.vs
-/mobile/LotteryDetectionMobile/bin/Debug
-/mobile/LotteryDetectionMobile/obj
-/mobile/LotteryDetectionMobile/plans/260426-1501-ios-launch-crash-fix
-/mobile/LotteryDetectionMobile.Tests/bin/Debug/net9.0
-/mobile/LotteryDetectionMobile.Tests/obj
+/mobile/LotteryDetection.Mobile/bin
+/mobile/LotteryDetection.Mobile/obj
+/mobile/LotteryDetection.Mobile.Tests/bin
+/mobile/LotteryDetection.Mobile.Tests/obj
 /.claude/settings.local.json

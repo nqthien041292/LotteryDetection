@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# install-ios-device.sh — build & deploy LotteryDetectionMobile to a
+# install-ios-device.sh — build & deploy LotteryDetection.Mobile to a
 # physically connected iPhone over USB (or paired wireless).
 #
 # Prerequisites:
@@ -47,7 +47,7 @@ if [[ "$(uname)" != "Darwin" ]]; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PROJECT="$REPO_ROOT/mobile/LotteryDetectionMobile/LotteryDetectionMobile.csproj"
+PROJECT="$REPO_ROOT/mobile/LotteryDetection.Mobile/LotteryDetection.Mobile.csproj"
 
 if [[ ! -f "$PROJECT" ]]; then
   echo "ERROR: project not found: $PROJECT" >&2
@@ -140,7 +140,7 @@ dotnet build "$PROJECT" \
   -r ios-arm64 \
   -p:BuildIpa=false
 
-APP_PATH="$REPO_ROOT/mobile/LotteryDetectionMobile/bin/$CONFIG/net9.0-ios/ios-arm64/LotteryDetectionMobile.app"
+APP_PATH="$REPO_ROOT/mobile/LotteryDetection.Mobile/bin/$CONFIG/net9.0-ios/ios-arm64/LotteryDetection.Mobile.app"
 if [[ ! -d "$APP_PATH" ]]; then
   echo "ERROR: expected .app not found at: $APP_PATH" >&2
   exit 1

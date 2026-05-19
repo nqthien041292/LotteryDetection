@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LotteryDetection.Mobile.Views.Components.EmptyStateView"
+             x:Name="_self">
+    <VerticalStackLayout HorizontalOptions="Center"
+                         VerticalOptions="Center"
+                         Spacing="8"
+                         Padding="40">
+        <Label Text="🎤"
+               FontSize="44"
+               HorizontalTextAlignment="Center"
+               Margin="0,0,0,4" />
+        <Label Text="{Binding Title, Source={x:Reference _self}}"
+               FontFamily="Geist" FontSize="17" FontAttributes="Bold"
+               CharacterSpacing="-0.01"
+               HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+        <Label Text="{Binding Subtitle, Source={x:Reference _self}}"
+               FontFamily="Geist" FontSize="13.5"
+               HorizontalTextAlignment="Center"
+               LineHeight="1.45"
+               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+    </VerticalStackLayout>
+</ContentView>

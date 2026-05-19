@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
+             xmlns:cv="clr-namespace:LotteryDetection.Mobile.Converters"
+             x:Class="LotteryDetection.Mobile.Views.LotteryCapture.LotteryCapturePage"
+             x:DataType="viewModel:LotteryCaptureViewModel"
+             Title="Dò vé số"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F6F8F2">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <cv:InvertBoolConverter x:Key="InvertBool" />
+            <cv:IsNotNullConverter x:Key="IsNotNull" />
+            <cv:BoolToObjectConverter x:Key="BoolToObject" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Top bar -->
+        <Grid Grid.Row="0"
+              Padding="20,42,20,12"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Text="‹"
+                    FontSize="28"
+                    WidthRequest="42" HeightRequest="42"
+                    Padding="0" CornerRadius="14"
+                    BackgroundColor="#E9EFE4"
+                    TextColor="#173D2A"
+                    Clicked="OnBackClicked" />
+            <Label Grid.Column="1"
+                   Text="Dò vé số"
+                   HorizontalOptions="Center" VerticalOptions="Center"
+                   FontFamily="Geist" FontSize="18" FontAttributes="Bold"
+                   TextColor="#142116" />
+            <BoxView Grid.Column="2" WidthRequest="42" HeightRequest="42" BackgroundColor="Transparent" />
+        </Grid>
+
+        <!-- Body -->
+        <ScrollView Grid.Row="1" Padding="0">
+            <VerticalStackLayout Padding="20,10,20,8" Spacing="16">
+
+                <!-- Hero copy -->
+                <VerticalStackLayout Spacing="6">
+                    <Label FontFamily="Geist" FontSize="26" FontAttributes="Bold"
+                           LineHeight="1.1" TextColor="#142116">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Chụp vé số." />
+                                <Span Text="&#10;Để AI dò giúp bạn." />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label Text="AI tách dãy số, ngày quay và đài phát hành rồi đối chiếu kết quả mới nhất."
+                           FontFamily="Geist" FontSize="13.5" LineHeight="1.45"
+                           TextColor="#66736A" />
+                </VerticalStackLayout>
+
+                <!-- Capture zone -->
+                <Border x:Name="CaptureFrame"
+                        StrokeThickness="0"
+                        Padding="10"
+                        BackgroundColor="#10281D">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#173D2A" Offset="0,8" Radius="20" Opacity="0.18" />
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CaptureCommand}" />
+                    </Border.GestureRecognizers>
+
+                    <Border Stroke="#F5C842"
+                            StrokeThickness="2"
+                            StrokeDashArray="10,7"
+                            BackgroundColor="#183827"
+                            Padding="0"
+                            HeightRequest="320">
+                        <Border.StrokeShape>
+                            <shapes:RoundRectangle CornerRadius="20" />
+                        </Border.StrokeShape>
+                        <Grid>
+                            <!-- Loaded image -->
+                            <Image Source="{Binding ImageSource}"
+                                   Aspect="AspectFill"
+                                   IsVisible="{Binding HasImage}" />
+
+                            <!-- Empty state -->
+                            <VerticalStackLayout Spacing="14"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 IsVisible="{Binding ShowEmptyState}">
+                                <Border WidthRequest="88" HeightRequest="88"
+                                        StrokeThickness="0"
+                                        HorizontalOptions="Center"
+                                        BackgroundColor="#F5C842">
+                                    <Border.StrokeShape>
+                                        <shapes:RoundRectangle CornerRadius="44" />
+                                    </Border.StrokeShape>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#F5C842" Offset="0,0" Radius="22" Opacity="0.45" />
+                                    </Border.Shadow>
+                                    <Label Text="🎯" FontSize="34"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                <Label Text="Chưa có ảnh vé"
+                                       FontFamily="Geist" FontSize="18" FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="White" />
+                                <Label Text="Chạm vào khung hoặc dùng nút bên dưới để chụp/chọn ảnh."
+                                       FontFamily="Geist" FontSize="13" LineHeight="1.4"
+                                       MaximumWidthRequest="240"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#CFE6D5" />
+                            </VerticalStackLayout>
+
+                            <!-- Analyzing overlay -->
+                            <Border IsVisible="{Binding IsAnalyzing}"
+                                    BackgroundColor="#CC0F2419"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <shapes:RoundRectangle CornerRadius="20" />
+                                </Border.StrokeShape>
+                                <VerticalStackLayout Spacing="12"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center">
+                                    <ActivityIndicator IsRunning="{Binding IsAnalyzing}"
+                                                       Color="#F5C842"
+                                                       HeightRequest="40" WidthRequest="40" />
+                                    <Label Text="AI đang đọc dãy số…"
+                                           FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- Retake chip (top-right when image loaded) -->
+                            <Button Text="✕"
+                                    Command="{Binding RetakeCommand}"
+                                    IsVisible="{Binding HasImage}"
+                                    HorizontalOptions="End" VerticalOptions="Start"
+                                    Margin="0,10,10,0"
+                                    WidthRequest="32" HeightRequest="32"
+                                    Padding="0" CornerRadius="16"
+                                    FontSize="14"
+                                    BackgroundColor="#CC10281D"
+                                    TextColor="White" />
+                        </Grid>
+                    </Border>
+                </Border>
+
+                <!-- Status badge -->
+                <Label Text="{Binding StatusBadge}"
+                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                       CharacterSpacing="0.04"
+                       TextTransform="Uppercase"
+                       HorizontalOptions="Center"
+                       TextColor="#52705A" />
+
+                <Label Text="{Binding StatusHint}"
+                       FontFamily="Geist" FontSize="13" LineHeight="1.45"
+                       HorizontalTextAlignment="Center"
+                       Margin="20,-8,20,0"
+                       TextColor="#66736A" />
+
+                <!-- Permission notice -->
+                <Border IsVisible="{Binding ShowPermissionNotice}"
+                        Padding="14"
+                        StrokeThickness="1"
+                        Stroke="#E7DBA0"
+                        BackgroundColor="#FFF4C9">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Cần quyền camera"
+                                   FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                   TextColor="#142116" />
+                            <Label Text="Bật camera để chụp vé số trực tiếp, hoặc chọn ảnh sẵn có từ thư viện."
+                                   FontFamily="Geist" FontSize="12" LineHeight="1.4"
+                                   TextColor="#66736A" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="Bật camera"
+                                Command="{Binding RequestCameraPermissionCommand}"
+                                CornerRadius="10"
+                                HeightRequest="36"
+                                Padding="12,0"
+                                FontFamily="Geist" FontAttributes="Bold" FontSize="12"
+                                BackgroundColor="#173D2A"
+                                TextColor="White" />
+                    </Grid>
+                </Border>
+
+                <!-- Capture / Pick buttons -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                    <Button Grid.Column="0"
+                            Text="Chọn ảnh"
+                            Command="{Binding PickFromGalleryCommand}"
+                            HeightRequest="54"
+                            CornerRadius="17"
+                            FontFamily="Geist" FontSize="15" FontAttributes="Bold"
+                            BackgroundColor="#E9EFE4"
+                            TextColor="#173D2A" />
+                    <Button Grid.Column="1"
+                            Text="Chụp ảnh"
+                            Command="{Binding CaptureCommand}"
+                            HeightRequest="54"
+                            CornerRadius="17"
+                            FontFamily="Geist" FontSize="15" FontAttributes="Bold"
+                            BackgroundColor="#173D2A"
+                            TextColor="White" />
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom CTA -->
+        <Grid Grid.Row="2"
+              Padding="20,12,20,30">
+            <Button Text="AI dò vé số"
+                    Command="{Binding AnalyzeCommand}"
+                    HeightRequest="58"
+                    CornerRadius="19"
+                    FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                    BackgroundColor="#F5C842"
+                    TextColor="#173D2A" />
+        </Grid>
+
+        <!-- Result modal (bottom sheet) -->
+        <Grid IsVisible="{Binding ShowPreviewModal}"
+              BackgroundColor="#BB000000"
+              Grid.Row="0"
+              Grid.RowSpan="3"
+              InputTransparent="False">
+            <Grid RowDefinitions="*,Auto">
+
+                <!-- Scrim tap area -->
+                <Grid Grid.Row="0" BackgroundColor="Transparent">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding RetakeCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+
+                <!-- Sheet card -->
+                <Border Grid.Row="1"
+                        StrokeThickness="0"
+                        BackgroundColor="White">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="28,28,0,0" /></Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,-6" Radius="24" Opacity="0.18" />
+                    </Border.Shadow>
+
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+
+                        <!-- Drag handle -->
+                        <BoxView Grid.Row="0"
+                                 WidthRequest="40" HeightRequest="4" CornerRadius="2"
+                                 BackgroundColor="#D1D5DB"
+                                 HorizontalOptions="Center"
+                                 Margin="0,14,0,0" />
+
+                        <!-- Header -->
+                        <Grid Grid.Row="1"
+                              Padding="20,14,20,4"
+                              ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="10">
+                            <Border Grid.Column="0"
+                                    WidthRequest="40" HeightRequest="40"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#FFF4C9">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                                <Label Text="✨" FontSize="18"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="Kết quả AI dò vé"
+                                       FontFamily="Geist" FontSize="15" FontAttributes="Bold"
+                                       TextColor="#142116" />
+                                <Label Text="{Binding Result.ConfidenceDisplay, StringFormat='Độ tin cậy {0}'}"
+                                       FontFamily="GeistMono" FontSize="11"
+                                       TextColor="#66736A" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2"
+                                    Text="✕"
+                                    Command="{Binding RetakeCommand}"
+                                    WidthRequest="34" HeightRequest="34"
+                                    Padding="0" CornerRadius="17"
+                                    FontSize="14"
+                                    BackgroundColor="#E9EFE4"
+                                    TextColor="#173D2A" />
+                        </Grid>
+
+                        <!-- Content -->
+                        <ScrollView Grid.Row="2" Padding="20,10,20,4" MaximumHeightRequest="460">
+                            <VerticalStackLayout Spacing="12">
+
+                                <!-- Ticket number card -->
+                                <Border Padding="18" StrokeThickness="1"
+                                        Stroke="#DAE5D6"
+                                        BackgroundColor="White">
+                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="10">
+                                        <Label Text="DÃY SỐ AI ĐỌC ĐƯỢC"
+                                               FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
+                                               CharacterSpacing="0.06"
+                                               TextColor="#52705A" />
+                                        <Label Text="{Binding Result.TicketNumber}"
+                                               FontFamily="GeistMono" FontSize="32" FontAttributes="Bold"
+                                               CharacterSpacing="4"
+                                               TextColor="#142116" />
+
+                                        <BoxView HeightRequest="1" BackgroundColor="#E5EDE2" />
+
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label Text="Đài quay"
+                                                       FontFamily="Geist" FontSize="11"
+                                                       TextColor="#66736A" />
+                                                <Label Text="{Binding Result.Province}"
+                                                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                                       TextColor="#142116" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Label Text="Ngày quay"
+                                                       FontFamily="Geist" FontSize="11"
+                                                       TextColor="#66736A" />
+                                                <Label Text="{Binding Result.DrawDateDisplay}"
+                                                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                                       TextColor="#142116" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Prize banner -->
+                                <Border Padding="16" StrokeThickness="0">
+                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                                    <Border.BackgroundColor>
+                                        <Binding Path="Result.IsWinner" Converter="{StaticResource BoolToObject}" ConverterParameter="#E7F6DE|#F1F4F1" />
+                                    </Border.BackgroundColor>
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="{Binding Result.ResultHeadline}"
+                                               FontFamily="Geist" FontSize="20" FontAttributes="Bold"
+                                               LineHeight="1.2"
+                                               TextColor="#173D2A" />
+                                        <Label Text="{Binding Result.PrizeAmountDisplay}"
+                                               IsVisible="{Binding Result.IsWinner}"
+                                               FontFamily="GeistMono" FontSize="22" FontAttributes="Bold"
+                                               TextColor="#1B7B3A" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Notes -->
+                                <Border Padding="14" StrokeThickness="1"
+                                        Stroke="#DAE5D6"
+                                        BackgroundColor="White">
+                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="Ghi chú từ AI"
+                                               FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                               TextColor="#142116" />
+                                        <Label Text="{Binding Result.Notes}"
+                                               FontFamily="Geist" FontSize="13" LineHeight="1.4"
+                                               TextColor="#66736A" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                            </VerticalStackLayout>
+                        </ScrollView>
+
+                        <!-- Bottom actions -->
+                        <Grid Grid.Row="3"
+                              Padding="20,12,20,32"
+                              ColumnDefinitions="*,1.4*"
+                              ColumnSpacing="12">
+                            <Button Text="Chụp lại"
+                                    Command="{Binding RetakeCommand}"
+                                    HeightRequest="54"
+                                    CornerRadius="17"
+                                    FontFamily="Geist" FontAttributes="Bold" FontSize="15"
+                                    BackgroundColor="#E9EFE4"
+                                    TextColor="#173D2A" />
+                            <Button Grid.Column="1"
+                                    Text="Lưu lịch sử"
+                                    Command="{Binding ConfirmCommand}"
+                                    HeightRequest="54"
+                                    CornerRadius="17"
+                                    FontFamily="Geist" FontAttributes="Bold" FontSize="15"
+                                    BackgroundColor="#173D2A"
+                                    TextColor="White" />
+                        </Grid>
+
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</ContentPage>

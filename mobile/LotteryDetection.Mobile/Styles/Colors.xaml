@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="LotteryDetection.Mobile.Styles.Colors">
+
+    <!-- Legacy aliases — kept for non-redesigned screens. -->
+    <Color x:Key="EntryPlaceholderColor">#A0FFFFFF</Color>
+    <Color x:Key="GradientStartColor">#012E8B</Color>
+    <Color x:Key="GradientEndColor">#0F172A</Color>
+    <Color x:Key="GradientStart">#2D6CFF</Color>
+    <Color x:Key="GradientEnd">#0A2E8A</Color>
+    <Color x:Key="TwitterBlue">#55acee</Color>
+    <Color x:Key="Red">#dc4e41</Color>
+    <Color x:Key="FacebookBlue">#4267B2</Color>
+    <Color x:Key="LightGreen">#35c659</Color>
+    <Color x:Key="FacebookLogin">#3b5998</Color>
+    <Color x:Key="Transparent">Transparent</Color>
+    <Color x:Key="Link">#1E5BFF</Color>
+    <Color x:Key="Steel">#5C6E8A</Color>
+    <Color x:Key="Gold">#fcbc0f</Color>
+    <Color x:Key="Dull-Red">#c04848</Color>
+    <Color x:Key="Deep-Purple">#1E3A8A</Color>
+    <Color x:Key="Green">#7ed321</Color>
+    <Color x:Key="Liliac">#93C5FD</Color>
+    <Color x:Key="Purpleish-Blue">#3B82F6</Color>
+    <Color x:Key="Bright-Cyan">#3cdeff</Color>
+    <Color x:Key="Lemon-Lime">#bdff27</Color>
+    <Color x:Key="VioletGradientStart">#1F2D44</Color>
+    <Color x:Key="VioletGradientEnd">#0A1628</Color>
+    <Color x:Key="PinkGradientStart">#1E5BFF</Color>
+    <Color x:Key="PinkGradientEnd">#0A2E8A</Color>
+    <Color x:Key="PrimaryFormsColor">#1E5BFF</Color>
+    <Color x:Key="PrimaryTextColor">#0A1628</Color>
+    <Color x:Key="SecondaryTextColor">#5C6E8A</Color>
+    <Color x:Key="Primary">#1E5BFF</Color>
+    <Color x:Key="PrimaryDark">#2D6CFF</Color>
+    <Color x:Key="PrimaryDarkText">#0A1628</Color>
+    <Color x:Key="Secondary">#3B82F6</Color>
+    <Color x:Key="SecondaryDarkText">#3B82F6</Color>
+    <Color x:Key="Tertiary">#0A2E8A</Color>
+    <Color x:Key="BorderLight">#D5E1F2</Color>
+
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Magenta">#D600AA</Color>
+    <Color x:Key="MidnightBlue">#0A1628</Color>
+    <Color x:Key="OffBlack">#0A1628</Color>
+
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+
+    <Color x:Key="PrimaryLighter">#E0EAFF</Color>
+    <Color x:Key="WarningLight">#FFEFDD</Color>
+    <Color x:Key="InfoLight">#E0EAFF</Color>
+    <Color x:Key="SuccessLight">#CEFFC9</Color>
+    <Color x:Key="PrimaryLighterDark">#1E3A5F</Color>
+    <Color x:Key="WarningLightDark">#34240D</Color>
+    <Color x:Key="InfoLightDark">#0D2354</Color>
+    <Color x:Key="SuccessLightDark">#1C2F1E</Color>
+    <Color x:Key="Alt1">#F4F8FE</Color>
+    <Color x:Key="SuccessGreen">#1C7E39</Color>
+    <Color x:Key="DangerRed">#C20D32</Color>
+    <Color x:Key="ContentText">#0A1628</Color>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}" />
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}" />
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}" />
+
+    <!-- Design system — fonts -->
+    <x:String x:Key="FamilyFontFamily">Geist</x:String>
+    <x:String x:Key="FamilyDisplayFontFamily">Geist</x:String>
+    <x:String x:Key="FamilyMonoFontFamily">GeistMono</x:String>
+
+    <!-- Typography Scale -->
+    <x:Double x:Key="FontSizeDisplay">32</x:Double>
+    <x:Double x:Key="FontSizeTitle">26</x:Double>
+    <x:Double x:Key="FontSizeHeading">20</x:Double>
+    <x:Double x:Key="FontSizeSubhead">17</x:Double>
+    <x:Double x:Key="FontSizeBody">14</x:Double>
+    <x:Double x:Key="FontSizeCaption">12</x:Double>
+    <x:Double x:Key="FontSizeTab">10</x:Double>
+
+    <!-- Spacing -->
+    <x:Double x:Key="SpacingXS">4</x:Double>
+    <x:Double x:Key="SpacingSM">8</x:Double>
+    <x:Double x:Key="SpacingMD">12</x:Double>
+    <x:Double x:Key="SpacingLG">16</x:Double>
+    <x:Double x:Key="SpacingXL">24</x:Double>
+    <x:Double x:Key="SpacingXXL">32</x:Double>
+
+    <!-- Corner Radius -->
+    <CornerRadius x:Key="RadiusSM">10</CornerRadius>
+    <CornerRadius x:Key="RadiusMD">14</CornerRadius>
+    <CornerRadius x:Key="RadiusLG">20</CornerRadius>
+    <CornerRadius x:Key="RadiusXL">28</CornerRadius>
+
+    <!-- Family Typography Styles — Geist + display sizes per design -->
+    <Style x:Key="FamilyDisplayStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyDisplayFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeDisplay}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="LineHeight" Value="1.1" />
+    </Style>
+    <Style x:Key="FamilyTitleStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyDisplayFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+    <Style x:Key="FamilyHeadingStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyDisplayFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeHeading}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+    <Style x:Key="FamilySubheadStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSubhead}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+    <Style x:Key="FamilyBodyStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+    </Style>
+    <Style x:Key="FamilyCaptionStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}" />
+    </Style>
+    <Style x:Key="FamilyMonoStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyMonoFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+    </Style>
+    <Style x:Key="FamilyButtonStyle" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <!-- Section eyebrow / "PILL" small uppercase label -->
+    <Style x:Key="FamilyEyebrowStyle" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FamilyFontFamily}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CharacterSpacing" Value="0.06" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+    </Style>
+
+    <SolidColorBrush x:Key="Gray100Brush" Color="{DynamicResource Gray100}" />
+    <SolidColorBrush x:Key="Gray200Brush" Color="{DynamicResource Gray200}" />
+    <SolidColorBrush x:Key="Gray300Brush" Color="{DynamicResource Gray300}" />
+    <SolidColorBrush x:Key="Gray400Brush" Color="{DynamicResource Gray400}" />
+    <SolidColorBrush x:Key="Gray500Brush" Color="{DynamicResource Gray500}" />
+    <SolidColorBrush x:Key="Gray600Brush" Color="{DynamicResource Gray600}" />
+    <SolidColorBrush x:Key="Gray900Brush" Color="{DynamicResource Gray900}" />
+    <SolidColorBrush x:Key="Gray950Brush" Color="{DynamicResource Gray950}" />
+
+</ResourceDictionary>

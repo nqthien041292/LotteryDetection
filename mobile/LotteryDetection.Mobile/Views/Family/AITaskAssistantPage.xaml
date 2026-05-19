@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
+             xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
+             xmlns:family="clr-namespace:LotteryDetection.Mobile.Models.Family"
+             x:Class="LotteryDetection.Mobile.Views.Family.AITaskAssistantPage"
+             x:DataType="viewModel:AITaskAssistantViewModel"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+    <ContentPage.BindingContext>
+        <viewModel:AITaskAssistantViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Top bar -->
+        <Grid Grid.Row="0"
+              Padding="20,48,20,4"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Text="←"
+                    FontSize="20"
+                    WidthRequest="36" HeightRequest="36"
+                    Padding="0" CornerRadius="10"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                    Clicked="OnBackClicked" />
+            <Label Grid.Column="1"
+                   Text="AI assistant"
+                   FontFamily="Geist" FontSize="17" FontAttributes="Bold"
+                   CharacterSpacing="-0.01"
+                   HorizontalOptions="Center" VerticalOptions="Center"
+                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+            <Grid Grid.Column="2"
+                  WidthRequest="36" HeightRequest="36">
+                <components:VectorIcon Glyph="settings"
+                                       Size="22"
+                                       Color="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+            </Grid>
+        </Grid>
+
+        <!-- Loading skeleton while suggestions fetch from backend -->
+        <Grid Grid.Row="1"
+              IsVisible="{Binding ShowSkeleton}"
+              BackgroundColor="#F8FAFC"
+              Padding="20,8,20,8"
+              ZIndex="10">
+            <components:AssistantSkeleton />
+        </Grid>
+
+        <!-- Main scroll: hero, filters, suggestion list, ask card -->
+        <ScrollView Grid.Row="1" BackgroundColor="Transparent">
+            <VerticalStackLayout Spacing="0">
+
+                <!-- Hero gradient card -->
+                <Border Margin="20,6,20,12"
+                        Padding="16"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#0A2E8A" Offset="0.0" />
+                            <GradientStop Color="#1E5BFF" Offset="0.5" />
+                            <GradientStop Color="#6D5BD0" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Shadow>
+                        <Shadow Brush="#1E5BFF" Offset="0,8" Radius="24" Opacity="0.28" />
+                    </Border.Shadow>
+
+                    <Grid>
+                        <!-- Decorative circle (top-right) -->
+                        <Ellipse WidthRequest="110" HeightRequest="110"
+                                 HorizontalOptions="End" VerticalOptions="Start"
+                                 TranslationX="20" TranslationY="-30"
+                                 Fill="#33FFFFFF" InputTransparent="True" />
+
+                        <VerticalStackLayout Spacing="6">
+                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                <components:VectorIcon Glyph="sparkle"
+                                                       Size="14"
+                                                       Color="White"
+                                                       VerticalOptions="Center" />
+                                <Label Text="{Binding HeroEyebrow}"
+                                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                       CharacterSpacing="0.06"
+                                       TextColor="#D9FFFFFF" />
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding HeroTitle}"
+                                   FontFamily="Geist" FontSize="20" FontAttributes="Bold"
+                                   CharacterSpacing="-0.02"
+                                   LineHeight="1.2"
+                                   TextColor="White" />
+                            <Label Text="{Binding HeroSubtitle}"
+                                   FontFamily="Geist" FontSize="12.5"
+                                   LineHeight="1.5"
+                                   TextColor="#D9FFFFFF" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Filter pills -->
+                <ScrollView Orientation="Horizontal"
+                            HorizontalScrollBarVisibility="Never"
+                            Margin="0,0,0,8">
+                    <HorizontalStackLayout Padding="20,0" Spacing="6">
+
+                        <!-- All -->
+                        <Border Padding="12,0" StrokeShape="RoundRectangle 999"
+                                StrokeThickness="1" HeightRequest="30">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterAll}" Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Setter Property="Stroke" Value="Transparent" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterAll}" Value="False">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}" />
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                <Label Text="All"
+                                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterAll}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterAll}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding CountAll}"
+                                       FontFamily="Geist" FontSize="10"
+                                       Opacity="0.7"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterAll}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterAll}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="all" />
+                            </Border.GestureRecognizers>
+                        </Border>
+
+                        <!-- Conflicts -->
+                        <Border Padding="12,0" StrokeShape="RoundRectangle 999"
+                                StrokeThickness="1" HeightRequest="30">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterConflict}" Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Setter Property="Stroke" Value="Transparent" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterConflict}" Value="False">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}" />
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                <Label Text="Conflicts"
+                                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterConflict}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterConflict}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding CountConflict}"
+                                       FontFamily="Geist" FontSize="10" Opacity="0.7"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterConflict}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterConflict}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="conflict" />
+                            </Border.GestureRecognizers>
+                        </Border>
+
+                        <!-- Create -->
+                        <Border Padding="12,0" StrokeShape="RoundRectangle 999"
+                                StrokeThickness="1" HeightRequest="30">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterCreate}" Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Setter Property="Stroke" Value="Transparent" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterCreate}" Value="False">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}" />
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                <Label Text="Create"
+                                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterCreate}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterCreate}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding CountCreate}"
+                                       FontFamily="Geist" FontSize="10" Opacity="0.7"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterCreate}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterCreate}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="create" />
+                            </Border.GestureRecognizers>
+                        </Border>
+
+                        <!-- Delegate -->
+                        <Border Padding="12,0" StrokeShape="RoundRectangle 999"
+                                StrokeThickness="1" HeightRequest="30">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterDelegate}" Value="True">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+                                    <Setter Property="Stroke" Value="Transparent" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFilterDelegate}" Value="False">
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}" />
+                                    <Setter Property="Stroke"
+                                            Value="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                <Label Text="Delegate"
+                                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterDelegate}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterDelegate}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding CountDelegate}"
+                                       FontFamily="Geist" FontSize="10" Opacity="0.7"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterDelegate}" Value="True">
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsFilterDelegate}" Value="False">
+                                            <Setter Property="TextColor"
+                                                    Value="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="delegate" />
+                            </Border.GestureRecognizers>
+                        </Border>
+
+                    </HorizontalStackLayout>
+                </ScrollView>
+
+                <!-- Suggestion list -->
+                <VerticalStackLayout Padding="16,4,16,8" Spacing="10">
+                    <BindableLayout.ItemsSource>
+                        <Binding Path="Suggestions" />
+                    </BindableLayout.ItemsSource>
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="family:AssistantSuggestion">
+                            <Border Padding="14"
+                                    StrokeShape="RoundRectangle 14"
+                                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsConflict}" Value="True">
+                                        <Setter Property="StrokeThickness" Value="2" />
+                                        <Setter Property="Stroke" Value="#FCA5A5" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsConflict}" Value="False">
+                                        <Setter Property="StrokeThickness" Value="1" />
+                                        <Setter Property="Stroke"
+                                                Value="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.Shadow>
+                                    <Shadow Brush="#0A1628" Offset="0,2" Radius="6" Opacity="0.05" />
+                                </Border.Shadow>
+
+                                <VerticalStackLayout Spacing="8">
+                                    <!-- Header row: kind pill + (optional High) + elapsed -->
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="6">
+                                        <Border Grid.Column="0"
+                                                Padding="8,2"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 999"
+                                                HeightRequest="20">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding Kind}" Value="create">
+                                                    <Setter Property="BackgroundColor" Value="#E0EAFF" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Border" Binding="{Binding Kind}" Value="conflict">
+                                                    <Setter Property="BackgroundColor" Value="#FEE7E2" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Border" Binding="{Binding Kind}" Value="delegate">
+                                                    <Setter Property="BackgroundColor" Value="#D1F0EC" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                                <components:VectorIcon Size="11"
+                                                                       VerticalOptions="Center">
+                                                    <components:VectorIcon.Triggers>
+                                                        <DataTrigger TargetType="components:VectorIcon" Binding="{Binding Kind}" Value="create">
+                                                            <Setter Property="Glyph" Value="plus" />
+                                                            <Setter Property="Color" Value="#1E40AF" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="components:VectorIcon" Binding="{Binding Kind}" Value="conflict">
+                                                            <Setter Property="Glyph" Value="alert" />
+                                                            <Setter Property="Color" Value="#B91C1C" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="components:VectorIcon" Binding="{Binding Kind}" Value="delegate">
+                                                            <Setter Property="Glyph" Value="swap" />
+                                                            <Setter Property="Color" Value="#115E59" />
+                                                        </DataTrigger>
+                                                    </components:VectorIcon.Triggers>
+                                                </components:VectorIcon>
+                                                <Label FontFamily="Geist" FontSize="9.5" FontAttributes="Bold"
+                                                       CharacterSpacing="0.06"
+                                                       VerticalOptions="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="create">
+                                                            <Setter Property="Text" Value="CREATE" />
+                                                            <Setter Property="TextColor" Value="#1E40AF" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="conflict">
+                                                            <Setter Property="Text" Value="CONFLICT" />
+                                                            <Setter Property="TextColor" Value="#B91C1C" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="delegate">
+                                                            <Setter Property="Text" Value="DELEGATE" />
+                                                            <Setter Property="TextColor" Value="#115E59" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </HorizontalStackLayout>
+                                        </Border>
+
+                                        <Border Grid.Column="1"
+                                                Padding="8,2"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 999"
+                                                BackgroundColor="#DBEAFE"
+                                                HeightRequest="20"
+                                                IsVisible="{Binding IsHigh}">
+                                            <Label Text="High"
+                                                   FontFamily="Geist" FontSize="10" FontAttributes="Bold"
+                                                   TextColor="#1E40AF"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+
+                                        <Label Grid.Column="3"
+                                               Text="{Binding Elapsed}"
+                                               FontFamily="Geist" FontSize="10" FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}" />
+                                    </Grid>
+
+                                    <Label Text="{Binding Title}"
+                                           FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
+                                           CharacterSpacing="-0.01"
+                                           LineHeight="1.3"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}" />
+
+                                    <Label Text="{Binding Reason}"
+                                           FontFamily="Geist" FontSize="12"
+                                           LineHeight="1.4"
+                                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+
+                                    <!-- Action row -->
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="8" Margin="0,2,0,0">
+                                        <components:FamilyAvatar Grid.Column="0"
+                                                                 Member="{Binding Member}"
+                                                                 Name="{Binding MemberName}"
+                                                                 Size="20"
+                                                                 VerticalOptions="Center" />
+                                        <Label Grid.Column="1"
+                                               Text="{Binding MemberName}"
+                                               FontFamily="Geist" FontSize="11.5" FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+
+                                        <Button Grid.Column="3"
+                                                Text="Dismiss"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DismissCommand}"
+                                                CommandParameter="{Binding .}"
+                                                HeightRequest="30" Padding="12,0"
+                                                CornerRadius="8"
+                                                FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                                BorderWidth="1"
+                                                BorderColor="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                        <Border Grid.Column="4"
+                                                HeightRequest="30" Padding="14,0"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AcceptCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <HorizontalStackLayout Spacing="5"
+                                                                   HorizontalOptions="Center"
+                                                                   VerticalOptions="Center">
+                                                <components:VectorIcon Glyph="check"
+                                                                       Size="14"
+                                                                       Color="White"
+                                                                       VerticalOptions="Center" />
+                                                <Label Text="Accept"
+                                                       FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                                       VerticalOptions="Center"
+                                                       TextColor="White" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Empty state -->
+                <HorizontalStackLayout IsVisible="{Binding IsEmpty}"
+                                       Padding="20,40"
+                                       Spacing="8"
+                                       HorizontalOptions="Center">
+                    <components:VectorIcon Glyph="sparkle"
+                                           Size="16"
+                                           Color="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                                           VerticalOptions="Center" />
+                    <Label Text="All caught up."
+                           VerticalOptions="Center"
+                           FontFamily="Geist" FontSize="14"
+                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                </HorizontalStackLayout>
+
+                <!-- Ask anything card -->
+                <Border Margin="16,4,16,16"
+                        Padding="14"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
+                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="ASK ANYTHING"
+                               FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                               CharacterSpacing="0.06"
+                               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+
+                        <Border Padding="12,8"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCream2Light}, Dark={DynamicResource FamilyCream2Dark}}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                                <components:VectorIcon Grid.Column="0"
+                                                       Glyph="sparkle"
+                                                       Size="16"
+                                                       Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
+                                                       VerticalOptions="Center" />
+                                <Label Grid.Column="1"
+                                       Text="&quot;Plan dinner this week…&quot;"
+                                       FontFamily="Geist" FontSize="13"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}" />
+                                <Border Grid.Column="2"
+                                        WidthRequest="32" HeightRequest="32"
+                                        Padding="0"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}">
+                                    <components:VectorIcon Glyph="micFill"
+                                                           Size="16"
+                                                           Color="White"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <ScrollView Orientation="Horizontal"
+                                    HorizontalScrollBarVisibility="Never">
+                            <HorizontalStackLayout Spacing="6">
+                                <BindableLayout.ItemsSource>
+                                    <Binding Path="QuickPrompts" />
+                                </BindableLayout.ItemsSource>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10,0"
+                                                StrokeShape="RoundRectangle 999"
+                                                StrokeThickness="0"
+                                                HeightRequest="26"
+                                                BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryTintLight}, Dark={DynamicResource FamilyPrimaryTintDark}}">
+                                            <Label Text="{Binding .}"
+                                                   FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AskCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                        </ScrollView>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <components:BottomBarView x:Name="BottomBar"
+                                  Grid.Row="2"
+                                  TabSelected="OnTabSelected" />
+    </Grid>
+</ContentPage>

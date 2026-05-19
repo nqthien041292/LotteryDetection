@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="LotteryDetection.Mobile.Themes.LightTheme"
+                    xmlns:styles="clr-namespace:LotteryDetection.Mobile.Styles">
+
+    <ResourceDictionary.MergedDictionaries>
+        <styles:ButtonStyles />
+        <styles:LabelStyles />
+        <styles:BorderStyles />
+        <styles:BoxViewStyles />
+        <styles:AvatarViewStyles />
+        <styles:FontIcons />
+        <styles:Colors />
+        <styles:RadioButtonStyles />
+        <styles:SegmentedControlStyles />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Legacy keys (untouched by design redesign) -->
+    <Color x:Key="PrimaryDarkColor">#d0424f</Color>
+    <Color x:Key="PrimaryDarkenColor">#ab3641</Color>
+    <Color x:Key="PrimaryLighterColor">#edcacd</Color>
+    <Color x:Key="PrimaryGradient">#1E5BFF</Color>
+    <Color x:Key="PrimaryLight">#E0EAFF</Color>
+    <Color x:Key="SecondaryGradient">#2D6CFF</Color>
+    <Color x:Key="Secondary">#3B82F6</Color>
+    <Color x:Key="Green">#7ed321</Color>
+    <Color x:Key="Red">#ff4a4a</Color>
+    <Color x:Key="Orange">#ff844a</Color>
+    <Color x:Key="Blue">#4acaff</Color>
+    <Color x:Key="HyperLink">#1E5BFF</Color>
+
+    <Color x:Key="Gray-100">#f6f7f8</Color>
+    <Color x:Key="Gray-200">#ebecef</Color>
+    <Color x:Key="Gray-300">#ced2d9</Color>
+    <Color x:Key="Gray-400">#b2b8c2</Color>
+    <Color x:Key="Gray-500">#959eac</Color>
+    <Color x:Key="Gray-600">#788396</Color>
+    <Color x:Key="Gray-700">#606a7b</Color>
+    <Color x:Key="Gray-800">#4a515e</Color>
+    <Color x:Key="Gray-900">#333942</Color>
+    <Color x:Key="Gray-Black">#000000</Color>
+    <Color x:Key="Gray-White">#ffffff</Color>
+    <Color x:Key="Gray-Bg">#ffffff</Color>
+    <Color x:Key="GrayShadowColor">#ffffff</Color>
+    <Color x:Key="GrayShadowBackgroundColor">#f6f7f8</Color>
+
+    <Color x:Key="PrimaryColorLight">#1E5BFF</Color>
+    <Color x:Key="SecondaryTextColorLight">#5C6E8A</Color>
+    <Color x:Key="PlaceholderTextColorLight">#94A3BE</Color>
+    <Color x:Key="SeparatorColorLight">#D5E1F2</Color>
+    <Color x:Key="PrimaryTextColorLight">#0A1628</Color>
+    <Color x:Key="BackgroundColorLight">#F4F8FE</Color>
+    <Color x:Key="SentMessageColorLight">#F4F8FE</Color>
+    <Color x:Key="ReceivedMessageColorLight">#E0EAFF</Color>
+    <Color x:Key="SelectionBackgroundLight">#E0EAFF</Color>
+    <Color x:Key="ContentTextColorLight">#1F2D44</Color>
+    <Color x:Key="DataVisualizationLight">#E0EAFF</Color>
+
+    <!-- ════════ Design tokens — Light theme ════════ -->
+    <!-- Primary palette -->
+    <Color x:Key="FamilyPrimaryLight">#1E5BFF</Color>
+    <Color x:Key="FamilyPrimary2Light">#2D6CFF</Color>
+    <Color x:Key="FamilyPrimaryDeepLight">#0A2E8A</Color>
+    <Color x:Key="FamilyPrimaryTintLight">#E0EAFF</Color>
+    <Color x:Key="FamilySecondaryLight">#3B82F6</Color>
+    <Color x:Key="FamilyAccentLight">#3B82F6</Color>
+    <Color x:Key="FamilyAccent2Light">#DBEAFE</Color>
+
+    <!-- Surfaces -->
+    <Color x:Key="FamilyBackgroundLight">#F4F8FE</Color>
+    <Color x:Key="FamilySurfaceLight">#FFFFFF</Color>
+    <Color x:Key="FamilySurfaceAltLight">#E8F0FB</Color>
+    <Color x:Key="FamilyCreamLight">#F4F8FE</Color>
+    <Color x:Key="FamilyCream2Light">#E8F0FB</Color>
+    <Color x:Key="FamilyCream3Light">#D5E1F2</Color>
+    <Color x:Key="FamilyPaperLight">#FFFFFF</Color>
+
+    <!-- Ink scale -->
+    <Color x:Key="FamilyTextPrimaryLight">#0A1628</Color>
+    <Color x:Key="FamilyTextSecondaryLight">#5C6E8A</Color>
+    <Color x:Key="FamilyInkLight">#0A1628</Color>
+    <Color x:Key="FamilyInk2Light">#1F2D44</Color>
+    <Color x:Key="FamilyInk3Light">#5C6E8A</Color>
+    <Color x:Key="FamilyInk4Light">#94A3BE</Color>
+
+    <Color x:Key="FamilyBorderLight">#D5E1F2</Color>
+    <Color x:Key="FamilySuccessLight">#22C55E</Color>
+    <Color x:Key="FamilyWarningLight">#F59E0B</Color>
+    <Color x:Key="FamilyDangerLight">#EF4444</Color>
+    <Color x:Key="FamilyUnreadSurfaceLight">#E8F0FB</Color>
+    <Color x:Key="FamilyMicGradientCenterLight">#E0EAFF</Color>
+
+    <!-- Family member palette: bg / text / dot -->
+    <Color x:Key="FamilyMemberAlexBgLight">#DCEAFF</Color>
+    <Color x:Key="FamilyMemberAlexTextLight">#1E40AF</Color>
+    <Color x:Key="FamilyMemberAlexDotLight">#2563EB</Color>
+
+    <Color x:Key="FamilyMemberSamBgLight">#D6EEFB</Color>
+    <Color x:Key="FamilyMemberSamTextLight">#0E5A8A</Color>
+    <Color x:Key="FamilyMemberSamDotLight">#0EA5E9</Color>
+
+    <Color x:Key="FamilyMemberJordanBgLight">#D1F0EC</Color>
+    <Color x:Key="FamilyMemberJordanTextLight">#115E59</Color>
+    <Color x:Key="FamilyMemberJordanDotLight">#14B8A6</Color>
+
+    <Color x:Key="FamilyMemberRileyBgLight">#E1DDFE</Color>
+    <Color x:Key="FamilyMemberRileyTextLight">#4C1D95</Color>
+    <Color x:Key="FamilyMemberRileyDotLight">#6D5BD0</Color>
+
+    <Color x:Key="FamilyMemberHomeBgLight">#E5E7EF</Color>
+    <Color x:Key="FamilyMemberHomeTextLight">#334155</Color>
+    <Color x:Key="FamilyMemberHomeDotLight">#64748B</Color>
+
+    <!-- Priority chips -->
+    <Color x:Key="FamilyPriHighBgLight">#DCEAFF</Color>
+    <Color x:Key="FamilyPriHighTextLight">#1E40AF</Color>
+    <Color x:Key="FamilyPriMedBgLight">#E0EAFF</Color>
+    <Color x:Key="FamilyPriMedTextLight">#3730A3</Color>
+    <Color x:Key="FamilyPriLowBgLight">#E5E7EF</Color>
+    <Color x:Key="FamilyPriLowTextLight">#334155</Color>
+
+</ResourceDictionary>
