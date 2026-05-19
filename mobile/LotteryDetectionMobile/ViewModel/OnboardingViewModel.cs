@@ -93,7 +93,7 @@ public class OnboardingViewModel : BaseViewModel
 
     public bool ShowBackButton => SelectedIndex > 0;
 
-    public string NextButtonText => SelectedIndex < TotalSlides - 1 ? "Continue" : "Get started";
+    public string NextButtonText => SelectedIndex < TotalSlides - 1 ? "Tiep tuc" : "Bat dau do ve";
 
     private async Task OnNextAsync()
     {
@@ -119,13 +119,9 @@ public class OnboardingViewModel : BaseViewModel
     private async Task OnAllowPermissionsAsync()
     {
         ShowPermissionPopup = false;
-        var granted = await permissionService.RequestMicAndCalendarAsync();
-
-        if (granted)
-        {
-            MicrophoneEnabled = true;
-            CalendarEnabled = true;
-        }
+        var cameraGranted = await Permissions.RequestAsync<Permissions.Camera>();
+        MicrophoneEnabled = cameraGranted == PermissionStatus.Granted;
+        CalendarEnabled = true;
 
         await FinishAndNavigateAsync();
     }
@@ -139,6 +135,6 @@ public class OnboardingViewModel : BaseViewModel
     private async Task FinishAndNavigateAsync()
     {
         Preferences.Set("OnboardingCompleted", true);
-        await navigationService.NavigateToLoginWithSocialAsync();
+        await navigationService.NavigateToDashboardAsync();
     }
 }

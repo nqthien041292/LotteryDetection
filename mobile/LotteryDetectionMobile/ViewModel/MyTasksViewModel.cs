@@ -1,13 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using LotteryDetectionMobile.Models.Family;
 using LotteryDetectionMobile.Models.Voice;
 using LotteryDetectionMobile.Services.Dialogs;
 using LotteryDetectionMobile.Services.Interfaces;
 using LotteryDetectionMobile.Services.Logging;
 using LotteryDetectionMobile.Services.Mock;
 using LotteryDetectionMobile.Services.Navigation;
-using LotteryDetectionMobile.Services.Voice;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetectionMobile.ViewModel;
@@ -151,14 +151,8 @@ public class MyTasksViewModel : TabNavigationViewModel
         var success = false;
         try
         {
-            RemoteLogService.Instance.Info("MyTasks", $"Deleting task {task.TaskId}");
-            var options = HybridVoiceService.CreateVoiceApiOptions();
-            var client = new VoiceUploadApiClient(options: options);
-            using var cts = new CancellationTokenSource(DeleteTimeout);
-            success = await WithTimeoutAsync(client.DeleteTaskAsync(task.TaskId, cts.Token), DeleteTimeout);
-
-            if (!success)
-                success = await WithTimeoutAsync(taskService.DeleteTaskAsync(task.TaskId.ToString()), DeleteTimeout);
+            RemoteLogService.Instance.Info("MyTasks", $"Deleting mock task {task.TaskId}");
+            success = await WithTimeoutAsync(taskService.DeleteTaskAsync(task.TaskId.ToString()), DeleteTimeout);
 
             if (success)
             {
@@ -197,14 +191,12 @@ public class MyTasksViewModel : TabNavigationViewModel
         if (isRefresh) IsRefreshing = true;
         try
         {
-            var options = HybridVoiceService.CreateVoiceApiOptions();
-            var client = new VoiceUploadApiClient(options: options);
-            var result = await client.GetMyTasksAsync(cancellationToken: CancellationToken.None);
+            var result = (await taskService.GetBoardTasksAsync()).Select(MapToVoiceTask).ToList();
 
-            Debug.WriteLine($"[MyTasks] Loaded {result.Items.Count}/{result.TotalCount} tasks");
+            Debug.WriteLine($"[MyTasks] Loaded {result.Count} mock tasks");
 
             _allTasks.Clear();
-            _allTasks.AddRange(result.Items);
+            _allTasks.AddRange(result);
             ApplyFilter();
             _hasLoaded = true;
             NotifyPropertyChanged(nameof(ShowSkeleton));
@@ -293,6 +285,29 @@ public class MyTasksViewModel : TabNavigationViewModel
     private static bool IsDueToday(string? raw)
     {
         return TryParseDate(raw, out var date) && date.Date == DateTime.Now.Date;
+    }
+
+    private static VoiceTaskListItem MapToVoiceTask(TaskItem item)
+    {
+        var taskId = Guid.TryParse(item.Id, out var parsed) ? parsed : StableGuid(item.Id);
+        return new VoiceTaskListItem
+        {
+            TaskId = taskId,
+            Title = item.Title,
+            Status = item.Status,
+            Assignee = item.Owner,
+            Priority = item.Priority,
+            DueDateTime = item.DueDate?.ToString("O") ?? string.Empty,
+            Category = item.Category,
+            CreatedAt = item.UpdatedAt ?? item.DueDate ?? DateTime.Now,
+            TranscriptPreview = item.Description
+        };
+    }
+
+    private static Guid StableGuid(string? value)
+    {
+        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(value ?? Guid.NewGuid().ToString()));
+        return new Guid(hash[..16]);
     }
 
     public Task OnTabSelectedAsync(string? tabKey)

@@ -139,7 +139,7 @@ public partial class TaskDetailPage : ContentPage, IQueryAttributable
 
     private async void OnNewRecordingClicked(object? sender, EventArgs e)
     {
-        await NavigationService.Default.NavigateToVoiceCaptureAsync();
+        await NavigationService.Default.NavigateToLotteryCaptureAsync();
     }
 
     private async void OnAddToBoardClicked(object? sender, EventArgs e)

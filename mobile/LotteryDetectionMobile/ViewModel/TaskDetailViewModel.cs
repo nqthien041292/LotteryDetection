@@ -6,7 +6,6 @@ using LotteryDetectionMobile.Services.Dialogs;
 using LotteryDetectionMobile.Services.Interfaces;
 using LotteryDetectionMobile.Services.Mock;
 using LotteryDetectionMobile.Services.Navigation;
-using LotteryDetectionMobile.Services.Voice;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LotteryDetectionMobile.ViewModel;
@@ -431,38 +430,7 @@ public class TaskDetailViewModel : TabNavigationViewModel
 
             if (!alreadyPromoted)
             {
-                var options = HybridVoiceService.CreateVoiceApiOptions();
-                var client = new VoiceUploadApiClient(options: options);
-                var result = await client.ConfirmTaskAsync(taskGuid, CancellationToken.None);
-
-                if (result == null || result.TaskId == Guid.Empty)
-                {
-                    ErrorMessage = "Couldn't add task to board. Please try again.";
-                    return;
-                }
-
-                // Backend returns Failed when CreateTaskExecutor couldn't persist the FamilyTask.
-                if (string.Equals(result.Status, "Failed", StringComparison.OrdinalIgnoreCase))
-                {
-                    ErrorMessage = !string.IsNullOrWhiteSpace(result.Message)
-                        ? result.Message
-                        : "Couldn't add task to board.";
-                    return;
-                }
-
-                // Async pipeline: backend accepted but the FamilyTask hasn't been created yet
-                // (intent extraction / Service Bus is still running). Don't navigate yet —
-                // the task wouldn't appear on Home immediately.
-                if (string.Equals(result.Status, "Processing", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(result.Status, "TaskPending", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (Task != null) Task.Status = result.Status;
-                    NotifyPropertyChanged(nameof(Task));
-                    ErrorMessage = "Still processing — try again in a few seconds.";
-                    return;
-                }
-
-                if (Task != null) Task.Status = result.Status;
+                if (Task != null) Task.Status = "TaskCreated";
                 NotifyPropertyChanged(nameof(Task));
 
                 // Refresh seed so a re-entry shows the post-promote state immediately
@@ -526,11 +494,19 @@ public class TaskDetailViewModel : TabNavigationViewModel
         return HandleTabSelectionAsync(tabKey);
     }
 
-    private static async Task<VoiceTaskPreview?> LoadVoicePreviewAsync(Guid taskGuid)
+    private static Task<VoiceTaskPreview?> LoadVoicePreviewAsync(Guid taskGuid)
     {
-        var options = HybridVoiceService.CreateVoiceApiOptions();
-        var client = new VoiceUploadApiClient(options: options);
-        return await client.GetPreviewAsync(taskGuid, CancellationToken.None);
+        return System.Threading.Tasks.Task.FromResult<VoiceTaskPreview?>(new VoiceTaskPreview
+        {
+            TaskId = taskGuid,
+            Title = "Mock lottery ticket review",
+            Assignee = "Lottery Demo",
+            DueDateTime = DateTime.Today.ToString("O"),
+            Priority = "Medium",
+            Category = "Lottery",
+            Notes = "Mock detail generated locally while backend APIs are pending.",
+            Status = "Open"
+        });
     }
 
     private static VoiceTaskPreview MapToPreview(TaskItem item)

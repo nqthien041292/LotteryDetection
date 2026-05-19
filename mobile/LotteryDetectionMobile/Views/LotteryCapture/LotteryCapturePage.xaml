@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetectionMobile.Views.LotteryCapture.LotteryCapturePage"
+             Title="Chup ve so"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F6F8F2">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0"
+              Padding="20,42,20,12"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Text="‹"
+                    Clicked="OnBackClicked"
+                    WidthRequest="42"
+                    HeightRequest="42"
+                    Padding="0"
+                    CornerRadius="14"
+                    FontSize="28"
+                    BackgroundColor="#E9EFE4"
+                    TextColor="#173D2A" />
+            <Label Grid.Column="1"
+                   Text="Chup ve so"
+                   FontFamily="Geist"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   TextColor="#142116" />
+            <BoxView Grid.Column="2" WidthRequest="42" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,10,20,20" Spacing="16">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Can ve vao khung"
+                           FontFamily="Geist"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           LineHeight="1.08"
+                           TextColor="#142116" />
+                    <Label Text="Anh cang ro thi AI cang phan tich chinh xac day so, ngay quay va dai phat hanh."
+                           FontFamily="Geist"
+                           FontSize="14"
+                           LineHeight="1.45"
+                           TextColor="#66736A" />
+                </VerticalStackLayout>
+
+                <Border StrokeThickness="1"
+                        Stroke="#D7E1D3"
+                        BackgroundColor="#10281D"
+                        Padding="12">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <Grid HeightRequest="360">
+                        <Border Stroke="#F5C842"
+                                StrokeThickness="2"
+                                StrokeDashArray="10,7"
+                                BackgroundColor="#183827"
+                                Padding="12">
+                            <Border.StrokeShape>
+                                <shapes:RoundRectangle CornerRadius="20" />
+                            </Border.StrokeShape>
+                            <Grid>
+                                <Image x:Name="TicketPreview"
+                                       Aspect="AspectFill"
+                                       IsVisible="False" />
+                                <VerticalStackLayout x:Name="EmptyCameraState"
+                                                     Spacing="14"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center">
+                                    <Border WidthRequest="86"
+                                            HeightRequest="86"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#F5C842">
+                                        <Border.StrokeShape>
+                                            <shapes:RoundRectangle CornerRadius="43" />
+                                        </Border.StrokeShape>
+                                        <Label Text="CAM"
+                                               FontFamily="Geist"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="#173D2A"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Text="Chua co anh ve"
+                                           FontFamily="Geist"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="White" />
+                                    <Label Text="Chup moi hoac chon anh san co tu thu vien."
+                                           FontFamily="Geist"
+                                           FontSize="13"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#CFE6D5" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Text="Chup anh"
+                            Clicked="OnCaptureClicked"
+                            HeightRequest="54"
+                            CornerRadius="17"
+                            FontFamily="Geist"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            BackgroundColor="#173D2A"
+                            TextColor="White" />
+                    <Button Grid.Column="1"
+                            Text="Chon anh"
+                            Clicked="OnPickClicked"
+                            HeightRequest="54"
+                            CornerRadius="17"
+                            FontFamily="Geist"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            BackgroundColor="#E9EFE4"
+                            TextColor="#173D2A" />
+                </Grid>
+
+                <Border x:Name="ResultCard"
+                        Padding="16"
+                        StrokeThickness="1"
+                        Stroke="#D7E1D3"
+                        BackgroundColor="White">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="22" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Ket qua AI phan tich"
+                                       FontFamily="Geist"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#142116" />
+                                <Label x:Name="StatusLabel"
+                                       Text="Hay chup hoac chon anh ve de bat dau."
+                                       FontFamily="Geist"
+                                       FontSize="12"
+                                       TextColor="#66736A" />
+                            </VerticalStackLayout>
+                            <ActivityIndicator x:Name="AnalyzeSpinner"
+                                               Grid.Column="1"
+                                               IsRunning="False"
+                                               IsVisible="False"
+                                               Color="#173D2A"
+                                               WidthRequest="28"
+                                               HeightRequest="28"
+                                               VerticalOptions="Center" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <Border Padding="12" StrokeThickness="0" BackgroundColor="#F6F8F2">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="Dai quay" FontFamily="Geist" FontSize="11" TextColor="#66736A" />
+                                    <Label x:Name="ProvinceLabel" Text="-" FontFamily="Geist" FontSize="14" FontAttributes="Bold" TextColor="#142116" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Padding="12" StrokeThickness="0" BackgroundColor="#F6F8F2">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="Ngay quay" FontFamily="Geist" FontSize="11" TextColor="#66736A" />
+                                    <Label x:Name="DrawDateLabel" Text="-" FontFamily="Geist" FontSize="14" FontAttributes="Bold" TextColor="#142116" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="12" StrokeThickness="0" BackgroundColor="#FFF4C9">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="Day so AI doc duoc" FontFamily="Geist" FontSize="11" TextColor="#7A6412" />
+                                    <Label x:Name="TicketNumberLabel"
+                                           Text="-"
+                                           FontFamily="GeistMono"
+                                           FontSize="25"
+                                           FontAttributes="Bold"
+                                           CharacterSpacing="2"
+                                           TextColor="#173D2A" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Border x:Name="PrizeBanner"
+                                Padding="14"
+                                StrokeThickness="0"
+                                BackgroundColor="#EEF4EC">
+                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                            <Label x:Name="PrizeLabel"
+                                   Text="Trang thai trung giai se hien thi tai day."
+                                   FontFamily="Geist"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   LineHeight="1.35"
+                                   TextColor="#52705A" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2" Padding="20,12,20,30">
+            <Button x:Name="AnalyzeButton"
+                    Text="AI do ve so"
+                    Clicked="OnAnalyzeClicked"
+                    HeightRequest="58"
+                    CornerRadius="19"
+                    FontFamily="Geist"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    BackgroundColor="#F5C842"
+                    TextColor="#173D2A" />
+        </Grid>
+    </Grid>
+</ContentPage>

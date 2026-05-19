@@ -2,7 +2,7 @@ using System.Diagnostics;
 using LotteryDetectionMobile.Views.Dashboard;
 using LotteryDetectionMobile.Views.Family;
 using LotteryDetectionMobile.Views.Forms;
-using LotteryDetectionMobile.Views.Voice;
+using LotteryDetectionMobile.Views.LotteryCapture;
 using LotteryDetectionMobile.Views.Family.Invitation;
 
 namespace LotteryDetectionMobile.Services.Navigation;
@@ -31,7 +31,7 @@ public class NavigationService : INavigationService
         {
             "home" => NavigateToDashboardAsync(),
             "task" => NavigateToRootAsync(nameof(MyTasksPage)),
-            "mic" => NavigateToRootAsync(nameof(VoiceCapturePage)),
+            "mic" => NavigateToRootAsync(nameof(LotteryCapturePage)),
             "you" => NavigateToRootAsync(nameof(GamificationPage)),
             "history" => NavigateToRootAsync(nameof(CalendarPage)),
             "settings" => NavigateToRootAsync(nameof(SettingsPage)),
@@ -113,10 +113,10 @@ public class NavigationService : INavigationService
         await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
     }
 
-    public async Task NavigateToVoiceCaptureAsync()
+    public async Task NavigateToLotteryCaptureAsync()
     {
         if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(VoiceCapturePage));
+        await Shell.Current.GoToAsync(nameof(LotteryCapturePage));
     }
 
     public async Task NavigateToMyTasksAsync()

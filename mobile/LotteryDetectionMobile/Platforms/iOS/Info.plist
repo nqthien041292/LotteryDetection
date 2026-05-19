@@ -31,9 +31,13 @@
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Family AI needs microphone access to capture your voice tasks.</string>
+	<string>Lottery Detection can use the microphone for future ticket notes.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Lottery Detection needs camera access to capture lottery tickets.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Lottery Detection needs photo library access so you can select ticket images.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Family AI uses calendar access to schedule and remind you about tasks.</string>
+	<string>Lottery Detection does not require calendar access for ticket scanning.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -4,7 +4,7 @@ using LotteryDetectionMobile.Services.Navigation;
 using LotteryDetectionMobile.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LotteryDetectionMobile.Views.Voice;
+namespace LotteryDetectionMobile.Views.LotteryCapture;
 
 public partial class TaskPreviewPage : ContentPage
 {

@@ -15,7 +15,7 @@ public interface INavigationService
     Task NavigateToHelpAsync();
     Task NavigateToAdminAsync(bool openInvite = false);
     Task NavigateToLoginWithSocialAsync();
-    Task NavigateToVoiceCaptureAsync();
+    Task NavigateToLotteryCaptureAsync();
     Task NavigateToMyTasksAsync();
     Task NavigateBackAsync();
     Task NavigateToAcceptInvitationAsync(string? token = null);

@@ -5,8 +5,7 @@ using LotteryDetectionMobile.Services.Configuration;
 namespace LotteryDetectionMobile.Services.Logging;
 
 /// <summary>
-///     Remote logging service that sends mobile app logs to the backend server.
-///     Logs are batched and sent periodically to avoid overwhelming the network.
+///     Local logging service. Backend logging is disabled while mobile uses mock data.
 /// </summary>
 public class RemoteLogService : IDisposable
 {
@@ -24,12 +23,7 @@ public class RemoteLogService : IDisposable
 
     private RemoteLogService()
     {
-        var baseUrl = AppConfiguration.GetVoiceApiBaseUrl();
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(baseUrl),
-            Timeout = TimeSpan.FromSeconds(10)
-        };
+        _httpClient = new HttpClient();
 
         _deviceId = $"{DeviceInfo.Manufacturer}-{DeviceInfo.Model}-{DeviceInfo.Platform}";
         _platform = DeviceInfo.Platform.ToString();
@@ -37,7 +31,7 @@ public class RemoteLogService : IDisposable
         // Start periodic flush
         _flushTimer = new Timer(async _ => await FlushAsync(), null, FlushIntervalMs, FlushIntervalMs);
 
-        Log("RemoteLog", "info", $"Remote logging initialized. Device: {_deviceId}, BaseUrl: {baseUrl}");
+        Log("RemoteLog", "info", $"Local mock logging initialized. Device: {_deviceId}");
     }
 
     public static RemoteLogService Instance
@@ -131,7 +125,7 @@ public class RemoteLogService : IDisposable
     }
 
     /// <summary>
-    ///     Flush all pending logs to the server.
+    ///     Clears pending logs locally. Backend log upload is disabled until API support exists.
     /// </summary>
     public async Task FlushAsync()
     {
@@ -142,33 +136,7 @@ public class RemoteLogService : IDisposable
 
         if (logs.Count == 0) return;
 
-        try
-        {
-            var batch = new LogBatch
-            {
-                DeviceId = _deviceId,
-                Platform = _platform,
-                AppVersion = AppInfo.VersionString,
-                Logs = logs
-            };
-
-            var response = await _httpClient.PostAsJsonAsync("api/voice/recordings/mobile-logs", batch);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"[RemoteLog] Failed to send logs: {response.StatusCode}");
-                // Only re-queue on transient server errors (5xx), not client errors (4xx)
-                var code = (int)response.StatusCode;
-                if (code >= 500 && _logQueue.Count < MaxBatchSize * 2)
-                    foreach (var log in logs)
-                        _logQueue.Enqueue(log);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[RemoteLog] Error sending logs: {ex.Message}");
-            // Don't re-queue on network errors to avoid infinite loops
-        }
+        await Task.CompletedTask;
     }
 
     private class LogEntry

@@ -69,23 +69,9 @@ public class SplashViewModel : BaseViewModel
     {
         try
         {
-            if (!Preferences.Get("OnboardingCompleted", false))
-                return StartupDestination.Onboarding;
-
-            if (_authService.IsSignedIn)
-                return StartupDestination.Dashboard;
-
-            // Silent token refresh hits the network with no internal timeout;
-            // cap it so a dead/slow connection can't trap the user on the splash.
-            var restoreTask = _authService.TryRestoreSessionAsync();
-            var finished = await Task.WhenAny(restoreTask, Task.Delay(RestoreTimeoutMs));
-            if (finished != restoreTask)
-            {
-                Console.WriteLine("[Splash] Session restore timed out; routing to login.");
-                return StartupDestination.Login;
-            }
-
-            return await restoreTask ? StartupDestination.Dashboard : StartupDestination.Login;
+            return Preferences.Get("OnboardingCompleted", false)
+                ? StartupDestination.Dashboard
+                : StartupDestination.Onboarding;
         }
         catch (Exception ex)
         {

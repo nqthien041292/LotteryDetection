@@ -35,7 +35,7 @@ public partial class CalendarPage : ContentPage
 
     private async void OnAddClicked(object sender, EventArgs e)
     {
-        await NavigationService.Default.NavigateToVoiceCaptureAsync();
+        await NavigationService.Default.NavigateToLotteryCaptureAsync();
     }
 
     private async void OnTabSelected(object sender, TabSelectedEventArgs e)

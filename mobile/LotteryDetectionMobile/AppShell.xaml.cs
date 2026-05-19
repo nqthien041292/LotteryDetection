@@ -2,7 +2,7 @@ using LotteryDetectionMobile.Views.Dashboard;
 using LotteryDetectionMobile.Views.Family;
 using LotteryDetectionMobile.Views.Family.Invitation;
 using LotteryDetectionMobile.Views.Forms;
-using LotteryDetectionMobile.Views.Voice;
+using LotteryDetectionMobile.Views.LotteryCapture;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace LotteryDetectionMobile;
@@ -113,7 +113,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(SplashPage), typeof(SplashPage));
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
-        Routing.RegisterRoute(nameof(VoiceCapturePage), typeof(VoiceCapturePage));
+        Routing.RegisterRoute(nameof(LotteryCapturePage), typeof(LotteryCapturePage));
         Routing.RegisterRoute(nameof(TaskPreviewPage), typeof(TaskPreviewPage));
         Routing.RegisterRoute(nameof(AITaskAssistantPage), typeof(AITaskAssistantPage));
         Routing.RegisterRoute(nameof(FamilyLiveBoardPage), typeof(FamilyLiveBoardPage));

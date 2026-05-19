@@ -7,48 +7,52 @@
              x:Class="LotteryDetectionMobile.Views.Forms.SplashPage"
              Shell.NavBarIsVisible="False"
              ios:Page.UseSafeArea="False"
-             BackgroundColor="#F4F8FE">
+             BackgroundColor="#173D2A">
 
-    <Grid Padding="0"
-          RowDefinitions="*,Auto">
-
-        <!-- Brand mark + wordmark (fades + scales in via code-behind) -->
+    <Grid RowDefinitions="*,Auto" Padding="24">
         <VerticalStackLayout x:Name="BrandStack"
                              Grid.Row="0"
-                             Spacing="22"
+                             Spacing="20"
+                             Opacity="0"
                              HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Opacity="0">
+                             VerticalOptions="Center">
+            <Border WidthRequest="108"
+                    HeightRequest="108"
+                    StrokeThickness="0"
+                    BackgroundColor="#F5C842">
+                <Border.StrokeShape>
+                    <shapes:RoundRectangle CornerRadius="32" />
+                </Border.StrokeShape>
+                <Label Text="LD"
+                       FontFamily="Geist"
+                       FontSize="34"
+                       FontAttributes="Bold"
+                       TextColor="#173D2A"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
 
-            <!-- FamilyMark logo (rounded gradient tile + 3 orbs) -->
-            <Image Source="logo.png" 
-                   WidthRequest="100" 
-                   HeightRequest="100" 
-                   HorizontalOptions="Center" />
-
-            <!-- "Family AI" wordmark — "AI" in primary -->
-            <Label HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center"
-                   FontFamily="Geist" FontSize="32" FontAttributes="Bold"
-                   CharacterSpacing="-0.025"
-                   LineHeight="1"
-                   TextColor="#172033">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="Family " />
-                        <Span Text="AI"
-                              TextColor="#1E5BFF" />
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Lottery Detection"
+                       FontFamily="Geist"
+                       FontSize="30"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       TextColor="White" />
+                <Label Text="Chup anh va tu dong do ve so"
+                       FontFamily="Geist"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"
+                       TextColor="#CFE6D5" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
 
-        <!-- Loading indicator -->
         <ActivityIndicator Grid.Row="1"
                            IsRunning="True"
-                           HeightRequest="28" WidthRequest="28"
-                           Margin="0,0,0,56"
+                           HeightRequest="28"
+                           WidthRequest="28"
+                           Margin="0,0,0,38"
                            HorizontalOptions="Center"
-                           Color="#1E5BFF" />
+                           Color="#F5C842" />
     </Grid>
 </ContentPage>

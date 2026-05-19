@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace LotteryDetectionMobile.ViewModel;
 
-public class VoiceCaptureViewModel : BaseViewModel
+public class LotteryCaptureViewModel : BaseViewModel
 {
     private const string DefaultTranscriptHint = "Tap record to start talking about a task.";
     private readonly IAIService aiService;
@@ -49,7 +49,7 @@ public class VoiceCaptureViewModel : BaseViewModel
     private IDispatcherTimer? waveformTimer;
     private VoiceTaskPreview? previewData;
 
-    public VoiceCaptureViewModel(IAuthService authService, IVoiceService voiceService, IAIService aiService)
+    public LotteryCaptureViewModel(IAuthService authService, IVoiceService voiceService, IAIService aiService)
     {
         this.authService = authService;
         this.voiceService = voiceService;
@@ -128,7 +128,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         get => isRecording;
         set
         {
-            RemoteLogService.Instance.Debug("VoiceCapture", $"IsRecording: {isRecording} → {value}");
+            RemoteLogService.Instance.Debug("LotteryCapture", $"IsRecording: {isRecording} → {value}");
             if (SetProperty(ref isRecording, value))
             {
                 NotifyPropertyChanged(nameof(IsBusy));
@@ -150,7 +150,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         get => isProcessing;
         set
         {
-            RemoteLogService.Instance.Debug("VoiceCapture", $"IsProcessing: {isProcessing} → {value}");
+            RemoteLogService.Instance.Debug("LotteryCapture", $"IsProcessing: {isProcessing} → {value}");
             if (SetProperty(ref isProcessing, value))
             {
                 NotifyPropertyChanged(nameof(IsBusy));
@@ -172,7 +172,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         get => isStartingRecording;
         set
         {
-            RemoteLogService.Instance.Debug("VoiceCapture", $"IsStartingRecording: {isStartingRecording} → {value}");
+            RemoteLogService.Instance.Debug("LotteryCapture", $"IsStartingRecording: {isStartingRecording} → {value}");
             if (SetProperty(ref isStartingRecording, value))
             {
                 NotifyPropertyChanged(nameof(IsBusy));
@@ -294,17 +294,17 @@ public class VoiceCaptureViewModel : BaseViewModel
     private async Task ToggleRecordAsync()
     {
         var log = RemoteLogService.Instance;
-        log.Info("VoiceCapture", $"ToggleRecordAsync called. IsRecording={IsRecording}");
+        log.Info("LotteryCapture", $"ToggleRecordAsync called. IsRecording={IsRecording}");
 
         if (!await EnsureMicPermissionForRecordAsync())
         {
-            log.Warn("VoiceCapture", "Microphone permission not granted");
+            log.Warn("LotteryCapture", "Microphone permission not granted");
             return;
         }
 
         if (IsRecording)
         {
-            log.Info("VoiceCapture", "Stopping recording...");
+            log.Info("LotteryCapture", "Stopping recording...");
             // Cancel streaming first
             streamCts?.Cancel();
 
@@ -319,13 +319,13 @@ public class VoiceCaptureViewModel : BaseViewModel
             // Now stop the recording safely
             try
             {
-                log.Info("VoiceCapture", "Calling voiceService.StopRecordingAsync...");
+                log.Info("LotteryCapture", "Calling voiceService.StopRecordingAsync...");
                 await voiceService.StopRecordingAsync();
-                log.Info("VoiceCapture", $"Recording stopped. LastRecordingPath: {voiceService.LastRecordingPath}");
+                log.Info("LotteryCapture", $"Recording stopped. LastRecordingPath: {voiceService.LastRecordingPath}");
             }
             catch (Exception ex)
             {
-                log.Error("VoiceCapture", $"Error stopping recording: {ex.Message}", ex);
+                log.Error("LotteryCapture", $"Error stopping recording: {ex.Message}", ex);
                 // Continue processing even if stop fails
             }
             finally
@@ -338,9 +338,9 @@ public class VoiceCaptureViewModel : BaseViewModel
 
             try
             {
-                log.Info("VoiceCapture", "Starting upload and preview generation");
+                log.Info("LotteryCapture", "Starting upload and preview generation");
                 var uploadSucceeded = await UploadRecordingAsync();
-                log.Info("VoiceCapture", $"Upload result: {uploadSucceeded}");
+                log.Info("LotteryCapture", $"Upload result: {uploadSucceeded}");
 
                 // Snapshot transcript state before async operations (may be mutated by SignalR concurrently)
                 var capturedTranscript = Transcript;
@@ -350,9 +350,9 @@ public class VoiceCaptureViewModel : BaseViewModel
                 if (uploadSucceeded && currentVoiceTaskId != null)
                 {
                     StatusMessage = "Analyzing your request with AI...";
-                    log.Info("VoiceCapture", $"Polling for preview, voiceTaskId={currentVoiceTaskId.Value}");
+                    log.Info("LotteryCapture", $"Polling for preview, voiceTaskId={currentVoiceTaskId.Value}");
                     var preview = await PollForPreviewAsync(currentVoiceTaskId.Value);
-                    log.Info("VoiceCapture",
+                    log.Info("LotteryCapture",
                         $"Poll result: preview={preview != null}, title={preview?.Title}, assignee={preview?.Assignee}, status={preview?.Status}, transcript={preview?.Transcript?.Length ?? 0} chars");
 
                     // Empty-task guard: refuse to surface a task when there's no audible content
@@ -360,7 +360,7 @@ public class VoiceCaptureViewModel : BaseViewModel
                         && string.IsNullOrWhiteSpace(preview.Transcript)
                         && string.IsNullOrWhiteSpace(preview.Title))
                     {
-                        log.Warn("VoiceCapture", "Empty transcript + empty title — refusing to create task");
+                        log.Warn("LotteryCapture", "Empty transcript + empty title — refusing to create task");
                         StatusMessage = "We didn't catch any audio. Please try again.";
                         AiPreview = string.Empty;
                         ShowPreviewModal = false;
@@ -374,7 +374,7 @@ public class VoiceCaptureViewModel : BaseViewModel
                     if (preview != null)
                     {
                         var formatted = FormatPreview(preview);
-                        log.Info("VoiceCapture", $"FormatPreview result: [{formatted}]");
+                        log.Info("LotteryCapture", $"FormatPreview result: [{formatted}]");
                         AiPreview = formatted;
                         PreviewData = preview;
 
@@ -383,12 +383,12 @@ public class VoiceCaptureViewModel : BaseViewModel
                     }
                     else if (hasTranscript)
                     {
-                        log.Warn("VoiceCapture", "Preview null after polling, using live transcript as fallback");
+                        log.Warn("LotteryCapture", "Preview null after polling, using live transcript as fallback");
                         AiPreview = $"Task: {capturedTranscript}";
                     }
                     else
                     {
-                        log.Warn("VoiceCapture", "Preview null and no transcript - backend processing may have failed");
+                        log.Warn("LotteryCapture", "Preview null and no transcript - backend processing may have failed");
                         AiPreview = "Task: (processing incomplete - please try again)";
                     }
 
@@ -400,7 +400,7 @@ public class VoiceCaptureViewModel : BaseViewModel
                 else if (hasTranscript)
                 {
                     // Upload failed but we have a live transcript - show it as fallback
-                    log.Warn("VoiceCapture", "Upload failed but live transcript available, showing fallback preview");
+                    log.Warn("LotteryCapture", "Upload failed but live transcript available, showing fallback preview");
                     AiPreview =
                         $"Task: {capturedTranscript}\nOwner: Unassigned\n\n(Upload failed - AI analysis unavailable)";
                     StatusMessage = "Audio upload failed. You can still save using the live transcript.";
@@ -410,7 +410,7 @@ public class VoiceCaptureViewModel : BaseViewModel
                 else
                 {
                     // Nothing to show - upload failed and no live transcript
-                    log.Error("VoiceCapture", "Upload failed and no transcript captured");
+                    log.Error("LotteryCapture", "Upload failed and no transcript captured");
                     StatusMessage = "Recording failed. Please check your connection and try again.";
 
                     await AppDialog.ShowAlertAsync(
@@ -418,12 +418,12 @@ public class VoiceCaptureViewModel : BaseViewModel
                         message: "Could not upload the recording to the server. Please check your internet connection and try again.");
                 }
 
-                log.Info("VoiceCapture",
+                log.Info("LotteryCapture",
                     $"AI Preview generated: {!string.IsNullOrEmpty(AiPreview)}, ShowPreviewModal: {ShowPreviewModal}");
             }
             catch (TaskCanceledException tex)
             {
-                log.Error("VoiceCapture", "Upload/preview timed out", tex);
+                log.Error("LotteryCapture", "Upload/preview timed out", tex);
                 StatusMessage = "Request timed out. Please check your connection and try again.";
                 AiPreview = string.Empty;
 
@@ -433,7 +433,7 @@ public class VoiceCaptureViewModel : BaseViewModel
             }
             catch (Exception ex)
             {
-                log.Error("VoiceCapture", $"Error during upload/preview: {ex.Message}", ex);
+                log.Error("LotteryCapture", $"Error during upload/preview: {ex.Message}", ex);
                 StatusMessage = "Processing failed. You can try recording again.";
                 AiPreview = string.Empty;
 
@@ -443,7 +443,7 @@ public class VoiceCaptureViewModel : BaseViewModel
             }
             finally
             {
-                log.Info("VoiceCapture", "Processing complete, resetting state");
+                log.Info("LotteryCapture", "Processing complete, resetting state");
                 IsProcessing = false;
                 ResetWaveform();
             }
@@ -451,12 +451,12 @@ public class VoiceCaptureViewModel : BaseViewModel
             return;
         }
 
-        log.Info("VoiceCapture", "Starting new recording...");
+        log.Info("LotteryCapture", "Starting new recording...");
 
         // Ensure user is authenticated before starting (required for API + SignalR)
         if (!await EnsureAuthForRecordAsync())
         {
-            log.Warn("VoiceCapture", "Authentication not available, aborting recording");
+            log.Warn("LotteryCapture", "Authentication not available, aborting recording");
             return;
         }
 
@@ -478,13 +478,13 @@ public class VoiceCaptureViewModel : BaseViewModel
         // Start session first to get sessionId (needed for streaming)
         try
         {
-            log.Info("VoiceCapture", "Calling voiceService.StartAsync to create session...");
+            log.Info("LotteryCapture", "Calling voiceService.StartAsync to create session...");
             currentSessionId = await voiceService.StartAsync(streamCts.Token);
-            log.Info("VoiceCapture", $"Session created: {currentSessionId}");
+            log.Info("LotteryCapture", $"Session created: {currentSessionId}");
         }
         catch (Exception ex)
         {
-            log.Error("VoiceCapture", $"Failed to start session: {ex.Message}", ex);
+            log.Error("LotteryCapture", $"Failed to start session: {ex.Message}", ex);
             // Continue with local recording even if session fails
             StatusMessage = "Server unavailable. Recording locally...";
         }
@@ -492,13 +492,13 @@ public class VoiceCaptureViewModel : BaseViewModel
         // Now start recording (streaming uses sessionId from above)
         try
         {
-            log.Info("VoiceCapture", "Calling voiceService.StartRecordingAsync...");
+            log.Info("LotteryCapture", "Calling voiceService.StartRecordingAsync...");
             await voiceService.StartRecordingAsync(streamCts.Token);
-            log.Info("VoiceCapture", "Recording started successfully");
+            log.Info("LotteryCapture", "Recording started successfully");
         }
         catch (Exception ex)
         {
-            log.Error("VoiceCapture", $"Failed to start recording: {ex.Message}", ex);
+            log.Error("LotteryCapture", $"Failed to start recording: {ex.Message}", ex);
             StatusMessage = "Failed to start recording. Please check microphone access.";
             IsStartingRecording = false;
             ResetWaveform();
@@ -516,7 +516,7 @@ public class VoiceCaptureViewModel : BaseViewModel
 
         // Check if real-time streaming is active (set by StartRecordingAsync)
         IsStreamingRealtime = hybridVoiceService?.IsStreamingRealtime ?? false;
-        log.Info("VoiceCapture", $"Recording active. IsStreamingRealtime={IsStreamingRealtime}");
+        log.Info("LotteryCapture", $"Recording active. IsStreamingRealtime={IsStreamingRealtime}");
         StatusMessage = IsStreamingRealtime
             ? "Listening... (live transcription)"
             : "Listening... (will transcribe after stop)";
@@ -564,28 +564,28 @@ public class VoiceCaptureViewModel : BaseViewModel
         var log = RemoteLogService.Instance;
         var audioPath = voiceService.LastRecordingPath;
 
-        log.Info("VoiceCapture", $"UploadRecordingAsync - audioPath: {audioPath}");
+        log.Info("LotteryCapture", $"UploadRecordingAsync - audioPath: {audioPath}");
 
         if (string.IsNullOrWhiteSpace(audioPath))
         {
-            log.Warn("VoiceCapture", "UploadRecordingAsync - audioPath is null/empty");
+            log.Warn("LotteryCapture", "UploadRecordingAsync - audioPath is null/empty");
             StatusMessage = "No audio captured to upload.";
             return false;
         }
 
         if (!File.Exists(audioPath))
         {
-            log.Warn("VoiceCapture", $"UploadRecordingAsync - file does not exist: {audioPath}");
+            log.Warn("LotteryCapture", $"UploadRecordingAsync - file does not exist: {audioPath}");
             StatusMessage = "No audio captured to upload.";
             return false;
         }
 
         var fileInfo = new FileInfo(audioPath);
-        log.Info("VoiceCapture", $"Audio file exists, size: {fileInfo.Length} bytes");
+        log.Info("LotteryCapture", $"Audio file exists, size: {fileInfo.Length} bytes");
 
         if (fileInfo.Length == 0)
         {
-            log.Warn("VoiceCapture", "Audio file is 0 bytes — recording was interrupted or not captured");
+            log.Warn("LotteryCapture", "Audio file is 0 bytes — recording was interrupted or not captured");
             StatusMessage = "No audio captured to upload.";
             return false;
         }
@@ -594,26 +594,26 @@ public class VoiceCaptureViewModel : BaseViewModel
         {
             if (currentSessionId == null)
             {
-                log.Info("VoiceCapture", "No sessionId, creating new session...");
+                log.Info("LotteryCapture", "No sessionId, creating new session...");
                 currentSessionId = await voiceService.StartAsync(CancellationToken.None);
-                log.Info("VoiceCapture", $"Session created: {currentSessionId}");
+                log.Info("LotteryCapture", $"Session created: {currentSessionId}");
             }
             else
             {
-                log.Info("VoiceCapture", $"Using existing sessionId: {currentSessionId}");
+                log.Info("LotteryCapture", $"Using existing sessionId: {currentSessionId}");
             }
 
             var contentType = GetContentType(audioPath);
-            log.Info("VoiceCapture", $"Uploading chunk with contentType: {contentType}");
+            log.Info("LotteryCapture", $"Uploading chunk with contentType: {contentType}");
 
             await using var stream = File.OpenRead(audioPath);
             await voiceService.UploadChunkAsync(currentSessionId.Value, stream, contentType, CancellationToken.None);
-            log.Info("VoiceCapture", "Chunk uploaded successfully");
+            log.Info("LotteryCapture", "Chunk uploaded successfully");
 
-            log.Info("VoiceCapture", "Calling CompleteAsync...");
+            log.Info("LotteryCapture", "Calling CompleteAsync...");
             uploadedFilePath = await voiceService.CompleteAsync(currentSessionId.Value, CancellationToken.None);
             currentVoiceTaskId = voiceService.LastVoiceTaskId;
-            log.Info("VoiceCapture",
+            log.Info("LotteryCapture",
                 $"Upload complete! uploadedFilePath: {uploadedFilePath}, voiceTaskId: {currentVoiceTaskId}");
 
             StatusMessage = BuildReadyStatusMessage();
@@ -621,7 +621,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         }
         catch (HttpRequestException ex)
         {
-            log.Error("VoiceCapture", $"UploadRecordingAsync network error: {ex.Message} (StatusCode={ex.StatusCode})",
+            log.Error("LotteryCapture", $"UploadRecordingAsync network error: {ex.Message} (StatusCode={ex.StatusCode})",
                 ex);
             currentVoiceTaskId = null;
             StatusMessage = ex.StatusCode switch
@@ -634,14 +634,14 @@ public class VoiceCaptureViewModel : BaseViewModel
         }
         catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
         {
-            log.Error("VoiceCapture", "UploadRecordingAsync timed out", ex);
+            log.Error("LotteryCapture", "UploadRecordingAsync timed out", ex);
             currentVoiceTaskId = null;
             StatusMessage = "Upload timed out. Please check your connection.";
             return false;
         }
         catch (Exception ex)
         {
-            log.Error("VoiceCapture", $"UploadRecordingAsync failed: {ex.Message}", ex);
+            log.Error("LotteryCapture", $"UploadRecordingAsync failed: {ex.Message}", ex);
             currentVoiceTaskId = null;
             StatusMessage = "Upload failed. Please try again.";
             return false;
@@ -688,11 +688,11 @@ public class VoiceCaptureViewModel : BaseViewModel
         catch (InvalidOperationException)
         {
             // "User not signed in" - expected when no cached session
-            log.Info("VoiceCapture", "No auth session, attempting sign-in");
+            log.Info("LotteryCapture", "No auth session, attempting sign-in");
         }
         catch (Exception ex)
         {
-            log.Warn("VoiceCapture", $"Token acquisition failed: {ex.Message}");
+            log.Warn("LotteryCapture", $"Token acquisition failed: {ex.Message}");
         }
 
         // Try interactive sign-in
@@ -704,7 +704,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            log.Error("VoiceCapture", $"Sign-in failed: {ex.Message}", ex);
+            log.Error("LotteryCapture", $"Sign-in failed: {ex.Message}", ex);
         }
 
         StatusMessage = "Please sign in to record voice tasks.";
@@ -732,25 +732,25 @@ public class VoiceCaptureViewModel : BaseViewModel
 
         if (taskId == null)
         {
-            log.Warn("VoiceCapture", "SaveTaskAsync - No VoiceTaskId available");
+            log.Warn("LotteryCapture", "SaveTaskAsync - No VoiceTaskId available");
             await AppDialog.ShowAlertAsync(
                 title: "Upload Required",
                 message: "The audio upload didn't complete. Please record again.");
             return;
         }
 
-        log.Info("VoiceCapture", $"SaveTaskAsync - Confirming task {taskId}");
+        log.Info("LotteryCapture", $"SaveTaskAsync - Confirming task {taskId}");
         IsProcessing = true;
         StatusMessage = "Creating task in Microsoft 365...";
 
         try
         {
             var result = await voiceService.ConfirmTaskAsync(taskId.Value, CancellationToken.None);
-            log.Info("VoiceCapture", $"SaveTaskAsync - Task confirmed: {result.Status} - {result.Message}");
+            log.Info("LotteryCapture", $"SaveTaskAsync - Task confirmed: {result.Status} - {result.Message}");
 
             if (string.Equals(result.Status, "Failed", StringComparison.OrdinalIgnoreCase))
             {
-                log.Warn("VoiceCapture", $"SaveTaskAsync - Task creation failed: {result.Message}");
+                log.Warn("LotteryCapture", $"SaveTaskAsync - Task creation failed: {result.Message}");
                 await AppDialog.ShowAlertAsync(
                     title: "Task creation failed",
                     message: string.IsNullOrEmpty(result.Message) ? "Please try again." : result.Message);
@@ -761,19 +761,19 @@ public class VoiceCaptureViewModel : BaseViewModel
             ShowPreviewModal = false;
 
             // Navigate to My Tasks via absolute tab routing so back returns to Dashboard,
-            // not to VoiceCapturePage (which is done/irrelevant after task creation).
-            log.Info("VoiceCapture", "Navigating to MyTasksPage after successful save");
+            // not to LotteryCapturePage (which is done/irrelevant after task creation).
+            log.Info("LotteryCapture", "Navigating to MyTasksPage after successful save");
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 await NavigationService.Default.NavigateToRootTabAsync("task");
             });
 
-            // Reset state after navigation so VoiceCapturePage is clean when user returns
+            // Reset state after navigation so LotteryCapturePage is clean when user returns
             StartNewRecording();
         }
         catch (Exception ex)
         {
-            log.Error("VoiceCapture", $"SaveTaskAsync failed: {ex.Message}", ex);
+            log.Error("LotteryCapture", $"SaveTaskAsync failed: {ex.Message}", ex);
             StatusMessage = "Failed to create task. Please try again.";
 
             await AppDialog.ShowAlertAsync(
@@ -805,19 +805,19 @@ public class VoiceCaptureViewModel : BaseViewModel
                 var preview = await voiceService.GetPreviewAsync(taskId, CancellationToken.None);
                 if (preview == null)
                 {
-                    log.Debug("VoiceCapture", $"PollForPreview attempt {i + 1}: null response");
+                    log.Debug("LotteryCapture", $"PollForPreview attempt {i + 1}: null response");
                     await Task.Delay(delayMs);
                     continue;
                 }
 
                 lastPreview = preview;
-                log.Info("VoiceCapture",
+                log.Info("LotteryCapture",
                     $"PollForPreview attempt {i + 1}: status={preview.Status}, title={preview.Title ?? "(null)"}, assignee={preview.Assignee ?? "(null)"}");
 
                 // If failed, return what we have
                 if (preview.Status == "Failed")
                 {
-                    log.Warn("VoiceCapture", "Transcription failed on backend");
+                    log.Warn("LotteryCapture", "Transcription failed on backend");
                     return preview;
                 }
 
@@ -830,20 +830,20 @@ public class VoiceCaptureViewModel : BaseViewModel
                 if (preview.Status == "TranscriptionCompleted" && string.IsNullOrEmpty(preview.Title) &&
                     i >= maxAttempts - 5)
                 {
-                    log.Warn("VoiceCapture",
+                    log.Warn("LotteryCapture",
                         "TranscriptionCompleted but entities still missing, returning what we have");
                     return preview;
                 }
             }
             catch (Exception ex)
             {
-                log.Warn("VoiceCapture", $"PollForPreview error: {ex.Message}");
+                log.Warn("LotteryCapture", $"PollForPreview error: {ex.Message}");
             }
 
             await Task.Delay(delayMs);
         }
 
-        log.Warn("VoiceCapture", "PollForPreview timed out, returning last preview");
+        log.Warn("LotteryCapture", "PollForPreview timed out, returning last preview");
         return lastPreview;
     }
 
@@ -1150,7 +1150,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         {
             if (disposed) return;
             IsConnected = state == HubConnectionState.Connected;
-            RemoteLogService.Instance.Info("VoiceCapture", $"SignalR connection state: {state}");
+            RemoteLogService.Instance.Info("LotteryCapture", $"SignalR connection state: {state}");
         });
     }
 
@@ -1162,7 +1162,7 @@ public class VoiceCaptureViewModel : BaseViewModel
             if (disposed) return;
             IsStreamingRealtime = false;
             StatusMessage = "Connection lost. Recording locally...";
-            RemoteLogService.Instance.Warn("VoiceCapture",
+            RemoteLogService.Instance.Warn("LotteryCapture",
                 "Streaming fallback triggered - continuing with file recording");
         });
     }
@@ -1173,7 +1173,7 @@ public class VoiceCaptureViewModel : BaseViewModel
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             if (disposed) return;
-            RemoteLogService.Instance.Error("VoiceCapture", $"Critical error: {errorType} - {message}");
+            RemoteLogService.Instance.Error("LotteryCapture", $"Critical error: {errorType} - {message}");
 
             var title = errorType switch
             {

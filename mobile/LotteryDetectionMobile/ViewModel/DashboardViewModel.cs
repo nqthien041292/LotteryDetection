@@ -76,7 +76,7 @@ public class DashboardViewModel : TabNavigationViewModel
         OpenBoardCommand = new Command(async () => await navigationService.NavigateToFamilyBoardAsync());
         OpenCalendarCommand = new Command(async () => await navigationService.NavigateToCalendarAsync());
         ViewAllTasksCommand = new Command(async () => await navigationService.NavigateToMyTasksAsync());
-        OpenVoiceCaptureCommand = new Command(async () => await navigationService.NavigateToVoiceCaptureAsync());
+        OpenLotteryCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
         SetFilterCommand = new Command<string>(SetFilter);
         ToggleTaskCommand = new Command<string>(ToggleTask);
         SelectTaskCommand = new Command<TodayTaskItem>(async t => await navigationService.NavigateToTaskDetailAsync(t.Id));
@@ -247,7 +247,7 @@ public class DashboardViewModel : TabNavigationViewModel
     public ICommand OpenBoardCommand { get; }
     public ICommand OpenCalendarCommand { get; }
     public ICommand ViewAllTasksCommand { get; }
-    public ICommand OpenVoiceCaptureCommand { get; }
+    public ICommand OpenLotteryCaptureCommand { get; }
     public ICommand SetFilterCommand { get; }
     public ICommand ToggleTaskCommand { get; }
     public ICommand SelectTaskCommand { get; }
