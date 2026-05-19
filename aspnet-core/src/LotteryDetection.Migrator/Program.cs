@@ -13,6 +13,10 @@ public class Program
 
     public static void Main(string[] args)
     {
+        // See Web.Host/Startup/Program.cs for context — required so ABP audit
+        // columns (DateTime.Now, Kind=Local) round-trip through Npgsql.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
         ParseArgs(args);
 
         bool.TryParse(Environment.GetEnvironmentVariable("ASPNETCORE_Docker_Enabled"), out var isDockerEnabled);

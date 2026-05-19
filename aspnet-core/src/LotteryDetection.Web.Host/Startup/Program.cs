@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +9,11 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        // ABP audit columns (CreationTime, etc.) write DateTime.Now (Kind=Local).
+        // Npgsql 6+ rejects non-UTC values for timestamptz; this switch restores
+        // the pre-6 behavior of treating any DateTime as the column's TZ.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
         CreateWebHostBuilder(args).Build().Run();
     }
 
