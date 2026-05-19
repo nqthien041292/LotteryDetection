@@ -112,38 +112,29 @@ public static class MauiProgram
             border.GestureRecognizers.Add(pointer);
         });
 
-        // Backend APIs are not implemented yet; wire the mobile app to local mock objects.
-        builder.Services.AddSingleton<IAuthService>(_ => MockAuthService.Instance);
         builder.Services.AddSingleton<IAIService>(_ => MockAIService.Instance);
+
         // When `Api.BaseUrl` is configured in appsettings, talk to the real backend
-        // (LotteryDetection.Web.Host /api/services/app/LotteryAnalysis/...).
-        // Otherwise keep the mocks so the app remains usable offline / pre-config.
+        // (LotteryDetection.Web.Host). Auth flips together with the lottery services
+        // so the bearer token they attach is actually accepted by ABP.
         var backendBaseUrl = AppConfiguration.GetBackendApiBaseUrl();
         if (!string.IsNullOrWhiteSpace(backendBaseUrl))
         {
+            HttpClient NewBackendClient(int timeoutSeconds = 60) => new()
+            {
+                BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
+                Timeout = TimeSpan.FromSeconds(timeoutSeconds)
+            };
+
+            builder.Services.AddSingleton<IAuthService>(_ => new ApiAbpAuthService(NewBackendClient(30)));
             builder.Services.AddSingleton<ILotteryDetectionService>(sp =>
-            {
-                var auth = sp.GetRequiredService<IAuthService>();
-                var http = new HttpClient
-                {
-                    BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
-                    Timeout = TimeSpan.FromSeconds(60)
-                };
-                return new ApiLotteryDetectionService(http, auth);
-            });
+                new ApiLotteryDetectionService(NewBackendClient(60), sp.GetRequiredService<IAuthService>()));
             builder.Services.AddSingleton<ILotteryHistoryService>(sp =>
-            {
-                var auth = sp.GetRequiredService<IAuthService>();
-                var http = new HttpClient
-                {
-                    BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
-                    Timeout = TimeSpan.FromSeconds(30)
-                };
-                return new ApiLotteryHistoryService(http, auth);
-            });
+                new ApiLotteryHistoryService(NewBackendClient(30), sp.GetRequiredService<IAuthService>()));
         }
         else
         {
+            builder.Services.AddSingleton<IAuthService>(_ => MockAuthService.Instance);
             builder.Services.AddSingleton<ILotteryDetectionService>(_ => MockLotteryDetectionService.Instance);
             builder.Services.AddSingleton<ILotteryHistoryService>(_ => MockLotteryHistoryService.Instance);
         }
