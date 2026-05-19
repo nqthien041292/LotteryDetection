@@ -12,6 +12,7 @@ using LotteryDetection.Chat;
 using LotteryDetection.Editions;
 using LotteryDetection.ExtraProperties;
 using LotteryDetection.Friendships;
+using LotteryDetection.Lottery;
 using LotteryDetection.MultiTenancy;
 using LotteryDetection.MultiTenancy.Accounting;
 using LotteryDetection.MultiTenancy.Payments;
@@ -45,6 +46,8 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
     public virtual DbSet<UserDelegation> UserDelegations { get; set; }
 
     public virtual DbSet<RecentPassword> RecentPasswords { get; set; }
+
+    public virtual DbSet<TicketAnalysis> TicketAnalyses { get; set; }
     /* Define an IDbSet for each entity of the application */
 
     public virtual DbSet<OpenIddictApplication> Applications { get; }
@@ -123,6 +126,12 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
         {
             b.HasIndex(e => new { e.TenantId, e.SourceUserId });
             b.HasIndex(e => new { e.TenantId, e.TargetUserId });
+        });
+
+        modelBuilder.Entity<TicketAnalysis>(b =>
+        {
+            b.HasIndex(e => new { e.TenantId, e.CreatorUserId, e.CreationTime });
+            b.HasIndex(e => new { e.TenantId, e.Status });
         });
 
         modelBuilder.ConfigureOpenIddict();

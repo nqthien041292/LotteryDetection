@@ -1,4 +1,4 @@
-################################################################################
+﻿################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
@@ -11,4 +11,6 @@
 /mobile/LotteryDetection.Mobile/obj
 /mobile/LotteryDetection.Mobile.Tests/bin
 /mobile/LotteryDetection.Mobile.Tests/obj
+/mobile/LotteryDetectionMobile/bin
+/mobile/LotteryDetectionMobile/obj
 /.claude/settings.local.json

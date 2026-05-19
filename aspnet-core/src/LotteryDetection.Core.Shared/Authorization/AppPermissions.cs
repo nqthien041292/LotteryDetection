@@ -118,6 +118,10 @@ public static class AppPermissions
     public const string Pages_Administration_EntityChanges_FullHistory =
         "Pages.Administration.EntityChanges.FullHistory";
 
+    public const string Pages_Lottery = "Pages.Lottery";
+    public const string Pages_Lottery_AnalyzeTicket = "Pages.Lottery.AnalyzeTicket";
+    public const string Pages_Lottery_History = "Pages.Lottery.History";
+
     //TENANT-SPECIFIC PERMISSIONS
 
     public const string Pages_Tenant_Dashboard = "Pages.Tenant.Dashboard";

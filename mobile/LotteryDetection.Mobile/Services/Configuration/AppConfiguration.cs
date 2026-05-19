@@ -19,6 +19,22 @@ public static class AppConfiguration
         return GetPlatformFallbackUrl();
     }
 
+    /// <summary>
+    ///     Base URL for the LotteryDetection.Web.Host API. Returns null when not configured
+    ///     so callers can fall back to mocks.
+    /// </summary>
+    public static string? GetBackendApiBaseUrl()
+    {
+        EnsureLoaded();
+        if (_config!.RootElement.TryGetProperty("Api", out var api) &&
+            api.TryGetProperty("BaseUrl", out var baseUrl))
+        {
+            var value = baseUrl.GetString();
+            return string.IsNullOrWhiteSpace(value) ? null : value;
+        }
+        return null;
+    }
+
     public static string GetAzureAdClientId()
     {
         EnsureLoaded();

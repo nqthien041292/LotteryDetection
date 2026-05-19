@@ -2,7 +2,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using LotteryDetection.Mobile.Services.Api;
 using LotteryDetection.Mobile.Services.Auth;
+using LotteryDetection.Mobile.Services.Configuration;
 using LotteryDetection.Mobile.Services.Interfaces;
 using LotteryDetection.Mobile.Services.Mock;
 using LotteryDetection.Mobile.Services.Navigation;
@@ -113,9 +115,39 @@ public static class MauiProgram
         // Backend APIs are not implemented yet; wire the mobile app to local mock objects.
         builder.Services.AddSingleton<IAuthService>(_ => MockAuthService.Instance);
         builder.Services.AddSingleton<IAIService>(_ => MockAIService.Instance);
-        builder.Services.AddSingleton<ILotteryDetectionService>(_ => MockLotteryDetectionService.Instance);
+        // When `Api.BaseUrl` is configured in appsettings, talk to the real backend
+        // (LotteryDetection.Web.Host /api/services/app/LotteryAnalysis/...).
+        // Otherwise keep the mocks so the app remains usable offline / pre-config.
+        var backendBaseUrl = AppConfiguration.GetBackendApiBaseUrl();
+        if (!string.IsNullOrWhiteSpace(backendBaseUrl))
+        {
+            builder.Services.AddSingleton<ILotteryDetectionService>(sp =>
+            {
+                var auth = sp.GetRequiredService<IAuthService>();
+                var http = new HttpClient
+                {
+                    BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
+                    Timeout = TimeSpan.FromSeconds(60)
+                };
+                return new ApiLotteryDetectionService(http, auth);
+            });
+            builder.Services.AddSingleton<ILotteryHistoryService>(sp =>
+            {
+                var auth = sp.GetRequiredService<IAuthService>();
+                var http = new HttpClient
+                {
+                    BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
+                    Timeout = TimeSpan.FromSeconds(30)
+                };
+                return new ApiLotteryHistoryService(http, auth);
+            });
+        }
+        else
+        {
+            builder.Services.AddSingleton<ILotteryDetectionService>(_ => MockLotteryDetectionService.Instance);
+            builder.Services.AddSingleton<ILotteryHistoryService>(_ => MockLotteryHistoryService.Instance);
+        }
         builder.Services.AddSingleton<ILotteryResultsService>(_ => MockLotteryResultsService.Instance);
-        builder.Services.AddSingleton<ILotteryHistoryService>(_ => MockLotteryHistoryService.Instance);
         builder.Services.AddSingleton<IDashboardRealtimeService>(_ => MockDashboardRealtimeService.Instance);
         builder.Services.AddSingleton<ITaskService>(_ => MockTaskService.Instance);
         builder.Services.AddSingleton<INotificationService>(_ => MockNotificationService.Instance);

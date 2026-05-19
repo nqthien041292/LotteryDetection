@@ -1,0 +1,134 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
+using Abp.Authorization;
+using Abp.Domain.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
+using Abp.UI;
+using LotteryDetection.Authorization;
+using LotteryDetection.Lottery.Dto;
+using LotteryDetection.Lottery.Gcp;
+using LotteryDetection.Storage;
+using Microsoft.EntityFrameworkCore;
+
+namespace LotteryDetection.Lottery;
+
+[AbpAuthorize(AppPermissions.Pages_Lottery_AnalyzeTicket)]
+public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketAnalysisAppService
+{
+    private const long MaxImageBytes = 8 * 1024 * 1024;
+
+    private readonly IRepository<TicketAnalysis, Guid> _repository;
+    private readonly IBinaryObjectManager _binaryObjectManager;
+    private readonly IVertexAITicketAnalyzer _analyzer;
+
+    public TicketAnalysisAppService(
+        IRepository<TicketAnalysis, Guid> repository,
+        IBinaryObjectManager binaryObjectManager,
+        IVertexAITicketAnalyzer analyzer)
+    {
+        _repository = repository;
+        _binaryObjectManager = binaryObjectManager;
+        _analyzer = analyzer;
+    }
+
+    public async Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input)
+    {
+        if (input?.ImageBytes == null || input.ImageBytes.Length == 0)
+        {
+            throw new UserFriendlyException("Ảnh không hợp lệ.");
+        }
+
+        if (input.ImageBytes.Length > MaxImageBytes)
+        {
+            throw new UserFriendlyException($"Ảnh vượt quá {MaxImageBytes / (1024 * 1024)}MB.");
+        }
+
+        if (input.ContentType.IsNullOrWhiteSpace() ||
+            !input.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UserFriendlyException("Định dạng file không phải ảnh.");
+        }
+
+        var binaryObject = new BinaryObject(AbpSession.TenantId, input.ImageBytes,
+            $"LotteryTicket:{input.FileName ?? "scan"}");
+        await _binaryObjectManager.SaveAsync(binaryObject);
+
+        var entity = new TicketAnalysis
+        {
+            Id = Guid.NewGuid(),
+            TenantId = AbpSession.TenantId,
+            ImageBinaryObjectId = binaryObject.Id,
+            Status = TicketAnalysisStatus.Pending
+        };
+
+        try
+        {
+            var result = await _analyzer.AnalyzeAsync(input.ImageBytes, input.ContentType);
+
+            entity.Province = Truncate(VietnameseProvinceNormalizer.Normalize(result.Province), TicketAnalysis.ProvinceMaxLength);
+            entity.DrawDate = result.DrawDate;
+            entity.TicketNumber = Truncate(result.TicketNumber, TicketAnalysis.TicketNumberMaxLength);
+            entity.DrawType = Truncate(result.DrawType, TicketAnalysis.DrawTypeMaxLength);
+            entity.Confidence = result.Confidence;
+            entity.Notes = Truncate(result.Notes, TicketAnalysis.NotesMaxLength);
+            entity.RawModelResponse = Truncate(result.RawJson, TicketAnalysis.RawModelResponseMaxLength);
+            entity.Status = TicketAnalysisStatus.Succeeded;
+        }
+        catch (UserFriendlyException ex)
+        {
+            entity.Status = TicketAnalysisStatus.Failed;
+            entity.ErrorMessage = Truncate(ex.Message, TicketAnalysis.ErrorMessageMaxLength);
+            await _repository.InsertAsync(entity);
+            throw;
+        }
+
+        await _repository.InsertAsync(entity);
+        await CurrentUnitOfWork.SaveChangesAsync();
+        return MapToDto(entity);
+    }
+
+    public async Task<TicketAnalysisDto> GetAsync(EntityDto<Guid> input)
+    {
+        var entity = await _repository.FirstOrDefaultAsync(input.Id);
+        if (entity == null) throw new UserFriendlyException("Không tìm thấy bản ghi.");
+        return MapToDto(entity);
+    }
+
+    public async Task<PagedResultDto<TicketAnalysisDto>> GetHistoryAsync(PagedResultRequestDto input)
+    {
+        var query = _repository.GetAll()
+            .Where(t => t.CreatorUserId == AbpSession.UserId)
+            .OrderByDescending(t => t.CreationTime);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .PageBy(input)
+            .ToListAsync();
+
+        return new PagedResultDto<TicketAnalysisDto>(total, items.Select(MapToDto).ToList());
+    }
+
+    private static TicketAnalysisDto MapToDto(TicketAnalysis e) => new()
+    {
+        Id = e.Id,
+        ImageBinaryObjectId = e.ImageBinaryObjectId,
+        Province = e.Province,
+        DrawDate = e.DrawDate,
+        TicketNumber = e.TicketNumber,
+        DrawType = e.DrawType,
+        Confidence = e.Confidence,
+        IsWinner = e.IsWinner,
+        MatchedPrize = e.MatchedPrize,
+        PrizeAmount = e.PrizeAmount,
+        Notes = e.Notes,
+        Status = e.Status,
+        ErrorMessage = e.ErrorMessage,
+        CreationTime = e.CreationTime
+    };
+
+    private static string Truncate(string s, int max) =>
+        string.IsNullOrEmpty(s) || s.Length <= max ? s : s.Substring(0, max);
+}

@@ -194,6 +194,10 @@ public class AppAuthorizationProvider : AuthorizationProvider
             multiTenancySides: _isMultiTenancyEnabled ? MultiTenancySides.Host : MultiTenancySides.Tenant);
         administration.CreateChildPermission(AppPermissions.Pages_Administration_Host_Dashboard, L("Dashboard"),
             multiTenancySides: MultiTenancySides.Host);
+
+        var lottery = pages.CreateChildPermission(AppPermissions.Pages_Lottery, L("Lottery"));
+        lottery.CreateChildPermission(AppPermissions.Pages_Lottery_AnalyzeTicket, L("AnalyzeTicket"));
+        lottery.CreateChildPermission(AppPermissions.Pages_Lottery_History, L("LotteryHistory"));
     }
 
     private static ILocalizableString L(string name)

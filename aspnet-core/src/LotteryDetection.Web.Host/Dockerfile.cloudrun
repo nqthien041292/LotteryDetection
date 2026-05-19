@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.7
+#
+# Cloud Run image for LotteryDetection.Web.Host.
+# Build context must be the `aspnet-core/` directory.
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy csproj files first for restore-layer caching.
+COPY common.props ./
+COPY infrastructure/ infrastructure/
+COPY src/LotteryDetection.Web.Host/LotteryDetection.Web.Host.csproj            src/LotteryDetection.Web.Host/
+COPY src/LotteryDetection.Web.Core/LotteryDetection.Web.Core.csproj            src/LotteryDetection.Web.Core/
+COPY src/LotteryDetection.Application/LotteryDetection.Application.csproj      src/LotteryDetection.Application/
+COPY src/LotteryDetection.Application.Shared/LotteryDetection.Application.Shared.csproj \
+                                                                               src/LotteryDetection.Application.Shared/
+COPY src/LotteryDetection.Core/LotteryDetection.Core.csproj                    src/LotteryDetection.Core/
+COPY src/LotteryDetection.Core.Shared/LotteryDetection.Core.Shared.csproj      src/LotteryDetection.Core.Shared/
+COPY src/LotteryDetection.EntityFrameworkCore/LotteryDetection.EntityFrameworkCore.csproj \
+                                                                               src/LotteryDetection.EntityFrameworkCore/
+COPY src/LotteryDetection.GraphQL/LotteryDetection.GraphQL.csproj              src/LotteryDetection.GraphQL/
+
+RUN dotnet restore src/LotteryDetection.Web.Host/LotteryDetection.Web.Host.csproj
+
+# Copy everything else and publish.
+COPY . .
+RUN dotnet publish src/LotteryDetection.Web.Host/LotteryDetection.Web.Host.csproj \
+        -c Release \
+        -o /app/publish \
+        /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Cloud Run routes traffic to $PORT (default 8080). Bind Kestrel accordingly.
+ENV ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    ASPNETCORE_ENVIRONMENT=Production
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "LotteryDetection.Web.Host.dll"]
