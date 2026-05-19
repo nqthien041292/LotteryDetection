@@ -2,22 +2,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using LotteryDetectionMobile.Services.AIAssistant;
 using LotteryDetectionMobile.Services.Auth;
-using LotteryDetectionMobile.Services.Calendar;
-using LotteryDetectionMobile.Services.Dashboard;
-using LotteryDetectionMobile.Services.Family;
-using LotteryDetectionMobile.Services.Gamification;
-using LotteryDetectionMobile.Services.Help;
 using LotteryDetectionMobile.Services.Interfaces;
 using LotteryDetectionMobile.Services.Mock;
 using LotteryDetectionMobile.Services.Navigation;
-using LotteryDetectionMobile.Services.Notifications;
-using LotteryDetectionMobile.Services.Profile;
-using LotteryDetectionMobile.Services.Tasks;
-using LotteryDetectionMobile.Services.Voice;
 using LotteryDetectionMobile.ViewModel;
 using LotteryDetectionMobile.Views.LotteryCapture;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Syncfusion.Licensing;
 using Syncfusion.Maui.Core.Hosting;
@@ -70,7 +61,6 @@ public static class MauiProgram
                 TryAddFont("UIFontIcons.ttf", "FontIcons");
                 TryAddFont("Dashboard.ttf", "DashboardFontIcons");
                 TryAddFont("PlusJakartaSans-Variable.ttf", "PlusJakartaSans");
-                // Family AI design system (per docs/design/) — Geist for UI, Geist Mono for tabular numerics.
                 TryAddFont("Geist-Variable.ttf", "Geist");
                 TryAddFont("GeistMono-Variable.ttf", "GeistMono");
             });
@@ -91,28 +81,8 @@ public static class MauiProgram
 
         // Backend APIs are not implemented yet; wire the mobile app to local mock objects.
         builder.Services.AddSingleton<IAuthService>(_ => MockAuthService.Instance);
-
-        // Register platform-specific streaming audio recorder (must be before HybridVoiceService)
-#if IOS
-        builder.Services.AddSingleton<IStreamingAudioRecorder, StreamingAudioRecorder>();
-#elif ANDROID
-        builder.Services.AddSingleton<IStreamingAudioRecorder, StreamingAudioRecorder>();
-#endif
-
-#if IOS
-        builder.Services.AddSingleton<IPlatformAudioRecorder, PlatformAudioRecorder>();
-#elif ANDROID
-        builder.Services.AddSingleton<IPlatformAudioRecorder, PlatformAudioRecorder>();
-#endif
         builder.Services.AddSingleton<IAIService>(_ => MockAIService.Instance);
-
-        // Register Voice services (now can inject IAuthService)
-        builder.Services.AddSingleton<VoiceApiOptions>(sp =>
-        {
-            var authService = sp.GetService<IAuthService>();
-            return new VoiceApiOptions(authService);
-        });
-        builder.Services.AddSingleton<IVoiceService>(_ => MockVoiceService.Instance);
+        builder.Services.AddSingleton<ILotteryDetectionService>(_ => MockLotteryDetectionService.Instance);
         builder.Services.AddSingleton<IDashboardRealtimeService>(_ => MockDashboardRealtimeService.Instance);
         builder.Services.AddSingleton<ITaskService>(_ => MockTaskService.Instance);
         builder.Services.AddSingleton<INotificationService>(_ => MockNotificationService.Instance);
@@ -138,10 +108,8 @@ public static class MauiProgram
         });
         builder.Services.AddTransient<LotteryCaptureViewModel>(sp =>
         {
-            var authService = sp.GetRequiredService<IAuthService>();
-            var voiceService = sp.GetRequiredService<IVoiceService>();
-            var aiService = sp.GetRequiredService<IAIService>();
-            return new LotteryCaptureViewModel(authService, voiceService, aiService);
+            var detectionService = sp.GetRequiredService<ILotteryDetectionService>();
+            return new LotteryCaptureViewModel(detectionService);
         });
 
         // Register Pages
@@ -161,8 +129,6 @@ public static class MauiProgram
         {
             var assembly = Assembly.GetExecutingAssembly();
 
-            // Format is: [Namespace].[FileName.ext]
-            // If the file is placed in a folder, it would be [Namespace].[Folder].[FileName.ext]
             var resourceName = "LotteryDetectionMobile.SyncfusionLicense.txt";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);

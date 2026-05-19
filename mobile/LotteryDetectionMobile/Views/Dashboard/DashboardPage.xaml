@@ -19,7 +19,7 @@
                                FontSize="13"
                                FontAttributes="Bold"
                                TextColor="#52705A" />
-                        <Label Text="Do ve so tu dong"
+                        <Label Text="Dò vé số tự động"
                                FontFamily="Geist"
                                FontSize="30"
                                FontAttributes="Bold"
@@ -54,13 +54,13 @@
                     <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="18">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <VerticalStackLayout Spacing="6">
-                                <Label Text="Kiem tra ve trong vai giay"
+                                <Label Text="Kiểm tra vé trong vài giây"
                                        FontFamily="Geist"
                                        FontSize="23"
                                        FontAttributes="Bold"
                                        LineHeight="1.12"
                                        TextColor="White" />
-                                <Label Text="Chup anh ve so, AI tu dong doc dai, ngay quay, day so va phan tich ket qua."
+                                <Label Text="Chụp ảnh vé số, AI tự động đọc đài, ngày quay, dãy số và phân tích kết quả."
                                        FontFamily="Geist"
                                        FontSize="13"
                                        LineHeight="1.45"
@@ -77,7 +77,7 @@
                                     <shapes:RoundRectangle CornerRadius="16" />
                                 </Border.StrokeShape>
                                 <VerticalStackLayout Spacing="7" VerticalOptions="Center">
-                                    <Label Text="VE SO"
+                                    <Label Text="VÉ SỐ"
                                            FontFamily="Geist"
                                            FontSize="10"
                                            FontAttributes="Bold"
@@ -113,7 +113,7 @@
                         </Grid>
 
                         <Button Grid.Row="1"
-                                Text="Chup ve so"
+                                Text="Chụp vé số"
                                 Command="{Binding OpenLotteryCaptureCommand}"
                                 HeightRequest="56"
                                 CornerRadius="18"
@@ -125,12 +125,12 @@
 
                         <Grid Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="8">
                             <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                <Label Text="3 buoc"
+                                <Label Text="3 bước"
                                        FontFamily="Geist"
                                        FontSize="15"
                                        FontAttributes="Bold"
                                        TextColor="White" />
-                                <Label Text="Chup, doc, doi"
+                                <Label Text="Chụp, đọc, đối"
                                        FontFamily="Geist"
                                        FontSize="11"
                                        TextColor="#CFE6D5" />
@@ -141,7 +141,7 @@
                                        FontSize="15"
                                        FontAttributes="Bold"
                                        TextColor="White" />
-                                <Label Text="Nhan dien so"
+                                <Label Text="Nhận diện số"
                                        FontFamily="Geist"
                                        FontSize="11"
                                        TextColor="#CFE6D5" />
@@ -152,7 +152,7 @@
                                        FontSize="15"
                                        FontAttributes="Bold"
                                        TextColor="White" />
-                                <Label Text="Ket qua tuc thi"
+                                <Label Text="Kết quả tức thì"
                                        FontFamily="Geist"
                                        FontSize="11"
                                        TextColor="#CFE6D5" />
@@ -165,16 +165,16 @@
                     <Border Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#DAE5D6" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Ket qua hom nay" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
-                            <Label Text="Cap nhat xo so mien Bac, mien Trung, mien Nam."
+                            <Label Text="Kết quả hôm nay" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
+                            <Label Text="Cập nhật xổ số miền Bắc, miền Trung, miền Nam."
                                    FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
                         </VerticalStackLayout>
                     </Border>
                     <Border Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#DAE5D6" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Lich su do ve" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
-                            <Label Text="Luu lai anh ve, day so va trang thai trung thuong."
+                            <Label Text="Lịch sử dò vé" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
+                            <Label Text="Lưu lại ảnh vé, dãy số và trạng thái trúng thưởng."
                                    FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
                         </VerticalStackLayout>
                     </Border>
@@ -183,7 +183,7 @@
                 <Border Padding="16" StrokeThickness="1" Stroke="#DAE5D6" BackgroundColor="White">
                     <Border.StrokeShape><shapes:RoundRectangle CornerRadius="20" /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="14">
-                        <Label Text="Quy trinh tu dong"
+                        <Label Text="Quy trình tự động"
                                FontFamily="Geist"
                                FontSize="17"
                                FontAttributes="Bold"
@@ -193,17 +193,17 @@
                                 <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
                                 <Label Text="1" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
                             </Border>
-                            <Label Grid.Row="0" Grid.Column="1" Text="Can ve trong khung chup de anh ro so va ma ve." FontFamily="Geist" FontSize="13" TextColor="#38443B" VerticalOptions="Center" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="Căn vé trong khung chụp để ảnh rõ số và mã vé." FontFamily="Geist" FontSize="13" TextColor="#38443B" VerticalOptions="Center" />
                             <Border Grid.Row="1" WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#FFF1C2">
                                 <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
                                 <Label Text="2" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
                             </Border>
-                            <Label Grid.Row="1" Grid.Column="1" Text="AI doc va phan tich day so, ngay quay va dai phat hanh." FontFamily="Geist" FontSize="13" TextColor="#38443B" VerticalOptions="Center" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="AI đọc và phân tích dãy số, ngày quay và đài phát hành." FontFamily="Geist" FontSize="13" TextColor="#38443B" VerticalOptions="Center" />
                             <Border Grid.Row="2" WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#E8EEFF">
                                 <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
                                 <Label Text="3" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
                             </Border>
-                            <Label Grid.Row="2" Grid.Column="1" Text="AI doi chieu ket qua va bao ve co trung giai hay khong." FontFamily="Geist" FontSize="13" TextColor="#38443B" VerticalOptions="Center" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="AI đối chiếu kết quả và báo vé có trúng giải hay không." FontFamily="Geist" FontSize="13" TextColor="#38443B" VerticalOptions="Center" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>

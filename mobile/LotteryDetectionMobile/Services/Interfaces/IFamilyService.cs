@@ -13,5 +13,4 @@ public interface IFamilyService
     Task<FamilyMember?> UpdateMemberRoleAsync(string memberId, string role);
     Task<bool> RemoveMemberAsync(string memberId);
     Task<bool> ResendInviteAsync(string memberId);
-    Task<FamilyMember?> AcceptInvitationAsync(string token);
 }

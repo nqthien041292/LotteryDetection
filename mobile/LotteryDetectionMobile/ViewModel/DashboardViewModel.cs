@@ -405,7 +405,6 @@ public class DashboardViewModel : TabNavigationViewModel
         var raw = authService?.UserDisplayName;
         if (string.IsNullOrWhiteSpace(raw)) return "there";
 
-        // EntraIdAuthService returns email-localpart (e.g. "alex.chen"). Take first segment, capitalize.
         var segment = raw.Split(new[] { '.', ' ', '_', '-' }, StringSplitOptions.RemoveEmptyEntries)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(segment)) return "there";

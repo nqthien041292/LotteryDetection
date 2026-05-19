@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using LotteryDetectionMobile.Services.Auth;
+using LotteryDetectionMobile.Services.Mock;
 using LotteryDetectionMobile.Services.Navigation;
 
 namespace LotteryDetectionMobile.ViewModel;
@@ -170,6 +171,6 @@ public class LoginPageViewModel : BaseViewModel
     private static IAuthService GetAuthService()
     {
         var services = IPlatformApplication.Current?.Services;
-        return services?.GetService<IAuthService>() ?? new EntraIdAuthService();
+        return services?.GetService<IAuthService>() ?? MockAuthService.Instance;
     }
 }

@@ -30,35 +30,9 @@
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Lottery Detection can use the microphone for future ticket notes.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Lottery Detection needs camera access to capture lottery tickets.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Lottery Detection needs photo library access so you can select ticket images.</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Lottery Detection does not require calendar access for ticket scanning.</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>msal3bd596e9-e9d9-4d33-80a8-47d9d550a7c7</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.familyai.app</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>familyai</string>
-			</array>
-		</dict>
-	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>msauthv2</string>
-		<string>msauthv3</string>
-	</array>
 </dict>
 </plist>

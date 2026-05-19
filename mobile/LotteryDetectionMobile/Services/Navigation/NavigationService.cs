@@ -3,7 +3,6 @@ using LotteryDetectionMobile.Views.Dashboard;
 using LotteryDetectionMobile.Views.Family;
 using LotteryDetectionMobile.Views.Forms;
 using LotteryDetectionMobile.Views.LotteryCapture;
-using LotteryDetectionMobile.Views.Family.Invitation;
 
 namespace LotteryDetectionMobile.Services.Navigation;
 
@@ -123,16 +122,6 @@ public class NavigationService : INavigationService
     {
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(MyTasksPage));
-    }
-
-    public async Task NavigateToAcceptInvitationAsync(string? token = null)
-    {
-        if (Shell.Current == null) return;
-        if (string.IsNullOrWhiteSpace(token))
-            await Shell.Current.GoToAsync(nameof(AcceptInvitationPage));
-        else
-            await Shell.Current.GoToAsync(nameof(AcceptInvitationPage),
-                new Dictionary<string, object> { { "Token", token } });
     }
 
     private async Task NavigateToRootAsync(string route)

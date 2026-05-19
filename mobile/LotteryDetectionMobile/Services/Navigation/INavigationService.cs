@@ -18,5 +18,4 @@ public interface INavigationService
     Task NavigateToLotteryCaptureAsync();
     Task NavigateToMyTasksAsync();
     Task NavigateBackAsync();
-    Task NavigateToAcceptInvitationAsync(string? token = null);
 }

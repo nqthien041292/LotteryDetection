@@ -88,30 +88,19 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.83.3" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 	</ItemGroup>
 
-	<!-- iOS - Entitlements required for both simulator and device (keychain access for MSAL) -->
 	<PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
-		<CodesignEntitlements>Platforms/iOS/Entitlements.plist</CodesignEntitlements>
 		<UILaunchStoryboardName>LaunchScreen</UILaunchStoryboardName>
 		<!-- SdkOnly link mode in Debug keeps incremental builds fast and avoids
 		     marshalling-stub issues with the pinned iOS 26.x SDK on Xcode 26.3. -->
 		<MtouchLink Condition="'$(Configuration)' == 'Debug'">SdkOnly</MtouchLink>
 	</PropertyGroup>
 
-	<!-- iOS Simulator (default when RID unset, or explicitly iossimulator-*): ad-hoc sign.
-	     EnableCodeSigning=true forces the _CodesignAppBundle target to run so Entitlements.plist
-	     (keychain-access-groups for MSAL) gets embedded into the simulator build. Without it,
-	     the binary is only linker-signed and MSAL's keychain writes fail. -->
+	<!-- iOS Simulator (default when RID unset, or explicitly iossimulator-*): ad-hoc sign. -->
 	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and !$(RuntimeIdentifier.StartsWith('ios-'))">
 		<CodesignKey>-</CodesignKey>
-		<EnableCodeSigning>true</EnableCodeSigning>
-		<!-- Ad-hoc sign has no provisioning profile, so $(AppIdentifierPrefix) in the
-		     default Entitlements.plist never expands. This file declares the literal,
-		     macro-free keychain groups MSAL computes on the simulator. -->
-		<CodesignEntitlements>Platforms/iOS/Entitlements.Simulator.plist</CodesignEntitlements>
 	</PropertyGroup>
 
 	<!-- iOS Device (RID = ios-arm64): real signing -->

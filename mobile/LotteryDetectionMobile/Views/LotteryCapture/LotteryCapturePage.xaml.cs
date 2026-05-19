@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using LotteryDetectionMobile.Services.Navigation;
 using LotteryDetectionMobile.ViewModel;
 
@@ -5,7 +6,9 @@ namespace LotteryDetectionMobile.Views.LotteryCapture;
 
 public partial class LotteryCapturePage : ContentPage
 {
-    private string? ticketImagePath;
+    private volatile bool disposed;
+    private CancellationTokenSource? pulseCts;
+    private LotteryCaptureViewModel? vm;
 
     public LotteryCapturePage(LotteryCaptureViewModel viewModel)
     {
@@ -13,103 +16,129 @@ public partial class LotteryCapturePage : ContentPage
         BindingContext = viewModel;
     }
 
-    private async void OnCaptureClicked(object? sender, EventArgs e)
+    protected override async void OnAppearing()
     {
+        base.OnAppearing();
+        disposed = false;
+
+        if (BindingContext is LotteryCaptureViewModel viewModel)
+        {
+            vm = viewModel;
+            vm.PropertyChanged += OnViewModelPropertyChanged;
+            await vm.InitializeAsync();
+            RestartCapturePulse();
+        }
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        disposed = true;
+        if (vm != null)
+        {
+            vm.PropertyChanged -= OnViewModelPropertyChanged;
+            vm.Cleanup();
+        }
+
+        StopCapturePulse();
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(LotteryCaptureViewModel.HasImage)
+            or nameof(LotteryCaptureViewModel.IsAnalyzing)
+            or nameof(LotteryCaptureViewModel.ShowPreviewModal))
+        {
+            RestartCapturePulse();
+        }
+    }
+
+    private void RestartCapturePulse()
+    {
+        StopCapturePulse();
+        if (vm == null || disposed || CaptureFrame == null) return;
+        if (vm.ShowPreviewModal || vm.HasImage || vm.IsAnalyzing) return;
+        Dispatcher.Dispatch(TryStartCapturePulse);
+    }
+
+    private async void TryStartCapturePulse()
+    {
+        if (disposed || vm == null || CaptureFrame == null) return;
+
+        pulseCts?.Cancel();
+        pulseCts = new CancellationTokenSource();
+        var token = pulseCts.Token;
+
         try
         {
-            if (!MediaPicker.Default.IsCaptureSupported)
+            await RunCapturePulseAsync(token);
+        }
+        catch (OperationCanceledException)
+        {
+            // ignored
+        }
+    }
+
+    private async Task RunCapturePulseAsync(CancellationToken token)
+    {
+        if (disposed || vm == null) return;
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            if (!disposed && CaptureFrame != null) CaptureFrame.Scale = 1.0;
+        });
+
+        while (!token.IsCancellationRequested && !disposed && vm != null
+               && !vm.ShowPreviewModal && !vm.HasImage && !vm.IsAnalyzing)
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
             {
-                await DisplayAlert("Khong ho tro camera", "Thiet bi hien tai khong ho tro chup anh truc tiep.", "OK");
-                return;
+                if (disposed || CaptureFrame == null) return;
+                await CaptureFrame.ScaleTo(1.015, 900, Easing.CubicInOut);
+                if (disposed || CaptureFrame == null) return;
+                await CaptureFrame.ScaleTo(1.0, 900, Easing.CubicInOut);
+            });
+
+            if (disposed || token.IsCancellationRequested) break;
+            try
+            {
+                await Task.Delay(250, token);
             }
-
-            var photo = await MediaPicker.Default.CapturePhotoAsync(new MediaPickerOptions
+            catch (OperationCanceledException)
             {
-                Title = "Chup ve so"
-            });
-
-            if (photo != null) await LoadTicketPhotoAsync(photo);
+                break;
+            }
         }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Khong chup duoc anh", ex.Message, "OK");
-        }
-    }
 
-    private async void OnPickClicked(object? sender, EventArgs e)
-    {
-        try
-        {
-            var photo = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions
+        if (!disposed)
+            await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                Title = "Chon anh ve so"
+                if (!disposed && CaptureFrame != null) CaptureFrame.Scale = 1.0;
             });
-
-            if (photo != null) await LoadTicketPhotoAsync(photo);
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Khong chon duoc anh", ex.Message, "OK");
-        }
     }
 
-    private async Task LoadTicketPhotoAsync(FileResult photo)
+    private void StopCapturePulse()
     {
-        var fileName = $"ticket-{DateTime.Now:yyyyMMdd-HHmmss}{Path.GetExtension(photo.FileName)}";
-        var localPath = Path.Combine(FileSystem.CacheDirectory, fileName);
-
-        await using (var source = await photo.OpenReadAsync())
-        await using (var destination = File.OpenWrite(localPath))
+        if (pulseCts != null)
         {
-            await source.CopyToAsync(destination);
+            pulseCts.Cancel();
+            pulseCts.Dispose();
+            pulseCts = null;
         }
 
-        ticketImagePath = localPath;
-        TicketPreview.Source = ImageSource.FromFile(localPath);
-        TicketPreview.IsVisible = true;
-        EmptyCameraState.IsVisible = false;
-
-        ProvinceLabel.Text = "-";
-        DrawDateLabel.Text = "-";
-        TicketNumberLabel.Text = "-";
-        PrizeLabel.Text = "Anh da san sang. Bam AI do ve so de phan tich.";
-        PrizeBanner.BackgroundColor = Color.FromArgb("#EEF4EC");
-        StatusLabel.Text = "Da tai anh ve so.";
-    }
-
-    private async void OnAnalyzeClicked(object? sender, EventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(ticketImagePath))
-        {
-            await DisplayAlert("Can anh ve so", "Hay chup hoac chon anh ve so truoc khi do.", "OK");
-            return;
-        }
-
-        SetAnalyzing(true);
-        StatusLabel.Text = "AI dang phan tich anh ve, tach day so va doi ket qua...";
-
-        await Task.Delay(900);
-
-        ProvinceLabel.Text = "TP. Ho Chi Minh";
-        DrawDateLabel.Text = DateTime.Now.ToString("dd/MM/yyyy");
-        TicketNumberLabel.Text = "834972";
-        PrizeBanner.BackgroundColor = Color.FromArgb("#E7F6DE");
-        PrizeLabel.Text = "Khong phat hien trung giai trong bo ket qua mau. San sang ket noi API ket qua xo so that.";
-        StatusLabel.Text = "AI da phan tich xong.";
-
-        SetAnalyzing(false);
-    }
-
-    private void SetAnalyzing(bool isAnalyzing)
-    {
-        AnalyzeSpinner.IsRunning = isAnalyzing;
-        AnalyzeSpinner.IsVisible = isAnalyzing;
-        AnalyzeButton.IsEnabled = !isAnalyzing;
-        AnalyzeButton.Text = isAnalyzing ? "AI dang phan tich..." : "AI do ve so";
+        if (CaptureFrame != null)
+            CaptureFrame.Scale = 1.0;
     }
 
     private async void OnBackClicked(object? sender, EventArgs e)
     {
+        // If preview modal is showing, dismiss it first instead of navigating back.
+        if (vm?.ShowPreviewModal == true)
+        {
+            vm.ShowPreviewModal = false;
+            return;
+        }
+
         await NavigationService.Default.NavigateBackAsync();
     }
 }

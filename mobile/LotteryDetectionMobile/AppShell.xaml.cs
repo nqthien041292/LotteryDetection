@@ -1,6 +1,5 @@
 using LotteryDetectionMobile.Views.Dashboard;
 using LotteryDetectionMobile.Views.Family;
-using LotteryDetectionMobile.Views.Family.Invitation;
 using LotteryDetectionMobile.Views.Forms;
 using LotteryDetectionMobile.Views.LotteryCapture;
 using Microsoft.Maui.Controls.Shapes;
@@ -114,7 +113,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(LotteryCapturePage), typeof(LotteryCapturePage));
-        Routing.RegisterRoute(nameof(TaskPreviewPage), typeof(TaskPreviewPage));
         Routing.RegisterRoute(nameof(AITaskAssistantPage), typeof(AITaskAssistantPage));
         Routing.RegisterRoute(nameof(FamilyLiveBoardPage), typeof(FamilyLiveBoardPage));
         Routing.RegisterRoute(nameof(ChatToTaskPage), typeof(ChatToTaskPage));
@@ -126,6 +124,5 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
         Routing.RegisterRoute(nameof(HelpPage), typeof(HelpPage));
         Routing.RegisterRoute(nameof(AdminRoleManagementPage), typeof(AdminRoleManagementPage));
-        Routing.RegisterRoute(nameof(AcceptInvitationPage), typeof(AcceptInvitationPage));
     }
 }

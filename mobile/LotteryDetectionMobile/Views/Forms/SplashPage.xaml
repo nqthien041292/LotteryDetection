@@ -39,7 +39,7 @@
                        FontAttributes="Bold"
                        HorizontalTextAlignment="Center"
                        TextColor="White" />
-                <Label Text="Chup anh va tu dong do ve so"
+                <Label Text="Chụp ảnh và tự động dò vé số"
                        FontFamily="Geist"
                        FontSize="14"
                        HorizontalTextAlignment="Center"

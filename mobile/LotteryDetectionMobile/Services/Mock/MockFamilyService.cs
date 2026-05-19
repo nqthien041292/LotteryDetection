@@ -80,9 +80,4 @@ public sealed class MockFamilyService : IFamilyService
     }
 
     public Task<bool> ResendInviteAsync(string memberId) => Task.FromResult(true);
-
-    public Task<FamilyMember?> AcceptInvitationAsync(string token)
-    {
-        return Task.FromResult<FamilyMember?>(members.FirstOrDefault(m => m.IsYou) ?? members.FirstOrDefault());
-    }
 }
