@@ -138,8 +138,17 @@ jobs:
             GoogleCloud__ProjectId=${{ vars.GCP_PROJECT_ID }}
             GoogleCloud__Location=${{ vars.GCP_LOCATION || 'asia-southeast1' }}
             ASPNETCORE_ENVIRONMENT=Production
+            Authentication__Microsoft__IsEnabled=true
+            Authentication__Google__IsEnabled=true
+          # All provider secrets live in Google Secret Manager. The runtime SA
+          # has roles/secretmanager.secretAccessor — see aspnet-core/scripts/
+          # setup-external-auth.sh for the create-once instructions.
           secrets: |
             ConnectionStrings__Default=db-connection-string:latest
+            Authentication__Microsoft__ConsumerKey=auth-microsoft-client-id:latest
+            Authentication__Microsoft__ConsumerSecret=auth-microsoft-client-secret:latest
+            Authentication__Google__ClientId=auth-google-client-id:latest
+            Authentication__Google__ClientSecret=auth-google-client-secret:latest
 
       - name: Show service URL
         run: |
