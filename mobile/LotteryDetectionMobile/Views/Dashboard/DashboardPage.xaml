@@ -12,37 +12,12 @@
     <Grid RowDefinitions="*,Auto">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="20,44,20,24" Spacing="18">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="Lottery Detection"
-                               FontFamily="Geist"
-                               FontSize="13"
-                               FontAttributes="Bold"
-                               TextColor="#52705A" />
-                        <Label Text="Dò vé số tự động"
-                               FontFamily="Geist"
-                               FontSize="30"
-                               FontAttributes="Bold"
-                               LineHeight="1.05"
-                               TextColor="#142116" />
-                    </VerticalStackLayout>
-                    <Border Grid.Column="1"
-                            WidthRequest="48"
-                            HeightRequest="48"
-                            StrokeThickness="0"
-                            BackgroundColor="#143E2B">
-                        <Border.StrokeShape>
-                            <shapes:RoundRectangle CornerRadius="16" />
-                        </Border.StrokeShape>
-                        <Label Text="LD"
-                               FontFamily="Geist"
-                               FontSize="15"
-                               FontAttributes="Bold"
-                               TextColor="White"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
-                    </Border>
-                </Grid>
+                <Label Text="Dò vé số tự động"
+                       FontFamily="Geist"
+                       FontSize="30"
+                       FontAttributes="Bold"
+                       LineHeight="1.05"
+                       TextColor="#142116" />
 
                 <Border StrokeThickness="0" Padding="18" BackgroundColor="#173D2A">
                     <Border.StrokeShape>
@@ -164,18 +139,42 @@
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                     <Border Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#DAE5D6" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Kết quả hôm nay" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
-                            <Label Text="Cập nhật xổ số miền Bắc, miền Trung, miền Nam."
-                                   FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenLotteryResultsCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Border WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#E7F5DE" HorizontalOptions="Start">
+                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                    <Label Text="🎯" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#66736A" VerticalOptions="Center" />
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Kết quả hôm nay" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
+                                <Label Text="Cập nhật xổ số miền Bắc, miền Trung, miền Nam."
+                                       FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Border>
                     <Border Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#DAE5D6" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Lịch sử dò vé" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
-                            <Label Text="Lưu lại ảnh vé, dãy số và trạng thái trúng thưởng."
-                                   FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenLotteryHistoryCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Border WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#FFF1C2" HorizontalOptions="Start">
+                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                    <Label Text="🗂" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#66736A" VerticalOptions="Center" />
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Lịch sử dò vé" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#142116" />
+                                <Label Text="Lưu lại ảnh vé, dãy số và trạng thái trúng thưởng."
+                                       FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Border>
                 </Grid>

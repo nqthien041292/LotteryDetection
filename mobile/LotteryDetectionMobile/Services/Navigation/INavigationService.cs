@@ -16,6 +16,8 @@ public interface INavigationService
     Task NavigateToAdminAsync(bool openInvite = false);
     Task NavigateToLoginWithSocialAsync();
     Task NavigateToLotteryCaptureAsync();
+    Task NavigateToLotteryResultsAsync();
+    Task NavigateToLotteryHistoryAsync();
     Task NavigateToMyTasksAsync();
     Task NavigateBackAsync();
 }

@@ -70,19 +70,52 @@ public static class MauiProgram
 #endif
 
         // Global press animation for all native Button elements.
+        // Uses PointerGestureRecognizer for consistency with Border below: Button.Pressed/Released
+        // fire inconsistently on MAUI 9 iOS handlers, while PointerPressed/Released are reliable.
         // ConditionalWeakTable prevents duplicate subscription when handler reconnects.
         var animatedButtons = new ConditionalWeakTable<Button, object>();
         Microsoft.Maui.Handlers.ButtonHandler.Mapper.AppendToMapping(nameof(Button.Text), (_, view) =>
         {
             if (view is not Button btn || !animatedButtons.TryAdd(btn, btn)) return;
-            btn.Pressed += async (s, _) => { if (s is View v) await v.ScaleTo(0.94, 75, Easing.CubicOut); };
-            btn.Released += async (s, _) => { if (s is View v) await v.ScaleTo(1.0, 150, Easing.SpringOut); };
+            var pointer = new PointerGestureRecognizer();
+            pointer.PointerPressed += async (s, _) =>
+            {
+                if (s is View v) await v.ScaleTo(0.94, 90, Easing.CubicOut);
+            };
+            pointer.PointerReleased += async (s, _) =>
+            {
+                if (s is View v) await v.ScaleTo(1.0, 180, Easing.SpringOut);
+            };
+            btn.GestureRecognizers.Add(pointer);
+        });
+
+        // Same press animation for any Border that opts into taps via a TapGestureRecognizer
+        // (Dashboard cards, capture zone, etc.). PointerPressed/Released were added in MAUI 9
+        // and fire on iOS touch-down/up.
+        var animatedBorders = new ConditionalWeakTable<Border, object>();
+        Microsoft.Maui.Handlers.BorderHandler.Mapper.AppendToMapping(nameof(Border.Content), (_, view) =>
+        {
+            if (view is not Border border || !animatedBorders.TryAdd(border, border)) return;
+            if (!border.GestureRecognizers.OfType<TapGestureRecognizer>().Any()) return;
+
+            var pointer = new PointerGestureRecognizer();
+            pointer.PointerPressed += async (s, _) =>
+            {
+                if (s is View v) await v.ScaleTo(0.96, 75, Easing.CubicOut);
+            };
+            pointer.PointerReleased += async (s, _) =>
+            {
+                if (s is View v) await v.ScaleTo(1.0, 150, Easing.SpringOut);
+            };
+            border.GestureRecognizers.Add(pointer);
         });
 
         // Backend APIs are not implemented yet; wire the mobile app to local mock objects.
         builder.Services.AddSingleton<IAuthService>(_ => MockAuthService.Instance);
         builder.Services.AddSingleton<IAIService>(_ => MockAIService.Instance);
         builder.Services.AddSingleton<ILotteryDetectionService>(_ => MockLotteryDetectionService.Instance);
+        builder.Services.AddSingleton<ILotteryResultsService>(_ => MockLotteryResultsService.Instance);
+        builder.Services.AddSingleton<ILotteryHistoryService>(_ => MockLotteryHistoryService.Instance);
         builder.Services.AddSingleton<IDashboardRealtimeService>(_ => MockDashboardRealtimeService.Instance);
         builder.Services.AddSingleton<ITaskService>(_ => MockTaskService.Instance);
         builder.Services.AddSingleton<INotificationService>(_ => MockNotificationService.Instance);

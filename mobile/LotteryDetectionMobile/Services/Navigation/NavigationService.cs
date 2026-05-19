@@ -3,6 +3,8 @@ using LotteryDetectionMobile.Views.Dashboard;
 using LotteryDetectionMobile.Views.Family;
 using LotteryDetectionMobile.Views.Forms;
 using LotteryDetectionMobile.Views.LotteryCapture;
+using LotteryDetectionMobile.Views.LotteryHistory;
+using LotteryDetectionMobile.Views.LotteryResults;
 
 namespace LotteryDetectionMobile.Services.Navigation;
 
@@ -116,6 +118,18 @@ public class NavigationService : INavigationService
     {
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(LotteryCapturePage));
+    }
+
+    public async Task NavigateToLotteryResultsAsync()
+    {
+        if (Shell.Current == null) return;
+        await Shell.Current.GoToAsync(nameof(LotteryResultsPage));
+    }
+
+    public async Task NavigateToLotteryHistoryAsync()
+    {
+        if (Shell.Current == null) return;
+        await Shell.Current.GoToAsync(nameof(LotteryHistoryPage));
     }
 
     public async Task NavigateToMyTasksAsync()
