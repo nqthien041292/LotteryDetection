@@ -165,7 +165,7 @@ public static class MauiProgram
         builder.Services.AddTransient<LotteryCaptureViewModel>(sp =>
         {
             var detectionService = sp.GetRequiredService<ILotteryDetectionService>();
-            return new LotteryCaptureViewModel(detectionService);
+            return new LotteryCaptureViewModel(detectionService, NavigationService.Default);
         });
 
         // Register Pages

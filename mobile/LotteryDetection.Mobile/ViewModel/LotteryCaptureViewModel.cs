@@ -3,6 +3,7 @@ using LotteryDetection.Mobile.Models.Lottery;
 using LotteryDetection.Mobile.Services.Dialogs;
 using LotteryDetection.Mobile.Services.Interfaces;
 using LotteryDetection.Mobile.Services.Logging;
+using LotteryDetection.Mobile.Services.Navigation;
 
 namespace LotteryDetection.Mobile.ViewModel;
 
@@ -11,6 +12,7 @@ public class LotteryCaptureViewModel : BaseViewModel
     private const string DefaultHint = "Chụp hoặc chọn ảnh vé để bắt đầu.";
 
     private readonly ILotteryDetectionService detectionService;
+    private readonly INavigationService navigationService;
 
     private bool isCapturing;
     private bool isAnalyzing;
@@ -20,9 +22,10 @@ public class LotteryCaptureViewModel : BaseViewModel
     private bool showPreviewModal;
     private PermissionStatus cameraPermissionStatus = PermissionStatus.Unknown;
 
-    public LotteryCaptureViewModel(ILotteryDetectionService detectionService)
+    public LotteryCaptureViewModel(ILotteryDetectionService detectionService, INavigationService navigationService)
     {
         this.detectionService = detectionService;
+        this.navigationService = navigationService;
 
         CaptureCommand = new Command(async () => await CaptureAsync(), () => !IsBusy);
         PickFromGalleryCommand = new Command(async () => await PickFromGalleryAsync(), () => !IsBusy);
@@ -268,12 +271,21 @@ public class LotteryCaptureViewModel : BaseViewModel
         }
     }
 
-    private Task ConfirmAsync()
+    private async Task ConfirmAsync()
     {
-        // No history backend yet — close the sheet and reset for the next ticket.
+        // The backend already persisted the analysis row inside AnalyzeAsync,
+        // so "Lưu lịch sử" is purely a UX confirmation — close the sheet, reset,
+        // and jump to the history page so the user sees their new entry.
         ShowPreviewModal = false;
         Reset();
-        return Task.CompletedTask;
+        try
+        {
+            await navigationService.NavigateToLotteryHistoryAsync();
+        }
+        catch (Exception ex)
+        {
+            RemoteLogService.Instance.Error("LotteryCapture", $"NavigateToHistory failed: {ex.Message}", ex);
+        }
     }
 
     private void Reset()
