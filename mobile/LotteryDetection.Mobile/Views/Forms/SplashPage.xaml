@@ -6,7 +6,7 @@
              x:Class="LotteryDetection.Mobile.Views.Forms.SplashPage"
              Shell.NavBarIsVisible="False"
              ios:Page.UseSafeArea="False"
-             BackgroundColor="#F6F8F2">
+             BackgroundColor="#FFFFFF">
 
     <Grid RowDefinitions="*,Auto" Padding="24">
         <VerticalStackLayout x:Name="BrandStack"

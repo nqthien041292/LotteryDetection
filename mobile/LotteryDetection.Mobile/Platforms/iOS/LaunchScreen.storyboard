@@ -31,7 +31,7 @@
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="launch-safe-area"/>
-                        <color key="backgroundColor" red="0.95686274509803926" green="0.97254901960784312" blue="0.99607843137254903" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="brand-mark" firstAttribute="centerX" secondItem="launch-root-view" secondAttribute="centerX" id="brand-center-x"/>
                             <constraint firstItem="brand-mark" firstAttribute="centerY" secondItem="launch-root-view" secondAttribute="centerY" constant="-36" id="brand-center-y"/>
