@@ -70,9 +70,19 @@ public class SplashViewModel : BaseViewModel
     {
         try
         {
-            return Preferences.Get("OnboardingCompleted", false)
-                ? StartupDestination.Dashboard
-                : StartupDestination.Onboarding;
+            if (!Preferences.Get("OnboardingCompleted", false))
+                return StartupDestination.Onboarding;
+
+            // Attempt to restore a previously persisted session. Cap the wait
+            // so a hung token-refresh request can't keep the splash on screen.
+            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(RestoreTimeoutMs));
+            var restoreTask = _authService.TryRestoreSessionAsync();
+            var done = await Task.WhenAny(restoreTask, Task.Delay(Timeout.Infinite, cts.Token));
+
+            if (done == restoreTask && await restoreTask && _authService.IsSignedIn)
+                return StartupDestination.Dashboard;
+
+            return StartupDestination.Login;
         }
         catch (Exception ex)
         {

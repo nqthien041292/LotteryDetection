@@ -24,12 +24,12 @@ internal static class VertexAITicketPrompt
     public const string ResponseSchemaJson = @"{
   ""type"": ""object"",
   ""properties"": {
-    ""province"":     { ""type"": [""string"", ""null""] },
-    ""draw_date"":    { ""type"": [""string"", ""null""], ""description"": ""YYYY-MM-DD"" },
-    ""ticket_number"": { ""type"": [""string"", ""null""] },
-    ""draw_type"":    { ""type"": [""string"", ""null""] },
-    ""confidence"":   { ""type"": [""number"", ""null""], ""minimum"": 0, ""maximum"": 1 },
-    ""notes"":        { ""type"": [""string"", ""null""] }
+    ""province"":      { ""type"": ""string"", ""nullable"": true },
+    ""draw_date"":     { ""type"": ""string"", ""nullable"": true, ""description"": ""YYYY-MM-DD"" },
+    ""ticket_number"": { ""type"": ""string"", ""nullable"": true },
+    ""draw_type"":     { ""type"": ""string"", ""nullable"": true },
+    ""confidence"":    { ""type"": ""number"" },
+    ""notes"":         { ""type"": ""string"", ""nullable"": true }
   },
   ""required"": [""confidence""]
 }";
