@@ -15,6 +15,7 @@ namespace LotteryDetection.Mobile.Services.Api;
 public class ApiAbpAuthService : IAuthService
 {
     private const string AuthPath = "api/TokenAuth/Authenticate";
+    private const string ExternalAuthPath = "api/TokenAuth/ExternalAuthenticate";
     private const string RefreshPath = "api/TokenAuth/RefreshToken";
 
     private const string KeyAccessToken = "lottery.auth.access_token";
@@ -71,6 +72,33 @@ public class ApiAbpAuthService : IAuthService
             throw new OperationCanceledException("Người dùng huỷ đăng nhập.");
 
         return await SignInWithCredentialsAsync(username, password);
+    }
+
+    public async Task<string> SignInExternalAsync(string provider, string providerAccessCode)
+    {
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("provider is required.", nameof(provider));
+        if (string.IsNullOrWhiteSpace(providerAccessCode))
+            throw new ArgumentException("providerAccessCode is required.", nameof(providerAccessCode));
+
+        using var response = await _http.PostAsJsonAsync(ExternalAuthPath, new
+        {
+            authProvider = provider,
+            providerAccessCode,
+            // providerKey/ReturnUrl/SingleSignIn are optional — ABP extracts the
+            // external user id from the provider's userinfo endpoint server-side.
+            singleSignIn = false
+        }, JsonOptions);
+
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            throw new HttpRequestException(ExtractError(body) ?? $"HTTP {(int)response.StatusCode}");
+
+        var auth = ParseAuthEnvelope(body)
+                   ?? throw new InvalidOperationException("Phản hồi đăng nhập rỗng.");
+
+        await PersistAsync(auth, $"{provider}:external");
+        return _accessToken!;
     }
 
     public async Task<string> SignInWithCredentialsAsync(string username, string password)

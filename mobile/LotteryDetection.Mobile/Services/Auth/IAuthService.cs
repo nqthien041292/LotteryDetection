@@ -27,6 +27,12 @@ public interface IAuthService
     Task<string> SignInAsync();
 
     /// <summary>
+    ///     Exchange a third-party provider token (Microsoft / Google) for an
+    ///     ABP-issued bearer token via /api/TokenAuth/ExternalAuthenticate.
+    /// </summary>
+    Task<string> SignInExternalAsync(string provider, string providerAccessCode);
+
+    /// <summary>
     ///     Get access token. Uses silent auth (cached/refreshed token).
     ///     Throws if user not signed in.
     /// </summary>

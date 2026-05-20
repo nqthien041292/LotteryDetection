@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using LotteryDetection.Mobile.Services.Auth;
+using LotteryDetection.Mobile.Services.Configuration;
 using LotteryDetection.Mobile.Services.Mock;
 using LotteryDetection.Mobile.Services.Navigation;
 
@@ -136,11 +137,25 @@ public class LoginPageViewModel : BaseViewModel
 
         try
         {
-            StatusMessage = "Opening Microsoft sign-in...";
-            await _authService.SignInAsync();
+            StatusMessage = "Đang mở Microsoft sign-in…";
+
+            var (clientId, tenantId) = AppConfiguration.GetMicrosoftClient();
+            if (!string.IsNullOrWhiteSpace(clientId))
+            {
+                // MSAL → access_token → ABP /api/TokenAuth/ExternalAuthenticate.
+                var msal = new MicrosoftAuthHelper(clientId, tenantId ?? "common");
+                var result = await msal.SignInAsync();
+                await _authService.SignInExternalAsync("Microsoft", result.AccessToken);
+            }
+            else
+            {
+                // No Microsoft config (e.g. local dev without backend) — fall back
+                // to whatever SignInAsync does (prompt for credentials / mock).
+                await _authService.SignInAsync();
+            }
 
             StatusMessage = $"Welcome, {_authService.UserDisplayName}!";
-            await Task.Delay(500); // Brief pause to show welcome message
+            await Task.Delay(500);
             await _navigationService.NavigateToDashboardAsync();
         }
         catch (Exception ex)

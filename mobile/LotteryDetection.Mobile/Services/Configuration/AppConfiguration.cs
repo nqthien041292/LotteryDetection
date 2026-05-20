@@ -35,6 +35,31 @@ public static class AppConfiguration
         return null;
     }
 
+    public static (string? ClientId, string? TenantId) GetMicrosoftClient()
+    {
+        EnsureLoaded();
+        if (_config!.RootElement.TryGetProperty("Microsoft", out var ms))
+        {
+            var clientId = ms.TryGetProperty("ClientId", out var c) ? c.GetString() : null;
+            var tenantId = ms.TryGetProperty("TenantId", out var t) ? t.GetString() : null;
+            return (string.IsNullOrWhiteSpace(clientId) ? null : clientId,
+                    string.IsNullOrWhiteSpace(tenantId) ? "common" : tenantId);
+        }
+        return (null, "common");
+    }
+
+    public static string? GetGoogleClientId()
+    {
+        EnsureLoaded();
+        if (_config!.RootElement.TryGetProperty("Google", out var g) &&
+            g.TryGetProperty("ClientId", out var c))
+        {
+            var value = c.GetString();
+            return string.IsNullOrWhiteSpace(value) ? null : value;
+        }
+        return null;
+    }
+
     public static string GetAzureAdClientId()
     {
         EnsureLoaded();

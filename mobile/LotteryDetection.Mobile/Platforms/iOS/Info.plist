@@ -34,5 +34,22 @@
 	<string>DoVeSo AI needs camera access to capture lottery tickets.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>DoVeSo AI needs photo library access so you can select ticket images.</string>
+	<!-- MSAL on iOS uses ASWebAuthenticationSession by default, but the
+	     msauth.<bundleId> scheme must still be declared so the broker /
+	     Microsoft Authenticator fallback path can call back into the app. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>msauth.com.lotterydetection.mobile</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>msauthv2</string>
+		<string>msauthv3</string>
+	</array>
 </dict>
 </plist>

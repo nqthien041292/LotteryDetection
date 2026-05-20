@@ -12,6 +12,9 @@ public sealed class MockAuthService : IAuthService
 
     public Task<string> SignInAsync() => Task.FromResult("mock-access-token");
 
+    public Task<string> SignInExternalAsync(string provider, string providerAccessCode) =>
+        Task.FromResult("mock-access-token");
+
     public Task<string> GetAccessTokenAsync() => Task.FromResult("mock-access-token");
 
     public Task SignOutAsync() => Task.CompletedTask;
