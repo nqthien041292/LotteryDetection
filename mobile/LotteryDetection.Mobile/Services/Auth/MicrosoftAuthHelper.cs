@@ -8,9 +8,10 @@ namespace LotteryDetection.Mobile.Services.Auth;
 /// </summary>
 public sealed class MicrosoftAuthHelper
 {
-    // OpenID scopes are enough to identify the user; ABP only needs the
-    // access_token to look up the profile via Microsoft Graph.
-    private static readonly string[] Scopes = { "openid", "profile", "email" };
+    // User.Read is required so the issued access_token can call Graph /me —
+    // that's what ABP's MicrosoftAuthProviderApi hits server-side. OIDC scopes
+    // give us the id_token + oid claim used as the provider key.
+    private static readonly string[] Scopes = { "openid", "profile", "email", "User.Read" };
 
     private readonly IPublicClientApplication _app;
 
@@ -58,7 +59,10 @@ public sealed class MicrosoftAuthHelper
         {
             AccessToken = result.AccessToken,
             IdToken = result.IdToken,
-            Account = result.Account?.Username
+            Account = result.Account?.Username,
+            // The `oid` claim — same Azure AD Object ID Graph /me returns,
+            // which ABP uses as the provider key for external login matching.
+            ProviderKey = result.UniqueId ?? result.Account?.HomeAccountId?.ObjectId ?? string.Empty
         };
     }
 
@@ -74,4 +78,5 @@ public sealed class MicrosoftAuthResult
     public string AccessToken { get; init; } = string.Empty;
     public string? IdToken { get; init; }
     public string? Account { get; init; }
+    public string ProviderKey { get; init; } = string.Empty;
 }

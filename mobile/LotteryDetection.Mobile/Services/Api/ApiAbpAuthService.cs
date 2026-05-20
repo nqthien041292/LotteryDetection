@@ -74,19 +74,20 @@ public class ApiAbpAuthService : IAuthService
         return await SignInWithCredentialsAsync(username, password);
     }
 
-    public async Task<string> SignInExternalAsync(string provider, string providerAccessCode)
+    public async Task<string> SignInExternalAsync(string provider, string providerKey, string providerAccessCode)
     {
         if (string.IsNullOrWhiteSpace(provider))
             throw new ArgumentException("provider is required.", nameof(provider));
+        if (string.IsNullOrWhiteSpace(providerKey))
+            throw new ArgumentException("providerKey is required.", nameof(providerKey));
         if (string.IsNullOrWhiteSpace(providerAccessCode))
             throw new ArgumentException("providerAccessCode is required.", nameof(providerAccessCode));
 
         using var response = await _http.PostAsJsonAsync(ExternalAuthPath, new
         {
             authProvider = provider,
+            providerKey,
             providerAccessCode,
-            // providerKey/ReturnUrl/SingleSignIn are optional — ABP extracts the
-            // external user id from the provider's userinfo endpoint server-side.
             singleSignIn = false
         }, JsonOptions);
 

@@ -29,8 +29,11 @@ public interface IAuthService
     /// <summary>
     ///     Exchange a third-party provider token (Microsoft / Google) for an
     ///     ABP-issued bearer token via /api/TokenAuth/ExternalAuthenticate.
+    ///     <paramref name="providerKey" /> is the user's stable id at the
+    ///     provider (Microsoft <c>oid</c> / Google <c>sub</c>); ABP cross-checks
+    ///     it against the provider's userinfo endpoint.
     /// </summary>
-    Task<string> SignInExternalAsync(string provider, string providerAccessCode);
+    Task<string> SignInExternalAsync(string provider, string providerKey, string providerAccessCode);
 
     /// <summary>
     ///     Get access token. Uses silent auth (cached/refreshed token).

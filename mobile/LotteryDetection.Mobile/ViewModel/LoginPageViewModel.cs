@@ -145,7 +145,7 @@ public class LoginPageViewModel : BaseViewModel
                 // MSAL → access_token → ABP /api/TokenAuth/ExternalAuthenticate.
                 var msal = new MicrosoftAuthHelper(clientId, tenantId ?? "common");
                 var result = await msal.SignInAsync();
-                await _authService.SignInExternalAsync("Microsoft", result.AccessToken);
+                await _authService.SignInExternalAsync("Microsoft", result.ProviderKey, result.AccessToken);
             }
             else
             {
