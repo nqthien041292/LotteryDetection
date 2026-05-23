@@ -139,7 +139,15 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
             if (!string.IsNullOrEmpty(entity.Province) && entity.DrawDate.HasValue && !string.IsNullOrEmpty(entity.TicketNumber))
             {
                 var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value);
-                LotteryMatcher.Match(entity, drawResult);
+                if (drawResult != null)
+                {
+                    LotteryMatcher.Match(entity, drawResult);
+                }
+                else
+                {
+                    entity.IsWinner = null;
+                    entity.Notes = Truncate("Vé số chưa có kết quả. Chúng tôi sẽ thông báo sớm nhất", TicketAnalysis.NotesMaxLength);
+                }
             }
         }
         catch (UserFriendlyException ex)

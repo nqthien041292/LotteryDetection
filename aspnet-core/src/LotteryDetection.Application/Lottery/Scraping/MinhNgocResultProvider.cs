@@ -30,6 +30,33 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         _repository = repository;
     }
 
+    private bool IsDrawTimeReached(string province, DateTime drawDate)
+    {
+        var vnTime = DateTime.UtcNow.AddHours(7);
+        if (drawDate.Date > vnTime.Date)
+        {
+            return false; // Ngày tương lai
+        }
+
+        if (drawDate.Date == vnTime.Date)
+        {
+            var regionStr = GetRegionFromProvince(province);
+            var nowTime = vnTime.TimeOfDay;
+
+            if (regionStr == "mien-bac")
+            {
+                return nowTime >= new TimeSpan(18, 15, 0); // Miền Bắc quay lúc 18h15
+            }
+            if (regionStr == "mien-trung")
+            {
+                return nowTime >= new TimeSpan(17, 15, 0); // Miền Trung quay lúc 17h15
+            }
+            return nowTime >= new TimeSpan(16, 15, 0); // Miền Nam quay lúc 16h15
+        }
+
+        return true; // Quá khứ
+    }
+
     public async Task<LotteryDrawResult> GetResultAsync(string province, DateTime drawDate)
     {
         var cached = await _repository.GetAll()
@@ -40,10 +67,15 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
             return cached;
         }
 
+        if (!IsDrawTimeReached(province, drawDate))
+        {
+            return null; // Chưa đến giờ quay thưởng
+        }
+
         var scraped = await ScrapeFromMinhNgocAsync(province, drawDate);
         if (scraped == null)
         {
-            throw new UserFriendlyException($"Không thể lấy kết quả xổ số đài {province} ngày {drawDate:dd/MM/yyyy}.");
+            return null; // Chưa có kết quả chính thức từ nhà đài
         }
 
         await _repository.InsertAsync(scraped);
@@ -129,14 +161,14 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
             if (!result.Prizes.Any())
             {
-                return GetMockResult(province, drawDate);
+                return null;
             }
 
             return result;
         }
         catch (Exception)
         {
-            return GetMockResult(province, drawDate);
+            return null;
         }
     }
 
