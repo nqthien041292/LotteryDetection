@@ -8,13 +8,20 @@ using Abp.Domain.Repositories;
 using HtmlAgilityPack;
 using LotteryDetection.Lottery;
 using Microsoft.EntityFrameworkCore;
-using PuppeteerSharp;
 using Abp.UI;
 
 namespace LotteryDetection.Lottery.Scraping;
 
 public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependency
 {
+    private static readonly HttpClient HttpClient = new(new HttpClientHandler
+    {
+        AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+    })
+    {
+        Timeout = TimeSpan.FromSeconds(10)
+    };
+
     private readonly IRepository<LotteryDrawResult, Guid> _repository;
 
 
@@ -56,30 +63,19 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         
         try
         {
-            var launchOptions = new LaunchOptions
-            {
-                Headless = true,
-                Args = new[] { "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage" }
-            };
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            request.Headers.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+            request.Headers.AcceptLanguage.ParseAdd("vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7");
+            request.Headers.Referrer = new Uri("https://www.minhngoc.net.vn/");
 
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            if (env == "Production")
+            using var response = await HttpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
             {
-                launchOptions.ExecutablePath = "/usr/bin/chromium";
-            }
-            else
-            {
-                var browserFetcher = new BrowserFetcher();
-                await browserFetcher.DownloadAsync();
+                throw new HttpRequestException($"Minh Ngoc returned status code {response.StatusCode}");
             }
 
-            await using var browser = await Puppeteer.LaunchAsync(launchOptions);
-            await using var page = await browser.NewPageAsync();
-            await page.SetUserAgentAsync("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            
-            // Go to page and wait until network is mostly idle (bypassing initial Cloudflare checks)
-            await page.GoToAsync(url, new NavigationOptions { WaitUntil = new[] { WaitUntilNavigation.Networkidle2 } });
-            var html = await page.GetContentAsync();
+            var html = await response.Content.ReadAsStringAsync();
 
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
