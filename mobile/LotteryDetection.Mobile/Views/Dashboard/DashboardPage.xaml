@@ -14,7 +14,7 @@
             <VerticalStackLayout Padding="20,44,20,24" Spacing="18">
                 <!-- Top Header Row with Waving Lucky Cat Avatar -->
                 <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Margin="0,0,0,4">
-                    <VerticalStackLayout Spacing="2">
+                    <VerticalStackLayout x:Name="HeaderTitleStack" Spacing="2">
                         <Label Text="DÒ VÉ SỐ TỰ ĐỘNG"
                                FontFamily="Geist"
                                FontSize="12"
@@ -28,14 +28,14 @@
                                LineHeight="1.1"
                                TextColor="#031649" />
                     </VerticalStackLayout>
-                    <Border Grid.Column="1" WidthRequest="52" HeightRequest="52" StrokeThickness="1.5" Stroke="#00bb77" BackgroundColor="White">
+                    <Border x:Name="HeaderAvatarBorder" Grid.Column="1" WidthRequest="52" HeightRequest="52" StrokeThickness="1.5" Stroke="#00bb77" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="26" /></Border.StrokeShape>
                         <Image Source="lucky_mascot.png" Aspect="AspectFill" Margin="2" />
                     </Border>
                 </Grid>
 
                 <!-- Main Scan Ticket Card with Brand Colors and Mascot -->
-                <Border StrokeThickness="0" Padding="18">
+                <Border x:Name="MainScanCard" StrokeThickness="0" Padding="18">
                     <Border.StrokeShape>
                         <shapes:RoundRectangle CornerRadius="26" />
                     </Border.StrokeShape>
@@ -68,17 +68,30 @@
                                        LineHeight="1.45"
                                        TextColor="#CFE6D5" />
                             </VerticalStackLayout>
-                            <Image Grid.Column="1"
-                                   Source="lucky_mascot.png"
-                                   WidthRequest="110"
-                                   HeightRequest="110"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="End" />
+                            <Border x:Name="MascotBadge"
+                                    Grid.Column="1"
+                                    WidthRequest="108"
+                                    HeightRequest="108"
+                                    Stroke="#F5C842"
+                                    StrokeThickness="2.5"
+                                    BackgroundColor="White"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="End">
+                                <Border.StrokeShape>
+                                    <shapes:RoundRectangle CornerRadius="54" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#000000" Radius="12" Offset="0,6" Opacity="0.2" />
+                                </Border.Shadow>
+                                <Image Source="lucky_mascot.png" Aspect="AspectFill" Margin="2" />
+                            </Border>
                         </Grid>
 
-                        <Button Grid.Row="1"
+                        <Button x:Name="ScanButton"
+                                Grid.Row="1"
                                 Text="📸 Chụp &amp; Dò Vé Ngay"
                                 Command="{Binding OpenLotteryCaptureCommand}"
+                                Clicked="OnScanButtonClicked"
                                 HeightRequest="56"
                                 CornerRadius="18"
                                 FontFamily="Geist"
@@ -137,7 +150,7 @@
 
                 <!-- Secondary Actions Card Grid with Lift Shadows -->
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Border Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
+                    <Border x:Name="ResultsCard" Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenLotteryResultsCommand}" />
@@ -147,9 +160,9 @@
                         </Border.Shadow>
                         <VerticalStackLayout Spacing="10">
                             <Grid ColumnDefinitions="*,Auto">
-                                <Border WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#E7F5DE" HorizontalOptions="Start">
+                                <Border x:Name="ResultsIconBorder" WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#E7F5DE" HorizontalOptions="Start">
                                     <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
-                                    <Label Text="🎯" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Image x:Name="ResultsIcon" Source="gold_ingot.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFit" />
                                 </Border>
                                 <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#00bb77" VerticalOptions="Center" />
                             </Grid>
@@ -160,7 +173,7 @@
                             </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Border>
-                    <Border Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#F7EED3" BackgroundColor="White">
+                    <Border x:Name="HistoryCard" Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#F7EED3" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenLotteryHistoryCommand}" />
@@ -170,9 +183,9 @@
                         </Border.Shadow>
                         <VerticalStackLayout Spacing="10">
                             <Grid ColumnDefinitions="*,Auto">
-                                <Border WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#FFF5CC" HorizontalOptions="Start">
+                                <Border x:Name="HistoryIconBorder" WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#FFF5CC" HorizontalOptions="Start">
                                     <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
-                                    <Label Text="🗂" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    <Image x:Name="HistoryIcon" Source="treasure_chest.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFit" />
                                 </Border>
                                 <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#F5C842" VerticalOptions="Center" />
                             </Grid>
@@ -186,7 +199,7 @@
                 </Grid>
 
                 <!-- Quy trình rước lộc Card -->
-                <Border Padding="16" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
+                <Border x:Name="ProcessCard" Padding="16" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
                     <Border.StrokeShape><shapes:RoundRectangle CornerRadius="20" /></Border.StrokeShape>
                     <Border.Shadow>
                         <Shadow Brush="#031649" Radius="14" Offset="0,8" Opacity="0.06" />
