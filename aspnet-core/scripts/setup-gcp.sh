@@ -66,13 +66,16 @@ echo
 gcloud config set project "$PROJECT_ID" --quiet >/dev/null
 
 # ─── 1. Enable APIs ──────────────────────────────────────────────────────────
-echo "[1/6] Enabling APIs (run.googleapis.com, aiplatform, artifactregistry, iamcredentials) …"
+echo "[1/6] Enabling APIs (run, aiplatform, artifactregistry, iamcredentials, sqladmin, cloudscheduler) …"
 gcloud services enable \
   run.googleapis.com \
   aiplatform.googleapis.com \
   artifactregistry.googleapis.com \
   iamcredentials.googleapis.com \
   sts.googleapis.com \
+  sqladmin.googleapis.com \
+  serviceusage.googleapis.com \
+  cloudscheduler.googleapis.com \
   --quiet
 
 # ─── 2. Artifact Registry repo ───────────────────────────────────────────────
@@ -108,7 +111,7 @@ else
   echo "  (already exists)"
 fi
 
-for ROLE in roles/run.admin roles/artifactregistry.writer roles/iam.serviceAccountUser; do
+for ROLE in roles/run.admin roles/artifactregistry.writer roles/iam.serviceAccountUser roles/serviceusage.serviceUsageViewer; do
   gcloud projects add-iam-policy-binding "$PROJECT_ID" \
     --member="serviceAccount:${DEPLOYER_SA_EMAIL}" \
     --role="$ROLE" --condition=None --quiet >/dev/null
