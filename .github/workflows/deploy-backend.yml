@@ -149,6 +149,7 @@ jobs:
             Authentication__Microsoft__ConsumerSecret=auth-microsoft-client-secret:latest
             Authentication__Google__ClientId=auth-google-client-id:latest
             Authentication__Google__ClientSecret=auth-google-client-secret:latest
+            CloudScheduler__JobKey=cloud-scheduler-job-key:latest
 
       - name: Show service URL
         run: |
