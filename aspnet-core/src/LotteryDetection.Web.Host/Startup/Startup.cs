@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -67,6 +67,8 @@ public class Startup
 
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
+        services.AddSingleton<IConfiguration>(_appConfiguration);
+
         //MVC
         var mvcBuilder = services.AddControllersWithViews(options =>
         {

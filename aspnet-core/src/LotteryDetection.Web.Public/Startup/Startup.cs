@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Abp.AspNetCore;
@@ -38,6 +38,8 @@ public class Startup
 
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
+        services.AddSingleton<IConfiguration>(_appConfiguration);
+
         //MVC
         var mvcBuilder = services.AddControllersWithViews(options =>
         {
