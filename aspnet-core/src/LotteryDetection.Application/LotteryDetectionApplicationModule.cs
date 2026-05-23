@@ -1,4 +1,4 @@
-﻿using Abp.AutoMapper;
+using Abp.AutoMapper;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using LotteryDetection.Authorization;
@@ -26,5 +26,11 @@ public class LotteryDetectionApplicationModule : AbpModule
     public override void Initialize()
     {
         IocManager.RegisterAssemblyByConvention(typeof(LotteryDetectionApplicationModule).GetAssembly());
+    }
+
+    public override void PostInitialize()
+    {
+        var workManager = IocManager.Resolve<Abp.Threading.BackgroundWorkers.IBackgroundWorkerManager>();
+        workManager.Add(IocManager.Resolve<LotteryDetection.Lottery.Workers.LotteryResultCheckerWorker>());
     }
 }

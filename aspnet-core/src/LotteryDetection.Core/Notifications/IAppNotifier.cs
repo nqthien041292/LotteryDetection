@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp;
@@ -35,4 +35,6 @@ public interface IAppNotifier
 
     Task SendMassNotificationAsync(string message, UserIdentifier[] userIds = null,
         NotificationSeverity severity = NotificationSeverity.Info, Type[] targetNotifiers = null);
+
+    Task LotteryResultFoundAsync(UserIdentifier user, Guid ticketId, bool isWinner, string matchedPrize, decimal? prizeAmount);
 }

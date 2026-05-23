@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp;
@@ -164,5 +164,19 @@ public class AppNotifier : LotteryDetectionDomainServiceBase, IAppNotifier
         int targetEditionId)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task LotteryResultFoundAsync(UserIdentifier user, Guid ticketId, bool isWinner, string matchedPrize, decimal? prizeAmount)
+    {
+        var message = isWinner 
+            ? $"Chúc mừng! Vé số của bạn đã trúng {matchedPrize} với số tiền {prizeAmount:N0}đ."
+            : "Rất tiếc vé số của bạn không trúng thưởng lần này. Chúc bạn may mắn lần sau!";
+
+        await _notificationPublisher.PublishAsync(
+            AppNotificationNames.LotteryResultAvailable,
+            new MessageNotificationData(message),
+            severity: isWinner ? NotificationSeverity.Success : NotificationSeverity.Info,
+            userIds: new[] { user }
+        );
     }
 }

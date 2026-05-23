@@ -1,4 +1,4 @@
-﻿namespace LotteryDetection.Notifications;
+namespace LotteryDetection.Notifications;
 
 /// <summary>
 ///     Constants for notification names used in this application.
@@ -14,4 +14,5 @@ public static class AppNotificationNames
     public const string TenantsMovedToEdition = "App.TenantsMovedToEdition";
     public const string DownloadInvalidImportUsers = "App.DownloadInvalidImportUsers";
     public const string MassNotification = "App.MassNotification";
+    public const string LotteryResultAvailable = "App.LotteryResultAvailable";
 }
