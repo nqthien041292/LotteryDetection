@@ -24,17 +24,73 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     private readonly IBinaryObjectManager _binaryObjectManager;
     private readonly IVertexAITicketAnalyzer _analyzer;
     private readonly ILotteryResultProvider _lotteryResultProvider;
+    private readonly Notifications.IAppNotifier _appNotifier;
 
     public TicketAnalysisAppService(
         IRepository<TicketAnalysis, Guid> repository,
         IBinaryObjectManager binaryObjectManager,
         IVertexAITicketAnalyzer analyzer,
-        ILotteryResultProvider lotteryResultProvider)
+        ILotteryResultProvider lotteryResultProvider,
+        Notifications.IAppNotifier appNotifier)
     {
         _repository = repository;
         _binaryObjectManager = binaryObjectManager;
         _analyzer = analyzer;
         _lotteryResultProvider = lotteryResultProvider;
+        _appNotifier = appNotifier;
+    }
+
+    [AbpAllowAnonymous]
+    public async Task CheckPendingResultsAsync()
+    {
+        var pendingTickets = await _repository.GetAll()
+            .Where(t => t.Status == TicketAnalysisStatus.Succeeded && t.IsWinner == null)
+            .ToListAsync();
+
+        if (!pendingTickets.Any())
+        {
+            return;
+        }
+
+        var groupedTickets = pendingTickets.GroupBy(t => new { t.Province, t.DrawDate });
+
+        foreach (var group in groupedTickets)
+        {
+            if (string.IsNullOrEmpty(group.Key.Province) || !group.Key.DrawDate.HasValue)
+            {
+                continue;
+            }
+
+            try
+            {
+                var drawResult = await _lotteryResultProvider.GetResultAsync(group.Key.Province, group.Key.DrawDate.Value);
+
+                if (drawResult != null && drawResult.Prizes != null && drawResult.Prizes.Any())
+                {
+                    foreach (var ticket in group)
+                    {
+                        LotteryMatcher.Match(ticket, drawResult);
+
+                        if (ticket.IsWinner.HasValue && ticket.CreatorUserId.HasValue)
+                        {
+                            await _appNotifier.LotteryResultFoundAsync(
+                                new Abp.UserIdentifier(ticket.TenantId, ticket.CreatorUserId.Value),
+                                ticket.Id,
+                                ticket.IsWinner.Value,
+                                ticket.MatchedPrize,
+                                ticket.PrizeAmount
+                            );
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Failed to check result for {group.Key.Province} on {group.Key.DrawDate}: {ex.Message}");
+            }
+        }
+        
+        await CurrentUnitOfWork.SaveChangesAsync();
     }
 
     public async Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input)

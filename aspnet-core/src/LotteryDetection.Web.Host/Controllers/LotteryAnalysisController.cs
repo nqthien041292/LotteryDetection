@@ -56,4 +56,13 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
             SkipCount = Math.Max(0, skipCount)
         });
     }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    [CloudSchedulerAuthorize]
+    public async Task<IActionResult> CheckPendingResults()
+    {
+        await _appService.CheckPendingResultsAsync();
+        return Ok(new { success = true, message = "Pending results checked successfully." });
+    }
 }

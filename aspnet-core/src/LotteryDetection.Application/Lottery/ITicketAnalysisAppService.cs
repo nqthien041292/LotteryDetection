@@ -13,4 +13,6 @@ public interface ITicketAnalysisAppService : IApplicationService
     Task<TicketAnalysisDto> GetAsync(EntityDto<Guid> input);
 
     Task<PagedResultDto<TicketAnalysisDto>> GetHistoryAsync(PagedResultRequestDto input);
+
+    Task CheckPendingResultsAsync();
 }
