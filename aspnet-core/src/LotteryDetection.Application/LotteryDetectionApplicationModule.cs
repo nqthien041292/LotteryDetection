@@ -21,6 +21,8 @@ public class LotteryDetectionApplicationModule : AbpModule
 
         //Adding custom AutoMapper configuration
         Configuration.Modules.AbpAutoMapper().Configurators.Add(CustomDtoMapper.CreateMappings);
+        
+        IocManager.Register<LotteryDetection.Lottery.ILotteryResultProvider, LotteryDetection.Lottery.Scraping.MinhNgocResultProvider>(Abp.Dependency.DependencyLifeStyle.Transient);
     }
 
     public override void Initialize()
