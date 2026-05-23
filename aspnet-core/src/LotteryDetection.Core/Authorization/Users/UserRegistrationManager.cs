@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,15 +61,19 @@ public class UserRegistrationManager : LotteryDetectionDomainServiceBase
         await CheckForEmailDomainAsync(emailAddress);
 
         var tenant = await GetActiveTenantAsync();
+        var tenantId = tenant?.Id;
         var isNewRegisteredUserActiveByDefault =
             await SettingManager.GetSettingValueAsync<bool>(AppSettings.UserManagement
                 .IsNewRegisteredUserActiveByDefault);
 
-        await _userPolicy.CheckMaxUserCountAsync(tenant.Id);
+        if (tenantId.HasValue)
+        {
+            await _userPolicy.CheckMaxUserCountAsync(tenantId.Value);
+        }
 
         var user = new User
         {
-            TenantId = tenant.Id,
+            TenantId = tenantId,
             Name = name,
             Surname = surname,
             EmailAddress = emailAddress,
@@ -81,8 +85,8 @@ public class UserRegistrationManager : LotteryDetectionDomainServiceBase
 
         user.SetNormalizedNames();
 
-        var defaultRoles = await AsyncQueryableExecuter.ToListAsync(_roleManager.Roles.Where(r => r.IsDefault));
-        foreach (var defaultRole in defaultRoles) user.Roles.Add(new UserRole(tenant.Id, user.Id, defaultRole.Id));
+        var defaultRoles = await AsyncQueryableExecuter.ToListAsync(_roleManager.Roles.Where(r => r.IsDefault && r.TenantId == tenantId));
+        foreach (var defaultRole in defaultRoles) user.Roles.Add(new UserRole(tenantId, user.Id, defaultRole.Id));
 
         await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
         CheckErrors(await _userManager.CreateAsync(user, plainPassword));
@@ -104,7 +108,7 @@ public class UserRegistrationManager : LotteryDetectionDomainServiceBase
 
     private void CheckForTenant()
     {
-        if (!AbpSession.TenantId.HasValue) throw new InvalidOperationException("Can not register host users!");
+        // Allowed to register host users
     }
 
     private void CheckSelfRegistrationIsEnabled()
