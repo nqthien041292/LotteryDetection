@@ -23,15 +23,18 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     private readonly IRepository<TicketAnalysis, Guid> _repository;
     private readonly IBinaryObjectManager _binaryObjectManager;
     private readonly IVertexAITicketAnalyzer _analyzer;
+    private readonly ILotteryResultProvider _lotteryResultProvider;
 
     public TicketAnalysisAppService(
         IRepository<TicketAnalysis, Guid> repository,
         IBinaryObjectManager binaryObjectManager,
-        IVertexAITicketAnalyzer analyzer)
+        IVertexAITicketAnalyzer analyzer,
+        ILotteryResultProvider lotteryResultProvider)
     {
         _repository = repository;
         _binaryObjectManager = binaryObjectManager;
         _analyzer = analyzer;
+        _lotteryResultProvider = lotteryResultProvider;
     }
 
     public async Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input)
@@ -76,6 +79,12 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
             entity.Notes = Truncate(result.Notes, TicketAnalysis.NotesMaxLength);
             entity.RawModelResponse = Truncate(result.RawJson, TicketAnalysis.RawModelResponseMaxLength);
             entity.Status = TicketAnalysisStatus.Succeeded;
+
+            if (!string.IsNullOrEmpty(entity.Province) && entity.DrawDate.HasValue && !string.IsNullOrEmpty(entity.TicketNumber))
+            {
+                var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value);
+                LotteryMatcher.Match(entity, drawResult);
+            }
         }
         catch (UserFriendlyException ex)
         {

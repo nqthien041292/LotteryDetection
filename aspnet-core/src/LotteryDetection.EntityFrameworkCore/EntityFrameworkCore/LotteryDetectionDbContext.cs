@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Abp.OpenIddict.Applications;
 using Abp.OpenIddict.Authorizations;
 using Abp.OpenIddict.EntityFrameworkCore;
@@ -48,6 +48,9 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
     public virtual DbSet<RecentPassword> RecentPasswords { get; set; }
 
     public virtual DbSet<TicketAnalysis> TicketAnalyses { get; set; }
+    
+    public virtual DbSet<LotteryDrawResult> LotteryDrawResults { get; set; }
+    
     /* Define an IDbSet for each entity of the application */
 
     public virtual DbSet<OpenIddictApplication> Applications { get; }
@@ -132,6 +135,11 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
         {
             b.HasIndex(e => new { e.TenantId, e.CreatorUserId, e.CreationTime });
             b.HasIndex(e => new { e.TenantId, e.Status });
+        });
+
+        modelBuilder.Entity<LotteryDrawResult>(b =>
+        {
+            b.HasIndex(e => new { e.Province, e.DrawDate });
         });
 
         modelBuilder.ConfigureOpenIddict();
