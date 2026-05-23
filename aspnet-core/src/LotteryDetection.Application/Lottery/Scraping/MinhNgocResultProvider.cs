@@ -17,6 +17,12 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
     private readonly IRepository<LotteryDrawResult, Guid> _repository;
     private static readonly HttpClient HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
+    static MinhNgocResultProvider()
+    {
+        HttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36");
+        HttpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+    }
+
     public MinhNgocResultProvider(IRepository<LotteryDrawResult, Guid> repository)
     {
         _repository = repository;
@@ -83,22 +89,22 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
             foreach (var kvp in classMap)
             {
                 var nodes = doc.DocumentNode.SelectNodes($"//td[contains(@class, '{kvp.Key}')]");
-                if (nodes != null)
+                if (nodes != null && nodes.Count > 0)
                 {
+                    var node = nodes[0]; // ONLY take the first column (the requested date)
                     var numbers = new List<string>();
-                    foreach (var node in nodes)
+                    
+                    var text = node.InnerText.Trim();
+                    // numbers can be separated by spaces or inside divs
+                    var parts = text.Split(new[] { ' ', '\n', '\r', '-' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var part in parts)
                     {
-                        var text = node.InnerText.Trim();
-                        // numbers can be separated by spaces or inside divs
-                        var parts = text.Split(new[] { ' ', '\n', '\r', '-' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var part in parts)
+                        if (part.All(char.IsDigit))
                         {
-                            if (part.All(char.IsDigit))
-                            {
-                                numbers.Add(part);
-                            }
+                            numbers.Add(part);
                         }
                     }
+                    
                     if (numbers.Any())
                     {
                         result.Prizes[kvp.Value] = numbers.Distinct().ToList();
