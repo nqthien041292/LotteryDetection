@@ -38,6 +38,14 @@ public static class AppConfiguration
     public static (string? ClientId, string? TenantId) GetMicrosoftClient()
     {
         EnsureLoaded();
+        if (_config!.RootElement.TryGetProperty("AzureAd", out var azureAd))
+        {
+            var clientId = azureAd.TryGetProperty("ClientId", out var c) ? c.GetString() : null;
+            var tenantId = azureAd.TryGetProperty("TenantId", out var t) ? t.GetString() : null;
+            if (!string.IsNullOrWhiteSpace(clientId))
+                return (clientId, string.IsNullOrWhiteSpace(tenantId) ? "common" : tenantId);
+        }
+        
         if (_config!.RootElement.TryGetProperty("Microsoft", out var ms))
         {
             var clientId = ms.TryGetProperty("ClientId", out var c) ? c.GetString() : null;

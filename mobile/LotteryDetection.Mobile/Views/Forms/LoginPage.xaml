@@ -45,14 +45,14 @@
                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
                 <Label.FormattedText>
                     <FormattedString>
-                        <Span Text="DoVeSo " />
+                        <Span Text="DòVéSố " />
                         <Span Text="AI"
-                              TextColor="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                              TextColor="#00bb77" />
                     </FormattedString>
                 </Label.FormattedText>
             </Label>
 
-            <Label Text="Sign in to manage your family's tasks and sync across every device."
+            <Label Text="Đăng nhập để quét vé số tự động, rước tài lộc cát tường cùng Thần Tài AI!"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    FontFamily="Geist" FontSize="15" LineHeight="1.45"
@@ -99,10 +99,10 @@
                            TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
                         <Label.Triggers>
                             <DataTrigger TargetType="Label" Binding="{Binding IsBusy}" Value="True">
-                                <Setter Property="Text" Value="Signing in…" />
+                                <Setter Property="Text" Value="Đang đăng nhập…" />
                             </DataTrigger>
                             <DataTrigger TargetType="Label" Binding="{Binding IsBusy}" Value="False">
-                                <Setter Property="Text" Value="Continue with Microsoft" />
+                                <Setter Property="Text" Value="Tiếp tục với Microsoft" />
                             </DataTrigger>
                         </Label.Triggers>
                     </Label>
@@ -124,7 +124,7 @@
                          VerticalOptions="Center" />
             </Grid>
 
-            <Button Text="Use email instead"
+            <Button Text="Sử dụng email thay thế"
                     HeightRequest="48"
                     CornerRadius="14"
                     BackgroundColor="Transparent"
@@ -154,15 +154,15 @@
                TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}">
             <Label.FormattedText>
                 <FormattedString>
-                    <Span Text="By continuing, you agree to our " />
-                    <Span Text="Terms"
+                    <Span Text="Bằng cách tiếp tục, bạn đồng ý với " />
+                    <Span Text="Điều khoản"
                           TextDecorations="Underline"
                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
-                    <Span Text=" and " />
-                    <Span Text="Privacy Policy"
+                    <Span Text=" và " />
+                    <Span Text="Chính sách bảo mật"
                           TextDecorations="Underline"
                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
-                    <Span Text="." />
+                    <Span Text=" của chúng tôi." />
                 </FormattedString>
             </Label.FormattedText>
         </Label>

@@ -97,6 +97,7 @@
 		<!-- SdkOnly link mode in Debug keeps incremental builds fast and avoids
 		     marshalling-stub issues with the pinned iOS 26.x SDK on Xcode 26.3. -->
 		<MtouchLink Condition="'$(Configuration)' == 'Debug'">SdkOnly</MtouchLink>
+		<CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
 
 	<!-- iOS Simulator (default when RID unset, or explicitly iossimulator-*): ad-hoc sign. -->
