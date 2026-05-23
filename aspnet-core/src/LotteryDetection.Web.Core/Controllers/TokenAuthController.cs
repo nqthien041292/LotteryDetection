@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -562,6 +562,22 @@ public class TokenAuthController : LotteryDetectionControllerBase
             GetTenancyNameOrNull()
         );
 
+        if (loginResult.Result == AbpLoginResultType.UserIsNotActive)
+        {
+            var user = await _userManager.FindByEmailAsync(externalUser.EmailAddress);
+            if (user != null)
+            {
+                user.IsActive = true;
+                await _userManager.UpdateAsync(user);
+                await CurrentUnitOfWork.SaveChangesAsync();
+                
+                loginResult = await _logInManager.LoginAsync(
+                    new UserLoginInfo(model.AuthProvider, externalUser.ProviderKey, model.AuthProvider),
+                    GetTenancyNameOrNull()
+                );
+            }
+        }
+
         switch (loginResult.Result)
         {
             case AbpLoginResultType.Success:
@@ -704,6 +720,8 @@ public class TokenAuthController : LotteryDetectionControllerBase
             true,
             null
         );
+
+        user.IsActive = true;
 
         user.Logins = new List<UserLogin>
         {
