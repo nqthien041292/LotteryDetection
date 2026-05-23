@@ -113,8 +113,9 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
             return result;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"MinhNgoc scraping error for {url}: {ex.Message}");
             return null;
         }
     }
