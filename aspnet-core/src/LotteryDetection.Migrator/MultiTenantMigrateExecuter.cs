@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Abp.Data;
 using Abp.Dependency;
@@ -70,7 +70,7 @@ public class MultiTenantMigrateExecuter : ITransientDependency
             Log.Write("An error occured during migration of host database:");
             Log.Write(ex.ToString());
             Log.Write("Canceled migrations.");
-            return;
+            throw; // Rethrow to ensure the process exits with a non-zero exit code for CI/CD
         }
 
         Log.Write("HOST database migration completed.");
