@@ -34,10 +34,10 @@ public static class OpenIddictRegistrar
                     .SetDefaultTokenEntity<OpenIddictTokenModel>();
 
                 builder
-                    .AddApplicationStore<AbpOpenIddictApplicationStore>()
-                    .AddAuthorizationStore<AbpOpenIddictAuthorizationStore>()
-                    .AddScopeStore<AbpOpenIddictScopeStore>()
-                    .AddTokenStore<AbpOpenIddictTokenStore>();
+                    .ReplaceApplicationStore<OpenIddictApplicationModel, AbpOpenIddictApplicationStore>(ServiceLifetime.Scoped)
+                    .ReplaceAuthorizationStore<OpenIddictAuthorizationModel, AbpOpenIddictAuthorizationStore>(ServiceLifetime.Scoped)
+                    .ReplaceScopeStore<OpenIddictScopeModel, AbpOpenIddictScopeStore>(ServiceLifetime.Scoped)
+                    .ReplaceTokenStore<OpenIddictTokenModel, AbpOpenIddictTokenStore>(ServiceLifetime.Scoped);
             })
 
             // Register the OpenIddict server components.

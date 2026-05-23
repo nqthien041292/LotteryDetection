@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -47,6 +48,8 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
         };
 
         using var request = new HttpRequestMessage(HttpMethod.Post, AnalyzePath) { Content = content };
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        request.Headers.TryAddWithoutValidation("X-Requested-With", "XMLHttpRequest");
 
         if (_authService.IsSignedIn)
         {
@@ -65,8 +68,14 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
         using var response = await _http.SendAsync(request, ct);
         var body = await response.Content.ReadAsStringAsync(ct);
 
+        if (IsAuthRedirect(response))
+            throw new UnauthorizedAccessException("Bạn cần đăng nhập lại trước khi AI dò vé số.");
+
         if (!response.IsSuccessStatusCode)
             throw new HttpRequestException(ExtractErrorMessage(body) ?? $"HTTP {(int)response.StatusCode}");
+
+        if (!IsJsonResponse(response, body))
+            throw new InvalidOperationException(ExtractNonJsonMessage(response, body));
 
         var dto = ParseAbpEnvelope(body)
                   ?? throw new InvalidOperationException("Backend trả về dữ liệu trống.");
@@ -94,6 +103,42 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
 
         var resultEl = root.TryGetProperty("result", out var r) ? r : root;
         return JsonSerializer.Deserialize<TicketAnalysisDto>(resultEl.GetRawText(), JsonOptions);
+    }
+
+    private static bool IsAuthRedirect(HttpResponseMessage response)
+    {
+        if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            return true;
+
+        var statusCode = (int)response.StatusCode;
+        if (statusCode is < 300 or > 399) return false;
+
+        var location = response.Headers.Location?.ToString() ?? string.Empty;
+        return location.Contains("/Account/Login", StringComparison.OrdinalIgnoreCase) ||
+               location.Contains("ReturnUrl=", StringComparison.OrdinalIgnoreCase) ||
+               location.Contains("statusCode=401", StringComparison.OrdinalIgnoreCase) ||
+               location.Contains("statusCode=403", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsJsonResponse(HttpResponseMessage response, string body)
+    {
+        var mediaType = response.Content.Headers.ContentType?.MediaType;
+        if (mediaType?.Contains("json", StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+
+        var trimmed = body.TrimStart();
+        return trimmed.StartsWith("{", StringComparison.Ordinal) ||
+               trimmed.StartsWith("[", StringComparison.Ordinal);
+    }
+
+    private static string ExtractNonJsonMessage(HttpResponseMessage response, string body)
+    {
+        if (body.Contains("/Account/Login", StringComparison.OrdinalIgnoreCase) ||
+            body.Contains("<html", StringComparison.OrdinalIgnoreCase))
+            return "Backend trả về trang đăng nhập thay vì JSON. Vui lòng đăng nhập lại rồi thử phân tích.";
+
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? "không rõ";
+        return $"Backend không trả về JSON hợp lệ (Content-Type: {contentType}).";
     }
 
     private static string? ExtractErrorMessage(string body)

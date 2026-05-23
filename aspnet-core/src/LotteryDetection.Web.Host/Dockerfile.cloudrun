@@ -3,7 +3,7 @@
 # Cloud Run image for LotteryDetection.Web.Host.
 # Build context must be the `aspnet-core/` directory.
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files first for restore-layer caching.
@@ -29,7 +29,7 @@ RUN dotnet publish src/LotteryDetection.Web.Host/LotteryDetection.Web.Host.cspro
         -o /app/publish \
         /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
 

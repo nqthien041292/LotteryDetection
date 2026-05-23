@@ -120,7 +120,10 @@ public static class MauiProgram
         var backendBaseUrl = AppConfiguration.GetBackendApiBaseUrl();
         if (!string.IsNullOrWhiteSpace(backendBaseUrl))
         {
-            HttpClient NewBackendClient(int timeoutSeconds = 60) => new()
+            HttpClient NewBackendClient(int timeoutSeconds = 60) => new(new HttpClientHandler
+            {
+                AllowAutoRedirect = false
+            })
             {
                 BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
                 Timeout = TimeSpan.FromSeconds(timeoutSeconds)

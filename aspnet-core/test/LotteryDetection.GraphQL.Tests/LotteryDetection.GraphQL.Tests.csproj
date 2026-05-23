@@ -2,7 +2,7 @@
   <Import Project="..\..\common.props">
   </Import>
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
     <AssemblyName>LotteryDetection.GraphQL.Tests</AssemblyName>
     <PackageId>LotteryDetection.GraphQL.Tests</PackageId>
@@ -18,6 +18,6 @@
     <ProjectReference Include="..\LotteryDetection.Test.Base\LotteryDetection.Test.Base.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
   </ItemGroup>
 </Project>

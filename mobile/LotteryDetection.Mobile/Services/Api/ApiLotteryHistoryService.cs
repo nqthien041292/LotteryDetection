@@ -53,6 +53,12 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
         }
 
         var body = await response.Content.ReadAsStringAsync(ct);
+        if (!IsJsonResponse(response, body))
+        {
+            Debug.WriteLine("[ApiLotteryHistoryService] Backend returned non-JSON history response.");
+            return Array.Empty<LotteryHistoryEntry>();
+        }
+
         var paged = ParseEnvelope(body);
         if (paged?.Items == null) return Array.Empty<LotteryHistoryEntry>();
 
@@ -68,6 +74,17 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
         using var doc = JsonDocument.Parse(body);
         var result = doc.RootElement.TryGetProperty("result", out var r) ? r : doc.RootElement;
         return JsonSerializer.Deserialize<PagedDto>(result.GetRawText(), JsonOptions);
+    }
+
+    private static bool IsJsonResponse(HttpResponseMessage response, string body)
+    {
+        var mediaType = response.Content.Headers.ContentType?.MediaType;
+        if (mediaType?.Contains("json", StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+
+        var trimmed = body.TrimStart();
+        return trimmed.StartsWith("{", StringComparison.Ordinal) ||
+               trimmed.StartsWith("[", StringComparison.Ordinal);
     }
 
     private static LotteryHistoryEntry MapToEntry(TicketAnalysisDto dto) => new()
