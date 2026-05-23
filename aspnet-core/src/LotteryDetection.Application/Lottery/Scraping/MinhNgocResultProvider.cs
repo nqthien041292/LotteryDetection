@@ -89,9 +89,9 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
             foreach (var kvp in classMap)
             {
                 var nodes = doc.DocumentNode.SelectNodes($"//td[contains(@class, '{kvp.Key}')]");
-                if (nodes != null && nodes.Count > 0)
+                if (nodes != null && nodes.Count > 1)
                 {
-                    var node = nodes[0]; // ONLY take the first column (the requested date)
+                    var node = nodes[1]; // nodes[0] is the header (e.g. 'Giải ĐB'), nodes[1] is the first result column
                     var numbers = new List<string>();
                     
                     var text = node.InnerText.Trim();
