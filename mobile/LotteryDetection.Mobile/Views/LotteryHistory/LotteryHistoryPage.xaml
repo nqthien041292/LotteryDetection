@@ -5,53 +5,78 @@
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:lotteryModels="clr-namespace:LotteryDetection.Mobile.Models.Lottery"
+             xmlns:cv="clr-namespace:LotteryDetection.Mobile.Converters"
              x:Class="LotteryDetection.Mobile.Views.LotteryHistory.LotteryHistoryPage"
              x:DataType="viewModel:LotteryHistoryViewModel"
              Title="Lịch sử dò vé"
              NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#F6F8F2">
+             BackgroundColor="#FAFBF6">
 
-    <Grid RowDefinitions="Auto,*">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <cv:InvertBoolConverter x:Key="InvertBool" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-        <!-- Top bar -->
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Top bar (Header với nút quay lại tinh tế và Rương Kho Báu 3D lắc lư) -->
         <Grid Grid.Row="0"
               Padding="20,42,20,12"
               ColumnDefinitions="Auto,*,Auto">
-            <Button Grid.Column="0"
-                    Text="‹"
-                    FontSize="28"
-                    WidthRequest="42" HeightRequest="42"
-                    Padding="0" CornerRadius="14"
-                    BackgroundColor="#E9EFE4"
-                    TextColor="#173D2A"
-                    Clicked="OnBackClicked" />
+            <Border Grid.Column="0" WidthRequest="42" HeightRequest="42" StrokeThickness="0" BackgroundColor="#E9EFE4" HorizontalOptions="Start" VerticalOptions="Center">
+                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Radius="6" Offset="0,2" Opacity="0.05" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Border.GestureRecognizers>
+                <Label Text="‹" FontSize="26" FontAttributes="Bold" TextColor="#173D2A" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,-2,0,0" />
+            </Border>
+            
             <Label Grid.Column="1"
-                   Text="Lịch sử dò vé"
+                   Text="LỊCH SỬ DÒ VÉ"
                    HorizontalOptions="Center" VerticalOptions="Center"
-                   FontFamily="Geist" FontSize="18" FontAttributes="Bold"
-                   TextColor="#142116" />
-            <BoxView Grid.Column="2" WidthRequest="42" HeightRequest="42" BackgroundColor="Transparent" />
+                   FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                   CharacterSpacing="1.2"
+                   TextColor="#031649" />
+                   
+            <Border x:Name="HeaderChest" Grid.Column="2" WidthRequest="42" HeightRequest="42" StrokeThickness="1.5" Stroke="#F5C842" BackgroundColor="White" HorizontalOptions="End" VerticalOptions="Center">
+                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="21" /></Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#031649" Radius="8" Offset="0,3" Opacity="0.1" />
+                </Border.Shadow>
+                <Image Source="treasure_chest.png" Aspect="AspectFill" Margin="1.5" />
+            </Border>
         </Grid>
 
+        <!-- Body -->
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="20,4,20,28" Spacing="18">
+            <VerticalStackLayout Padding="20,8,20,24" Spacing="18">
 
-                <!-- Hero stats card -->
-                <Border StrokeThickness="0" Padding="20" BackgroundColor="#173D2A">
+                <!-- Hero stats card (Dải màu Gradient Tài Lộc cực kỳ sang trọng) -->
+                <Border StrokeThickness="0" Padding="20">
                     <Border.StrokeShape>
                         <shapes:RoundRectangle CornerRadius="24" />
                     </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#031649" Offset="0.0" />
+                            <GradientStop Color="#00bb77" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Border.Shadow>
-                        <Shadow Brush="#173D2A" Radius="24" Offset="0,14" Opacity="0.18" />
+                        <Shadow Brush="#031649" Radius="20" Offset="0,10" Opacity="0.22" />
                     </Border.Shadow>
                     <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="14">
 
                         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="{Binding HeroSubline}"
-                                       FontFamily="Geist" FontSize="12"
-                                       TextColor="#A9D7B6" />
+                                       FontFamily="Geist" FontSize="12.5"
+                                       TextColor="#CFE6D5" />
                                 <Label Text="{Binding HeroHeadline}"
                                        FontFamily="Geist" FontSize="22" FontAttributes="Bold"
                                        LineHeight="1.15"
@@ -59,115 +84,128 @@
                             </VerticalStackLayout>
                             <Border Grid.Column="1"
                                     WidthRequest="56" HeightRequest="56"
-                                    StrokeThickness="0"
-                                    BackgroundColor="#F5C842">
+                                    StrokeThickness="1.5"
+                                    Stroke="#F5C842"
+                                    BackgroundColor="White">
                                 <Border.StrokeShape>
                                     <shapes:RoundRectangle CornerRadius="18" />
                                 </Border.StrokeShape>
-                                <Label Text="🏆"
-                                       FontSize="28"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                                <Border.Shadow>
+                                    <Shadow Brush="#F5C842" Radius="10" Offset="0,3" Opacity="0.2" />
+                                </Border.Shadow>
+                                <Image Source="treasure_chest.png" Aspect="AspectFill" Margin="2" />
                             </Border>
                         </Grid>
 
-                        <BoxView Grid.Row="1" HeightRequest="1" Color="#234E37" />
+                        <BoxView Grid.Row="1" HeightRequest="1" Color="#20FFFFFF" />
 
                         <Grid Grid.Row="2" ColumnDefinitions="*,1,*" ColumnSpacing="14">
                             <VerticalStackLayout Grid.Column="0" Spacing="3">
-                                <Label Text="Tổng thưởng"
+                                <Label Text="Tổng tiền thưởng"
                                        FontFamily="Geist" FontSize="11"
-                                       TextColor="#A9D7B6" />
+                                       TextColor="#CFE6D5" />
                                 <Label Text="{Binding TotalWinningsDisplay}"
-                                       FontFamily="GeistMono" FontSize="17" FontAttributes="Bold"
+                                       FontFamily="GeistMono" FontSize="18" FontAttributes="Bold"
                                        TextColor="#F5C842" />
                             </VerticalStackLayout>
-                            <BoxView Grid.Column="1" WidthRequest="1" Color="#234E37" />
+                            <BoxView Grid.Column="1" WidthRequest="1" Color="#20FFFFFF" />
                             <VerticalStackLayout Grid.Column="2" Spacing="3">
                                 <Label Text="Giải lớn nhất"
                                        FontFamily="Geist" FontSize="11"
-                                       TextColor="#A9D7B6" />
+                                       TextColor="#CFE6D5" />
                                 <Label Text="{Binding BiggestWinDisplay}"
-                                       FontFamily="GeistMono" FontSize="17" FontAttributes="Bold"
+                                       FontFamily="GeistMono" FontSize="18" FontAttributes="Bold"
                                        TextColor="White" />
                             </VerticalStackLayout>
                         </Grid>
                     </Grid>
                 </Border>
 
-                <!-- Skeleton -->
+                <!-- Skeleton Loader -->
                 <Border IsVisible="{Binding ShowSkeleton}"
-                        Padding="18"
+                        Padding="22"
                         StrokeThickness="0"
                         BackgroundColor="White">
                     <Border.StrokeShape>
                         <shapes:RoundRectangle CornerRadius="18" />
                     </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="10">
-                        <ActivityIndicator IsRunning="True" Color="#173D2A" />
-                        <Label Text="Đang tải lịch sử…"
-                               FontFamily="Geist" FontSize="13"
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Radius="10" Offset="0,4" Opacity="0.04" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <ActivityIndicator IsRunning="True" Color="#00bb77" HeightRequest="36" WidthRequest="36" />
+                        <Label Text="AI đang tải lịch sử dò vé…"
+                               FontFamily="Geist" FontSize="13" FontAttributes="Bold"
                                HorizontalTextAlignment="Center"
-                               TextColor="#66736A" />
+                               TextColor="#031649" />
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Empty state -->
+                <!-- Empty state với Thần Tài lấp lánh cát tường -->
                 <Border IsVisible="{Binding ShowEmptyState}"
-                        Padding="22"
+                        Padding="24"
                         StrokeThickness="1"
                         Stroke="#DAE5D6"
                         BackgroundColor="White">
                     <Border.StrokeShape>
-                        <shapes:RoundRectangle CornerRadius="20" />
+                        <shapes:RoundRectangle CornerRadius="24" />
                     </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                        <Border WidthRequest="56" HeightRequest="56"
-                                StrokeThickness="0"
-                                BackgroundColor="#E7F5DE"
+                    <Border.Shadow>
+                        <Shadow Brush="#031649" Radius="14" Offset="0,6" Opacity="0.05" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                        <Border WidthRequest="84" HeightRequest="84"
+                                Stroke="#F5C842"
+                                StrokeThickness="2"
+                                BackgroundColor="White"
                                 HorizontalOptions="Center">
                             <Border.StrokeShape>
-                                <shapes:RoundRectangle CornerRadius="28" />
+                                <shapes:RoundRectangle CornerRadius="42" />
                             </Border.StrokeShape>
-                            <Label Text="🎫"
-                                   FontSize="26"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
+                            <Border.Shadow>
+                                <Shadow Brush="#F5C842" Offset="0,4" Radius="14" Opacity="0.25" />
+                            </Border.Shadow>
+                            <Image Source="lucky_mascot.png" Aspect="AspectFill" Margin="2" />
                         </Border>
+                        
                         <Label Text="Chưa có vé nào được dò"
-                               FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                               FontFamily="Geist" FontSize="17" FontAttributes="Bold"
                                HorizontalTextAlignment="Center"
-                               TextColor="#142116" />
-                        <Label Text="Chụp vé số đầu tiên để bắt đầu lưu lịch sử dò vé của bạn."
+                               TextColor="#031649" />
+                        <Label Text="Hãy chụp bức ảnh vé số đầu tiên để Thần Tài AI tra cứu giải thưởng và tích lũy cát tường cho bạn!"
                                FontFamily="Geist" FontSize="13"
                                LineHeight="1.45"
                                HorizontalTextAlignment="Center"
                                TextColor="#66736A" />
-                        <Button Text="Chụp vé số ngay"
+                        <Button Text="🔮 Chụp Vé Số Ngay"
                                 Command="{Binding StartCaptureCommand}"
-                                HeightRequest="48"
-                                CornerRadius="16"
+                                HeightRequest="52"
+                                CornerRadius="18"
                                 FontFamily="Geist" FontSize="14" FontAttributes="Bold"
                                 BackgroundColor="#F5C842"
-                                TextColor="#173D2A"
-                                Margin="0,4,0,0" />
+                                TextColor="#031649"
+                                Margin="0,6,0,0">
+                            <Button.Shadow>
+                                <Shadow Brush="#F5C842" Radius="8" Offset="0,3" Opacity="0.2" />
+                            </Button.Shadow>
+                        </Button>
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Winners section -->
-                <VerticalStackLayout Spacing="10" IsVisible="{Binding HasWinners}">
+                <!-- Winners section (Danh sách vé trúng thưởng cực kỳ nổi bật) -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding HasWinners}">
                     <Grid ColumnDefinitions="*,Auto">
                         <VerticalStackLayout Spacing="2">
                             <Label Text="Trúng giải gần đây"
                                    FontFamily="Geist" FontSize="16" FontAttributes="Bold"
-                                   TextColor="#142116" />
-                            <Label Text="Mang vé thật đối chiếu và lĩnh thưởng trong 30 ngày"
+                                   TextColor="#031649" />
+                            <Label Text="Mang vé thật đối chiếu lĩnh thưởng trong 30 ngày nhé!"
                                    FontFamily="Geist" FontSize="11"
                                    TextColor="#66736A" />
                         </VerticalStackLayout>
                         <Border Grid.Column="1"
                                 StrokeThickness="0"
-                                Padding="9,4"
+                                Padding="10,4"
                                 BackgroundColor="#F5C842"
                                 VerticalOptions="Center">
                             <Border.StrokeShape>
@@ -175,7 +213,7 @@
                             </Border.StrokeShape>
                             <Label Text="{Binding WinCount, StringFormat='{0} vé'}"
                                    FontFamily="Geist" FontSize="11" FontAttributes="Bold"
-                                   TextColor="#173D2A" />
+                                   TextColor="#031649" />
                         </Border>
                     </Grid>
 
@@ -187,15 +225,16 @@
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="lotteryModels:LotteryHistoryEntry">
+                                <!-- Card trúng giải mạ vàng kép tinh xảo -->
                                 <Border StrokeThickness="1.5"
                                         Stroke="#F5C842"
-                                        BackgroundColor="{Binding CardBackground}"
+                                        BackgroundColor="#0B2316"
                                         Padding="16">
                                     <Border.StrokeShape>
                                         <shapes:RoundRectangle CornerRadius="20" />
                                     </Border.StrokeShape>
                                     <Border.Shadow>
-                                        <Shadow Brush="#F5C842" Offset="0,8" Radius="18" Opacity="0.18" />
+                                        <Shadow Brush="#F5C842" Offset="0,6" Radius="14" Opacity="0.12" />
                                     </Border.Shadow>
                                     <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
 
@@ -216,23 +255,23 @@
                                             </Border>
                                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                                 <Label Text="TRÚNG GIẢI"
-                                                       FontFamily="Geist" FontSize="10" FontAttributes="Bold"
+                                                       FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
                                                        TextColor="#F5C842" />
                                                 <Label Text="{Binding StatusLabel}"
-                                                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                                       FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
                                                        TextColor="White" />
                                             </VerticalStackLayout>
                                             <Border Grid.Column="2"
                                                     StrokeThickness="0"
                                                     Padding="9,4"
-                                                    BackgroundColor="#234E37"
+                                                    BackgroundColor="#163A1D"
                                                     VerticalOptions="Center">
                                                 <Border.StrokeShape>
                                                     <shapes:RoundRectangle CornerRadius="9" />
                                                 </Border.StrokeShape>
                                                 <Label Text="{Binding CapturedDisplay}"
                                                        FontFamily="Geist" FontSize="10" FontAttributes="Bold"
-                                                       TextColor="#CFE6D5" />
+                                                       TextColor="#A9D7B6" />
                                             </Border>
                                         </Grid>
 
@@ -240,15 +279,15 @@
                                         <Border Grid.Row="1"
                                                 StrokeThickness="0"
                                                 Padding="14,12"
-                                                BackgroundColor="#234E37">
+                                                BackgroundColor="#163A1D">
                                             <Border.StrokeShape>
                                                 <shapes:RoundRectangle CornerRadius="14" />
                                             </Border.StrokeShape>
                                             <Grid ColumnDefinitions="*,Auto">
                                                 <Label Text="Tiền thưởng"
-                                                       FontFamily="Geist" FontSize="11"
+                                                       FontFamily="Geist" FontSize="11.5"
                                                        VerticalOptions="Center"
-                                                       TextColor="#A9D7B6" />
+                                                       TextColor="#CFE6D5" />
                                                 <Label Grid.Column="1"
                                                        Text="{Binding PrizeAmountDisplay}"
                                                        FontFamily="GeistMono" FontSize="20" FontAttributes="Bold"
@@ -262,18 +301,18 @@
                                             <VerticalStackLayout Spacing="2">
                                                 <Label Text="Số vé"
                                                        FontFamily="Geist" FontSize="10"
-                                                       TextColor="#A9D7B6" />
+                                                       TextColor="#CFE6D5" />
                                                 <Label Text="{Binding TicketNumber}"
                                                        FontFamily="GeistMono" FontSize="16" FontAttributes="Bold"
                                                        TextColor="White" />
                                             </VerticalStackLayout>
                                             <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="End">
-                                                <Label Text="Đài"
+                                                <Label Text="Đài quay"
                                                        FontFamily="Geist" FontSize="10"
                                                        HorizontalTextAlignment="End"
-                                                       TextColor="#A9D7B6" />
+                                                       TextColor="#CFE6D5" />
                                                 <Label Text="{Binding Province}"
-                                                       FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                                       FontFamily="Geist" FontSize="13.5" FontAttributes="Bold"
                                                        HorizontalTextAlignment="End"
                                                        TextColor="White" />
                                             </VerticalStackLayout>
@@ -285,11 +324,11 @@
                     </CollectionView>
                 </VerticalStackLayout>
 
-                <!-- All entries section -->
-                <VerticalStackLayout Spacing="10" IsVisible="{Binding HasEntries}">
+                <!-- All entries section (Danh sách tất cả vé đã dò) -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding HasEntries}">
                     <Label Text="Tất cả vé đã dò"
                            FontFamily="Geist" FontSize="16" FontAttributes="Bold"
-                           TextColor="#142116" />
+                           TextColor="#031649" />
 
                     <CollectionView ItemsSource="{Binding Entries}"
                                     SelectionMode="None"
@@ -299,6 +338,7 @@
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="lotteryModels:LotteryHistoryEntry">
+                                <!-- Thẻ vé bo góc sâu, đổ bóng mịn hiện đại -->
                                 <Border StrokeThickness="1"
                                         Stroke="{Binding CardStrokeColor}"
                                         BackgroundColor="White"
@@ -306,6 +346,9 @@
                                     <Border.StrokeShape>
                                         <shapes:RoundRectangle CornerRadius="18" />
                                     </Border.StrokeShape>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#031649" Radius="8" Offset="0,3" Opacity="0.03" />
+                                    </Border.Shadow>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
 
                                         <Border Grid.Column="0"
@@ -326,10 +369,10 @@
 
                                         <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
                                             <Label Text="{Binding TicketNumber}"
-                                                   FontFamily="GeistMono" FontSize="16" FontAttributes="Bold"
-                                                   TextColor="#142116" />
+                                                   FontFamily="GeistMono" FontSize="16.5" FontAttributes="Bold"
+                                                   TextColor="#031649" />
                                             <Label Text="{Binding Province}"
-                                                   FontFamily="Geist" FontSize="12"
+                                                   FontFamily="Geist" FontSize="12.5"
                                                    TextColor="#38443B" />
                                             <Label Text="{Binding CapturedDisplay}"
                                                    FontFamily="Geist" FontSize="11"
@@ -337,8 +380,8 @@
                                         </VerticalStackLayout>
 
                                         <VerticalStackLayout Grid.Column="2" Spacing="6"
-                                                             VerticalOptions="Center"
-                                                             HorizontalOptions="End">
+                                                              VerticalOptions="Center"
+                                                              HorizontalOptions="End">
                                             <Border StrokeThickness="0"
                                                     Padding="10,4"
                                                     BackgroundColor="{Binding StatusBackground}">
@@ -365,5 +408,24 @@
 
             </VerticalStackLayout>
         </ScrollView>
+
+        <!-- Bottom CTA Button (Luôn bám dính dưới cùng và chạy hoạt ảnh co giãn nhịp thở mời gọi) -->
+        <Grid Grid.Row="2"
+              Padding="20,12,20,30"
+              IsVisible="{Binding ShowEmptyState, Converter={StaticResource InvertBool}}">
+            <Button x:Name="ContinueButton"
+                    Text="📸 TIẾP TỤC DÒ VÉ MỚI"
+                    Command="{Binding StartCaptureCommand}"
+                    HeightRequest="58"
+                    CornerRadius="19"
+                    FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                    BackgroundColor="#F5C842"
+                    TextColor="#031649">
+                <Button.Shadow>
+                    <Shadow Brush="#F5C842" Radius="12" Offset="0,6" Opacity="0.25" />
+                </Button.Shadow>
+            </Button>
+        </Grid>
+
     </Grid>
 </ContentPage>
