@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LotteryDetection.Web.Controllers;
 
 [Route("api/services/app/[controller]/[action]")]
-[AbpMvcAuthorize(AppPermissions.Pages_Lottery_AnalyzeTicket)]
+[AbpMvcAuthorize]
 public class LotteryAnalysisController : LotteryDetectionControllerBase
 {
     private readonly ITicketAnalysisAppService _appService;
@@ -47,7 +47,7 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
     }
 
     [HttpGet]
-    [AbpMvcAuthorize(AppPermissions.Pages_Lottery_History)]
+    [AbpMvcAuthorize]
     public Task<PagedResultDto<TicketAnalysisDto>> GetHistory(int maxResultCount = 50, int skipCount = 0)
     {
         return _appService.GetHistoryAsync(new PagedResultRequestDto

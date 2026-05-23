@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LotteryDetection.Lottery;
 
-[AbpAuthorize(AppPermissions.Pages_Lottery_AnalyzeTicket)]
+[AbpAuthorize]
 public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketAnalysisAppService
 {
     private const long MaxImageBytes = 8 * 1024 * 1024;
