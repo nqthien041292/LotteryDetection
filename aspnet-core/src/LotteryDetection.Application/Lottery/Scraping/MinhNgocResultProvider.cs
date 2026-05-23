@@ -132,7 +132,26 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         if (p.Contains("tp. hcm") || p.Contains("hồ chí minh")) return "tp-hcm";
         if (p.Contains("bạc liêu")) return "bac-lieu";
         if (p.Contains("bến tre")) return "ben-tre";
-        // simplified mapping
+        if (p.Contains("an giang")) return "an-giang";
+        if (p.Contains("vũng tàu")) return "vung-tau";
+        if (p.Contains("cần thơ")) return "can-tho";
+        if (p.Contains("đồng nai")) return "dong-nai";
+        if (p.Contains("sóc trăng")) return "soc-trang";
+        if (p.Contains("tây ninh")) return "tay-ninh";
+        if (p.Contains("bình thuận")) return "binh-thuan";
+        if (p.Contains("vĩnh long")) return "vinh-long";
+        if (p.Contains("bình dương")) return "binh-duong";
+        if (p.Contains("trà vinh")) return "tra-vinh";
+        if (p.Contains("long an")) return "long-an";
+        if (p.Contains("bình phước")) return "binh-phuoc";
+        if (p.Contains("hậu giang")) return "hau-giang";
+        if (p.Contains("tiền giang")) return "tien-giang";
+        if (p.Contains("kiên giang")) return "kien-giang";
+        if (p.Contains("đồng tháp")) return "dong-thap";
+        if (p.Contains("cà mau")) return "ca-mau";
+        if (p.Contains("đà lạt")) return "da-lat";
+        
+        // Default fallback if parsing fails or province is unknown
         return "tp-hcm";
     }
 }
