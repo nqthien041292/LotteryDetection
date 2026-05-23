@@ -8,6 +8,7 @@ using Abp.Domain.Repositories;
 using HtmlAgilityPack;
 using LotteryDetection.Lottery;
 using Microsoft.EntityFrameworkCore;
+using PuppeteerSharp;
 using Abp.UI;
 
 namespace LotteryDetection.Lottery.Scraping;
@@ -15,13 +16,7 @@ namespace LotteryDetection.Lottery.Scraping;
 public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependency
 {
     private readonly IRepository<LotteryDrawResult, Guid> _repository;
-    private static readonly HttpClient HttpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
-    static MinhNgocResultProvider()
-    {
-        HttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36");
-        HttpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-    }
 
     public MinhNgocResultProvider(IRepository<LotteryDrawResult, Guid> repository)
     {
@@ -61,7 +56,31 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         
         try
         {
-            var html = await HttpClient.GetStringAsync(url);
+            var launchOptions = new LaunchOptions
+            {
+                Headless = true,
+                Args = new[] { "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage" }
+            };
+
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (env == "Production")
+            {
+                launchOptions.ExecutablePath = "/usr/bin/chromium";
+            }
+            else
+            {
+                var browserFetcher = new BrowserFetcher();
+                await browserFetcher.DownloadAsync();
+            }
+
+            await using var browser = await Puppeteer.LaunchAsync(launchOptions);
+            await using var page = await browser.NewPageAsync();
+            await page.SetUserAgentAsync("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            
+            // Go to page and wait until network is mostly idle (bypassing initial Cloudflare checks)
+            await page.GoToAsync(url, new NavigationOptions { WaitUntil = new[] { WaitUntilNavigation.Networkidle2 } });
+            var html = await page.GetContentAsync();
+
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 

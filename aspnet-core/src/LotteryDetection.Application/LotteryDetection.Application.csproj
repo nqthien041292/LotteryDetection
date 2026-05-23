@@ -19,6 +19,7 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="MiniExcel" Version="1.38.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+    <PackageReference Include="PuppeteerSharp" Version="25.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LotteryDetection.Application.Shared\LotteryDetection.Application.Shared.csproj" />

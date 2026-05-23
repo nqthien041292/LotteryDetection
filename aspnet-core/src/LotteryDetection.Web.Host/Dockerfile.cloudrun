@@ -31,6 +31,10 @@ RUN dotnet publish src/LotteryDetection.Web.Host/LotteryDetection.Web.Host.cspro
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
+
+# Install Chromium for Puppeteer
+RUN apt-get update && apt-get install -y chromium && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish .
 
 # Cloud Run routes traffic to $PORT (default 8080). Bind Kestrel accordingly.
