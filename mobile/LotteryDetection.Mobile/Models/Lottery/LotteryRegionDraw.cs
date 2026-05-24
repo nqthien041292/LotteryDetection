@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace LotteryDetection.Mobile.Models.Lottery;
 
@@ -9,14 +12,39 @@ public enum LotteryRegion
     Nam
 }
 
+public class LotteryProvinceHeader
+{
+    public string Name { get; set; } = string.Empty;
+    public int ColumnIndex { get; set; }
+}
+
+public class LotteryNumberCol
+{
+    public string Number { get; set; } = string.Empty;
+    public int ColumnIndex { get; set; }
+}
+
+public class LotteryRowDraw
+{
+    public string TierLabel { get; set; } = string.Empty;
+    public bool IsSpecial { get; set; }
+    public ObservableCollection<LotteryNumberCol> Numbers { get; set; } = new(); // Numbers for each province in this tier
+}
+
 public class LotteryRegionDraw
 {
     public LotteryRegion Region { get; set; }
     public string RegionLabel { get; set; } = string.Empty;
     public string ProvinceLabel { get; set; } = string.Empty;
     public DateTime DrawDate { get; set; }
-    public ObservableCollection<LotteryPrizeTier> Prizes { get; set; } = new();
 
+    public ObservableCollection<LotteryProvinceHeader> Provinces { get; set; } = new();
+    public ObservableCollection<LotteryRowDraw> Rows { get; set; } = new();
+
+    public string ColumnDefinitions => string.Join(",", Provinces.Select(_ => "*"));
+
+    // For backwards compatibility
+    public ObservableCollection<LotteryPrizeTier> Prizes { get; set; } = new();
     public string DrawDateDisplay => DrawDate.ToString("dd/MM/yyyy");
 
     // Strong accent (used for stripe, badge fill, special-prize box).
@@ -58,7 +86,7 @@ public class LotteryRegionDraw
     };
 
     public LotteryPrizeTier? SpecialPrize => Prizes.FirstOrDefault(p => p.IsSpecial);
-    public IEnumerable<LotteryPrizeTier> OtherPrizes => Prizes.Where(p => !p.IsSpecial);
+    public IEnumerable<LotteryPrizeTier> OtherPrizes => Prizes.Where(p => !p.IsSpecial && !string.IsNullOrEmpty(p.Numbers));
 }
 
 public class LotteryPrizeTier

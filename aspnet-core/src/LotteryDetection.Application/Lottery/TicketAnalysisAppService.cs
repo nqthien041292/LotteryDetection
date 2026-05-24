@@ -289,6 +289,19 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
         return new PagedResultDto<TicketAnalysisDto>(total, items.Select(MapToDto).ToList());
     }
 
+    public async Task DeleteAsync(EntityDto<Guid> input)
+    {
+        var ticket = await _repository.FirstOrDefaultAsync(input.Id);
+        if (ticket == null) throw new UserFriendlyException("Không tìm thấy bản ghi.");
+
+        if (ticket.CreatorUserId != AbpSession.UserId)
+        {
+            throw new UserFriendlyException("Bạn không có quyền xóa bản ghi này.");
+        }
+
+        await _repository.DeleteAsync(ticket);
+    }
+
     private static TicketAnalysisDto MapToDto(TicketAnalysis e) => new()
     {
         Id = e.Id,

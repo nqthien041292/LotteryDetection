@@ -14,6 +14,8 @@ public interface ITicketAnalysisAppService : IApplicationService
 
     Task<PagedResultDto<TicketAnalysisDto>> GetHistoryAsync(PagedResultRequestDto input);
 
+    Task DeleteAsync(EntityDto<Guid> input);
+
     Task CheckPendingResultsAsync();
 
     Task TriggerScrapeLast7DaysAsync();

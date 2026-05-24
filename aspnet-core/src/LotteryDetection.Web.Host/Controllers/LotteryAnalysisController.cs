@@ -58,6 +58,13 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
     }
 
     [HttpPost]
+    [AbpMvcAuthorize]
+    public Task Delete([FromBody] EntityDto<Guid> input)
+    {
+        return _appService.DeleteAsync(input);
+    }
+
+    [HttpPost]
     [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     [CloudSchedulerAuthorize]
     public async Task<IActionResult> CheckPendingResults()

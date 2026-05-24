@@ -24,11 +24,13 @@ public class LotteryHistoryViewModel : BaseViewModel
         Entries = new ObservableCollection<LotteryHistoryEntry>();
         Winners = new ObservableCollection<LotteryHistoryEntry>();
         StartCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
+        DeleteEntryCommand = new Command<LotteryHistoryEntry>(async (entry) => await DeleteEntryAsync(entry));
     }
 
     public ObservableCollection<LotteryHistoryEntry> Entries { get; }
     public ObservableCollection<LotteryHistoryEntry> Winners { get; }
     public ICommand StartCaptureCommand { get; }
+    public ICommand DeleteEntryCommand { get; }
 
     public bool HasEntries => Entries.Count > 0;
     public bool HasWinners => Winners.Count > 0;
@@ -112,8 +114,42 @@ public class LotteryHistoryViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            hasLoaded = true;
             NotifyPropertyChanged(nameof(ShowSkeleton));
             NotifyPropertyChanged(nameof(ShowEmptyState));
+            NotifyPropertyChanged(nameof(HasEntries));
+            NotifyPropertyChanged(nameof(HasWinners));
         }
+    }
+
+    public async Task<bool> DeleteEntryAsync(LotteryHistoryEntry entry)
+    {
+        if (entry == null) return false;
+
+        bool success = await historyService.DeleteEntryAsync(entry.Id);
+        if (success)
+        {
+            // Remove from main list
+            var mainItem = Entries.FirstOrDefault(e => e.Id == entry.Id);
+            if (mainItem != null) Entries.Remove(mainItem);
+
+            // Remove from winners if it is a winner
+            var winnerItem = Winners.FirstOrDefault(w => w.Id == entry.Id);
+            if (winnerItem != null) Winners.Remove(winnerItem);
+
+            // Update stats
+            TotalCount = Entries.Count;
+            WinCount = Winners.Count;
+            TotalWinnings = Winners.Sum(w => w.PrizeAmount ?? 0);
+            BiggestWin = Winners.Count > 0 ? Winners.Max(w => w.PrizeAmount ?? 0L) : 0;
+
+            NotifyPropertyChanged(nameof(HasEntries));
+            NotifyPropertyChanged(nameof(HasWinners));
+            NotifyPropertyChanged(nameof(ShowEmptyState));
+            NotifyPropertyChanged(nameof(SummaryLabel));
+            NotifyPropertyChanged(nameof(HeroHeadline));
+            NotifyPropertyChanged(nameof(HeroSubline));
+        }
+        return success;
     }
 }

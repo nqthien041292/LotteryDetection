@@ -97,4 +97,31 @@ public partial class LotteryHistoryPage : ContentPage
     {
         await NavigationService.Default.NavigateBackAsync();
     }
+
+    private async void OnDeleteSwipeItemInvoked(object? sender, EventArgs e)
+    {
+        if (sender is SwipeItem swipeItem)
+        {
+            var entry = swipeItem.BindingContext as LotteryDetection.Mobile.Models.Lottery.LotteryHistoryEntry;
+            if (entry != null)
+            {
+                bool confirm = await this.DisplayAlert("Xác nhận xóa", $"Bạn có chắc muốn xóa vé {entry.TicketNumber} của đài {entry.Province}?", "Xóa", "Hủy");
+                if (confirm)
+                {
+                    if (vm != null)
+                    {
+                        bool success = await vm.DeleteEntryAsync(entry);
+                        if (!success)
+                        {
+                            await this.DisplayAlert("Lỗi", "Không thể xóa vé số này. Vui lòng thử lại sau hoặc kiểm tra kết nối mạng.", "Đóng");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                await this.DisplayAlert("Thông báo", "Không tìm thấy dữ liệu vé số này.", "Đóng");
+            }
+        }
+    }
 }

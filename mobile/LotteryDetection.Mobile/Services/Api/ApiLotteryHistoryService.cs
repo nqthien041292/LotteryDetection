@@ -68,6 +68,40 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
             .ToList();
     }
 
+    public async Task<bool> DeleteEntryAsync(string id, CancellationToken ct = default)
+    {
+        if (!Guid.TryParse(id, out var guidId)) return false;
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/services/app/LotteryAnalysis/Delete");
+
+        if (_authService.IsSignedIn)
+        {
+            try
+            {
+                var token = await _authService.GetAccessTokenAsync();
+                if (!string.IsNullOrWhiteSpace(token))
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ApiLotteryHistoryService] Token unavailable for delete: {ex.Message}");
+            }
+        }
+
+        var payload = new { id = guidId };
+        var json = JsonSerializer.Serialize(payload, JsonOptions);
+        request.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+        using var response = await _http.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            Debug.WriteLine($"[ApiLotteryHistoryService] Delete HTTP {(int)response.StatusCode}");
+            return false;
+        }
+
+        return true;
+    }
+
     private static PagedDto? ParseEnvelope(string body)
     {
         if (string.IsNullOrWhiteSpace(body)) return null;

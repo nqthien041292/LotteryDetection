@@ -40,6 +40,17 @@ public class MockLotteryHistoryService : ILotteryHistoryService
         return Task.FromResult(snapshot);
     }
 
+    public Task<bool> DeleteEntryAsync(string id, CancellationToken ct = default)
+    {
+        var item = entries.FirstOrDefault(e => e.Id == id);
+        if (item != null)
+        {
+            entries.Remove(item);
+            return Task.FromResult(true);
+        }
+        return Task.FromResult(false);
+    }
+
     private static List<LotteryHistoryEntry> BuildSeed()
     {
         var rng = new Random(20260519);

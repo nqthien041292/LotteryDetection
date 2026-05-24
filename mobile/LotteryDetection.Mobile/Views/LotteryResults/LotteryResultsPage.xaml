@@ -72,6 +72,69 @@
                     </Border>
                 </Grid>
 
+                <!-- Region Selector Filters -->
+                <VerticalStackLayout Spacing="8" Margin="0,4,0,4">
+                    <Label Text="Bộ lọc miền:"
+                           FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                           TextColor="#66736A"
+                           Margin="2,0" />
+                    <HorizontalStackLayout Spacing="8">
+                        <!-- Miền Bắc Chip -->
+                        <Border StrokeThickness="1"
+                                Stroke="{Binding BacChipStroke}"
+                                BackgroundColor="{Binding BacChipBg}"
+                                Padding="12,5"
+                                HeightRequest="32">
+                            <Border.StrokeShape>
+                                <shapes:RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleBacCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Miền Bắc"
+                                   FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                                   TextColor="{Binding BacChipText}"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <!-- Miền Trung Chip -->
+                        <Border StrokeThickness="1"
+                                Stroke="{Binding TrungChipStroke}"
+                                BackgroundColor="{Binding TrungChipBg}"
+                                Padding="12,5"
+                                HeightRequest="32">
+                            <Border.StrokeShape>
+                                <shapes:RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleTrungCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Miền Trung"
+                                   FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                                   TextColor="{Binding TrungChipText}"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <!-- Miền Nam Chip -->
+                        <Border StrokeThickness="1"
+                                Stroke="{Binding NamChipStroke}"
+                                BackgroundColor="{Binding NamChipBg}"
+                                Padding="12,5"
+                                HeightRequest="32">
+                            <Border.StrokeShape>
+                                <shapes:RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleNamCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Miền Nam"
+                                   FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
+                                   TextColor="{Binding NamChipText}"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
                 <!-- Skeleton -->
                 <Border IsVisible="{Binding ShowSkeleton}"
                         Padding="20"
@@ -86,6 +149,31 @@
                                FontFamily="Geist" FontSize="13"
                                HorizontalTextAlignment="Center"
                                TextColor="#66736A" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Empty State -->
+                <Border IsVisible="{Binding ShowEmptyState}"
+                        StrokeThickness="1"
+                        Stroke="#E2E8F0"
+                        Padding="24,36"
+                        BackgroundColor="White">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="20" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <Label Text="✨"
+                               FontSize="36"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Không có miền nào được chọn"
+                               FontFamily="Geist" FontSize="16" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="#1E293B" />
+                        <Label Text="Vui lòng bật các miền ở bộ lọc trên để xem kết quả xổ số tương ứng."
+                               FontFamily="Geist" FontSize="12.5"
+                               LineHeight="1.3"
+                               HorizontalTextAlignment="Center"
+                               TextColor="#64748B" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -130,10 +218,10 @@
                                                        TextColor="{Binding AccentTextColor}" />
                                             </Border>
                                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                                <Label Text="{Binding RegionLabel}"
+                                                <Label Text="{Binding ProvinceLabel}"
                                                        FontFamily="Geist" FontSize="17" FontAttributes="Bold"
                                                        TextColor="#142116" />
-                                                <Label Text="{Binding ProvinceLabel}"
+                                                <Label Text="{Binding RegionLabel}"
                                                        FontFamily="Geist" FontSize="11"
                                                        TextColor="#66736A" />
                                             </VerticalStackLayout>
