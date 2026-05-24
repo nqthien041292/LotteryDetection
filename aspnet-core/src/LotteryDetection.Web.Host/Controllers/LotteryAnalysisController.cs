@@ -25,7 +25,7 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
     }
 
     [HttpPost]
-    [RequestSizeLimit(10 * 1024 * 1024)]
+    [RequestSizeLimit(50 * 1024 * 1024)]
     public async Task<TicketAnalysisDto> AnalyzeTicket()
     {
         var file = Request.Form.Files.FirstOrDefault();
