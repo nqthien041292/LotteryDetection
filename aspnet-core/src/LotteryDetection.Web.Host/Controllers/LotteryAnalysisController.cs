@@ -95,5 +95,13 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
         await _appService.TriggerScrapeLast30DaysAsync();
         return Ok(new { success = true, message = "Manual trigger scrape for last 30 days completed." });
     }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> TriggerScrapeFromDate([FromQuery] DateTime startDate)
+    {
+        await _appService.TriggerScrapeFromDateAsync(startDate);
+        return Ok(new { success = true, message = $"Manual trigger scrape from {startDate:yyyy-MM-dd} completed." });
+    }
 }
 

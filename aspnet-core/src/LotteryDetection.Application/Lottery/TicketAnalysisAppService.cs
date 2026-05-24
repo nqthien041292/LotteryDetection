@@ -189,6 +189,39 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
         await CheckPendingResultsAsync();
     }
 
+    [AbpAllowAnonymous]
+    public async Task TriggerScrapeFromDateAsync(DateTime startDate)
+    {
+        var vnTimeNow = DateTime.UtcNow.AddHours(7).Date;
+        if (startDate.Date > vnTimeNow) return;
+
+        var totalDays = (vnTimeNow - startDate.Date).Days + 1;
+        var dates = Enumerable.Range(0, totalDays)
+            .Select(offset => vnTimeNow.AddDays(-offset).Date)
+            .ToList();
+
+        foreach (var date in dates)
+        {
+            var dayOfWeek = date.DayOfWeek;
+            foreach (var province in ActiveProvinces)
+            {
+                if (Scraping.MinhNgocResultProvider.IsProvinceActiveOnDayOfWeek(province, dayOfWeek))
+                {
+                    try
+                    {
+                        await _lotteryResultProvider.GetResultAsync(province, date, allowScrape: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"Failed to trigger scrape for {province} on {date:yyyy-MM-dd}: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        await CheckPendingResultsAsync();
+    }
+
 
     public async Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input)
     {
