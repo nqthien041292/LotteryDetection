@@ -116,17 +116,10 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(LotteryCapturePage), typeof(LotteryCapturePage));
         Routing.RegisterRoute(nameof(LotteryResultsPage), typeof(LotteryResultsPage));
+        Routing.RegisterRoute(nameof(LotteryLiveResultsPage), typeof(LotteryLiveResultsPage));
         Routing.RegisterRoute(nameof(LotteryHistoryPage), typeof(LotteryHistoryPage));
-        Routing.RegisterRoute(nameof(AITaskAssistantPage), typeof(AITaskAssistantPage));
-        Routing.RegisterRoute(nameof(FamilyLiveBoardPage), typeof(FamilyLiveBoardPage));
-        Routing.RegisterRoute(nameof(ChatToTaskPage), typeof(ChatToTaskPage));
-        Routing.RegisterRoute(nameof(CalendarPage), typeof(CalendarPage));
-        Routing.RegisterRoute(nameof(GamificationPage), typeof(GamificationPage));
-        Routing.RegisterRoute(nameof(TaskDetailPage), typeof(TaskDetailPage));
-        Routing.RegisterRoute(nameof(MyTasksPage), typeof(MyTasksPage));
         Routing.RegisterRoute(nameof(NotificationsPage), typeof(NotificationsPage));
         Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
         Routing.RegisterRoute(nameof(HelpPage), typeof(HelpPage));
-        Routing.RegisterRoute(nameof(AdminRoleManagementPage), typeof(AdminRoleManagementPage));
     }
 }

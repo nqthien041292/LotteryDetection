@@ -10,7 +10,7 @@
              x:DataType="viewModel:LoginPageViewModel"
              Shell.NavBarIsVisible="False"
              ios:Page.UseSafeArea="True"
-             BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyCreamDark}}">
+             BackgroundColor="{AppThemeBinding Light=White, Dark={DynamicResource FamilyCreamDark}}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -63,7 +63,7 @@
             <!-- Microsoft sign-in button -->
             <Border StrokeThickness="1"
                     Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
-                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyPaperLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyPaperDark}}"
                     HeightRequest="56"
                     Padding="0"
                     HorizontalOptions="Fill">

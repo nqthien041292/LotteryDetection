@@ -5,9 +5,9 @@
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:lotteryModels="clr-namespace:LotteryDetection.Mobile.Models.Lottery"
-             x:Class="LotteryDetection.Mobile.Views.LotteryResults.LotteryResultsPage"
-             x:DataType="viewModel:LotteryResultsViewModel"
-             Title="Kết quả hôm nay"
+             x:Class="LotteryDetection.Mobile.Views.LotteryResults.LotteryLiveResultsPage"
+             x:DataType="viewModel:LotteryLiveResultsViewModel"
+             Title="Kết quả trực tiếp"
              NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#F6F8F2">
@@ -27,7 +27,7 @@
                     TextColor="#173D2A"
                     Clicked="OnBackClicked" />
             <Label Grid.Column="1"
-                   Text="Kết quả hôm nay"
+                   Text="Kết quả trực tiếp"
                    HorizontalOptions="Center" VerticalOptions="Center"
                    FontFamily="Geist" FontSize="18" FontAttributes="Bold"
                    TextColor="#142116" />
@@ -41,9 +41,9 @@
                 <!-- Hero -->
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="Xổ số ba miền"
+                        <Label Text="Xổ số trực tiếp hôm nay"
                                FontFamily="Geist" FontSize="13"
-                               TextColor="#52705A" />
+                               TextColor="#16A34A" FontAttributes="Bold" />
                         <Label Text="{Binding HeroDateLabel}"
                                FontFamily="Geist" FontSize="26" FontAttributes="Bold"
                                LineHeight="1.1"
@@ -52,54 +52,23 @@
                                FontFamily="Geist" FontSize="12"
                                TextColor="#66736A" />
                     </VerticalStackLayout>
-                    <Border x:Name="LiveButtonBorder"
+                    <Border x:Name="LiveBadgeBorder"
                             Grid.Column="1"
-                            StrokeThickness="1.5"
-                            Stroke="{Binding LiveButtonStrokeColor}"
-                            Padding="14,10"
-                            VerticalOptions="Center"
-                            HorizontalOptions="End">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="{Binding LiveButtonStartColor}" Offset="0.0" />
-                                <GradientStop Color="{Binding LiveButtonEndColor}" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
+                            StrokeThickness="0"
+                            Padding="10,5"
+                            BackgroundColor="#DCFCE7"
+                            VerticalOptions="Center">
                         <Border.StrokeShape>
-                            <shapes:RoundRectangle CornerRadius="18" />
+                            <shapes:RoundRectangle CornerRadius="10" />
                         </Border.StrokeShape>
-                        <Border.Shadow>
-                            <Shadow Brush="{Binding LiveButtonShadowColor}" Radius="8" Offset="0,4" Opacity="0.3" />
-                        </Border.Shadow>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding OpenLiveResultsCommand}" />
-                        </Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="6" VerticalOptions="Center">
-                            <!-- Pulse Dot -->
-                            <Ellipse Grid.Column="0"
-                                     WidthRequest="8" HeightRequest="8"
-                                     Fill="{Binding LiveButtonPulseColor}"
-                                     VerticalOptions="Center">
-                                <Ellipse.Shadow>
-                                    <Shadow Brush="{Binding LiveButtonPulseColor}" Radius="6" Offset="0,0" Opacity="0.8" />
-                                </Ellipse.Shadow>
-                            </Ellipse>
-                            
-                            <!-- Label -->
+                        <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="6">
+                            <Ellipse WidthRequest="7" HeightRequest="7"
+                                     Fill="#16A34A"
+                                     VerticalOptions="Center" />
                             <Label Grid.Column="1"
-                                   Text="{Binding LiveButtonLabel}"
-                                   FontFamily="Geist" FontSize="12" FontAttributes="Bold"
-                                   TextColor="White"
-                                   VerticalOptions="Center"
-                                   CharacterSpacing="0.5" />
-                                   
-                            <!-- Chevron -->
-                            <Label Grid.Column="2"
-                                   Text="›"
-                                   FontFamily="Geist" FontSize="16" FontAttributes="Bold"
-                                   TextColor="White"
-                                   VerticalOptions="Center"
-                                   Margin="0,-2,0,0" />
+                                   Text="TRỰC TIẾP"
+                                   FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                   TextColor="#15803D" />
                         </Grid>
                     </Border>
                 </Grid>
@@ -177,7 +146,7 @@
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="10">
                         <ActivityIndicator IsRunning="True" Color="#173D2A" />
-                        <Label Text="Đang tải kết quả mới nhất…"
+                        <Label Text="Đang kết nối đến máy chủ trực tiếp…"
                                FontFamily="Geist" FontSize="13"
                                HorizontalTextAlignment="Center"
                                TextColor="#66736A" />
@@ -284,11 +253,21 @@
                                                        HorizontalTextAlignment="Center"
                                                        TextColor="{Binding AccentTextColor}"
                                                        Opacity="0.7" />
+                                                
+                                                <!-- If Drawn -->
                                                 <Label Text="{Binding SpecialPrize.Numbers}"
+                                                       IsVisible="{Binding SpecialPrize.IsDrawn}"
                                                        FontFamily="GeistMono" FontSize="34" FontAttributes="Bold"
                                                        LineHeight="1.0"
                                                        HorizontalTextAlignment="Center"
                                                        TextColor="{Binding AccentTextColor}" />
+
+                                                <!-- If Not Drawn (Loading) -->
+                                                <HorizontalStackLayout IsVisible="{Binding SpecialPrize.IsNotDrawn}"
+                                                                       Spacing="8" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,4,0,0">
+                                                    <ActivityIndicator IsRunning="True" Color="White" WidthRequest="20" HeightRequest="20" />
+                                                    <Label Text="Đang quay..." FontFamily="Geist" FontSize="15" FontAttributes="Italic" TextColor="White" VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
                                             </VerticalStackLayout>
                                         </Border>
 
@@ -309,12 +288,23 @@
                                                                    FontFamily="Geist" FontSize="12"
                                                                    VerticalOptions="Center"
                                                                    TextColor="#66736A" />
+                                                            
+                                                            <!-- If Drawn -->
                                                             <Label Grid.Column="1"
                                                                    Text="{Binding Numbers}"
+                                                                   IsVisible="{Binding IsDrawn}"
                                                                    FontFamily="GeistMono" FontSize="13.5"
                                                                    FontAttributes="Bold"
                                                                    VerticalOptions="Center"
                                                                    TextColor="#142116" />
+
+                                                            <!-- If Not Drawn -->
+                                                            <HorizontalStackLayout Grid.Column="1"
+                                                                                   IsVisible="{Binding IsNotDrawn}"
+                                                                                   Spacing="6" VerticalOptions="Center">
+                                                                <ActivityIndicator IsRunning="True" Color="#16A34A" WidthRequest="14" HeightRequest="14" />
+                                                                <Label Text="Đang quay..." FontFamily="Geist" FontSize="12" FontAttributes="Italic" TextColor="#16A34A" VerticalOptions="Center" />
+                                                            </HorizontalStackLayout>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </BindableLayout.ItemTemplate>
@@ -327,7 +317,7 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <Label Text="* Kết quả mang tính tham khảo. Vui lòng đối chiếu với đài phát hành chính thức."
+                <Label Text="* Kết quả trực tiếp đang được cập nhật thời gian thực. Nhấn nút Trực Tiếp ở góc trên để cập nhật tức thì."
                        FontFamily="Geist" FontSize="11"
                        LineHeight="1.4"
                        TextColor="#8A958D"

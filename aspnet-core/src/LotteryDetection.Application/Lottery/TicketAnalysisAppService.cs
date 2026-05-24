@@ -25,19 +25,22 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     private readonly IVertexAITicketAnalyzer _analyzer;
     private readonly ILotteryResultProvider _lotteryResultProvider;
     private readonly Notifications.IAppNotifier _appNotifier;
+    private readonly IRepository<LotteryDrawResult, Guid> _drawResultRepository;
 
     public TicketAnalysisAppService(
         IRepository<TicketAnalysis, Guid> repository,
         IBinaryObjectManager binaryObjectManager,
         IVertexAITicketAnalyzer analyzer,
         ILotteryResultProvider lotteryResultProvider,
-        Notifications.IAppNotifier appNotifier)
+        Notifications.IAppNotifier appNotifier,
+        IRepository<LotteryDrawResult, Guid> drawResultRepository)
     {
         _repository = repository;
         _binaryObjectManager = binaryObjectManager;
         _analyzer = analyzer;
         _lotteryResultProvider = lotteryResultProvider;
         _appNotifier = appNotifier;
+        _drawResultRepository = drawResultRepository;
     }
 
     [AbpAllowAnonymous]
@@ -322,4 +325,20 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
 
     private static string Truncate(string s, int max) =>
         string.IsNullOrEmpty(s) || s.Length <= max ? s : s.Substring(0, max);
+
+    [AbpAllowAnonymous]
+    public async Task<System.Collections.Generic.List<Dto.LotteryDrawResultDto>> GetDrawResultsAsync(DateTime drawDate)
+    {
+        var localDate = drawDate.Date;
+        var results = await _drawResultRepository.GetAll()
+            .Where(r => r.DrawDate == localDate)
+            .ToListAsync();
+
+        return results.Select(r => new Dto.LotteryDrawResultDto
+        {
+            Province = r.Province,
+            DrawDate = r.DrawDate,
+            Prizes = r.Prizes
+        }).ToList();
+    }
 }

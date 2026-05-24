@@ -5,6 +5,7 @@ using LotteryDetection.Mobile.Models.Board;
 using LotteryDetection.Mobile.Models.Dashboard;
 using LotteryDetection.Mobile.Models.Family;
 using LotteryDetection.Mobile.Services.Auth;
+using LotteryDetection.Mobile.Services.Dialogs;
 using LotteryDetection.Mobile.Services.Interfaces;
 using LotteryDetection.Mobile.Services.Mock;
 using LotteryDetection.Mobile.Services.Navigation;
@@ -68,20 +69,14 @@ public class DashboardViewModel : TabNavigationViewModel
         TodayLineup = new ObservableCollection<TodayTaskItem>();
         PulseMembers = new ObservableCollection<PresenceMember>();
 
-        OpenAssistantCommand = new Command(async () => await navigationService.NavigateToAITaskAssistantAsync());
-        OpenChatToTaskCommand = new Command(async () => await navigationService.NavigateToChatToTaskAsync());
-        OpenGamificationCommand = new Command(async () => await navigationService.NavigateToGamificationAsync());
-        OpenAchievementsCommand = OpenGamificationCommand;
         OpenNotificationsCommand = new Command(async () => await navigationService.NavigateToNotificationsAsync());
-        OpenBoardCommand = new Command(async () => await navigationService.NavigateToFamilyBoardAsync());
-        OpenCalendarCommand = new Command(async () => await navigationService.NavigateToCalendarAsync());
-        ViewAllTasksCommand = new Command(async () => await navigationService.NavigateToMyTasksAsync());
         OpenLotteryCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
         OpenLotteryResultsCommand = new Command(async () => await navigationService.NavigateToLotteryResultsAsync());
         OpenLotteryHistoryCommand = new Command(async () => await navigationService.NavigateToLotteryHistoryAsync());
         SetFilterCommand = new Command<string>(SetFilter);
         ToggleTaskCommand = new Command<string>(ToggleTask);
-        SelectTaskCommand = new Command<TodayTaskItem>(async t => await navigationService.NavigateToTaskDetailAsync(t.Id));
+        ShowFeatureUnderDevelopmentCommand = new Command(async () => 
+            await AppDialog.ShowAlertAsync("Chức năng đang phát triển", "Vui lòng thử lại sau.", "Đóng"));
 
         BuildWeekDays();
     }
@@ -241,20 +236,13 @@ public class DashboardViewModel : TabNavigationViewModel
         set => SetProperty(ref streak, value);
     }
 
-    public ICommand OpenAssistantCommand { get; }
-    public ICommand OpenChatToTaskCommand { get; }
-    public ICommand OpenGamificationCommand { get; }
-    public ICommand OpenAchievementsCommand { get; }
     public ICommand OpenNotificationsCommand { get; }
-    public ICommand OpenBoardCommand { get; }
-    public ICommand OpenCalendarCommand { get; }
-    public ICommand ViewAllTasksCommand { get; }
     public ICommand OpenLotteryCaptureCommand { get; }
     public ICommand OpenLotteryResultsCommand { get; }
     public ICommand OpenLotteryHistoryCommand { get; }
     public ICommand SetFilterCommand { get; }
     public ICommand ToggleTaskCommand { get; }
-    public ICommand SelectTaskCommand { get; }
+    public ICommand ShowFeatureUnderDevelopmentCommand { get; }
 
     public Task OnTabSelectedAsync(string? tabKey)
     {

@@ -7,26 +7,27 @@ using LotteryDetection.Mobile.Services.Navigation;
 
 namespace LotteryDetection.Mobile.ViewModel;
 
-public class LotteryResultsViewModel : BaseViewModel
+public class LotteryLiveResultsViewModel : BaseViewModel
 {
     private readonly ILotteryResultsService resultsService;
     private readonly INavigationService navigationService;
     private string updatedAtLabel = string.Empty;
     private string heroDateLabel = string.Empty;
     private bool hasLoaded;
+    private bool isRefreshingLive;
 
     private IReadOnlyList<LotteryRegionDraw> allDraws = new List<LotteryRegionDraw>();
     private bool showBac = true;
     private bool showTrung = true;
     private bool showNam = true;
+    private CancellationTokenSource? autoRefreshCts;
 
-    public LotteryResultsViewModel(ILotteryResultsService resultsService, INavigationService navigationService)
+    public LotteryLiveResultsViewModel(ILotteryResultsService resultsService, INavigationService navigationService)
     {
         this.resultsService = resultsService;
         this.navigationService = navigationService;
         Regions = new ObservableCollection<LotteryRegionDraw>();
         OpenCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
-        OpenLiveResultsCommand = new Command(async () => await navigationService.NavigateToLotteryLiveResultsAsync());
 
         // Load local preferences
         showBac = Microsoft.Maui.Storage.Preferences.Get("ShowRegionBac", true);
@@ -40,7 +41,6 @@ public class LotteryResultsViewModel : BaseViewModel
 
     public ObservableCollection<LotteryRegionDraw> Regions { get; }
     public ICommand OpenCaptureCommand { get; }
-    public ICommand OpenLiveResultsCommand { get; }
     public ICommand ToggleBacCommand { get; }
     public ICommand ToggleTrungCommand { get; }
     public ICommand ToggleNamCommand { get; }
@@ -49,22 +49,10 @@ public class LotteryResultsViewModel : BaseViewModel
     public bool ShowSkeleton => IsBusy && !hasLoaded;
     public bool ShowEmptyState => !HasRegions && !IsBusy;
 
-    public bool IsAnyActiveRegionLive
+    public bool IsRefreshingLive
     {
-        get
-        {
-            var now = DateTime.Now;
-            var time = now.TimeOfDay;
-
-            // South (Nam): 16:10 to 16:45
-            bool isNamLive = time >= new TimeSpan(16, 10, 0) && time <= new TimeSpan(16, 45, 0);
-            // Central (Trung): 17:10 to 17:45
-            bool isTrungLive = time >= new TimeSpan(17, 10, 0) && time <= new TimeSpan(17, 45, 0);
-            // North (Bac): 18:10 to 18:45
-            bool isBacLive = time >= new TimeSpan(18, 10, 0) && time <= new TimeSpan(18, 45, 0);
-
-            return (ShowNam && isNamLive) || (ShowTrung && isTrungLive) || (ShowBac && isBacLive);
-        }
+        get => isRefreshingLive;
+        set => SetProperty(ref isRefreshingLive, value);
     }
 
     public bool ShowBac
@@ -135,25 +123,6 @@ public class LotteryResultsViewModel : BaseViewModel
     private void ToggleTrung() => ShowTrung = !ShowTrung;
     private void ToggleNam() => ShowNam = !ShowNam;
 
-    // Live Button Dynamic Styles
-    public string LiveButtonStartColor => IsAnyActiveRegionLive ? "#FF4D4D" : "#64748B";
-    public string LiveButtonEndColor => IsAnyActiveRegionLive ? "#D90429" : "#334155";
-    public string LiveButtonStrokeColor => IsAnyActiveRegionLive ? "#FFCCD5" : "#E2E8F0";
-    public string LiveButtonShadowColor => IsAnyActiveRegionLive ? "#D90429" : "#475569";
-    public string LiveButtonPulseColor => IsAnyActiveRegionLive ? "#4ADE80" : "#94A3B8";
-    public string LiveButtonLabel => IsAnyActiveRegionLive ? "XEM LIVE" : "LIVE HÔM NAY";
-
-    private void NotifyLiveButtonStyles()
-    {
-        NotifyPropertyChanged(nameof(IsAnyActiveRegionLive));
-        NotifyPropertyChanged(nameof(LiveButtonStartColor));
-        NotifyPropertyChanged(nameof(LiveButtonEndColor));
-        NotifyPropertyChanged(nameof(LiveButtonStrokeColor));
-        NotifyPropertyChanged(nameof(LiveButtonShadowColor));
-        NotifyPropertyChanged(nameof(LiveButtonPulseColor));
-        NotifyPropertyChanged(nameof(LiveButtonLabel));
-    }
-
     private void NotifyChipStyles()
     {
         NotifyPropertyChanged(nameof(BacChipBg));
@@ -165,7 +134,6 @@ public class LotteryResultsViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(NamChipBg));
         NotifyPropertyChanged(nameof(NamChipText));
         NotifyPropertyChanged(nameof(NamChipStroke));
-        NotifyLiveButtonStyles();
         ApplyFilter();
     }
 
@@ -191,29 +159,12 @@ public class LotteryResultsViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(ShowEmptyState));
         try
         {
-            var data = await resultsService.GetTodayResultsAsync(ct);
-            allDraws = data ?? new List<LotteryRegionDraw>();
-            
-            ApplyFilter();
-
-            UpdatedAtLabel = $"Cập nhật lúc {DateTime.Now:HH:mm}";
-            
-            var hasTodayData = allDraws.Any(d => d.DrawDate.Date == DateTime.Today);
-            if (hasTodayData)
-            {
-                HeroDateLabel = DateTime.Today.ToString("dd 'tháng' MM, yyyy");
-            }
-            else
-            {
-                HeroDateLabel = DateTime.Today.AddDays(-1).ToString("dd 'tháng' MM, yyyy") + " (Hôm qua)";
-            }
-            
+            await LoadDataInternalAsync(ct);
             hasLoaded = true;
-            NotifyLiveButtonStyles();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[LotteryResults] InitializeAsync error: {ex.Message}");
+            Debug.WriteLine($"[LotteryLiveResults] InitializeAsync error: {ex.Message}");
         }
         finally
         {
@@ -221,5 +172,64 @@ public class LotteryResultsViewModel : BaseViewModel
             NotifyPropertyChanged(nameof(ShowSkeleton));
             NotifyPropertyChanged(nameof(ShowEmptyState));
         }
+    }
+
+    private async Task LoadDataInternalAsync(CancellationToken ct)
+    {
+        var data = await resultsService.GetLiveResultsAsync(ct);
+        allDraws = data ?? new List<LotteryRegionDraw>();
+        
+        ApplyFilter();
+
+        UpdatedAtLabel = $"Trực tiếp lúc {DateTime.Now:HH:mm:ss}";
+        
+        var hasTodayData = allDraws.Any(d => d.DrawDate.Date == DateTime.Today);
+        if (hasTodayData)
+        {
+            HeroDateLabel = DateTime.Today.ToString("dd 'tháng' MM, yyyy");
+        }
+        else
+        {
+            HeroDateLabel = DateTime.Today.AddDays(-1).ToString("dd 'tháng' MM, yyyy") + " (Hôm qua)";
+        }
+    }
+
+    public void StartAutoRefresh()
+    {
+        StopAutoRefresh();
+        autoRefreshCts = new CancellationTokenSource();
+        var token = autoRefreshCts.Token;
+
+        Task.Run(async () =>
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(5000, token); // refresh every 5 seconds
+                if (token.IsCancellationRequested) break;
+
+                try
+                {
+                    IsRefreshingLive = true;
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        await LoadDataInternalAsync(token);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[LotteryLiveResults] Auto-refresh error: {ex.Message}");
+                }
+                finally
+                {
+                    IsRefreshingLive = false;
+                }
+            }
+        }, token);
+    }
+
+    public void StopAutoRefresh()
+    {
+        autoRefreshCts?.Cancel();
+        autoRefreshCts = null;
     }
 }

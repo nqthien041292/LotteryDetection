@@ -186,6 +186,8 @@ public class Startup
 #pragma warning disable CS0162
         if (LotteryDetectionConsts.PreventNotExistingTenantSubdomains) app.UseMiddleware<DomainTenantCheckMiddleware>();
 
+        app.UseMiddleware<AppKeyValidationMiddleware>();
+
         app.UseRouting();
 
         app.UseCors(DefaultCorsPolicyName); //Enable CORS!

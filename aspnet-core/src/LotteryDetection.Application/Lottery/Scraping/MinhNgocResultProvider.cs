@@ -66,7 +66,7 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         var cached = await _repository.GetAll()
             .FirstOrDefaultAsync(x => x.Province == province && x.DrawDate.Date == drawDate.Date);
 
-        if (cached != null)
+        if (cached != null && !allowScrape)
         {
             return cached;
         }
@@ -78,13 +78,20 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
         if (!IsDrawTimeReached(province, drawDate))
         {
-            return null; // Chưa đến giờ quay thưởng
+            return cached; // Chưa đến giờ quay thưởng, trả về cache nếu có
         }
 
         var scraped = await ScrapeFromMinhNgocAsync(province, drawDate);
         if (scraped == null)
         {
-            return null; // Chưa có kết quả chính thức từ nhà đài
+            return cached; // Chưa có kết quả chính thức từ nhà đài, trả về cache nếu có
+        }
+
+        if (cached != null)
+        {
+            cached.Prizes = scraped.Prizes;
+            await _repository.UpdateAsync(cached);
+            return cached;
         }
 
         await _repository.InsertAsync(scraped);
@@ -160,6 +167,84 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
             var prizesDict = new Dictionary<string, List<string>>();
 
+            // 1. Tìm thẻ div.box_kqxs chứa kết quả của ngày mong muốn
+            var boxNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'box_kqxs')]");
+            HtmlNode targetBoxNode = null;
+            if (boxNodes != null)
+            {
+                foreach (var box in boxNodes)
+                {
+                    var titleNode = box.SelectSingleNode(".//div[contains(@class, 'title')]");
+                    if (titleNode != null)
+                    {
+                        var titleText = titleNode.InnerText;
+                        var formattedDate1 = drawDate.ToString("dd/MM/yyyy");
+                        var formattedDate2 = drawDate.ToString("dd-MM-yyyy");
+                        if (titleText.Contains(formattedDate1) || titleText.Contains(formattedDate2))
+                        {
+                            targetBoxNode = box;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (targetBoxNode == null && boxNodes != null && boxNodes.Count > 0)
+            {
+                targetBoxNode = boxNodes[0];
+            }
+
+            if (targetBoxNode == null)
+            {
+                targetBoxNode = doc.DocumentNode;
+            }
+
+            // 2. Xác định chỉ mục cột (column index) của tỉnh mong muốn trong bảng đa đài (nếu có)
+            int colIndex = 0;
+            var headerCells = targetBoxNode.SelectNodes(".//td[contains(concat(' ', normalize-space(@class), ' '), ' tinh ') or contains(concat(' ', normalize-space(@class), ' '), ' matinh ')]");
+            if (headerCells != null && headerCells.Count > 0)
+            {
+                var provincesList = new List<string>();
+                for (int i = 0; i < headerCells.Count; i++)
+                {
+                    provincesList.Add(headerCells[i].InnerText.Trim());
+                }
+
+                bool foundMatch = false;
+                for (int i = 0; i < provincesList.Count; i++)
+                {
+                    if (IsTextMatchingProvince(provincesList[i], province))
+                    {
+                        colIndex = i;
+                        foundMatch = true;
+                        Logger.Info($"Detected column index {colIndex} for province '{province}' from headers: {string.Join(", ", provincesList)}");
+                        break;
+                    }
+                }
+
+                if (!foundMatch)
+                {
+                    Logger.Warn($"Province '{province}' not found in multi-province headers: {string.Join(", ", provincesList)}. Aborting parsing to prevent mismatch.");
+                    return null;
+                }
+            }
+            else
+            {
+                // Single-province page: We MUST verify that the page or target box title matches the requested province!
+                var titleNode = targetBoxNode.SelectSingleNode(".//div[contains(@class, 'title')]");
+                var boxTitle = titleNode?.InnerText ?? "";
+                var docTitle = doc.DocumentNode.SelectSingleNode("//title")?.InnerText ?? "";
+
+                if (!IsTextMatchingProvince(boxTitle, province) && !IsTextMatchingProvince(docTitle, province))
+                {
+                    Logger.Warn($"Single-province page does not match requested province '{province}' (Box title: '{boxTitle}', Doc title: '{docTitle}'). Aborting parsing to prevent mismatch.");
+                    return null;
+                }
+
+                colIndex = 0;
+            }
+
+
             // Mapping class names from minhngoc HTML to prize names
             var classMap = new Dictionary<string, string>
             {
@@ -176,17 +261,23 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
             foreach (var kvp in classMap)
             {
-                var xpath = $"//td[contains(@class, '{kvp.Key}')]";
-                var nodes = doc.DocumentNode.SelectNodes(xpath);
+                // Tìm kiếm tương đối bên trong thẻ box đã chọn
+                var xpath = $".//td[contains(@class, '{kvp.Key}')]";
+                var nodes = targetBoxNode.SelectNodes(xpath);
                 Logger.Info($"Key {kvp.Key}: xpath '{xpath}' found {nodes?.Count ?? 0} nodes.");
                 
                 if (nodes != null && nodes.Count > 0)
                 {
-                    // Lọc lấy node thực sự chứa kết quả trúng thưởng, tránh cột tiêu đề có class chứa đuôi 'l' (như 'giai1l', 'giaidbl')
-                    var node = nodes.FirstOrDefault(n => {
+                    // Lọc lấy các node chứa kết quả trúng thưởng, tránh cột tiêu đề có đuôi 'l'
+                    var validNodes = nodes.Where(n => {
                         var cls = n.Attributes["class"]?.Value?.Trim() ?? "";
                         return !cls.EndsWith("l") && !cls.Contains("title");
-                    }) ?? (nodes.Count > 1 ? nodes[1] : nodes[0]);
+                    }).ToList();
+
+                    if (validNodes.Count > 0)
+                    {
+                        // Chọn node tương ứng với chỉ mục cột đã phát hiện được
+                        var node = colIndex < validNodes.Count ? validNodes[colIndex] : validNodes[0];
 
                     var clsVal = node.Attributes["class"]?.Value ?? "no-class";
                     Logger.Info($"Key {kvp.Key}: Selected node class: '{clsVal}', InnerText: '{node.InnerText.Trim()}'");
@@ -226,6 +317,7 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
                     if (numbers.Any())
                     {
                         prizesDict[kvp.Value] = numbers.Distinct().ToList();
+                    }
                     }
                 }
             }
@@ -367,6 +459,30 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         }
         
         return ("mien-nam", "tp-hcm");
+    }
+
+    private static bool IsTextMatchingProvince(string text, string province)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(province)) return false;
+
+        var info = GetProvinceInfo(province);
+        var synonyms = ProvinceMappings
+            .Where(kvp => kvp.Value.Region == info.Region && kvp.Value.Slug == info.Slug)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        synonyms.Add(province);
+
+        var lowerText = text.ToLower();
+        foreach (var syn in synonyms)
+        {
+            if (lowerText.Contains(syn.ToLower()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private string GetRegionFromProvince(string province)

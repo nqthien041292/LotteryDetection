@@ -86,7 +86,7 @@ public class LotteryRegionDraw
     };
 
     public LotteryPrizeTier? SpecialPrize => Prizes.FirstOrDefault(p => p.IsSpecial);
-    public IEnumerable<LotteryPrizeTier> OtherPrizes => Prizes.Where(p => !p.IsSpecial && !string.IsNullOrEmpty(p.Numbers));
+    public IEnumerable<LotteryPrizeTier> OtherPrizes => Prizes.Where(p => !p.IsSpecial);
 }
 
 public class LotteryPrizeTier
@@ -94,4 +94,6 @@ public class LotteryPrizeTier
     public string TierLabel { get; set; } = string.Empty;
     public string Numbers { get; set; } = string.Empty;
     public bool IsSpecial { get; set; }
+    public bool IsDrawn { get; set; } = true;
+    public bool IsNotDrawn => !IsDrawn;
 }

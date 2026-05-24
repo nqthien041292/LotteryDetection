@@ -67,12 +67,17 @@ public class LotteryCaptureViewModel : BaseViewModel
                 NotifyPropertyChanged(nameof(HasImage));
                 NotifyPropertyChanged(nameof(ShowEmptyState));
                 NotifyPropertyChanged(nameof(ImageSource));
+                NotifyPropertyChanged(nameof(CanAnalyze));
                 RefreshCommands();
             }
         }
     }
 
     public bool HasImage => !string.IsNullOrWhiteSpace(ImagePath) && File.Exists(ImagePath);
+
+    public bool CanAnalyze => HasImage && !IsAnalyzing;
+
+    public bool CanCaptureOrPick => !IsAnalyzing;
 
     public bool ShowEmptyState => !HasImage && !IsAnalyzing;
 
@@ -216,10 +221,36 @@ public class LotteryCaptureViewModel : BaseViewModel
         var fileName = $"ticket-{DateTime.Now:yyyyMMdd-HHmmss}{extension}";
         var localPath = Path.Combine(FileSystem.CacheDirectory, fileName);
 
-        await using (var source = await photo.OpenReadAsync())
-        await using (var destination = File.OpenWrite(localPath))
+        bool resizedSuccess = false;
+        try
         {
-            await source.CopyToAsync(destination);
+            await using (var source = await photo.OpenReadAsync())
+            {
+                var image = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(source);
+                if (image != null)
+                {
+                    // Downsize to a max dimension of 1600px (great for detail and perfect for performance)
+                    using var resizedImage = image.Downsize(1600);
+                    await using (var destination = File.OpenWrite(localPath))
+                    {
+                        resizedImage.Save(destination, Microsoft.Maui.Graphics.ImageFormat.Jpeg, 0.85f);
+                    }
+                    resizedSuccess = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            RemoteLogService.Instance.Error("LotteryCapture", $"Failed to resize image, falling back to original copy: {ex.Message}", ex);
+        }
+
+        if (!resizedSuccess)
+        {
+            await using (var source = await photo.OpenReadAsync())
+            await using (var destination = File.OpenWrite(localPath))
+            {
+                await source.CopyToAsync(destination);
+            }
         }
 
         Result = null;
@@ -295,6 +326,8 @@ public class LotteryCaptureViewModel : BaseViewModel
         Result = null;
         StatusHint = DefaultHint;
         NotifyPropertyChanged(nameof(StatusBadge));
+        NotifyPropertyChanged(nameof(CanAnalyze));
+        NotifyPropertyChanged(nameof(CanCaptureOrPick));
     }
 
     private async Task<bool> EnsureCameraPermissionAsync()
@@ -332,6 +365,8 @@ public class LotteryCaptureViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(IsBusy));
         NotifyPropertyChanged(nameof(StatusBadge));
         NotifyPropertyChanged(nameof(ShowEmptyState));
+        NotifyPropertyChanged(nameof(CanAnalyze));
+        NotifyPropertyChanged(nameof(CanCaptureOrPick));
         RefreshCommands();
     }
 

@@ -34,16 +34,6 @@ public partial class SettingsPage : ContentPage
         await NavigationService.Default.NavigateBackAsync();
     }
 
-    private async void OnAdminClicked(object sender, TappedEventArgs e)
-    {
-        await NavigationService.Default.NavigateToAdminAsync();
-    }
-
-    private async void OnInviteClicked(object sender, TappedEventArgs e)
-    {
-        await NavigationService.Default.NavigateToAdminAsync(openInvite: true);
-    }
-
     private async void OnHelpClicked(object sender, TappedEventArgs e)
     {
         await NavigationService.Default.NavigateToHelpAsync();

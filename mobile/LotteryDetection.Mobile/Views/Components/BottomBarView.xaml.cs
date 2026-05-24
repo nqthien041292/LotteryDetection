@@ -5,7 +5,7 @@ namespace LotteryDetection.Mobile.Views.Components;
 
 public partial class BottomBarView : ContentView
 {
-    private readonly string[] tabKeys = { "Home", "Task", "Mic", "You", "Settings" };
+    private readonly string[] tabKeys = { "Home", "Mic", "Settings" };
     private CancellationTokenSource? micPulseCts;
     private string selectedTab = "Home";
 
@@ -121,9 +121,7 @@ public partial class BottomBarView : ContentView
         var inactive = Color.FromArgb("#94A3B8");
 
         SetPathStrokeTabState(HomeIcon, HomeLabel, selectedTab == "Home", primary, inactive);
-        SetPathStrokeTabState(TaskIcon, TaskLabel, selectedTab == "Task", primary, inactive);
         SetMicState(selectedTab == "Mic", primary, inactive);
-        SetPathStrokeTabState(HistoryIcon, HistoryLabel, selectedTab == "You", primary, inactive);
         SetPathStrokeTabState(ProfileIcon, ProfileLabel, selectedTab == "Settings", primary, inactive);
 
         UpdateActiveIndicator();
@@ -149,9 +147,7 @@ public partial class BottomBarView : ContentView
         var indicators = new Dictionary<string, BoxView?>
         {
             ["Home"] = HomeIndicator,
-            ["Task"] = TaskIndicator,
             ["Mic"] = null, // FAB has no underline indicator
-            ["You"] = HistoryIndicator,
             ["Settings"] = SettingsIndicator
         };
 
@@ -166,13 +162,5 @@ public partial class BottomBarView : ContentView
             return color;
 
         return fallback;
-    }
-
-    public void SetTaskIconData(string pathData)
-    {
-        if (string.IsNullOrWhiteSpace(pathData) || TaskIcon == null) return;
-        var converter = new PathGeometryConverter();
-        if (converter.ConvertFromInvariantString(pathData) is Geometry geometry) TaskIcon.Data = geometry;
-        UpdateTabVisuals();
     }
 }

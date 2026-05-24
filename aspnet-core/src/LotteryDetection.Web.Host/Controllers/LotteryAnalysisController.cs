@@ -57,6 +57,13 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
         });
     }
 
+    [HttpGet]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public Task<System.Collections.Generic.List<LotteryDrawResultDto>> GetDrawResults(DateTime drawDate)
+    {
+        return _appService.GetDrawResultsAsync(drawDate);
+    }
+
     [HttpPost]
     [AbpMvcAuthorize]
     public Task Delete([FromBody] EntityDto<Guid> input)

@@ -31,51 +31,10 @@ public class NavigationService : INavigationService
         return tabKey.ToLowerInvariant() switch
         {
             "home" => NavigateToDashboardAsync(),
-            "task" => NavigateToRootAsync(nameof(MyTasksPage)),
             "mic" => NavigateToRootAsync(nameof(LotteryCapturePage)),
-            "you" => NavigateToRootAsync(nameof(GamificationPage)),
-            "history" => NavigateToRootAsync(nameof(CalendarPage)),
             "settings" => NavigateToRootAsync(nameof(SettingsPage)),
             _ => Task.CompletedTask
         };
-    }
-
-    public async Task NavigateToAITaskAssistantAsync()
-    {
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(AITaskAssistantPage));
-    }
-
-    public async Task NavigateToFamilyBoardAsync()
-    {
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(FamilyLiveBoardPage));
-    }
-
-    public async Task NavigateToChatToTaskAsync()
-    {
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(ChatToTaskPage));
-    }
-
-    public async Task NavigateToCalendarAsync()
-    {
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(CalendarPage));
-    }
-
-    public async Task NavigateToGamificationAsync()
-    {
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(GamificationPage));
-    }
-
-    public async Task NavigateToTaskDetailAsync(string taskId, bool editMode = false)
-    {
-        if (Shell.Current == null) return;
-        var parameters = new Dictionary<string, object> { { "TaskId", taskId } };
-        if (editMode) parameters["EditMode"] = true;
-        await Shell.Current.GoToAsync(nameof(TaskDetailPage), parameters);
     }
 
     public async Task NavigateToNotificationsAsync()
@@ -94,18 +53,6 @@ public class NavigationService : INavigationService
     {
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(HelpPage));
-    }
-
-    public async Task NavigateToAdminAsync(bool openInvite = false)
-    {
-        if (Shell.Current == null) return;
-        if (openInvite)
-        {
-            var parameters = new Dictionary<string, object> { { "OpenInvite", true } };
-            await Shell.Current.GoToAsync(nameof(AdminRoleManagementPage), parameters);
-            return;
-        }
-        await Shell.Current.GoToAsync(nameof(AdminRoleManagementPage));
     }
 
     public async Task NavigateToLoginWithSocialAsync()
@@ -132,10 +79,10 @@ public class NavigationService : INavigationService
         await Shell.Current.GoToAsync(nameof(LotteryHistoryPage));
     }
 
-    public async Task NavigateToMyTasksAsync()
+    public async Task NavigateToLotteryLiveResultsAsync()
     {
         if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(MyTasksPage));
+        await Shell.Current.GoToAsync("LotteryLiveResultsPage");
     }
 
     private async Task NavigateToRootAsync(string route)

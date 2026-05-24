@@ -120,28 +120,35 @@ public static class MauiProgram
         var backendBaseUrl = AppConfiguration.GetBackendApiBaseUrl();
         if (!string.IsNullOrWhiteSpace(backendBaseUrl))
         {
-            HttpClient NewBackendClient(int timeoutSeconds = 60) => new(new HttpClientHandler
+            HttpClient NewBackendClient(int timeoutSeconds = 60)
             {
-                AllowAutoRedirect = false
-            })
-            {
-                BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
-                Timeout = TimeSpan.FromSeconds(timeoutSeconds)
-            };
+                var client = new HttpClient(new HttpClientHandler
+                {
+                    AllowAutoRedirect = false
+                })
+                {
+                    BaseAddress = new Uri(backendBaseUrl, UriKind.Absolute),
+                    Timeout = TimeSpan.FromSeconds(timeoutSeconds)
+                };
+                client.DefaultRequestHeaders.Add("X-App-Key", LotteryDetection.Mobile.Services.Configuration.SecureKeyHelper.GetDecryptedKey());
+                return client;
+            }
 
             builder.Services.AddSingleton<IAuthService>(_ => new ApiAbpAuthService(NewBackendClient(30)));
             builder.Services.AddSingleton<ILotteryDetectionService>(sp =>
                 new ApiLotteryDetectionService(NewBackendClient(60), sp.GetRequiredService<IAuthService>()));
             builder.Services.AddSingleton<ILotteryHistoryService>(sp =>
                 new ApiLotteryHistoryService(NewBackendClient(30), sp.GetRequiredService<IAuthService>()));
+            builder.Services.AddSingleton<ILotteryResultsService>(sp =>
+                new Services.Api.ApiLotteryResultsService(NewBackendClient(30), sp.GetRequiredService<IAuthService>()));
         }
         else
         {
             builder.Services.AddSingleton<IAuthService>(_ => MockAuthService.Instance);
             builder.Services.AddSingleton<ILotteryDetectionService>(_ => MockLotteryDetectionService.Instance);
             builder.Services.AddSingleton<ILotteryHistoryService>(_ => MockLotteryHistoryService.Instance);
+            builder.Services.AddSingleton<ILotteryResultsService>(_ => MockLotteryResultsService.Instance);
         }
-        builder.Services.AddSingleton<ILotteryResultsService>(_ => MockLotteryResultsService.Instance);
         builder.Services.AddSingleton<IDashboardRealtimeService>(_ => MockDashboardRealtimeService.Instance);
         builder.Services.AddSingleton<ITaskService>(_ => MockTaskService.Instance);
         builder.Services.AddSingleton<INotificationService>(_ => MockNotificationService.Instance);

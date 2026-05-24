@@ -21,7 +21,7 @@
 
             <Grid Padding="12,8,12,14"
                   HeightRequest="84"
-                  ColumnDefinitions="*,*,*,*,*"
+                  ColumnDefinitions="*,*,*"
                   ColumnSpacing="6">
                 <!-- Home -->
                 <Grid Grid.Column="0"
@@ -31,7 +31,7 @@
                       SemanticProperties.Description="Home tab">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnTabTapped"
-                                              CommandParameter="Home" />
+                                               CommandParameter="Home" />
                     </Grid.GestureRecognizers>
                     <BoxView x:Name="HomeIndicator"
                              Grid.Row="0"
@@ -60,50 +60,13 @@
                            HorizontalOptions="Center" />
                 </Grid>
 
-                <!-- Task -->
-                <Grid Grid.Column="1"
-                      RowDefinitions="3,*,Auto"
-                      RowSpacing="2"
-                      AutomationId="TabTask"
-                      SemanticProperties.Description="Tasks tab">
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnTabTapped"
-                                              CommandParameter="Task" />
-                    </Grid.GestureRecognizers>
-                    <BoxView x:Name="TaskIndicator"
-                             Grid.Row="0"
-                             WidthRequest="20"
-                             HeightRequest="3"
-                             CornerRadius="2"
-                             Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Start"
-                             IsVisible="False" />
-                    <shapes:Path x:Name="TaskIcon"
-                                 Grid.Row="1"
-                                 Data="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5M9 11l3 3L22 4"
-                                 Stroke="{AppThemeBinding Light={DynamicResource FamilyTextPrimaryLight}, Dark={DynamicResource FamilyTextPrimaryDark}}"
-                                 StrokeThickness="1.8"
-                                 StrokeLineCap="Round"
-                                 StrokeLineJoin="Round"
-                                 Fill="Transparent"
-                                 HeightRequest="24" WidthRequest="24"
-                                 HorizontalOptions="Center" VerticalOptions="Center"
-                                 Aspect="Uniform" />
-                    <Label x:Name="TaskLabel"
-                           Grid.Row="2"
-                           Text="Task"
-                           FontSize="{StaticResource FontSizeCaption}"
-                           HorizontalOptions="Center" />
-                </Grid>
-
                 <!-- Mic FAB (center) -->
-                <Grid Grid.Column="2"
+                <Grid Grid.Column="1"
                       AutomationId="TabMic"
                       SemanticProperties.Description="Voice capture button">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnTabTapped"
-                                              CommandParameter="Mic" />
+                                               CommandParameter="Mic" />
                     </Grid.GestureRecognizers>
                     <!-- Concentric halo + FAB wrapper -->
                     <Grid WidthRequest="78"
@@ -157,52 +120,15 @@
                     </Grid>
                 </Grid>
 
-                <!-- You (achievements / profile) -->
-                <Grid Grid.Column="3"
-                      RowDefinitions="3,*,Auto"
-                      RowSpacing="2"
-                      AutomationId="TabYou"
-                      SemanticProperties.Description="You tab">
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnTabTapped"
-                                              CommandParameter="You" />
-                    </Grid.GestureRecognizers>
-                    <BoxView x:Name="HistoryIndicator"
-                             Grid.Row="0"
-                             WidthRequest="20"
-                             HeightRequest="3"
-                             CornerRadius="2"
-                             Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Start"
-                             IsVisible="False" />
-                    <shapes:Path x:Name="HistoryIcon"
-                                 Grid.Row="1"
-                                 Data="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"
-                                 Stroke="{AppThemeBinding Light={DynamicResource FamilyTextPrimaryLight}, Dark={DynamicResource FamilyTextPrimaryDark}}"
-                                 StrokeThickness="1.8"
-                                 StrokeLineCap="Round"
-                                 StrokeLineJoin="Round"
-                                 Fill="Transparent"
-                                 HeightRequest="24" WidthRequest="24"
-                                 HorizontalOptions="Center" VerticalOptions="Center"
-                                 Aspect="Uniform" />
-                    <Label x:Name="HistoryLabel"
-                           Grid.Row="2"
-                           Text="You"
-                           FontSize="{StaticResource FontSizeCaption}"
-                           HorizontalOptions="Center" />
-                </Grid>
-
                 <!-- Settings -->
-                <Grid Grid.Column="4"
+                <Grid Grid.Column="2"
                       RowDefinitions="3,*,Auto"
                       RowSpacing="2"
                       AutomationId="TabSettings"
                       SemanticProperties.Description="Settings tab">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnTabTapped"
-                                              CommandParameter="Settings" />
+                                               CommandParameter="Settings" />
                     </Grid.GestureRecognizers>
                     <BoxView x:Name="SettingsIndicator"
                              Grid.Row="0"

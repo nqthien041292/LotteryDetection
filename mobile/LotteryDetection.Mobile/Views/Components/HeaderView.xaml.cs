@@ -151,10 +151,6 @@ public partial class HeaderView : ContentView
         stack.Children.Add(BuildMenuItem("?", "Help & Support", textSecondary, textPrimary, fontFamily, OnHelpClicked));
         stack.Children.Add(BuildDivider(borderColor));
 
-        // Admin
-        stack.Children.Add(BuildMenuItem("\u2699", "Admin", textSecondary, textPrimary, fontFamily, OnAdminClicked));
-        stack.Children.Add(BuildDivider(borderColor));
-
         // Sign out
         stack.Children.Add(BuildMenuItem("\u2192", "Sign out", dangerColor, dangerColor, fontFamily, OnSignOutClicked));
 
@@ -277,11 +273,6 @@ public partial class HeaderView : ContentView
         await NavigationService.Default.NavigateToHelpAsync();
     }
 
-    private async void OnAdminClicked(object? sender, TappedEventArgs e)
-    {
-        DismissMenu();
-        await NavigationService.Default.NavigateToAdminAsync();
-    }
 
     private async void OnSignOutClicked(object? sender, TappedEventArgs e)
     {

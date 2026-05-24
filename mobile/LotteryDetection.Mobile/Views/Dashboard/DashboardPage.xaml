@@ -149,8 +149,8 @@
                 </Border>
 
                 <!-- Secondary Actions Card Grid with Lift Shadows -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Border x:Name="ResultsCard" Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" RowSpacing="12" ColumnSpacing="12">
+                    <Border x:Name="ResultsCard" Grid.Row="0" Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenLotteryResultsCommand}" />
@@ -173,7 +173,7 @@
                             </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Border>
-                    <Border x:Name="HistoryCard" Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#F7EED3" BackgroundColor="White">
+                    <Border x:Name="HistoryCard" Grid.Row="0" Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#F7EED3" BackgroundColor="White">
                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding OpenLotteryHistoryCommand}" />
@@ -196,7 +196,74 @@
                             </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Border>
+
+                    <!-- Thần Tài Dự Đoán Card -->
+                    <Border x:Name="PredictionCard" Grid.Row="1" Grid.Column="0" Padding="14" StrokeThickness="1" Stroke="#E0E7FF" BackgroundColor="White">
+                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ShowFeatureUnderDevelopmentCommand}" />
+                        </Border.GestureRecognizers>
+                        <Border.Shadow>
+                            <Shadow Brush="#031649" Radius="12" Offset="0,6" Opacity="0.08" />
+                        </Border.Shadow>
+                        <Grid>
+                            <VerticalStackLayout Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#EEF2FF" HorizontalOptions="Start">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                        <Label Text="🔮" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#4F46E5" VerticalOptions="Center" />
+                                </Grid>
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Thần Tài Dự Đoán" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#031649" />
+                                    <Label Text="AI gợi ý cặp số may mắn cát tường mỗi ngày."
+                                           FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+
+                            <!-- BETA Badge -->
+                            <Border BackgroundColor="#FF3B30" StrokeThickness="0" Padding="6,2" HorizontalOptions="End" VerticalOptions="Start" Margin="0,-4,-4,0">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="6" /></Border.StrokeShape>
+                                <Label Text="BETA" FontSize="8" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" HorizontalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Nhiệm Vụ Rước Lộc Card -->
+                    <Border x:Name="TasksCard" Grid.Row="1" Grid.Column="1" Padding="14" StrokeThickness="1" Stroke="#FEE2E2" BackgroundColor="White">
+                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ShowFeatureUnderDevelopmentCommand}" />
+                        </Border.GestureRecognizers>
+                        <Border.Shadow>
+                            <Shadow Brush="#031649" Radius="12" Offset="0,6" Opacity="0.08" />
+                        </Border.Shadow>
+                        <Grid>
+                            <VerticalStackLayout Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#FEF2F2" HorizontalOptions="Start">
+                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                        <Label Text="🪙" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#EF4444" VerticalOptions="Center" />
+                                </Grid>
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Nhiệm Vụ Rước Lộc" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#031649" />
+                                    <Label Text="Làm nhiệm vụ nhận xu vàng, tích lũy may mắn."
+                                           FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+
+                            <!-- BETA Badge -->
+                            <Border BackgroundColor="#FF9500" StrokeThickness="0" Padding="6,2" HorizontalOptions="End" VerticalOptions="Start" Margin="0,-4,-4,0">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="6" /></Border.StrokeShape>
+                                <Label Text="BETA" FontSize="8" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" HorizontalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
                 </Grid>
+
 
                 <!-- Quy trình rước lộc Card -->
                 <Border x:Name="ProcessCard" Padding="16" StrokeThickness="1" Stroke="#E2EDE0" BackgroundColor="White">
