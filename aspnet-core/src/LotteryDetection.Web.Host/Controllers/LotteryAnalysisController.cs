@@ -65,4 +65,21 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
         await _appService.CheckPendingResultsAsync();
         return Ok(new { success = true, message = "Pending results checked successfully." });
     }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> TriggerScrapeLast7Days()
+    {
+        await _appService.TriggerScrapeLast7DaysAsync();
+        return Ok(new { success = true, message = "Manual trigger scrape for last 7 days completed." });
+    }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> TriggerScrapeLast30Days()
+    {
+        await _appService.TriggerScrapeLast30DaysAsync();
+        return Ok(new { success = true, message = "Manual trigger scrape for last 30 days completed." });
+    }
 }
+

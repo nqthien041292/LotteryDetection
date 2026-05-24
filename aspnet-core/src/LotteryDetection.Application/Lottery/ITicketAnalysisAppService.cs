@@ -15,4 +15,10 @@ public interface ITicketAnalysisAppService : IApplicationService
     Task<PagedResultDto<TicketAnalysisDto>> GetHistoryAsync(PagedResultRequestDto input);
 
     Task CheckPendingResultsAsync();
+
+    Task TriggerScrapeLast7DaysAsync();
+
+    Task TriggerScrapeLast30DaysAsync();
 }
+
+

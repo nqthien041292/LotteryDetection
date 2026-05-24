@@ -93,6 +93,89 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
         await CurrentUnitOfWork.SaveChangesAsync();
     }
 
+    private static readonly string[] ActiveProvinces = new[]
+    {
+        // Miền Bắc
+        "Miền Bắc",
+        
+        // Miền Trung
+        "Thừa Thiên Huế", "Phú Yên", "Đắk Lắk", "Quảng Nam", "Đà Nẵng", 
+        "Khánh Hòa", "Bình Định", "Quảng Trị", "Quảng Bình", "Gia Lai", 
+        "Ninh Thuận", "Đắk Nông", "Quảng Ngãi", "Kon Tum",
+        
+        // Miền Nam
+        "TP. HCM", "Đồng Tháp", "Cà Mau", "Bến Tre", "Vũng Tàu", 
+        "Bạc Liêu", "Đồng Nai", "Cần Thơ", "Sóc Trăng", "Tây Ninh", 
+        "An Giang", "Bình Thuận", "Vĩnh Long", "Bình Dương", "Trà Vinh", 
+        "Long An", "Hậu Giang", "Bình Phước", "Tiền Giang", "Kiên Giang", 
+        "Đà Lạt"
+    };
+
+    [AbpAllowAnonymous]
+    public async Task TriggerScrapeLast7DaysAsync()
+    {
+        var vnTimeNow = DateTime.UtcNow.AddHours(7);
+        var dates = Enumerable.Range(0, 7)
+            .Select(offset => vnTimeNow.AddDays(-offset).Date)
+            .ToList();
+
+        foreach (var date in dates)
+        {
+            var dayOfWeek = date.DayOfWeek;
+            foreach (var province in ActiveProvinces)
+            {
+                if (Scraping.MinhNgocResultProvider.IsProvinceActiveOnDayOfWeek(province, dayOfWeek))
+                {
+                    try
+                    {
+                        // Gọi GetResultAsync với allowScrape: true để cào dữ liệu mới
+                        await _lotteryResultProvider.GetResultAsync(province, date, allowScrape: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"Failed to trigger scrape for {province} on {date:yyyy-MM-dd}: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        // Sau khi cào, cập nhật lại trạng thái các vé số đang chờ kết quả của đài vừa được cào
+        await CheckPendingResultsAsync();
+    }
+
+    [AbpAllowAnonymous]
+    public async Task TriggerScrapeLast30DaysAsync()
+    {
+        var vnTimeNow = DateTime.UtcNow.AddHours(7);
+        var dates = Enumerable.Range(0, 30)
+            .Select(offset => vnTimeNow.AddDays(-offset).Date)
+            .ToList();
+
+        foreach (var date in dates)
+        {
+            var dayOfWeek = date.DayOfWeek;
+            foreach (var province in ActiveProvinces)
+            {
+                if (Scraping.MinhNgocResultProvider.IsProvinceActiveOnDayOfWeek(province, dayOfWeek))
+                {
+                    try
+                    {
+                        // Gọi GetResultAsync với allowScrape: true để cào dữ liệu mới
+                        await _lotteryResultProvider.GetResultAsync(province, date, allowScrape: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"Failed to trigger scrape for {province} on {date:yyyy-MM-dd}: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        // Sau khi cào, cập nhật lại trạng thái các vé số đang chờ kết quả của đài vừa được cào
+        await CheckPendingResultsAsync();
+    }
+
+
     public async Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input)
     {
         if (input?.ImageBytes == null || input.ImageBytes.Length == 0)
@@ -138,7 +221,7 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
 
             if (!string.IsNullOrEmpty(entity.Province) && entity.DrawDate.HasValue && !string.IsNullOrEmpty(entity.TicketNumber))
             {
-                var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value);
+                var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value, allowScrape: false);
                 if (drawResult != null)
                 {
                     LotteryMatcher.Match(entity, drawResult);

@@ -36,5 +36,6 @@ public interface ILotteryResultProvider
     /// <summary>
     /// Gets the lottery draw result for a specific province and date.
     /// </summary>
-    Task<LotteryDrawResult> GetResultAsync(string province, DateTime drawDate);
+    Task<LotteryDrawResult> GetResultAsync(string province, DateTime drawDate, bool allowScrape = true);
 }
+

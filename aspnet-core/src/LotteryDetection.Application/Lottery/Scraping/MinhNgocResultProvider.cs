@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using HtmlAgilityPack;
 using LotteryDetection.Lottery;
 using Microsoft.EntityFrameworkCore;
 using Abp.UI;
+using PuppeteerSharp;
 
 namespace LotteryDetection.Lottery.Scraping;
 
@@ -23,6 +25,8 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
     };
 
     private readonly IRepository<LotteryDrawResult, Guid> _repository;
+
+    public Castle.Core.Logging.ILogger Logger { get; set; } = Castle.Core.Logging.NullLogger.Instance;
 
 
     public MinhNgocResultProvider(IRepository<LotteryDrawResult, Guid> repository)
@@ -57,7 +61,7 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         return true; // Quá khứ
     }
 
-    public async Task<LotteryDrawResult> GetResultAsync(string province, DateTime drawDate)
+    public async Task<LotteryDrawResult> GetResultAsync(string province, DateTime drawDate, bool allowScrape = true)
     {
         var cached = await _repository.GetAll()
             .FirstOrDefaultAsync(x => x.Province == province && x.DrawDate.Date == drawDate.Date);
@@ -65,6 +69,11 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
         if (cached != null)
         {
             return cached;
+        }
+
+        if (!allowScrape)
+        {
+            return null; // Không tự động cào khi user submit vé số trực tiếp
         }
 
         if (!IsDrawTimeReached(province, drawDate))
@@ -84,40 +93,72 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
     private async Task<LotteryDrawResult> ScrapeFromMinhNgocAsync(string province, DateTime drawDate)
     {
-        // Example URL: https://www.minhngoc.net.vn/ket-qua-xo-so/mien-nam/tp-hcm/18-05-2026.html
-        var regionStr = GetRegionFromProvince(province);
-        if (string.IsNullOrEmpty(regionStr)) return null;
-
-        var provSlug = GetProvinceSlug(province);
+        var info = GetProvinceInfo(province);
+        var regionStr = info.Region;
+        var provSlug = info.Slug;
         var dateStr = drawDate.ToString("dd-MM-yyyy");
 
-        var url = $"https://www.minhngoc.net.vn/ket-qua-xo-so/{regionStr}/{provSlug}/{dateStr}.html";
+        string url;
+        if (regionStr == "mien-bac")
+        {
+            url = $"https://www.minhngoc.net.vn/ket-qua-xo-so/mien-bac/{dateStr}.html";
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(provSlug)) return null;
+            url = $"https://www.minhngoc.net.vn/ket-qua-xo-so/{regionStr}/{provSlug}/{dateStr}.html";
+        }
         
+        Logger.Info($"Scraping {province} on {drawDate:yyyy-MM-dd} from URL: {url}");
+        string html;
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.UserAgent.ParseAdd("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            request.Headers.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-            request.Headers.AcceptLanguage.ParseAdd("vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7");
-            request.Headers.Referrer = new Uri("https://www.minhngoc.net.vn/");
-
-            using var response = await HttpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
+            var launchOptions = new LaunchOptions
             {
-                throw new HttpRequestException($"Minh Ngoc returned status code {response.StatusCode}");
+                Headless = true,
+                Args = new[] { "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage" }
+            };
+
+            if (File.Exists("/usr/bin/chromium"))
+            {
+                launchOptions.ExecutablePath = "/usr/bin/chromium";
+            }
+            else if (File.Exists("/usr/bin/chromium-browser"))
+            {
+                launchOptions.ExecutablePath = "/usr/bin/chromium-browser";
+            }
+            else
+            {
+                var browserFetcher = new BrowserFetcher();
+                await browserFetcher.DownloadAsync();
             }
 
-            var html = await response.Content.ReadAsStringAsync();
+            await using var browser = await Puppeteer.LaunchAsync(launchOptions);
+            await using var page = await browser.NewPageAsync();
+            await page.SetUserAgentAsync("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            
+            await page.GoToAsync(url, new NavigationOptions { WaitUntil = new[] { WaitUntilNavigation.Networkidle2 } });
+            html = await page.GetContentAsync();
+            Logger.Info($"Successfully loaded HTML for {province} on {drawDate:yyyy-MM-dd}. Length: {html?.Length ?? 0}");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Error launching Puppeteer or loading page for {province} on {drawDate:yyyy-MM-dd} at URL {url}: {ex.Message}", ex);
+            return null;
+        }
 
+        try
+        {
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
             var result = new LotteryDrawResult
             {
                 Province = province,
-                DrawDate = drawDate,
-                Prizes = new Dictionary<string, List<string>>()
+                DrawDate = drawDate
             };
+
+            var prizesDict = new Dictionary<string, List<string>>();
 
             // Mapping class names from minhngoc HTML to prize names
             var classMap = new Dictionary<string, string>
@@ -135,97 +176,269 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
 
             foreach (var kvp in classMap)
             {
-                var nodes = doc.DocumentNode.SelectNodes($"//td[contains(@class, '{kvp.Key}')]");
-                if (nodes != null && nodes.Count > 1)
+                var xpath = $"//td[contains(@class, '{kvp.Key}')]";
+                var nodes = doc.DocumentNode.SelectNodes(xpath);
+                Logger.Info($"Key {kvp.Key}: xpath '{xpath}' found {nodes?.Count ?? 0} nodes.");
+                
+                if (nodes != null && nodes.Count > 0)
                 {
-                    var node = nodes[1]; // nodes[0] is the header (e.g. 'Giải ĐB'), nodes[1] is the first result column
+                    // Lọc lấy node thực sự chứa kết quả trúng thưởng, tránh cột tiêu đề có class chứa đuôi 'l' (như 'giai1l', 'giaidbl')
+                    var node = nodes.FirstOrDefault(n => {
+                        var cls = n.Attributes["class"]?.Value?.Trim() ?? "";
+                        return !cls.EndsWith("l") && !cls.Contains("title");
+                    }) ?? (nodes.Count > 1 ? nodes[1] : nodes[0]);
+
+                    var clsVal = node.Attributes["class"]?.Value ?? "no-class";
+                    Logger.Info($"Key {kvp.Key}: Selected node class: '{clsVal}', InnerText: '{node.InnerText.Trim()}'");
+
                     var numbers = new List<string>();
                     
-                    var text = node.InnerText.Trim();
-                    // numbers can be separated by spaces or inside divs
-                    var parts = text.Split(new[] { ' ', '\n', '\r', '-' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var part in parts)
+                    // Thử bóc tách các div con chứa từng số trúng thưởng độc lập (tránh bị dính chữ số liền nhau)
+                    var childDivs = node.SelectNodes(".//div");
+                    if (childDivs != null && childDivs.Count > 0)
                     {
-                        if (part.All(char.IsDigit))
+                        foreach (var div in childDivs)
                         {
-                            numbers.Add(part);
+                            var text = div.InnerText.Trim();
+                            if (!string.IsNullOrEmpty(text) && text.All(char.IsDigit))
+                            {
+                                numbers.Add(text);
+                            }
                         }
+                        Logger.Info($"Key {kvp.Key}: Found {childDivs.Count} child divs. Extracted {numbers.Count} numbers.");
+                    }
+
+                    // Nếu không có div con hoặc bóc tách bằng div bị rỗng (ví dụ các số cách nhau bởi br hoặc text node trực tiếp)
+                    if (!numbers.Any())
+                    {
+                        var text = node.InnerText.Trim();
+                        var parts = text.Split(new[] { ' ', '\n', '\r', '-', '\t', '\u200B' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var part in parts)
+                        {
+                            if (part.All(char.IsDigit))
+                            {
+                                numbers.Add(part);
+                            }
+                        }
+                        Logger.Info($"Key {kvp.Key}: Fallback parsing of InnerText '{text}'. Extracted {numbers.Count} numbers.");
                     }
                     
                     if (numbers.Any())
                     {
-                        result.Prizes[kvp.Value] = numbers.Distinct().ToList();
+                        prizesDict[kvp.Value] = numbers.Distinct().ToList();
                     }
                 }
             }
 
+            result.Prizes = prizesDict;
+
+            Logger.Info($"Parsing complete for {province} on {drawDate:yyyy-MM-dd}. Found {result.Prizes.Count} prizes.");
             if (!result.Prizes.Any())
             {
+                var failedFilePath = $"/Users/tommy/.gemini/antigravity/brain/655dd85c-0dab-4c56-acf5-e258f67b5881/scratch/failed_{province.Replace(' ', '_').Replace('.', '_')}_{drawDate:yyyyMMdd}.html";
+                File.WriteAllText(failedFilePath, html);
+                Logger.Warn($"No prizes matched for {province} on {drawDate:yyyy-MM-dd} in the HTML. Saved HTML to {failedFilePath}");
                 return null;
             }
 
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Logger.Error($"Error parsing HTML for {province} on {drawDate:yyyy-MM-dd}: {ex.Message}", ex);
             return null;
         }
     }
 
-    private LotteryDrawResult GetMockResult(string province, DateTime drawDate)
+    public static readonly Dictionary<string, (string Region, string Slug)> ProvinceMappings = new(StringComparer.OrdinalIgnoreCase)
     {
-        return new LotteryDrawResult
+        // Miền Bắc
+        { "miền bắc", ("mien-bac", "") },
+        { "mien bac", ("mien-bac", "") },
+        { "truyền thống", ("mien-bac", "") },
+        { "truyen thong", ("mien-bac", "") },
+        { "hà nội", ("mien-bac", "") },
+        { "ha noi", ("mien-bac", "") },
+        { "hải phòng", ("mien-bac", "") },
+        { "hai phong", ("mien-bac", "") },
+        { "quảng ninh", ("mien-bac", "") },
+        { "quang ninh", ("mien-bac", "") },
+        { "bắc ninh", ("mien-bac", "") },
+        { "bac ninh", ("mien-bac", "") },
+        { "nam định", ("mien-bac", "") },
+        { "nam dinh", ("mien-bac", "") },
+        { "thái bình", ("mien-bac", "") },
+        { "thai binh", ("mien-bac", "") },
+
+        // Miền Trung
+        { "thừa thiên huế", ("mien-trung", "thua-thien-hue") },
+        { "thua thien hue", ("mien-trung", "thua-thien-hue") },
+        { "huế", ("mien-trung", "thua-thien-hue") },
+        { "hue", ("mien-trung", "thua-thien-hue") },
+        { "phú yên", ("mien-trung", "phu-yen") },
+        { "phu yen", ("mien-trung", "phu-yen") },
+        { "đắk lắk", ("mien-trung", "dak-lak") },
+        { "dak lak", ("mien-trung", "dak-lak") },
+        { "đắc lắc", ("mien-trung", "dak-lak") },
+        { "dac lac", ("mien-trung", "dak-lak") },
+        { "quảng nam", ("mien-trung", "quang-nam") },
+        { "quang nam", ("mien-trung", "quang-nam") },
+        { "đà nẵng", ("mien-trung", "da-nang") },
+        { "da nang", ("mien-trung", "da-nang") },
+        { "khánh hòa", ("mien-trung", "khanh-hoa") },
+        { "khanh hoa", ("mien-trung", "khanh-hoa") },
+        { "bình định", ("mien-trung", "binh-dinh") },
+        { "binh dinh", ("mien-trung", "binh-dinh") },
+        { "quảng trị", ("mien-trung", "quang-tri") },
+        { "quang tri", ("mien-trung", "quang-tri") },
+        { "quảng bình", ("mien-trung", "quang-binh") },
+        { "quang binh", ("mien-trung", "quang-binh") },
+        { "gia lai", ("mien-trung", "gia-lai") },
+        { "ninh thuận", ("mien-trung", "ninh-thuan") },
+        { "ninh thuan", ("mien-trung", "ninh-thuan") },
+        { "đắk nông", ("mien-trung", "dak-nong") },
+        { "dak nong", ("mien-trung", "dak-nong") },
+        { "đắc nông", ("mien-trung", "dak-nong") },
+        { "quảng ngãi", ("mien-trung", "quang-ngai") },
+        { "quang ngai", ("mien-trung", "quang-ngai") },
+        { "kon tum", ("mien-trung", "kon-tum") },
+
+        // Miền Nam
+        { "tp. hcm", ("mien-nam", "tp-hcm") },
+        { "tp.hcm", ("mien-nam", "tp-hcm") },
+        { "hồ chí minh", ("mien-nam", "tp-hcm") },
+        { "ho chi minh", ("mien-nam", "tp-hcm") },
+        { "tphcm", ("mien-nam", "tp-hcm") },
+        { "sài gòn", ("mien-nam", "tp-hcm") },
+        { "sai gon", ("mien-nam", "tp-hcm") },
+        { "đồng tháp", ("mien-nam", "dong-thap") },
+        { "dong thap", ("mien-nam", "dong-thap") },
+        { "cà mau", ("mien-nam", "ca-mau") },
+        { "ca mau", ("mien-nam", "ca-mau") },
+        { "bến tre", ("mien-nam", "ben-tre") },
+        { "ben tre", ("mien-nam", "ben-tre") },
+        { "vũng tàu", ("mien-nam", "vung-tau") },
+        { "vung tau", ("mien-nam", "vung-tau") },
+        { "bạc liêu", ("mien-nam", "bac-lieu") },
+        { "bac lieu", ("mien-nam", "bac-lieu") },
+        { "đồng nai", ("mien-nam", "dong-nai") },
+        { "dong nai", ("mien-nam", "dong-nai") },
+        { "cần thơ", ("mien-nam", "can-tho") },
+        { "can tho", ("mien-nam", "can-tho") },
+        { "sóc trăng", ("mien-nam", "soc-trang") },
+        { "soc trang", ("mien-nam", "soc-trang") },
+        { "tây ninh", ("mien-nam", "tay-ninh") },
+        { "tay ninh", ("mien-nam", "tay-ninh") },
+        { "an giang", ("mien-nam", "an-giang") },
+        { "bình thuận", ("mien-nam", "binh-thuan") },
+        { "binh thuan", ("mien-nam", "binh-thuan") },
+        { "vĩnh long", ("mien-nam", "vinh-long") },
+        { "vinh long", ("mien-nam", "vinh-long") },
+        { "bình dương", ("mien-nam", "binh-duong") },
+        { "binh duong", ("mien-nam", "binh-duong") },
+        { "trà vinh", ("mien-nam", "tra-vinh") },
+        { "tra vinh", ("mien-nam", "tra-vinh") },
+        { "long an", ("mien-nam", "long-an") },
+        { "bình phước", ("mien-nam", "binh-phuoc") },
+        { "binh phuoc", ("mien-nam", "binh-phuoc") },
+        { "hậu giang", ("mien-nam", "hau-giang") },
+        { "hau giang", ("mien-nam", "hau-giang") },
+        { "tiền giang", ("mien-nam", "tien-giang") },
+        { "tien giang", ("mien-nam", "tien-giang") },
+        { "kiên giang", ("mien-nam", "kien-giang") },
+        { "kien giang", ("mien-nam", "kien-giang") },
+        { "đà lạt", ("mien-nam", "da-lat") },
+        { "da lat", ("mien-nam", "da-lat") },
+        { "lâm đồng", ("mien-nam", "da-lat") },
+        { "lam dong", ("mien-nam", "da-lat") }
+    };
+
+    public static (string Region, string Slug) GetProvinceInfo(string province)
+    {
+        if (string.IsNullOrEmpty(province)) return ("mien-nam", "tp-hcm");
+        
+        var p = province.ToLower();
+        foreach (var kvp in ProvinceMappings)
         {
-            Province = province,
-            DrawDate = drawDate.Date,
-            Prizes = new Dictionary<string, List<string>>
+            if (p.Contains(kvp.Key))
             {
-                { "Special", new List<string> { "898665" } },
-                { "First", new List<string> { "12345" } },
-                { "Second", new List<string> { "23456" } },
-                { "Third", new List<string> { "34567", "45678" } },
-                { "Fourth", new List<string> { "11111", "22222", "33333", "44444", "55555", "66666", "77777" } },
-                { "Fifth", new List<string> { "8888" } },
-                { "Sixth", new List<string> { "9999", "0000", "1111" } },
-                { "Seventh", new List<string> { "222" } },
-                { "Eighth", new List<string> { "33" } }
+                return kvp.Value;
             }
-        };
+        }
+        
+        return ("mien-nam", "tp-hcm");
     }
 
     private string GetRegionFromProvince(string province)
     {
-        var p = province.ToLower();
-        if (p.Contains("tp. hcm") || p.Contains("hồ chí minh") || p.Contains("an giang") || p.Contains("bạc liêu") || p.Contains("bến tre")) return "mien-nam";
-        return "mien-nam"; // simplified for demo
+        return GetProvinceInfo(province).Region;
     }
 
-    private string GetProvinceSlug(string province)
+    public static bool IsProvinceActiveOnDayOfWeek(string province, DayOfWeek dayOfWeek)
     {
         var p = province.ToLower();
-        if (p.Contains("tp. hcm") || p.Contains("hồ chí minh")) return "tp-hcm";
-        if (p.Contains("bạc liêu")) return "bac-lieu";
-        if (p.Contains("bến tre")) return "ben-tre";
-        if (p.Contains("an giang")) return "an-giang";
-        if (p.Contains("vũng tàu")) return "vung-tau";
-        if (p.Contains("cần thơ")) return "can-tho";
-        if (p.Contains("đồng nai")) return "dong-nai";
-        if (p.Contains("sóc trăng")) return "soc-trang";
-        if (p.Contains("tây ninh")) return "tay-ninh";
-        if (p.Contains("bình thuận")) return "binh-thuan";
-        if (p.Contains("vĩnh long")) return "vinh-long";
-        if (p.Contains("bình dương")) return "binh-duong";
-        if (p.Contains("trà vinh")) return "tra-vinh";
-        if (p.Contains("long an")) return "long-an";
-        if (p.Contains("bình phước")) return "binh-phuoc";
-        if (p.Contains("hậu giang")) return "hau-giang";
-        if (p.Contains("tiền giang")) return "tien-giang";
-        if (p.Contains("kiên giang")) return "kien-giang";
-        if (p.Contains("đồng tháp")) return "dong-thap";
-        if (p.Contains("cà mau")) return "ca-mau";
-        if (p.Contains("đà lạt")) return "da-lat";
         
-        // Default fallback if parsing fails or province is unknown
-        return "tp-hcm";
+        // Miền Bắc quay hàng ngày
+        if (p.Contains("miền bắc") || p.Contains("mien bac") || p.Contains("truyền thống") || p.Contains("truyen thong"))
+            return true;
+
+        switch (dayOfWeek)
+        {
+            case DayOfWeek.Monday:
+                return p.Contains("thừa thiên huế") || p.Contains("huế") || p.Contains("thua thien hue") || p.Contains("hue") ||
+                       p.Contains("phú yên") || p.Contains("phu yen") ||
+                       p.Contains("tp. hcm") || p.Contains("hồ chí minh") || p.Contains("tphcm") || p.Contains("sài gòn") ||
+                       p.Contains("đồng tháp") || p.Contains("dong thap") ||
+                       p.Contains("cà mau") || p.Contains("ca mau");
+
+            case DayOfWeek.Tuesday:
+                return p.Contains("đắk lắk") || p.Contains("dak lak") || p.Contains("đắc lắc") ||
+                       p.Contains("quảng nam") || p.Contains("quang nam") ||
+                       p.Contains("bến tre") || p.Contains("ben tre") ||
+                       p.Contains("vũng tàu") || p.Contains("vung tau") ||
+                       p.Contains("bạc liêu") || p.Contains("bac lieu");
+
+            case DayOfWeek.Wednesday:
+                return p.Contains("đà nẵng") || p.Contains("da nang") ||
+                       p.Contains("khánh hòa") || p.Contains("khanh hoa") ||
+                       p.Contains("đồng nai") || p.Contains("dong nai") ||
+                       p.Contains("cần thơ") || p.Contains("can tho") ||
+                       p.Contains("sóc trăng") || p.Contains("soc trang");
+
+            case DayOfWeek.Thursday:
+                return p.Contains("bình định") || p.Contains("binh dinh") ||
+                       p.Contains("quảng trị") || p.Contains("quang tri") ||
+                       p.Contains("quảng bình") || p.Contains("quang binh") ||
+                       p.Contains("tây ninh") || p.Contains("tay ninh") ||
+                       p.Contains("an giang") ||
+                       p.Contains("bình thuận") || p.Contains("binh thuan");
+
+            case DayOfWeek.Friday:
+                return p.Contains("gia lai") ||
+                       p.Contains("ninh thuận") || p.Contains("ninh thuan") ||
+                       p.Contains("vĩnh long") || p.Contains("vinh long") ||
+                       p.Contains("bình dương") || p.Contains("binh duong") ||
+                       p.Contains("trà vinh") || p.Contains("tra vinh");
+
+            case DayOfWeek.Saturday:
+                return p.Contains("đà nẵng") || p.Contains("da nang") ||
+                       p.Contains("quảng ngãi") || p.Contains("quang ngai") ||
+                       p.Contains("đắk nông") || p.Contains("dak nong") || p.Contains("đắc nông") ||
+                       p.Contains("tp. hcm") || p.Contains("hồ chí minh") || p.Contains("tphcm") || p.Contains("sài gòn") ||
+                       p.Contains("long an") ||
+                       p.Contains("hậu giang") || p.Contains("hau giang") ||
+                       p.Contains("bình phước") || p.Contains("binh phuoc");
+
+            case DayOfWeek.Sunday:
+                return p.Contains("khánh hòa") || p.Contains("khanh hoa") ||
+                       p.Contains("kon tum") ||
+                       p.Contains("thừa thiên huế") || p.Contains("huế") || p.Contains("thua thien hue") || p.Contains("hue") ||
+                       p.Contains("tiền giang") || p.Contains("tien giang") ||
+                       p.Contains("kiên giang") || p.Contains("kien giang") ||
+                       p.Contains("đà lạt") || p.Contains("da lat") || p.Contains("lâm đồng") || p.Contains("lam dong");
+        }
+
+        return false;
     }
 }
+
