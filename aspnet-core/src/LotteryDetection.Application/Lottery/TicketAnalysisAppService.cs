@@ -69,19 +69,30 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
                 {
                     foreach (var ticket in group)
                     {
-                        LotteryMatcher.Match(ticket, drawResult);
-
-                        if (ticket.IsWinner.HasValue && ticket.CreatorUserId.HasValue)
+                        var vnTimeNow = DateTime.UtcNow.AddHours(7).Date;
+                        var ageInDays = (vnTimeNow - ticket.DrawDate.Value.Date).TotalDays;
+                        if (ageInDays > 30)
                         {
-                            await _appNotifier.LotteryResultFoundAsync(
-                                new Abp.UserIdentifier(ticket.TenantId, ticket.CreatorUserId.Value),
-                                ticket.Id,
-                                ticket.IsWinner.Value,
-                                ticket.MatchedPrize,
-                                ticket.PrizeAmount
-                            );
+                            ticket.IsWinner = false;
+                            ticket.Notes = Truncate("Vé số đã hết hạn lãnh thưởng (Hạn lãnh thưởng là 30 ngày kể từ ngày mở thưởng).", TicketAnalysis.NotesMaxLength);
+                        }
+                        else
+                        {
+                            LotteryMatcher.Match(ticket, drawResult);
+
+                            if (ticket.IsWinner.HasValue && ticket.CreatorUserId.HasValue)
+                            {
+                                await _appNotifier.LotteryResultFoundAsync(
+                                    new Abp.UserIdentifier(ticket.TenantId, ticket.CreatorUserId.Value),
+                                    ticket.Id,
+                                    ticket.IsWinner.Value,
+                                    ticket.MatchedPrize,
+                                    ticket.PrizeAmount
+                                );
+                            }
                         }
                     }
+
                 }
             }
             catch (Exception ex)
@@ -221,17 +232,28 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
 
             if (!string.IsNullOrEmpty(entity.Province) && entity.DrawDate.HasValue && !string.IsNullOrEmpty(entity.TicketNumber))
             {
-                var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value, allowScrape: false);
-                if (drawResult != null)
+                var vnTimeNow = DateTime.UtcNow.AddHours(7).Date;
+                var ageInDays = (vnTimeNow - entity.DrawDate.Value.Date).TotalDays;
+                if (ageInDays > 30)
                 {
-                    LotteryMatcher.Match(entity, drawResult);
+                    entity.IsWinner = false;
+                    entity.Notes = Truncate("Vé số đã hết hạn lãnh thưởng (Hạn lãnh thưởng là 30 ngày kể từ ngày mở thưởng).", TicketAnalysis.NotesMaxLength);
                 }
                 else
                 {
-                    entity.IsWinner = null;
-                    entity.Notes = Truncate("Vé số chưa có kết quả. Chúng tôi sẽ thông báo sớm nhất", TicketAnalysis.NotesMaxLength);
+                    var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value, allowScrape: false);
+                    if (drawResult != null)
+                    {
+                        LotteryMatcher.Match(entity, drawResult);
+                    }
+                    else
+                    {
+                        entity.IsWinner = null;
+                        entity.Notes = Truncate("Vé số chưa có kết quả. Chúng tôi sẽ thông báo sớm nhất", TicketAnalysis.NotesMaxLength);
+                    }
                 }
             }
+
         }
         catch (UserFriendlyException ex)
         {
