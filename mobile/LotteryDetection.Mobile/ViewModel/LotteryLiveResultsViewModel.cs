@@ -197,6 +197,13 @@ public class LotteryLiveResultsViewModel : BaseViewModel
     public void StartAutoRefresh()
     {
         StopAutoRefresh();
+
+        if (!resultsService.IsLiveDrawingTime())
+        {
+            Debug.WriteLine("[LotteryLiveResults] Outside of live drawing hours. Auto-refresh is disabled.");
+            return;
+        }
+
         autoRefreshCts = new CancellationTokenSource();
         var token = autoRefreshCts.Token;
 
@@ -204,8 +211,15 @@ public class LotteryLiveResultsViewModel : BaseViewModel
         {
             while (!token.IsCancellationRequested)
             {
-                await Task.Delay(5000, token); // refresh every 5 seconds
+                await Task.Delay(3000, token); // refresh every 3 seconds
                 if (token.IsCancellationRequested) break;
+
+                // Stop refreshing if live drawing time is over
+                if (!resultsService.IsLiveDrawingTime())
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() => StopAutoRefresh());
+                    break;
+                }
 
                 try
                 {

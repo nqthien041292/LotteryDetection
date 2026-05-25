@@ -7,170 +7,213 @@
              x:Class="LotteryDetection.Mobile.Views.OnBoarding.OnboardingPage"
              x:DataType="viewModel:OnboardingViewModel"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#F6F8F2">
+             BackgroundColor="#F8F9FA">
 
     <ContentPage.BindingContext>
         <viewModel:OnboardingViewModel />
     </ContentPage.BindingContext>
 
     <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header Actions -->
         <Grid Grid.Row="0" Padding="20,44,20,0" ColumnDefinitions="Auto,*,Auto">
             <Button Text="‹"
                     FontSize="28"
-                    WidthRequest="40"
+                    WidthRequest="42"
                     HeightRequest="40"
-                    Padding="0"
+                    Padding="0,0,2,0"
                     CornerRadius="14"
-                    BackgroundColor="#E9EFE4"
-                    TextColor="#173D2A"
+                    BackgroundColor="#EBEFF2"
+                    TextColor="#1E293B"
                     IsVisible="{Binding ShowBackButton}"
                     Command="{Binding BackCommand}" />
             <Button Grid.Column="2"
                     Text="Bỏ qua"
                     FontFamily="Geist"
                     FontSize="14"
+                    FontAttributes="Bold"
                     BackgroundColor="Transparent"
-                    TextColor="#52705A"
+                    TextColor="#64748B"
                     IsVisible="{Binding ShowSkipButton}"
                     Command="{Binding SkipCommand}" />
         </Grid>
 
+        <!-- Slides Content -->
         <Grid Grid.Row="1" Padding="24,12,24,0">
-            <VerticalStackLayout IsVisible="{Binding IsSlide0}" Spacing="24" VerticalOptions="Center">
-                <Border HeightRequest="280" StrokeThickness="0" BackgroundColor="#173D2A" Padding="20">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="30" /></Border.StrokeShape>
+            <Grid.GestureRecognizers>
+                <SwipeGestureRecognizer Direction="Left" Command="{Binding NextCommand}" />
+                <SwipeGestureRecognizer Direction="Right" Command="{Binding BackCommand}" />
+            </Grid.GestureRecognizers>
+            
+            <!-- Slide 0: Camera Scan with Lucky Mascot -->
+            <VerticalStackLayout x:Name="Slide0Container" IsVisible="{Binding IsSlide0}" Spacing="24" VerticalOptions="Center">
+                <Border HeightRequest="290" StrokeThickness="0" Padding="12">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1E3A8A" Offset="0.0" />
+                            <GradientStop Color="#0F172A" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="28" /></Border.StrokeShape>
                     <Grid>
-                        <Border WidthRequest="170" HeightRequest="230" Stroke="#F5C842" StrokeThickness="2" BackgroundColor="#F9FFF2" Padding="16" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="24" /></Border.StrokeShape>
-                            <VerticalStackLayout Spacing="14">
-                                <Label Text="VÉ SỐ" FontFamily="Geist" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#173D2A" />
-                                <Grid ColumnDefinitions="*,*" RowDefinitions="*,*,*" ColumnSpacing="8" RowSpacing="8">
-                                    <Border BackgroundColor="#DDF6DC" StrokeThickness="0" HeightRequest="34">
-                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="17" /></Border.StrokeShape>
-                                        <Label Text="18" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
-                                    </Border>
-                                    <Border Grid.Column="1" BackgroundColor="#FFE7A8" StrokeThickness="0">
-                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="17" /></Border.StrokeShape>
-                                        <Label Text="42" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
-                                    </Border>
-                                    <Border Grid.Row="1" BackgroundColor="#E7F0FF" StrokeThickness="0">
-                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="17" /></Border.StrokeShape>
-                                        <Label Text="67" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
-                                    </Border>
-                                    <Border Grid.Row="1" Grid.Column="1" BackgroundColor="#FCE0EA" StrokeThickness="0">
-                                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="17" /></Border.StrokeShape>
-                                        <Label Text="90" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#173D2A" />
-                                    </Border>
-                                </Grid>
-                            </VerticalStackLayout>
+                        <!-- Radar Scan Ring Effect -->
+                        <Ellipse WidthRequest="210" HeightRequest="210" Stroke="#60A5FA" StrokeThickness="1" Opacity="0.3" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Ellipse WidthRequest="170" HeightRequest="170" Stroke="#3B82F6" StrokeThickness="2" Opacity="0.5" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        
+                        <Image Source="lucky_mascot.png" 
+                               WidthRequest="180" 
+                               HeightRequest="180" 
+                               HorizontalOptions="Center" 
+                               VerticalOptions="Center" />
+                        
+                        <!-- Floating Tech Elements -->
+                        <Border HorizontalOptions="Start" VerticalOptions="Start" Margin="14,14,0,0" Padding="8,4" BackgroundColor="#22C55E" StrokeThickness="0">
+                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                            <Label Text="AI SCAN" FontSize="10" FontAttributes="Bold" TextColor="White" />
                         </Border>
                     </Grid>
                 </Border>
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Dò vé số bằng camera"
+                    <Label Text="Quét vé số thông minh"
                            FontFamily="Geist"
-                           FontSize="31"
+                           FontSize="28"
                            FontAttributes="Bold"
-                           LineHeight="1.08"
-                           TextColor="#142116" />
-                    <Label Text="Chụp ảnh vé số, AI sẽ đọc thông tin trên vé và phân tích để chuẩn bị kết quả đối chiếu."
+                           LineHeight="1.15"
+                           TextColor="#0F172A" />
+                    <Label Text="Chỉ cần đưa camera vào tấm vé số của bạn, trí tuệ nhân tạo (AI) sẽ tự động nhận diện đài quay, ngày mở thưởng và toàn bộ dãy số chỉ trong 1 giây."
                            FontFamily="Geist"
                            FontSize="15"
                            LineHeight="1.45"
-                           TextColor="#66736A" />
+                           TextColor="#475569" />
                 </VerticalStackLayout>
             </VerticalStackLayout>
 
-            <VerticalStackLayout IsVisible="{Binding IsSlide1}" Spacing="24" VerticalOptions="Center">
-                <Border HeightRequest="280" StrokeThickness="0" BackgroundColor="#FFF4C9" Padding="22">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="30" /></Border.StrokeShape>
-                    <VerticalStackLayout Spacing="16" VerticalOptions="Center">
-                        <Label Text="834972" FontFamily="GeistMono" FontSize="36" FontAttributes="Bold" CharacterSpacing="3" HorizontalTextAlignment="Center" TextColor="#173D2A" />
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                            <Border Padding="14" StrokeThickness="0" BackgroundColor="White">
-                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
-                                <Label Text="Đài quay" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#52705A" />
-                            </Border>
-                            <Border Grid.Column="1" Padding="14" StrokeThickness="0" BackgroundColor="White">
-                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
-                                <Label Text="Ngày quay" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#52705A" />
-                            </Border>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="AI đọc và phân tích vé số"
-                           FontFamily="Geist"
-                           FontSize="31"
-                           FontAttributes="Bold"
-                           LineHeight="1.08"
-                           TextColor="#142116" />
-                    <Label Text="AI phân tích ảnh vé để suy ra dãy số, ngày quay, đài phát hành và các thông tin cần đối chiếu."
-                           FontFamily="Geist"
-                           FontSize="15"
-                           LineHeight="1.45"
-                           TextColor="#66736A" />
-                </VerticalStackLayout>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout IsVisible="{Binding IsSlide2}" Spacing="24" VerticalOptions="Center">
-                <Border HeightRequest="280" StrokeThickness="0" BackgroundColor="#173D2A" Padding="22">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="30" /></Border.StrokeShape>
-                    <VerticalStackLayout Spacing="14" VerticalOptions="Center">
-                        <Border Padding="16" StrokeThickness="0" BackgroundColor="#E7F6DE">
-                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="22" /></Border.StrokeShape>
-                            <Label Text="Không trúng giải"
-                                   FontFamily="Geist"
-                                   FontSize="22"
-                                   FontAttributes="Bold"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="#173D2A" />
+            <!-- Slide 1: Auto Match with Gold Ingot -->
+            <VerticalStackLayout x:Name="Slide1Container" IsVisible="{Binding IsSlide1}" Spacing="24" VerticalOptions="Center">
+                <Border HeightRequest="290" StrokeThickness="0" Padding="12">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#065F46" Offset="0.0" />
+                            <GradientStop Color="#022C22" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="28" /></Border.StrokeShape>
+                    <Grid>
+                        <!-- Stylized Holographic Lottery Ticket -->
+                        <Border WidthRequest="210" HeightRequest="190" Stroke="#F5C842" StrokeThickness="1.5" BackgroundColor="#FFFFFF" Padding="12" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                            <Grid RowDefinitions="Auto,*,Auto">
+                                <Label Text="VÉ SỐ TRUYỀN THỐNG" FontSize="10" FontAttributes="Bold" TextColor="#0F172A" HorizontalTextAlignment="Center"/>
+                                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                                        <Label Text="DÃY SỐ VÉ:" FontSize="8" TextColor="#64748B" />
+                                        <Label Text="834972" FontFamily="GeistMono" FontSize="24" FontAttributes="Bold" CharacterSpacing="1" TextColor="#EF4444" />
+                                        <Label Text="Đài: TP. Hồ Chí Minh" FontSize="9" FontAttributes="Bold" TextColor="#334155" />
+                                    </VerticalStackLayout>
+                                    <Image Grid.Column="1" Source="gold_ingot.png" WidthRequest="64" HeightRequest="64" VerticalOptions="Center" />
+                                </Grid>
+                                <Border Grid.Row="2" BackgroundColor="#F0FDF4" StrokeThickness="0" Padding="8,3" HorizontalOptions="Center">
+                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="6" /></Border.StrokeShape>
+                                    <Label Text="KẾT NỐI DATABASE THẬT" FontSize="8" FontAttributes="Bold" TextColor="#16A34A" />
+                                </Border>
+                            </Grid>
                         </Border>
-                        <Label Text="Ứng dụng sẵn sàng kết nối API kết quả xổ số thật để đối chiếu tự động."
-                               FontFamily="Geist"
-                               FontSize="14"
-                               LineHeight="1.45"
-                               HorizontalTextAlignment="Center"
-                               TextColor="#CFE6D5" />
-                    </VerticalStackLayout>
+                    </Grid>
                 </Border>
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Báo kết quả rõ ràng"
+                    <Label Text="Tự động dò kết quả thật"
                            FontFamily="Geist"
-                           FontSize="31"
+                           FontSize="28"
                            FontAttributes="Bold"
-                           LineHeight="1.08"
-                           TextColor="#142116" />
-                    <Label Text="Sau khi AI phân tích, app hiện dãy số, đài quay, ngày quay và trạng thái trúng thưởng."
+                           LineHeight="1.15"
+                           TextColor="#0F172A" />
+                    <Label Text="Nói KHÔNG với số giả lập. Hệ thống liên tục đồng bộ cơ sở dữ liệu kết quả xổ số thực tế từ nhà đài Minh Ngọc để so khớp vé số của bạn chính xác tuyệt đối."
                            FontFamily="Geist"
                            FontSize="15"
                            LineHeight="1.45"
-                           TextColor="#66736A" />
+                           TextColor="#475569" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Slide 2: Grandiose Special Prize Winning Notification -->
+            <VerticalStackLayout x:Name="Slide2Container" IsVisible="{Binding IsSlide2}" Spacing="24" VerticalOptions="Center">
+                <Border HeightRequest="290" StrokeThickness="0" Padding="14">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#991B1B" Offset="0.0" />
+                            <GradientStop Color="#7F1D1D" Offset="0.4" />
+                            <GradientStop Color="#450A0A" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="28" /></Border.StrokeShape>
+                    <Grid>
+                        <!-- Sparkles and Celebration -->
+                        <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
+                            <!-- Floating Golden Header -->
+                            <Border BackgroundColor="#FEF08A" StrokeThickness="0" Padding="12,5" HorizontalOptions="Center">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                                <Label Text="🎉 TRÚNG ĐỘC ĐẮC 🎉" FontSize="11" FontAttributes="Bold" TextColor="#991B1B" CharacterSpacing="1" />
+                            </Border>
+
+                            <!-- Exploding Treasure Chest -->
+                            <Image Source="treasure_chest.png" WidthRequest="110" HeightRequest="110" HorizontalOptions="Center">
+                                <Image.Shadow>
+                                    <Shadow Brush="#F5C842" Offset="0,0" Radius="15" Opacity="0.8" />
+                                </Image.Shadow>
+                            </Image>
+
+                            <!-- Grandiose Result Card -->
+                            <Border Padding="10,6" BackgroundColor="#FFFFFF" StrokeThickness="0" WidthRequest="220" HorizontalOptions="Center">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="1">
+                                    <Label Text="GIẢI ĐẶC BIỆT" FontSize="9" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#EF4444" CharacterSpacing="1"/>
+                                    <Label Text="834972" FontFamily="GeistMono" FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center" CharacterSpacing="2" TextColor="#1E293B"/>
+                                    <Label Text="Trị giá: 2.000.000.000đ" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#15803D" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Rinh lộc vàng may mắn"
+                           FontFamily="Geist"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           LineHeight="1.15"
+                           TextColor="#0F172A" />
+                    <Label Text="Màn hình chúc mừng trúng thưởng hoành tráng, rực rỡ với hiệu ứng rương vàng tài lộc sẽ lập tức xuất hiện ngay khi AI dò ra tấm vé độc đắc của bạn!"
+                           FontFamily="Geist"
+                           FontSize="15"
+                           LineHeight="1.45"
+                           TextColor="#475569" />
                 </VerticalStackLayout>
             </VerticalStackLayout>
         </Grid>
 
+        <!-- Bottom Controls -->
         <VerticalStackLayout Grid.Row="2" Padding="24,14,24,36" Spacing="18">
-            <HorizontalStackLayout Spacing="7" HorizontalOptions="Center">
-                <Border WidthRequest="24" HeightRequest="7" StrokeThickness="0" IsVisible="{Binding IsDot0Active}" BackgroundColor="#173D2A">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="4" /></Border.StrokeShape>
+            <!-- Smooth Rounded Indicators -->
+            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Border WidthRequest="24" HeightRequest="6" StrokeThickness="0" IsVisible="{Binding IsDot0Active}" BackgroundColor="#1E293B">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
                 </Border>
-                <Border WidthRequest="7" HeightRequest="7" StrokeThickness="0" IsVisible="{Binding IsDot0Active, Converter={StaticResource InvertBool}}" BackgroundColor="#CBD8C8">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="4" /></Border.StrokeShape>
+                <Border WidthRequest="6" HeightRequest="6" StrokeThickness="0" IsVisible="{Binding IsDot0Active, Converter={StaticResource InvertBool}}" BackgroundColor="#CBD5E1">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
                 </Border>
-                <Border WidthRequest="24" HeightRequest="7" StrokeThickness="0" IsVisible="{Binding IsDot1Active}" BackgroundColor="#173D2A">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="4" /></Border.StrokeShape>
+                <Border WidthRequest="24" HeightRequest="6" StrokeThickness="0" IsVisible="{Binding IsDot1Active}" BackgroundColor="#1E293B">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
                 </Border>
-                <Border WidthRequest="7" HeightRequest="7" StrokeThickness="0" IsVisible="{Binding IsDot1Active, Converter={StaticResource InvertBool}}" BackgroundColor="#CBD8C8">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="4" /></Border.StrokeShape>
+                <Border WidthRequest="6" HeightRequest="6" StrokeThickness="0" IsVisible="{Binding IsDot1Active, Converter={StaticResource InvertBool}}" BackgroundColor="#CBD5E1">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
                 </Border>
-                <Border WidthRequest="24" HeightRequest="7" StrokeThickness="0" IsVisible="{Binding IsDot2Active}" BackgroundColor="#173D2A">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="4" /></Border.StrokeShape>
+                <Border WidthRequest="24" HeightRequest="6" StrokeThickness="0" IsVisible="{Binding IsDot2Active}" BackgroundColor="#1E293B">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
                 </Border>
-                <Border WidthRequest="7" HeightRequest="7" StrokeThickness="0" IsVisible="{Binding IsDot2Active, Converter={StaticResource InvertBool}}" BackgroundColor="#CBD8C8">
-                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="4" /></Border.StrokeShape>
+                <Border WidthRequest="6" HeightRequest="6" StrokeThickness="0" IsVisible="{Binding IsDot2Active, Converter={StaticResource InvertBool}}" BackgroundColor="#CBD5E1">
+                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="3" /></Border.StrokeShape>
                 </Border>
             </HorizontalStackLayout>
+            
+            <!-- Beautiful Call to Action Button -->
             <Button Text="{Binding NextButtonText}"
                     Command="{Binding NextCommand}"
                     HeightRequest="58"
@@ -179,38 +222,54 @@
                     FontSize="16"
                     FontAttributes="Bold"
                     BackgroundColor="#F5C842"
-                    TextColor="#173D2A" />
+                    TextColor="#1E293B">
+                <Button.Shadow>
+                    <Shadow Brush="#F5C842" Offset="0,4" Radius="10" Opacity="0.4" />
+                </Button.Shadow>
+            </Button>
         </VerticalStackLayout>
 
+        <!-- Premium Permission Modal -->
         <Grid IsVisible="{Binding ShowPermissionPopup}"
               Grid.RowSpan="3"
-              BackgroundColor="#99000000"
+              BackgroundColor="#CC0F172A"
               Padding="24">
-            <Border Padding="22"
+            <Border Padding="24"
                     StrokeThickness="0"
                     BackgroundColor="White"
-                    VerticalOptions="Center">
-                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="22" /></Border.StrokeShape>
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="Cho phép camera?"
+                    VerticalOptions="Center"
+                    WidthRequest="340"
+                    HorizontalOptions="Center">
+                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="24" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="16">
+                    <!-- Tech Camera Icon Simulation -->
+                    <Border WidthRequest="64" HeightRequest="64" BackgroundColor="#EFF6FF" StrokeThickness="0" HorizontalOptions="Center" Margin="0,4,0,0">
+                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="32" /></Border.StrokeShape>
+                        <Label Text="📷" FontSize="28" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    
+                    <Label Text="Cho phép sử dụng Camera"
                            FontFamily="Geist"
-                           FontSize="22"
+                           FontSize="20"
                            FontAttributes="Bold"
-                           TextColor="#142116" />
-                    <Label Text="DoVeSo AI cần quyền camera để chụp ảnh vé số và tự động dò kết quả."
+                           HorizontalTextAlignment="Center"
+                           TextColor="#0F172A" />
+                    <Label Text="DoVeSo AI cần quyền truy cập camera để chụp ảnh và tự động nhận diện vé số một cách chính xác nhất."
                            FontFamily="Geist"
                            FontSize="14"
                            LineHeight="1.45"
-                           TextColor="#66736A" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                           HorizontalTextAlignment="Center"
+                           TextColor="#475569" />
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12,0,0">
                         <Button Text="Để sau"
                                 Command="{Binding NotNowCommand}"
                                 HeightRequest="50"
                                 CornerRadius="16"
                                 FontFamily="Geist"
                                 FontAttributes="Bold"
-                                BackgroundColor="#E9EFE4"
-                                TextColor="#173D2A" />
+                                BackgroundColor="#F1F5F9"
+                                TextColor="#475569" />
                         <Button Grid.Column="1"
                                 Text="Cho phép"
                                 Command="{Binding AllowCommand}"
@@ -218,7 +277,7 @@
                                 CornerRadius="16"
                                 FontFamily="Geist"
                                 FontAttributes="Bold"
-                                BackgroundColor="#173D2A"
+                                BackgroundColor="#1E293B"
                                 TextColor="White" />
                     </Grid>
                 </VerticalStackLayout>

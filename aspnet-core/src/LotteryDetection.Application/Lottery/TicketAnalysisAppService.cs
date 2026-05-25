@@ -373,8 +373,9 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     public async Task<System.Collections.Generic.List<Dto.LotteryDrawResultDto>> GetDrawResultsAsync(DateTime drawDate)
     {
         var localDate = drawDate.Date;
+        var nextDate = localDate.AddDays(1);
         var results = await _drawResultRepository.GetAll()
-            .Where(r => r.DrawDate == localDate)
+            .Where(r => r.DrawDate >= localDate && r.DrawDate < nextDate)
             .ToListAsync();
 
         return results.Select(r => new Dto.LotteryDrawResultDto

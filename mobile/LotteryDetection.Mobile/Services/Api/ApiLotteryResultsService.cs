@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using LotteryDetection.Mobile.Models.Lottery;
 using LotteryDetection.Mobile.Services.Auth;
 using LotteryDetection.Mobile.Services.Interfaces;
-using LotteryDetection.Mobile.Services.Mock;
 
 namespace LotteryDetection.Mobile.Services.Api;
 
@@ -35,23 +34,35 @@ public class ApiLotteryResultsService : ILotteryResultsService
         _authService = authService;
     }
 
+    public bool IsLiveDrawingTime()
+    {
+        var now = DateTime.Now;
+        var time = now.TimeOfDay;
+
+        bool isNamLive = time >= new TimeSpan(16, 10, 0) && time <= new TimeSpan(16, 45, 0);
+        bool isTrungLive = time >= new TimeSpan(17, 10, 0) && time <= new TimeSpan(17, 45, 0);
+        bool isBacLive = time >= new TimeSpan(18, 10, 0) && time <= new TimeSpan(18, 45, 0);
+
+        return isNamLive || isTrungLive || isBacLive;
+    }
+
     public async Task<IReadOnlyList<LotteryRegionDraw>> GetTodayResultsAsync(CancellationToken ct = default)
     {
+        var now = DateTime.Now;
+        var today = DateTime.Today;
+        var yesterday = today.AddDays(-1);
+
+        // Determine query date based on drawing schedules
+        var showNamToday = now.Hour > 16 || (now.Hour == 16 && now.Minute >= 10);
+        var showTrungToday = now.Hour > 17 || (now.Hour == 17 && now.Minute >= 10);
+        var showBacToday = now.Hour > 18 || (now.Hour == 18 && now.Minute >= 10);
+
+        var dateNam = showNamToday ? today : yesterday;
+        var dateTrung = showTrungToday ? today : yesterday;
+        var dateBac = showBacToday ? today : yesterday;
+
         try
         {
-            var now = DateTime.Now;
-            var today = DateTime.Today;
-            var yesterday = today.AddDays(-1);
-
-            // Determine query date based on drawing schedules
-            var showNamToday = now.Hour > 16 || (now.Hour == 16 && now.Minute >= 45);
-            var showTrungToday = now.Hour > 17 || (now.Hour == 17 && now.Minute >= 45);
-            var showBacToday = now.Hour > 18 || (now.Hour == 18 && now.Minute >= 45);
-
-            var dateNam = showNamToday ? today : yesterday;
-            var dateTrung = showTrungToday ? today : yesterday;
-            var dateBac = showBacToday ? today : yesterday;
-
             // We will fetch real results from the backend. Since the backend returns results by a single date,
             // we will query for both today and yesterday, then filter the provinces/regions accordingly.
             var todayResults = await FetchDrawResultsFromApiAsync(today, ct);
@@ -60,12 +71,6 @@ public class ApiLotteryResultsService : ILotteryResultsService
             var allRealResults = new List<LotteryDrawResultDto>();
             if (todayResults != null) allRealResults.AddRange(todayResults);
             if (yesterdayResults != null) allRealResults.AddRange(yesterdayResults);
-
-            if (allRealResults.Count == 0)
-            {
-                Debug.WriteLine("[ApiLotteryResultsService] No real results in database. Falling back to Mock service.");
-                return await MockLotteryResultsService.Instance.GetTodayResultsAsync(ct);
-            }
 
             var list = new List<LotteryRegionDraw>();
 
@@ -77,7 +82,6 @@ public class ApiLotteryResultsService : ILotteryResultsService
             }
             else
             {
-                // Fallback mock card for Miền Bắc if not found in database
                 list.Add(BuildMockFallback(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", dateBac));
             }
 
@@ -115,78 +119,31 @@ public class ApiLotteryResultsService : ILotteryResultsService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[ApiLotteryResultsService] GetTodayResultsAsync failed: {ex.Message}. Falling back to Mock service.");
-            return await MockLotteryResultsService.Instance.GetTodayResultsAsync(ct);
+            Debug.WriteLine($"[ApiLotteryResultsService] GetTodayResultsAsync failed: {ex.Message}. Returning empty fallbacks.");
+            
+            var list = new List<LotteryRegionDraw>();
+            list.Add(BuildMockFallback(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", dateBac));
+
+            var activeTrungProvinces = GetActiveProvincesForDay(dateTrung, LotteryRegion.Trung);
+            foreach (var province in activeTrungProvinces)
+            {
+                list.Add(BuildMockFallback(LotteryRegion.Trung, "Miền Trung", province, dateTrung));
+            }
+
+            var activeNamProvinces = GetActiveProvincesForDay(dateNam, LotteryRegion.Nam);
+            foreach (var province in activeNamProvinces)
+            {
+                list.Add(BuildMockFallback(LotteryRegion.Nam, "Miền Nam", province, dateNam));
+            }
+
+            return list;
         }
     }
 
     public async Task<IReadOnlyList<LotteryRegionDraw>> GetLiveResultsAsync(CancellationToken ct = default)
     {
-        // For Live Results, we also fetch real results if available, and apply live drawing progress
-        var results = await GetTodayResultsAsync(ct);
-
-        var now = DateTime.Now;
-        var today = DateTime.Today;
-        var time = now.TimeOfDay;
-
-        foreach (var draw in results)
-        {
-            bool isLive = false;
-            double progress = 1.0;
-
-            if (draw.Region == LotteryRegion.Nam)
-            {
-                isLive = time >= new TimeSpan(16, 10, 0) && time <= new TimeSpan(16, 45, 0);
-                if (isLive)
-                {
-                    var elapsed = (time - new TimeSpan(16, 10, 0)).TotalMinutes;
-                    progress = Math.Clamp(elapsed / 30.0, 0.0, 1.0);
-                }
-            }
-            else if (draw.Region == LotteryRegion.Trung)
-            {
-                isLive = time >= new TimeSpan(17, 10, 0) && time <= new TimeSpan(17, 45, 0);
-                if (isLive)
-                {
-                    var elapsed = (time - new TimeSpan(17, 10, 0)).TotalMinutes;
-                    progress = Math.Clamp(elapsed / 30.0, 0.0, 1.0);
-                }
-            }
-            else if (draw.Region == LotteryRegion.Bac)
-            {
-                isLive = time >= new TimeSpan(18, 10, 0) && time <= new TimeSpan(18, 45, 0);
-                if (isLive)
-                {
-                    var elapsed = (time - new TimeSpan(18, 10, 0)).TotalMinutes;
-                    progress = Math.Clamp(elapsed / 30.0, 0.0, 1.0);
-                }
-            }
-
-            if (draw.DrawDate < today)
-            {
-                progress = 1.0;
-            }
-            else
-            {
-                if (draw.Region == LotteryRegion.Nam && time > new TimeSpan(16, 45, 0)) progress = 1.0;
-                else if (draw.Region == LotteryRegion.Trung && time > new TimeSpan(17, 45, 0)) progress = 1.0;
-                else if (draw.Region == LotteryRegion.Bac && time > new TimeSpan(18, 45, 0)) progress = 1.0;
-                else if (!isLive) progress = 0.6;
-            }
-
-            int totalPrizes = draw.Prizes.Count;
-            int drawnCount = (int)Math.Round(progress * totalPrizes);
-            drawnCount = Math.Clamp(drawnCount, 1, totalPrizes);
-
-            for (int i = 0; i < totalPrizes; i++)
-            {
-                var prize = draw.Prizes[i];
-                int drawOrderIndex = totalPrizes - 1 - i;
-                prize.IsDrawn = drawOrderIndex < drawnCount;
-            }
-        }
-
-        return results;
+        // For Live Results, we fetch real results from today/yesterday as appropriate.
+        return await GetTodayResultsAsync(ct);
     }
 
     private async Task<List<LotteryDrawResultDto>?> FetchDrawResultsFromApiAsync(DateTime date, CancellationToken ct)
@@ -283,8 +240,7 @@ public class ApiLotteryResultsService : ILotteryResultsService
             new { Label = "Giải tư", IsSpecial = false },
             new { Label = "Giải năm", IsSpecial = false },
             new { Label = "Giải sáu", IsSpecial = false },
-            new { Label = "Giải bảy", IsSpecial = false },
-            new { Label = "Giải tám", IsSpecial = false }
+            new { Label = "Giải bảy", IsSpecial = false }
         } : new[]
         {
             new { Label = "Đặc biệt", IsSpecial = true },
@@ -298,18 +254,43 @@ public class ApiLotteryResultsService : ILotteryResultsService
             new { Label = "Giải tám", IsSpecial = false }
         };
 
+        var now = DateTime.Now;
+        var time = now.TimeOfDay;
+        bool isLiveNow = false;
+
+        // Determine if currently in the live drawing time for this region
+        if (dto.DrawDate.Date == DateTime.Today)
+        {
+            if (region == LotteryRegion.Nam)
+                isLiveNow = time >= new TimeSpan(16, 10, 0) && time <= new TimeSpan(16, 45, 0);
+            else if (region == LotteryRegion.Trung)
+                isLiveNow = time >= new TimeSpan(17, 10, 0) && time <= new TimeSpan(17, 45, 0);
+            else if (region == LotteryRegion.Bac)
+                isLiveNow = time >= new TimeSpan(18, 10, 0) && time <= new TimeSpan(18, 45, 0);
+        }
+
         foreach (var config in tierConfigs)
         {
-            if (dto.Prizes == null || !dto.Prizes.TryGetValue(config.Label, out var nums) || nums == null || nums.Count == 0)
-                continue;
+            string cellString;
+            bool isDrawn;
 
-            var cellString = string.Join(" · ", nums);
+            if (dto.Prizes != null && dto.Prizes.TryGetValue(config.Label, out var nums) && nums != null && nums.Count > 0)
+            {
+                cellString = string.Join(" · ", nums);
+                isDrawn = true;
+            }
+            else
+            {
+                cellString = isLiveNow ? "" : "-";
+                isDrawn = !isLiveNow;
+            }
 
             draw.Prizes.Add(new LotteryPrizeTier
             {
                 TierLabel = config.Label,
                 IsSpecial = config.IsSpecial,
-                Numbers = cellString
+                Numbers = cellString,
+                IsDrawn = isDrawn
             });
 
             var row = new LotteryRowDraw
@@ -330,7 +311,6 @@ public class ApiLotteryResultsService : ILotteryResultsService
 
     private static LotteryRegionDraw BuildMockFallback(LotteryRegion region, string label, string province, DateTime date)
     {
-        // Re-use logic to create beautiful mocked cards when specific province result is not in database yet.
         var draw = new LotteryRegionDraw
         {
             Region = region,
@@ -341,49 +321,56 @@ public class ApiLotteryResultsService : ILotteryResultsService
 
         draw.Provinces.Add(new LotteryProvinceHeader { Name = province, ColumnIndex = 0 });
 
-        var random = new Random();
-        string RandomDigits(int length)
-        {
-            var max = (int)Math.Pow(10, length);
-            return random.Next(0, max).ToString(new string('0', length));
-        }
-
         var tierConfigs = region == LotteryRegion.Bac ? new[]
         {
-            new { Label = "Đặc biệt", IsSpecial = true, Digits = 6, Count = 1 },
-            new { Label = "Giải nhất", IsSpecial = false, Digits = 5, Count = 1 },
-            new { Label = "Giải nhì", IsSpecial = false, Digits = 5, Count = 2 },
-            new { Label = "Giải ba", IsSpecial = false, Digits = 5, Count = 6 },
-            new { Label = "Giải tư", IsSpecial = false, Digits = 4, Count = 4 },
-            new { Label = "Giải năm", IsSpecial = false, Digits = 4, Count = 6 },
-            new { Label = "Giải sáu", IsSpecial = false, Digits = 3, Count = 3 },
-            new { Label = "Giải bảy", IsSpecial = false, Digits = 2, Count = 4 },
-            new { Label = "Giải tám", IsSpecial = false, Digits = 2, Count = 0 }
+            new { Label = "Đặc biệt", IsSpecial = true, Count = 1 },
+            new { Label = "Giải nhất", IsSpecial = false, Count = 1 },
+            new { Label = "Giải nhì", IsSpecial = false, Count = 2 },
+            new { Label = "Giải ba", IsSpecial = false, Count = 6 },
+            new { Label = "Giải tư", IsSpecial = false, Count = 4 },
+            new { Label = "Giải năm", IsSpecial = false, Count = 6 },
+            new { Label = "Giải sáu", IsSpecial = false, Count = 3 },
+            new { Label = "Giải bảy", IsSpecial = false, Count = 4 },
+            new { Label = "Giải tám", IsSpecial = false, Count = 0 }
         } : new[]
         {
-            new { Label = "Đặc biệt", IsSpecial = true, Digits = 6, Count = 1 },
-            new { Label = "Giải nhất", IsSpecial = false, Digits = 5, Count = 1 },
-            new { Label = "Giải nhì", IsSpecial = false, Digits = 5, Count = 1 },
-            new { Label = "Giải ba", IsSpecial = false, Digits = 5, Count = 2 },
-            new { Label = "Giải tư", IsSpecial = false, Digits = 5, Count = 7 },
-            new { Label = "Giải năm", IsSpecial = false, Digits = 4, Count = 1 },
-            new { Label = "Giải sáu", IsSpecial = false, Digits = 3, Count = 3 },
-            new { Label = "Giải bảy", IsSpecial = false, Digits = 3, Count = 1 },
-            new { Label = "Giải tám", IsSpecial = false, Digits = 2, Count = 1 }
+            new { Label = "Đặc biệt", IsSpecial = true, Count = 1 },
+            new { Label = "Giải nhất", IsSpecial = false, Count = 1 },
+            new { Label = "Giải nhì", IsSpecial = false, Count = 1 },
+            new { Label = "Giải ba", IsSpecial = false, Count = 2 },
+            new { Label = "Giải tư", IsSpecial = false, Count = 7 },
+            new { Label = "Giải năm", IsSpecial = false, Count = 1 },
+            new { Label = "Giải sáu", IsSpecial = false, Count = 3 },
+            new { Label = "Giải bảy", IsSpecial = false, Count = 1 },
+            new { Label = "Giải tám", IsSpecial = false, Count = 1 }
         };
+
+        var now = DateTime.Now;
+        var time = now.TimeOfDay;
+        bool isLiveNow = false;
+
+        if (date.Date == DateTime.Today)
+        {
+            if (region == LotteryRegion.Nam)
+                isLiveNow = time >= new TimeSpan(16, 10, 0) && time <= new TimeSpan(16, 45, 0);
+            else if (region == LotteryRegion.Trung)
+                isLiveNow = time >= new TimeSpan(17, 10, 0) && time <= new TimeSpan(17, 45, 0);
+            else if (region == LotteryRegion.Bac)
+                isLiveNow = time >= new TimeSpan(18, 10, 0) && time <= new TimeSpan(18, 45, 0);
+        }
 
         foreach (var config in tierConfigs)
         {
             if (config.Count == 0) continue;
 
-            var nums = Enumerable.Range(0, config.Count).Select(_ => RandomDigits(config.Digits));
-            var cellString = string.Join(" · ", nums);
+            var cellString = isLiveNow ? "" : "-";
 
             draw.Prizes.Add(new LotteryPrizeTier
             {
                 TierLabel = config.Label,
                 IsSpecial = config.IsSpecial,
-                Numbers = cellString
+                Numbers = cellString,
+                IsDrawn = !isLiveNow
             });
 
             var row = new LotteryRowDraw

@@ -10,6 +10,18 @@ public class MockLotteryResultsService : ILotteryResultsService
 
     private readonly Random random = new();
 
+    public bool IsLiveDrawingTime()
+    {
+        var now = DateTime.Now;
+        var time = now.TimeOfDay;
+
+        bool isNamLive = time >= new TimeSpan(16, 10, 0) && time <= new TimeSpan(16, 45, 0);
+        bool isTrungLive = time >= new TimeSpan(17, 10, 0) && time <= new TimeSpan(17, 45, 0);
+        bool isBacLive = time >= new TimeSpan(18, 10, 0) && time <= new TimeSpan(18, 45, 0);
+
+        return isNamLive || isTrungLive || isBacLive;
+    }
+
     public async Task<IReadOnlyList<LotteryRegionDraw>> GetTodayResultsAsync(CancellationToken ct = default)
     {
         // Light artificial latency so the loading state is observable.
