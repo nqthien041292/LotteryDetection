@@ -5,6 +5,7 @@
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:cv="clr-namespace:LotteryDetection.Mobile.Converters"
+             xmlns:models="clr-namespace:LotteryDetection.Mobile.Models.Lottery"
              x:Class="LotteryDetection.Mobile.Views.LotteryCapture.LotteryCapturePage"
              x:DataType="viewModel:LotteryCaptureViewModel"
              Title="Dò vé số"
@@ -346,7 +347,7 @@
                                 <Label Text="Kết quả AI dò vé"
                                        FontFamily="Geist" FontSize="15" FontAttributes="Bold"
                                        TextColor="#031649" />
-                                <Label Text="{Binding Result.ConfidenceDisplay, StringFormat='Độ tin cậy {0}'}"
+                                <Label Text="{Binding Results.Count, StringFormat='Tìm thấy {0} vé số'}"
                                        FontFamily="GeistMono" FontSize="11"
                                        TextColor="#66736A" />
                             </VerticalStackLayout>
@@ -360,90 +361,91 @@
                                     TextColor="#031649" />
                         </Grid>
 
-                        <!-- Content -->
-                        <ScrollView Grid.Row="2" Padding="20,10,20,4" MaximumHeightRequest="460">
-                            <VerticalStackLayout Spacing="12">
-
-                                <!-- Ticket number card -->
-                                <Border Padding="18" StrokeThickness="1"
-                                        Stroke="#DAE5D6"
-                                        BackgroundColor="White">
-                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="10">
-                                        <Label Text="DÃY SỐ AI ĐỌC ĐƯỢC"
-                                               FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
-                                               CharacterSpacing="0.06"
-                                               TextColor="#00bb77" />
-                                        <Label Text="{Binding Result.TicketNumber}"
-                                               FontFamily="GeistMono" FontSize="32" FontAttributes="Bold"
-                                               CharacterSpacing="4"
-                                               TextColor="#031649" />
-
-                                        <BoxView HeightRequest="1" BackgroundColor="#E5EDE2" />
-
-                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                                <Label Text="Đài quay"
-                                                       FontFamily="Geist" FontSize="11"
-                                                       TextColor="#66736A" />
-                                                <Label Text="{Binding Result.Province}"
-                                                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                        <!-- Content (List of Tickets) -->
+                        <CollectionView Grid.Row="2" 
+                                        ItemsSource="{Binding Results}"
+                                        Margin="0,10,0,0"
+                                        MaximumHeightRequest="460">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:LotteryTicketResult">
+                                    <VerticalStackLayout Padding="20,0,20,16" Spacing="12">
+                                        <!-- Ticket number card -->
+                                        <Border Padding="18" StrokeThickness="1"
+                                                Stroke="#DAE5D6"
+                                                BackgroundColor="White">
+                                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                                            <VerticalStackLayout Spacing="10">
+                                                <Label Text="DÃY SỐ AI ĐỌC ĐƯỢC"
+                                                       FontFamily="Geist" FontSize="10.5" FontAttributes="Bold"
+                                                       CharacterSpacing="0.06"
+                                                       TextColor="#00bb77" />
+                                                <Label Text="{Binding TicketNumber}"
+                                                       FontFamily="GeistMono" FontSize="32" FontAttributes="Bold"
+                                                       CharacterSpacing="4"
                                                        TextColor="#031649" />
+
+                                                <BoxView HeightRequest="1" BackgroundColor="#E5EDE2" />
+
+                                                <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                        <Label Text="Đài quay"
+                                                               FontFamily="Geist" FontSize="11"
+                                                               TextColor="#66736A" />
+                                                        <Label Text="{Binding Province}"
+                                                               FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                                               TextColor="#031649" />
+                                                    </VerticalStackLayout>
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                        <Label Text="Ngày quay"
+                                                               FontFamily="Geist" FontSize="11"
+                                                               TextColor="#66736A" />
+                                                        <Label Text="{Binding DrawDateDisplay}"
+                                                               FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                                               TextColor="#031649" />
+                                                    </VerticalStackLayout>
+                                                </Grid>
                                             </VerticalStackLayout>
-                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                                <Label Text="Ngày quay"
-                                                       FontFamily="Geist" FontSize="11"
-                                                       TextColor="#66736A" />
-                                                <Label Text="{Binding Result.DrawDateDisplay}"
-                                                       FontFamily="Geist" FontSize="14" FontAttributes="Bold"
+                                        </Border>
+
+                                        <!-- Prize banner -->
+                                        <Border Padding="18" StrokeThickness="0">
+                                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='True=#E7F6DE;False=#F1F3F0'}" Offset="0.0" />
+                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='True=#F5C842;False=#E5E8E5'}" Offset="1.0" />
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                            <VerticalStackLayout Spacing="6">
+                                                <Label Text="{Binding ResultHeadline}"
+                                                       FontFamily="Geist" FontSize="18" FontAttributes="Bold"
+                                                       LineHeight="1.25"
                                                        TextColor="#031649" />
+                                                <Label Text="{Binding PrizeAmountDisplay}"
+                                                       IsVisible="{Binding IsWinner}"
+                                                       FontFamily="Geist" FontSize="24" FontAttributes="Bold"
+                                                       TextColor="#00bb77" />
                                             </VerticalStackLayout>
-                                        </Grid>
-                                    </VerticalStackLayout>
-                                </Border>
+                                        </Border>
 
-                                <!-- Prize banner with Premium Gradient and Shadow -->
-                                <Border Padding="18" StrokeThickness="0">
-                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <!-- Nếu trúng giải thì dải gradient từ xanh lục bảo đến vàng mạ lấp lánh, không trúng thì xám bạc thanh lịch -->
-                                            <GradientStop Color="#E7F6DE" Offset="0.0" />
-                                            <GradientStop Color="#F5C842" Offset="1.0" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Border.Shadow>
-                                        <Shadow Brush="#F5C842" Radius="10" Offset="0,4" Opacity="0.15" />
-                                    </Border.Shadow>
-                                    <VerticalStackLayout Spacing="6">
-                                        <Label Text="{Binding Result.ResultHeadline}"
-                                               FontFamily="Geist" FontSize="18" FontAttributes="Bold"
-                                               LineHeight="1.25"
-                                               TextColor="#031649" />
-                                        <Label Text="{Binding Result.PrizeAmountDisplay}"
-                                               IsVisible="{Binding Result.IsWinner}"
-                                               FontFamily="Geist" FontSize="24" FontAttributes="Bold"
-                                               TextColor="#00bb77" />
+                                        <!-- Notes -->
+                                        <Border Padding="14" StrokeThickness="1"
+                                                Stroke="#DAE5D6"
+                                                BackgroundColor="White">
+                                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                                            <VerticalStackLayout Spacing="6">
+                                                <Label Text="Ghi chú từ AI"
+                                                       FontFamily="Geist" FontSize="13" FontAttributes="Bold"
+                                                       TextColor="#031649" />
+                                                <Label Text="{Binding Notes}"
+                                                       FontFamily="Geist" FontSize="13" LineHeight="1.4"
+                                                       TextColor="#66736A" />
+                                            </VerticalStackLayout>
+                                        </Border>
                                     </VerticalStackLayout>
-                                </Border>
-
-                                <!-- Notes -->
-                                <Border Padding="14" StrokeThickness="1"
-                                        Stroke="#DAE5D6"
-                                        BackgroundColor="White">
-                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="16" /></Border.StrokeShape>
-                                    <VerticalStackLayout Spacing="6">
-                                        <Label Text="Ghi chú từ AI"
-                                               FontFamily="Geist" FontSize="13" FontAttributes="Bold"
-                                               TextColor="#031649" />
-                                        <Label Text="{Binding Result.Notes}"
-                                               FontFamily="Geist" FontSize="13" LineHeight="1.4"
-                                               TextColor="#66736A" />
-                                    </VerticalStackLayout>
-                                </Border>
-
-                            </VerticalStackLayout>
-                        </ScrollView>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
 
                         <!-- Bottom actions -->
                         <Grid Grid.Row="3"

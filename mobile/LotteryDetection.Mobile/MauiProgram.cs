@@ -112,6 +112,20 @@ public static class MauiProgram
             border.GestureRecognizers.Add(pointer);
         });
 
+#if IOS
+        Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("TransparentDatePicker", (handler, view) =>
+        {
+            if (handler.PlatformView is UIKit.UITextField textField)
+            {
+                textField.BorderStyle = UIKit.UITextBorderStyle.None;
+                textField.BackgroundColor = UIKit.UIColor.Clear;
+                textField.TextColor = UIKit.UIColor.Clear;
+                textField.TintColor = UIKit.UIColor.Clear;
+                textField.UserInteractionEnabled = true;
+            }
+        });
+#endif
+
         builder.Services.AddSingleton<IAIService>(_ => MockAIService.Instance);
 
         // When `Api.BaseUrl` is configured in appsettings, talk to the real backend

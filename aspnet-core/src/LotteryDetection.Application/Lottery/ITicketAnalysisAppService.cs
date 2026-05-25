@@ -8,7 +8,7 @@ namespace LotteryDetection.Lottery;
 
 public interface ITicketAnalysisAppService : IApplicationService
 {
-    Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input);
+    Task<System.Collections.Generic.List<TicketAnalysisDto>> AnalyzeAsync(AnalyzeTicketInput input);
 
     Task<TicketAnalysisDto> GetAsync(EntityDto<Guid> input);
 

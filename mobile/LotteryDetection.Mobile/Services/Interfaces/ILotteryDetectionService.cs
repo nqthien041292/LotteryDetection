@@ -4,5 +4,5 @@ namespace LotteryDetection.Mobile.Services.Interfaces;
 
 public interface ILotteryDetectionService
 {
-    Task<LotteryTicketResult> AnalyzeAsync(string imagePath, CancellationToken ct);
+    Task<List<LotteryTicketResult>> AnalyzeAsync(string imagePath, CancellationToken ct);
 }

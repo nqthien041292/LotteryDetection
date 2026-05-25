@@ -31,7 +31,7 @@ public class VertexAITicketAnalyzer : IVertexAITicketAnalyzer, ITransientDepende
 
     public ILogger Logger { get; set; } = NullLogger.Instance;
 
-    public async Task<VertexAIAnalysisResult> AnalyzeAsync(
+    public async Task<System.Collections.Generic.List<VertexAIAnalysisResult>> AnalyzeAsync(
         byte[] imageBytes,
         string contentType,
         CancellationToken cancellationToken = default)
@@ -144,7 +144,7 @@ public class VertexAITicketAnalyzer : IVertexAITicketAnalyzer, ITransientDepende
         });
     }
 
-    private static VertexAIAnalysisResult ParseResponse(string responseBody)
+    private static System.Collections.Generic.List<VertexAIAnalysisResult> ParseResponse(string responseBody)
     {
         using var doc = JsonDocument.Parse(responseBody);
         var root = doc.RootElement;
@@ -168,28 +168,33 @@ public class VertexAITicketAnalyzer : IVertexAITicketAnalyzer, ITransientDepende
             throw new UserFriendlyException("Vertex AI không trả về JSON.", Truncate(responseBody, 500));
         }
 
-        TicketModelPayload payload;
+        TicketModelContainer payload;
         try
         {
-            payload = JsonSerializer.Deserialize<TicketModelPayload>(text,
+            payload = JsonSerializer.Deserialize<TicketModelContainer>(text,
                           new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                      ?? new TicketModelPayload();
+                      ?? new TicketModelContainer();
         }
         catch (JsonException ex)
         {
             throw new UserFriendlyException("Vertex AI trả về JSON không hợp lệ.", ex.Message);
         }
 
-        return new VertexAIAnalysisResult
+        if (payload.Tickets == null || payload.Tickets.Count == 0)
         {
-            Province = NullIfBlank(payload.Province),
-            DrawDate = ParseDate(payload.Draw_Date),
-            TicketNumber = NullIfBlank(payload.Ticket_Number),
-            DrawType = NullIfBlank(payload.Draw_Type),
-            Confidence = payload.Confidence.HasValue ? (decimal)Math.Clamp(payload.Confidence.Value, 0d, 1d) : (decimal?)null,
-            Notes = NullIfBlank(payload.Notes),
+            return new System.Collections.Generic.List<VertexAIAnalysisResult>();
+        }
+
+        return payload.Tickets.Select(t => new VertexAIAnalysisResult
+        {
+            Province = NullIfBlank(t.Province),
+            DrawDate = ParseDate(t.Draw_Date),
+            TicketNumber = NullIfBlank(t.Ticket_Number),
+            DrawType = NullIfBlank(t.Draw_Type),
+            Confidence = t.Confidence.HasValue ? (decimal)Math.Clamp(t.Confidence.Value, 0d, 1d) : (decimal?)null,
+            Notes = NullIfBlank(t.Notes),
             RawJson = text
-        };
+        }).ToList();
     }
 
     private static DateTime? ParseDate(string raw)
@@ -206,6 +211,11 @@ public class VertexAITicketAnalyzer : IVertexAITicketAnalyzer, ITransientDepende
 
     private static string Truncate(string s, int max) =>
         string.IsNullOrEmpty(s) || s.Length <= max ? s : s.Substring(0, max);
+
+    private sealed class TicketModelContainer
+    {
+        public System.Collections.Generic.List<TicketModelPayload> Tickets { get; set; }
+    }
 
     private sealed class TicketModelPayload
     {

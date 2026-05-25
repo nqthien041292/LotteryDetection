@@ -48,60 +48,67 @@ public class MockLotteryDetectionService : ILotteryDetectionService
 
     private readonly Random random = new();
 
-    public async Task<LotteryTicketResult> AnalyzeAsync(string imagePath, CancellationToken ct)
+    public async Task<List<LotteryTicketResult>> AnalyzeAsync(string imagePath, CancellationToken ct)
     {
         // Simulate AI processing latency.
         await Task.Delay(TimeSpan.FromMilliseconds(1100 + random.Next(400)), ct);
 
-        var province = Provinces[random.Next(Provinces.Length)];
-        var ticketNumber = random.Next(0, 1_000_000).ToString("D6");
-        var drawDate = DateTime.Today.AddDays(-random.Next(0, 3));
-        var confidence = 0.78 + random.NextDouble() * 0.19;
+        var count = random.Next(1, 3); // 1 to 2 tickets
+        var results = new List<LotteryTicketResult>();
 
-        var isWinner = random.NextDouble() < 0.35;
-        string? prize = null;
-        long? amount = null;
-        string note;
-
-        if (isWinner)
+        for (int i = 0; i < count; i++)
         {
-            // Bias toward smaller prizes — feels more realistic in a demo.
-            var weighted = random.Next(100);
-            var tierIndex = weighted switch
+            var province = Provinces[random.Next(Provinces.Length)];
+            var ticketNumber = random.Next(0, 1_000_000).ToString("D6");
+            var drawDate = DateTime.Today.AddDays(-random.Next(0, 3));
+            var confidence = 0.78 + random.NextDouble() * 0.19;
+
+            var isWinner = random.NextDouble() < 0.35;
+            string? prize = null;
+            long? amount = null;
+            string note;
+
+            if (isWinner)
             {
-                < 2  => 0, // ĐB
-                < 6  => 1, // nhất
-                < 12 => 2, // nhì
-                < 22 => 3, // ba
-                < 35 => 4, // tư
-                < 50 => 5, // năm
-                < 65 => 6, // sáu
-                < 78 => 7, // bảy
-                < 90 => 8, // tám
-                _    => 9  // KK
-            };
-            var pick = Prizes[tierIndex];
-            prize = pick.Tier;
-            amount = pick.Amount;
-            note = WinningNotes[random.Next(WinningNotes.Length)];
-        }
-        else
-        {
-            note = LosingNotes[random.Next(LosingNotes.Length)];
+                var weighted = random.Next(100);
+                var tierIndex = weighted switch
+                {
+                    < 2 => 0, // ĐB
+                    < 6 => 1, // nhất
+                    < 12 => 2, // nhì
+                    < 22 => 3, // ba
+                    < 35 => 4, // tư
+                    < 50 => 5, // năm
+                    < 65 => 6, // sáu
+                    < 78 => 7, // bảy
+                    < 90 => 8, // tám
+                    _ => 9  // KK
+                };
+                var pick = Prizes[tierIndex];
+                prize = pick.Tier;
+                amount = pick.Amount;
+                note = WinningNotes[random.Next(WinningNotes.Length)];
+            }
+            else
+            {
+                note = LosingNotes[random.Next(LosingNotes.Length)];
+            }
+
+            results.Add(new LotteryTicketResult
+            {
+                Province = province,
+                DrawDate = drawDate,
+                TicketNumber = ticketNumber,
+                IsWinner = isWinner,
+                MatchedPrize = prize,
+                PrizeAmount = amount,
+                Confidence = Math.Round(confidence, 2),
+                Notes = note,
+                ImagePath = imagePath,
+                AnalyzedAt = DateTime.Now
+            });
         }
 
-        return new LotteryTicketResult
-        {
-            Province = province,
-            DrawDate = drawDate,
-            TicketNumber = ticketNumber,
-            IsWinner = isWinner,
-            MatchedPrize = prize,
-            PrizeAmount = amount,
-            Confidence = Math.Round(confidence, 2),
-            Notes = note,
-            ImagePath = imagePath,
-            AnalyzedAt = DateTime.Now
-        };
+        return results;
     }
 }

@@ -233,7 +233,7 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     }
 
 
-    public async Task<TicketAnalysisDto> AnalyzeAsync(AnalyzeTicketInput input)
+    public async Task<System.Collections.Generic.List<TicketAnalysisDto>> AnalyzeAsync(AnalyzeTicketInput input)
     {
         if (input?.ImageBytes == null || input.ImageBytes.Length == 0)
         {
@@ -255,63 +255,93 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
             $"LotteryTicket:{input.FileName ?? "scan"}");
         await _binaryObjectManager.SaveAsync(binaryObject);
 
-        var entity = new TicketAnalysis
-        {
-            Id = Guid.NewGuid(),
-            TenantId = AbpSession.TenantId,
-            ImageBinaryObjectId = binaryObject.Id,
-            Status = TicketAnalysisStatus.Pending
-        };
-
+        var results = new System.Collections.Generic.List<TicketAnalysisDto>();
+        
         try
         {
-            var result = await _analyzer.AnalyzeAsync(input.ImageBytes, input.ContentType);
+            var analysisResults = await _analyzer.AnalyzeAsync(input.ImageBytes, input.ContentType);
 
-            entity.Province = Truncate(VietnameseProvinceNormalizer.Normalize(result.Province), TicketAnalysis.ProvinceMaxLength);
-            entity.DrawDate = result.DrawDate;
-            entity.TicketNumber = Truncate(result.TicketNumber, TicketAnalysis.TicketNumberMaxLength);
-            entity.DrawType = Truncate(result.DrawType, TicketAnalysis.DrawTypeMaxLength);
-            entity.Confidence = result.Confidence;
-            entity.Notes = Truncate(result.Notes, TicketAnalysis.NotesMaxLength);
-            entity.RawModelResponse = Truncate(result.RawJson, TicketAnalysis.RawModelResponseMaxLength);
-            entity.Status = TicketAnalysisStatus.Succeeded;
-
-            if (!string.IsNullOrEmpty(entity.Province) && entity.DrawDate.HasValue && !string.IsNullOrEmpty(entity.TicketNumber))
+            if (analysisResults == null || analysisResults.Count == 0)
             {
-                var vnTimeNow = DateTime.UtcNow.AddHours(7).Date;
-                var ageInDays = (vnTimeNow - entity.DrawDate.Value.Date).TotalDays;
-                if (ageInDays > 30)
+                // Create a failed record if no tickets found
+                var entity = new TicketAnalysis
                 {
-                    entity.IsWinner = false;
-                    entity.Notes = Truncate("Vé số đã hết hạn lãnh thưởng (Hạn lãnh thưởng là 30 ngày kể từ ngày mở thưởng).", TicketAnalysis.NotesMaxLength);
-                }
-                else
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    ImageBinaryObjectId = binaryObject.Id,
+                    Status = TicketAnalysisStatus.Failed,
+                    ErrorMessage = "Không tìm thấy vé số nào trong ảnh."
+                };
+                await _repository.InsertAsync(entity);
+                await CurrentUnitOfWork.SaveChangesAsync();
+                return new System.Collections.Generic.List<TicketAnalysisDto> { MapToDto(entity) };
+            }
+
+            foreach (var result in analysisResults)
+            {
+                var entity = new TicketAnalysis
                 {
-                    var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value, allowScrape: false);
-                    if (drawResult != null)
+                    Id = Guid.NewGuid(),
+                    TenantId = AbpSession.TenantId,
+                    ImageBinaryObjectId = binaryObject.Id,
+                    Status = TicketAnalysisStatus.Pending
+                };
+
+                entity.Province = Truncate(VietnameseProvinceNormalizer.Normalize(result.Province), TicketAnalysis.ProvinceMaxLength);
+                entity.DrawDate = result.DrawDate;
+                entity.TicketNumber = Truncate(result.TicketNumber, TicketAnalysis.TicketNumberMaxLength);
+                entity.DrawType = Truncate(result.DrawType, TicketAnalysis.DrawTypeMaxLength);
+                entity.Confidence = result.Confidence;
+                entity.Notes = Truncate(result.Notes, TicketAnalysis.NotesMaxLength);
+                entity.RawModelResponse = Truncate(result.RawJson, TicketAnalysis.RawModelResponseMaxLength);
+                entity.Status = TicketAnalysisStatus.Succeeded;
+
+                if (!string.IsNullOrEmpty(entity.Province) && entity.DrawDate.HasValue && !string.IsNullOrEmpty(entity.TicketNumber))
+                {
+                    var vnTimeNow = DateTime.UtcNow.AddHours(7).Date;
+                    var ageInDays = (vnTimeNow - entity.DrawDate.Value.Date).TotalDays;
+                    if (ageInDays > 30)
                     {
-                        LotteryMatcher.Match(entity, drawResult);
+                        entity.IsWinner = false;
+                        entity.Notes = Truncate("Vé số đã hết hạn lãnh thưởng (Hạn lãnh thưởng là 30 ngày kể từ ngày mở thưởng).", TicketAnalysis.NotesMaxLength);
                     }
                     else
                     {
-                        entity.IsWinner = null;
-                        entity.Notes = Truncate("Vé số chưa có kết quả. Chúng tôi sẽ thông báo sớm nhất", TicketAnalysis.NotesMaxLength);
+                        var drawResult = await _lotteryResultProvider.GetResultAsync(entity.Province, entity.DrawDate.Value, allowScrape: false);
+                        if (drawResult != null)
+                        {
+                            LotteryMatcher.Match(entity, drawResult);
+                        }
+                        else
+                        {
+                            entity.IsWinner = null;
+                            entity.Notes = Truncate("Vé số chưa có kết quả. Chúng tôi sẽ thông báo sớm nhất", TicketAnalysis.NotesMaxLength);
+                        }
                     }
                 }
-            }
 
+                await _repository.InsertAsync(entity);
+                results.Add(MapToDto(entity));
+            }
+            
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
         catch (UserFriendlyException ex)
         {
-            entity.Status = TicketAnalysisStatus.Failed;
-            entity.ErrorMessage = Truncate(ex.Message, TicketAnalysis.ErrorMessageMaxLength);
+            var entity = new TicketAnalysis
+            {
+                Id = Guid.NewGuid(),
+                TenantId = AbpSession.TenantId,
+                ImageBinaryObjectId = binaryObject.Id,
+                Status = TicketAnalysisStatus.Failed,
+                ErrorMessage = Truncate(ex.Message, TicketAnalysis.ErrorMessageMaxLength)
+            };
             await _repository.InsertAsync(entity);
+            await CurrentUnitOfWork.SaveChangesAsync();
             throw;
         }
 
-        await _repository.InsertAsync(entity);
-        await CurrentUnitOfWork.SaveChangesAsync();
-        return MapToDto(entity);
+        return results;
     }
 
     public async Task<TicketAnalysisDto> GetAsync(EntityDto<Guid> input)

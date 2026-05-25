@@ -17,7 +17,7 @@ public class LotteryCaptureViewModel : BaseViewModel
     private bool isCapturing;
     private bool isAnalyzing;
     private string? imagePath;
-    private LotteryTicketResult? result;
+    private System.Collections.ObjectModel.ObservableCollection<LotteryTicketResult> results = new();
     private string statusHint = DefaultHint;
     private bool showPreviewModal;
     private PermissionStatus cameraPermissionStatus = PermissionStatus.Unknown;
@@ -31,7 +31,7 @@ public class LotteryCaptureViewModel : BaseViewModel
         PickFromGalleryCommand = new Command(async () => await PickFromGalleryAsync(), () => !IsBusy);
         AnalyzeCommand = new Command(async () => await AnalyzeAsync(), () => HasImage && !IsBusy);
         RetakeCommand = new Command(Reset);
-        ConfirmCommand = new Command(async () => await ConfirmAsync(), () => Result != null);
+        ConfirmCommand = new Command(async () => await ConfirmAsync(), () => HasResults);
         RequestCameraPermissionCommand = new Command(async () => await RefreshCameraPermissionAsync(true));
     }
 
@@ -83,20 +83,13 @@ public class LotteryCaptureViewModel : BaseViewModel
 
     public ImageSource? ImageSource => HasImage ? Microsoft.Maui.Controls.ImageSource.FromFile(ImagePath!) : null;
 
-    public LotteryTicketResult? Result
+    public System.Collections.ObjectModel.ObservableCollection<LotteryTicketResult> Results
     {
-        get => result;
-        private set
-        {
-            if (SetProperty(ref result, value))
-            {
-                NotifyPropertyChanged(nameof(HasResult));
-                RefreshCommands();
-            }
-        }
+        get => results;
+        set => SetProperty(ref results, value);
     }
 
-    public bool HasResult => Result != null;
+    public bool HasResults => Results != null && Results.Count > 0;
 
     public string StatusHint
     {
@@ -106,7 +99,7 @@ public class LotteryCaptureViewModel : BaseViewModel
 
     public string StatusBadge =>
         IsAnalyzing ? "AI đang phân tích…" :
-        HasResult ? "Đã có kết quả" :
+        HasResults ? "Đã có kết quả" :
         HasImage ? "Ảnh đã sẵn sàng" :
         "Chạm để chụp";
 
@@ -253,7 +246,8 @@ public class LotteryCaptureViewModel : BaseViewModel
             }
         }
 
-        Result = null;
+        Results.Clear();
+        NotifyPropertyChanged(nameof(HasResults));
         ShowPreviewModal = false;
         ImagePath = localPath;
         StatusHint = "Ảnh đã sẵn sàng. Bấm \"AI dò vé số\" để phân tích.";
@@ -272,17 +266,24 @@ public class LotteryCaptureViewModel : BaseViewModel
 
         IsAnalyzing = true;
         StatusHint = "AI đang tách dãy số và so kết quả…";
-        Result = null;
+        Results.Clear();
+        NotifyPropertyChanged(nameof(HasResults));
         ShowPreviewModal = false;
         NotifyPropertyChanged(nameof(StatusBadge));
 
         try
         {
-            var ticket = await detectionService.AnalyzeAsync(ImagePath!, CancellationToken.None);
-            Result = ticket;
-            StatusHint = ticket.IsWinner
-                ? $"Chúc mừng! Vé trúng {ticket.MatchedPrize}."
-                : "AI đã phân tích xong. Vé chưa trúng giải.";
+            var tickets = await detectionService.AnalyzeAsync(ImagePath!, CancellationToken.None);
+            Results.Clear();
+            foreach (var t in tickets) Results.Add(t);
+            NotifyPropertyChanged(nameof(HasResults));
+
+            var winCount = tickets.Count(t => t.IsWinner);
+            if (winCount > 0)
+                StatusHint = $"Chúc mừng! Tìm thấy {tickets.Count} vé, trong đó có {winCount} vé trúng.";
+            else
+                StatusHint = $"AI đã tìm thấy {tickets.Count} vé. Rất tiếc chưa có vé trúng giải.";
+            
             ShowPreviewModal = true;
         }
         catch (OperationCanceledException)
@@ -323,7 +324,8 @@ public class LotteryCaptureViewModel : BaseViewModel
     {
         ShowPreviewModal = false;
         ImagePath = null;
-        Result = null;
+        Results.Clear();
+        NotifyPropertyChanged(nameof(HasResults));
         StatusHint = DefaultHint;
         NotifyPropertyChanged(nameof(StatusBadge));
         NotifyPropertyChanged(nameof(CanAnalyze));

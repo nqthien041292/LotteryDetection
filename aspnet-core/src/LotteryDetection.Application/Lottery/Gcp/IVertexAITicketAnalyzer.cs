@@ -5,7 +5,7 @@ namespace LotteryDetection.Lottery.Gcp;
 
 public interface IVertexAITicketAnalyzer
 {
-    Task<VertexAIAnalysisResult> AnalyzeAsync(
+    Task<System.Collections.Generic.List<VertexAIAnalysisResult>> AnalyzeAsync(
         byte[] imageBytes,
         string contentType,
         CancellationToken cancellationToken = default);

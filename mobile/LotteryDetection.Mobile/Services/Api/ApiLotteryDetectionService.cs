@@ -33,7 +33,7 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
         _authService = authService;
     }
 
-    public async Task<LotteryTicketResult> AnalyzeAsync(string imagePath, CancellationToken ct)
+    public async Task<List<LotteryTicketResult>> AnalyzeAsync(string imagePath, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
             throw new FileNotFoundException("Không tìm thấy ảnh đã chụp.", imagePath);
@@ -77,10 +77,11 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
         if (!IsJsonResponse(response, body))
             throw new InvalidOperationException(ExtractNonJsonMessage(response, body));
 
-        var dto = ParseAbpEnvelope(body)
-                  ?? throw new InvalidOperationException("Backend trả về dữ liệu trống.");
+        var dtos = ParseAbpEnvelope(body);
+        if (dtos == null || dtos.Count == 0)
+            throw new InvalidOperationException("Backend trả về dữ liệu trống.");
 
-        return new LotteryTicketResult
+        return dtos.Select(dto => new LotteryTicketResult
         {
             Province = dto.Province ?? string.Empty,
             DrawDate = dto.DrawDate ?? DateTime.Today,
@@ -92,17 +93,17 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
             Notes = dto.Notes,
             ImagePath = imagePath,
             AnalyzedAt = dto.CreationTime ?? DateTime.Now
-        };
+        }).ToList();
     }
 
-    private static TicketAnalysisDto? ParseAbpEnvelope(string body)
+    private static List<TicketAnalysisDto>? ParseAbpEnvelope(string body)
     {
         if (string.IsNullOrWhiteSpace(body)) return null;
         using var doc = JsonDocument.Parse(body);
         var root = doc.RootElement;
 
         var resultEl = root.TryGetProperty("result", out var r) ? r : root;
-        return JsonSerializer.Deserialize<TicketAnalysisDto>(resultEl.GetRawText(), JsonOptions);
+        return JsonSerializer.Deserialize<List<TicketAnalysisDto>>(resultEl.GetRawText(), JsonOptions);
     }
 
     private static bool IsAuthRedirect(HttpResponseMessage response)

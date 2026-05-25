@@ -112,8 +112,11 @@ public partial class LotteryResultsPage : ContentPage
         await NavigationService.Default.NavigateBackAsync();
     }
 
-    private void OnDatePickerTapped(object? sender, EventArgs e)
+    private void OnDatePickerClicked(object? sender, EventArgs e)
     {
-        ActualDatePicker.Focus();
+        // This handler is referenced by the invisible Button in XAML
+        // to ensure the DatePicker gets focus and opens the calendar.
+        var actualDatePicker = this.FindByName<DatePicker>("ActualDatePicker");
+        actualDatePicker?.Focus();
     }
 }
