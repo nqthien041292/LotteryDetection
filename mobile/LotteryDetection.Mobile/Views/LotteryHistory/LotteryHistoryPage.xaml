@@ -54,7 +54,7 @@
         </Grid>
 
         <!-- Body -->
-        <ScrollView Grid.Row="1">
+        <ScrollView x:Name="HistoryScrollView" Grid.Row="1">
             <VerticalStackLayout Padding="20,8,20,24" Spacing="18">
 
                 <!-- Hero stats card (Dải màu Gradient Tài Lộc cực kỳ sang trọng) -->
@@ -223,7 +223,7 @@
                                          HorizontalOptions="Fill">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="lotteryModels:LotteryHistoryEntry">
-                                <SwipeView>
+                                <SwipeView SwipeStarted="OnSwipeStarted" SwipeEnded="OnSwipeEnded">
                                     <SwipeView.RightItems>
                                         <SwipeItems Mode="Reveal">
                                             <SwipeItem Text="Xóa"
@@ -344,7 +344,7 @@
                                          HorizontalOptions="Fill">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="lotteryModels:LotteryHistoryEntry">
-                                <SwipeView>
+                                <SwipeView SwipeStarted="OnSwipeStarted" SwipeEnded="OnSwipeEnded">
                                     <SwipeView.RightItems>
                                         <SwipeItems Mode="Reveal">
                                             <SwipeItem Text="Xóa"

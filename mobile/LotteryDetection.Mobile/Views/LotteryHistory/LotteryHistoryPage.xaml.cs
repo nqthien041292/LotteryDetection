@@ -155,4 +155,22 @@ public partial class LotteryHistoryPage : ContentPage
             vm?.OpenTicketDetailsCommand.Execute(entry);
         }
     }
+
+    private void OnSwipeStarted(object? sender, SwipeStartedEventArgs e)
+    {
+        // Khi bắt đầu vuốt, tạm thời tắt tính năng cuộn dọc của ScrollView để tránh xung đột trên iOS
+        if (HistoryScrollView != null)
+        {
+            HistoryScrollView.Orientation = ScrollOrientation.Neither;
+        }
+    }
+
+    private void OnSwipeEnded(object? sender, SwipeEndedEventArgs e)
+    {
+        // Khi kết thúc vuốt, kích hoạt lại tính năng cuộn dọc bình thường cho ScrollView
+        if (HistoryScrollView != null)
+        {
+            HistoryScrollView.Orientation = ScrollOrientation.Vertical;
+        }
+    }
 }
