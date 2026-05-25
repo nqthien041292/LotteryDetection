@@ -126,7 +126,15 @@ public class MinhNgocResultProvider : ILotteryResultProvider, ITransientDependen
                 Args = new[] { "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage" }
             };
 
-            if (File.Exists("/usr/bin/chromium"))
+            if (File.Exists("/usr/bin/google-chrome"))
+            {
+                launchOptions.ExecutablePath = "/usr/bin/google-chrome";
+            }
+            else if (File.Exists("/usr/bin/google-chrome-stable"))
+            {
+                launchOptions.ExecutablePath = "/usr/bin/google-chrome-stable";
+            }
+            else if (File.Exists("/usr/bin/chromium"))
             {
                 launchOptions.ExecutablePath = "/usr/bin/chromium";
             }

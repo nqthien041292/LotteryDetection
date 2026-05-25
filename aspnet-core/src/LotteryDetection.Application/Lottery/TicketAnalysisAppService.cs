@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
@@ -190,6 +191,7 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     }
 
     [AbpAllowAnonymous]
+    [UnitOfWork(IsDisabled = true)]
     public async Task TriggerScrapeFromDateAsync(DateTime startDate)
     {
         var vnTimeNow = DateTime.UtcNow.AddHours(7).Date;
@@ -209,7 +211,11 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
                 {
                     try
                     {
-                        await _lotteryResultProvider.GetResultAsync(province, date, allowScrape: true);
+                        using (var uow = UnitOfWorkManager.Begin(System.Transactions.TransactionScopeOption.RequiresNew))
+                        {
+                            await _lotteryResultProvider.GetResultAsync(province, date, allowScrape: true);
+                            await uow.CompleteAsync();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -219,7 +225,11 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
             }
         }
 
-        await CheckPendingResultsAsync();
+        using (var uow = UnitOfWorkManager.Begin(System.Transactions.TransactionScopeOption.RequiresNew))
+        {
+            await CheckPendingResultsAsync();
+            await uow.CompleteAsync();
+        }
     }
 
 
