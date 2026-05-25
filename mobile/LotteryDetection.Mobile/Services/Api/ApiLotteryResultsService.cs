@@ -140,11 +140,325 @@ public class ApiLotteryResultsService : ILotteryResultsService
         }
     }
 
+    public async Task<IReadOnlyList<LotteryRegionDraw>> GetResultsByDateAsync(DateTime date, CancellationToken ct = default)
+    {
+        try
+        {
+            var results = await FetchDrawResultsFromApiAsync(date, ct);
+            var list = new List<LotteryRegionDraw>();
+
+            // Process Miền Bắc
+            var bacResults = results?.FirstOrDefault(r => IsRegion(r.Province, LotteryRegion.Bac) && r.DrawDate.Date == date.Date);
+            if (bacResults != null)
+            {
+                list.Add(MapToRegionDraw(bacResults, LotteryRegion.Bac, "Miền Bắc"));
+            }
+            else
+            {
+                list.Add(BuildMockFallback(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", date));
+            }
+
+            // Process Miền Trung
+            var activeTrungProvinces = GetActiveProvincesForDay(date, LotteryRegion.Trung);
+            foreach (var province in activeTrungProvinces)
+            {
+                var realResult = results?.FirstOrDefault(r => MatchProvince(r.Province, province) && r.DrawDate.Date == date.Date);
+                if (realResult != null)
+                {
+                    list.Add(MapToRegionDraw(realResult, LotteryRegion.Trung, "Miền Trung"));
+                }
+                else
+                {
+                    list.Add(BuildMockFallback(LotteryRegion.Trung, "Miền Trung", province, date));
+                }
+            }
+
+            // Process Miền Nam
+            var activeNamProvinces = GetActiveProvincesForDay(date, LotteryRegion.Nam);
+            foreach (var province in activeNamProvinces)
+            {
+                var realResult = results?.FirstOrDefault(r => MatchProvince(r.Province, province) && r.DrawDate.Date == date.Date);
+                if (realResult != null)
+                {
+                    list.Add(MapToRegionDraw(realResult, LotteryRegion.Nam, "Miền Nam"));
+                }
+                else
+                {
+                    list.Add(BuildMockFallback(LotteryRegion.Nam, "Miền Nam", province, date));
+                }
+            }
+
+            return list;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ApiLotteryResultsService] GetResultsByDateAsync failed: {ex.Message}. Returning empty fallbacks.");
+            
+            var list = new List<LotteryRegionDraw>();
+            list.Add(BuildMockFallback(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", date));
+
+            var activeTrungProvinces = GetActiveProvincesForDay(date, LotteryRegion.Trung);
+            foreach (var province in activeTrungProvinces)
+            {
+                list.Add(BuildMockFallback(LotteryRegion.Trung, "Miền Trung", province, date));
+            }
+
+            var activeNamProvinces = GetActiveProvincesForDay(date, LotteryRegion.Nam);
+            foreach (var province in activeNamProvinces)
+            {
+                list.Add(BuildMockFallback(LotteryRegion.Nam, "Miền Nam", province, date));
+            }
+
+            return list;
+        }
+    }
+
     public async Task<IReadOnlyList<LotteryRegionDraw>> GetLiveResultsAsync(CancellationToken ct = default)
     {
-        // For Live Results, we fetch real results from today/yesterday as appropriate.
-        return await GetTodayResultsAsync(ct);
+        var today = DateTime.Today;
+        var now = DateTime.Now;
+        var time = now.TimeOfDay;
+
+        try
+        {
+            // Always fetch real results from the API for TODAY
+            var todayResults = await FetchDrawResultsFromApiAsync(today, ct);
+            var list = new List<LotteryRegionDraw>();
+
+            // 1. Process Miền Bắc
+            {
+                var region = LotteryRegion.Bac;
+                var regionLabel = "Miền Bắc";
+                var province = "Hà Nội (XSMB)";
+                var startTime = new TimeSpan(18, 10, 0);
+                var endTime = new TimeSpan(18, 45, 0);
+
+                var state = time < startTime ? "Before" : (time <= endTime ? "Live" : "Finished");
+
+                var realResult = todayResults?.FirstOrDefault(r => IsRegion(r.Province, region) && r.DrawDate.Date == today.Date);
+                if (state == "Before")
+                {
+                    list.Add(BuildLiveDrawBefore(region, regionLabel, province, today));
+                }
+                else if (realResult != null)
+                {
+                    list.Add(MapToRegionDraw(realResult, region, regionLabel));
+                }
+                else
+                {
+                    list.Add(BuildLiveDrawFallback(region, regionLabel, province, today, state == "Live"));
+                }
+            }
+
+            // 2. Process Miền Trung
+            {
+                var region = LotteryRegion.Trung;
+                var regionLabel = "Miền Trung";
+                var startTime = new TimeSpan(17, 10, 0);
+                var endTime = new TimeSpan(17, 45, 0);
+                var state = time < startTime ? "Before" : (time <= endTime ? "Live" : "Finished");
+
+                var activeProvinces = GetActiveProvincesForDay(today, region);
+                foreach (var province in activeProvinces)
+                {
+                    var realResult = todayResults?.FirstOrDefault(r => MatchProvince(r.Province, province) && r.DrawDate.Date == today.Date);
+                    if (state == "Before")
+                    {
+                        list.Add(BuildLiveDrawBefore(region, regionLabel, province, today));
+                    }
+                    else if (realResult != null)
+                    {
+                        list.Add(MapToRegionDraw(realResult, region, regionLabel));
+                    }
+                    else
+                    {
+                        list.Add(BuildLiveDrawFallback(region, regionLabel, province, today, state == "Live"));
+                    }
+                }
+            }
+
+            // 3. Process Miền Nam
+            {
+                var region = LotteryRegion.Nam;
+                var regionLabel = "Miền Nam";
+                var startTime = new TimeSpan(16, 10, 0);
+                var endTime = new TimeSpan(16, 45, 0);
+                var state = time < startTime ? "Before" : (time <= endTime ? "Live" : "Finished");
+
+                var activeProvinces = GetActiveProvincesForDay(today, region);
+                foreach (var province in activeProvinces)
+                {
+                    var realResult = todayResults?.FirstOrDefault(r => MatchProvince(r.Province, province) && r.DrawDate.Date == today.Date);
+                    if (state == "Before")
+                    {
+                        list.Add(BuildLiveDrawBefore(region, regionLabel, province, today));
+                    }
+                    else if (realResult != null)
+                    {
+                        list.Add(MapToRegionDraw(realResult, region, regionLabel));
+                    }
+                    else
+                    {
+                        list.Add(BuildLiveDrawFallback(region, regionLabel, province, today, state == "Live"));
+                    }
+                }
+            }
+
+            return list;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ApiLotteryResultsService] GetLiveResultsAsync failed: {ex.Message}. Returning fallback draws.");
+            var list = new List<LotteryRegionDraw>();
+            
+            var stateBac = time < new TimeSpan(18, 10, 0) ? "Before" : (time <= new TimeSpan(18, 45, 0) ? "Live" : "Finished");
+            if (stateBac == "Before") list.Add(BuildLiveDrawBefore(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", today));
+            else list.Add(BuildLiveDrawFallback(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", today, stateBac == "Live"));
+
+            var stateTrung = time < new TimeSpan(17, 10, 0) ? "Before" : (time <= new TimeSpan(17, 45, 0) ? "Live" : "Finished");
+            foreach (var province in GetActiveProvincesForDay(today, LotteryRegion.Trung))
+            {
+                if (stateTrung == "Before") list.Add(BuildLiveDrawBefore(LotteryRegion.Trung, "Miền Trung", province, today));
+                else list.Add(BuildLiveDrawFallback(LotteryRegion.Trung, "Miền Trung", province, today, stateTrung == "Live"));
+            }
+
+            var stateNam = time < new TimeSpan(16, 10, 0) ? "Before" : (time <= new TimeSpan(16, 45, 0) ? "Live" : "Finished");
+            foreach (var province in GetActiveProvincesForDay(today, LotteryRegion.Nam))
+            {
+                if (stateNam == "Before") list.Add(BuildLiveDrawBefore(LotteryRegion.Nam, "Miền Nam", province, today));
+                else list.Add(BuildLiveDrawFallback(LotteryRegion.Nam, "Miền Nam", province, today, stateNam == "Live"));
+            }
+
+            return list;
+        }
     }
+
+    private static LotteryRegionDraw BuildLiveDrawBefore(LotteryRegion region, string label, string province, DateTime date)
+    {
+        var draw = new LotteryRegionDraw
+        {
+            Region = region,
+            RegionLabel = label,
+            ProvinceLabel = province,
+            DrawDate = date
+        };
+
+        draw.Provinces.Add(new LotteryProvinceHeader { Name = province, ColumnIndex = 0 });
+
+        var tierConfigs = region == LotteryRegion.Bac ? new[]
+        {
+            new { Label = "Đặc biệt", IsSpecial = true },
+            new { Label = "Giải nhất", IsSpecial = false },
+            new { Label = "Giải nhì", IsSpecial = false },
+            new { Label = "Giải ba", IsSpecial = false },
+            new { Label = "Giải tư", IsSpecial = false },
+            new { Label = "Giải năm", IsSpecial = false },
+            new { Label = "Giải sáu", IsSpecial = false },
+            new { Label = "Giải bảy", IsSpecial = false }
+        } : new[]
+        {
+            new { Label = "Đặc biệt", IsSpecial = true },
+            new { Label = "Giải nhất", IsSpecial = false },
+            new { Label = "Giải nhì", IsSpecial = false },
+            new { Label = "Giải ba", IsSpecial = false },
+            new { Label = "Giải tư", IsSpecial = false },
+            new { Label = "Giải năm", IsSpecial = false },
+            new { Label = "Giải sáu", IsSpecial = false },
+            new { Label = "Giải bảy", IsSpecial = false },
+            new { Label = "Giải tám", IsSpecial = false }
+        };
+
+        foreach (var config in tierConfigs)
+        {
+            var cellString = "-";
+
+            draw.Prizes.Add(new LotteryPrizeTier
+            {
+                TierLabel = config.Label,
+                IsSpecial = config.IsSpecial,
+                Numbers = cellString,
+                IsDrawn = true
+            });
+
+            var row = new LotteryRowDraw
+            {
+                TierLabel = config.Label,
+                IsSpecial = config.IsSpecial
+            };
+            row.Numbers.Add(new LotteryNumberCol
+            {
+                Number = cellString,
+                ColumnIndex = 0
+            });
+            draw.Rows.Add(row);
+        }
+
+        return draw;
+    }
+
+    private static LotteryRegionDraw BuildLiveDrawFallback(LotteryRegion region, string label, string province, DateTime date, bool isLiveNow)
+    {
+        var draw = new LotteryRegionDraw
+        {
+            Region = region,
+            RegionLabel = label,
+            ProvinceLabel = province,
+            DrawDate = date
+        };
+
+        draw.Provinces.Add(new LotteryProvinceHeader { Name = province, ColumnIndex = 0 });
+
+        var tierConfigs = region == LotteryRegion.Bac ? new[]
+        {
+            new { Label = "Đặc biệt", IsSpecial = true },
+            new { Label = "Giải nhất", IsSpecial = false },
+            new { Label = "Giải nhì", IsSpecial = false },
+            new { Label = "Giải ba", IsSpecial = false },
+            new { Label = "Giải tư", IsSpecial = false },
+            new { Label = "Giải năm", IsSpecial = false },
+            new { Label = "Giải sáu", IsSpecial = false },
+            new { Label = "Giải bảy", IsSpecial = false }
+        } : new[]
+        {
+            new { Label = "Đặc biệt", IsSpecial = true },
+            new { Label = "Giải nhất", IsSpecial = false },
+            new { Label = "Giải nhì", IsSpecial = false },
+            new { Label = "Giải ba", IsSpecial = false },
+            new { Label = "Giải tư", IsSpecial = false },
+            new { Label = "Giải năm", IsSpecial = false },
+            new { Label = "Giải sáu", IsSpecial = false },
+            new { Label = "Giải bảy", IsSpecial = false },
+            new { Label = "Giải tám", IsSpecial = false }
+        };
+
+        foreach (var config in tierConfigs)
+        {
+            var cellString = isLiveNow ? "" : "-";
+
+            draw.Prizes.Add(new LotteryPrizeTier
+            {
+                TierLabel = config.Label,
+                IsSpecial = config.IsSpecial,
+                Numbers = cellString,
+                IsDrawn = !isLiveNow
+            });
+
+            var row = new LotteryRowDraw
+            {
+                TierLabel = config.Label,
+                IsSpecial = config.IsSpecial
+            };
+            row.Numbers.Add(new LotteryNumberCol
+            {
+                Number = cellString,
+                ColumnIndex = 0
+            });
+            draw.Rows.Add(row);
+        }
+
+        return draw;
+    }
+
 
     private async Task<List<LotteryDrawResultDto>?> FetchDrawResultsFromApiAsync(DateTime date, CancellationToken ct)
     {

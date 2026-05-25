@@ -5,8 +5,6 @@ namespace LotteryDetection.Mobile.Services.Mock;
 
 public class MockLotteryHistoryService : ILotteryHistoryService
 {
-    // Static arrays declared FIRST — BuildSeed() reads them during the ctor, so
-    // they must already be initialized before `Instance = new()` runs.
     private static readonly string[] Provinces =
     {
         "TP. Hồ Chí Minh", "Đồng Nai", "Cần Thơ", "Bình Dương",
@@ -32,12 +30,30 @@ public class MockLotteryHistoryService : ILotteryHistoryService
         entries = BuildSeed();
     }
 
-    public Task<IReadOnlyList<LotteryHistoryEntry>> GetEntriesAsync(CancellationToken ct = default)
+    public Task<LotteryHistoryPageResult> GetEntriesAsync(int skipCount, int maxResultCount, CancellationToken ct = default)
     {
-        IReadOnlyList<LotteryHistoryEntry> snapshot = entries
-            .OrderByDescending(e => e.CapturedAt)
-            .ToList();
-        return Task.FromResult(snapshot);
+        var sorted = entries.OrderByDescending(e => e.CapturedAt).ToList();
+        var paged = sorted.Skip(skipCount).Take(maxResultCount).ToList();
+
+        var result = new LotteryHistoryPageResult
+        {
+            TotalCount = sorted.Count,
+            Items = paged
+        };
+        return Task.FromResult(result);
+    }
+
+    public Task<LotteryHistoryStats?> GetStatsAsync(CancellationToken ct = default)
+    {
+        var winners = entries.Where(e => e.IsWinner).ToList();
+        var stats = new LotteryHistoryStats
+        {
+            TotalCount = entries.Count,
+            WinCount = winners.Count,
+            TotalWinnings = winners.Sum(w => w.PrizeAmount ?? 0),
+            BiggestWin = winners.Count > 0 ? winners.Max(w => w.PrizeAmount ?? 0L) : 0
+        };
+        return Task.FromResult<LotteryHistoryStats?>(stats);
     }
 
     public Task<bool> DeleteEntryAsync(string id, CancellationToken ct = default)
@@ -57,22 +73,11 @@ public class MockLotteryHistoryService : ILotteryHistoryService
         var result = new List<LotteryHistoryEntry>();
         var now = DateTime.Now;
 
-        // Eight entries spread across the last week — two of them winners.
-        var schedule = new (int hoursAgo, bool isWinner)[]
+        // Twenty-five entries to make paging clearly testable - some winners.
+        for (int i = 0; i < 25; i++)
         {
-            (1, false),
-            (5, true),
-            (24, false),
-            (29, false),
-            (48, true),
-            (74, false),
-            (96, false),
-            (120, false)
-        };
-
-        foreach (var (hoursAgo, isWinner) in schedule)
-        {
-            var capturedAt = now.AddHours(-hoursAgo);
+            bool isWinner = (i == 3 || i == 8 || i == 15);
+            var capturedAt = now.AddHours(-i * 4 - 1);
             var province = Provinces[rng.Next(Provinces.Length)];
             var ticket = rng.Next(0, 1_000_000).ToString("D6");
             var entry = new LotteryHistoryEntry

@@ -58,6 +58,13 @@ public class LotteryAnalysisController : LotteryDetectionControllerBase
     }
 
     [HttpGet]
+    [AbpMvcAuthorize]
+    public Task<HistoryStatsDto> GetHistoryStats()
+    {
+        return _appService.GetHistoryStatsAsync();
+    }
+
+    [HttpGet]
     [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     public Task<System.Collections.Generic.List<LotteryDrawResultDto>> GetDrawResults(DateTime drawDate)
     {

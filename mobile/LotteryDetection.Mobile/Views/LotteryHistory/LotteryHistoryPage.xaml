@@ -244,6 +244,9 @@
                                         <Border.Shadow>
                                             <Shadow Brush="#F5C842" Offset="0,6" Radius="14" Opacity="0.12" />
                                         </Border.Shadow>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnTicketCardTapped" />
+                                        </Border.GestureRecognizers>
                                         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
 
                                             <!-- Header row: trophy + status chip -->
@@ -251,15 +254,12 @@
                                                 <Border Grid.Column="0"
                                                         WidthRequest="44" HeightRequest="44"
                                                         StrokeThickness="0"
-                                                        BackgroundColor="#F5C842"
+                                                        BackgroundColor="Transparent"
                                                         VerticalOptions="Center">
                                                     <Border.StrokeShape>
                                                         <shapes:RoundRectangle CornerRadius="14" />
                                                     </Border.StrokeShape>
-                                                    <Label Text="🏆"
-                                                           FontSize="22"
-                                                           HorizontalOptions="Center"
-                                                           VerticalOptions="Center" />
+                                                    <Image Source="{Binding ProvinceLogoImage}" Aspect="AspectFill" />
                                                 </Border>
                                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                                     <Label Text="TRÚNG GIẢI"
@@ -365,22 +365,20 @@
                                         <Border.Shadow>
                                             <Shadow Brush="#031649" Radius="8" Offset="0,3" Opacity="0.03" />
                                         </Border.Shadow>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnTicketCardTapped" />
+                                        </Border.GestureRecognizers>
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
 
                                             <Border Grid.Column="0"
                                                     WidthRequest="48" HeightRequest="48"
                                                     StrokeThickness="0"
-                                                    BackgroundColor="{Binding TicketBadgeBackground}"
+                                                    BackgroundColor="Transparent"
                                                     VerticalOptions="Center">
                                                 <Border.StrokeShape>
                                                     <shapes:RoundRectangle CornerRadius="14" />
                                                 </Border.StrokeShape>
-                                                <Label Text="{Binding TicketBadgeIcon}"
-                                                       FontFamily="Geist"
-                                                       FontSize="{Binding TicketBadgeFontSize}"
-                                                       FontAttributes="Bold"
-                                                       HorizontalOptions="Center" VerticalOptions="Center"
-                                                       TextColor="{Binding TicketBadgeTextColor}" />
+                                                <Image Source="{Binding ProvinceLogoImage}" Aspect="AspectFill" />
                                             </Border>
 
                                             <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
@@ -421,6 +419,27 @@
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>
+
+                    <!-- Paging controls -->
+                    <Button Text="Xem thêm vé cũ"
+                            Command="{Binding LoadMoreCommand}"
+                            IsVisible="{Binding CanLoadMore}"
+                            HeightRequest="46"
+                            CornerRadius="14"
+                            FontFamily="Geist" FontSize="13.5" FontAttributes="Bold"
+                            BackgroundColor="#E9EFE4"
+                            TextColor="#173D2A"
+                            Margin="0,12,0,0">
+                        <Button.Shadow>
+                            <Shadow Brush="#000000" Radius="6" Offset="0,2" Opacity="0.05" />
+                        </Button.Shadow>
+                    </Button>
+                    <ActivityIndicator IsRunning="{Binding IsLoadingMore}"
+                                       IsVisible="{Binding IsLoadingMore}"
+                                       Color="#00bb77"
+                                       HeightRequest="30" WidthRequest="30"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
                 </VerticalStackLayout>
 
             </VerticalStackLayout>
@@ -442,6 +461,159 @@
                     <Shadow Brush="#F5C842" Radius="12" Offset="0,6" Opacity="0.25" />
                 </Button.Shadow>
             </Button>
+        </Grid>
+
+        <!-- HIGH-FIDELITY PREMIUM DETAIL POPUP MODAL OVERLAY -->
+        <Grid Grid.Row="0" Grid.RowSpan="3"
+              IsVisible="{Binding IsTicketDetailsOpen}"
+              BackgroundColor="#CC031649"
+              Padding="24,40">
+            <Grid.GestureRecognizers>
+                <!-- Tap outside the card to close modal -->
+                <TapGestureRecognizer Command="{Binding CloseTicketDetailsCommand}" />
+            </Grid.GestureRecognizers>
+
+            <Border VerticalOptions="Center" HorizontalOptions="Fill"
+                    StrokeThickness="1.5"
+                    Stroke="#F5C842"
+                    BackgroundColor="White"
+                    Padding="24"
+                    MaximumWidthRequest="380">
+                <Border.StrokeShape>
+                    <shapes:RoundRectangle CornerRadius="28" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Radius="30" Offset="0,15" Opacity="0.4" />
+                </Border.Shadow>
+                <!-- Catch taps inside the card so it doesn't close the modal -->
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer />
+                </Border.GestureRecognizers>
+
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="18">
+
+                    <!-- Title / Close Row -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="CHI TIẾT VÉ SỐ"
+                                   FontFamily="Geist" FontSize="12" FontAttributes="Bold"
+                                   TextColor="#F5C842" CharacterSpacing="1.5" />
+                            <Label Text="Thông tin chi tiết"
+                                   FontFamily="Geist" FontSize="18" FontAttributes="Bold"
+                                   TextColor="#031649" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#F2F4F0" HorizontalOptions="End" VerticalOptions="Start">
+                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CloseTicketDetailsCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="✕" FontSize="14" FontAttributes="Bold" TextColor="#173D2A" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+
+                    <!-- Ticket Large Display -->
+                    <Border Grid.Row="1"
+                            StrokeThickness="1"
+                            Stroke="#E9EFE4"
+                            Padding="20,16"
+                            BackgroundColor="#FAFBF6">
+                        <Border.StrokeShape>
+                            <shapes:RoundRectangle CornerRadius="20" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Label Text="SỐ TRÊN VÉ"
+                                   FontFamily="Geist" FontSize="11.5" FontAttributes="Bold"
+                                   TextColor="#66736A" HorizontalTextAlignment="Center" CharacterSpacing="1" />
+                            <Label Text="{Binding SelectedTicket.TicketNumber}"
+                                   FontFamily="GeistMono" FontSize="36" FontAttributes="Bold"
+                                   TextColor="#142116" HorizontalTextAlignment="Center" CharacterSpacing="2" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Details Fields -->
+                    <VerticalStackLayout Grid.Row="2" Spacing="12">
+                        <!-- Đài quay -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Đài quay thưởng" FontFamily="Geist" FontSize="13.5" TextColor="#66736A" />
+                            <Label Grid.Column="1" Text="{Binding SelectedTicket.Province}" FontFamily="Geist" FontSize="14.5" FontAttributes="Bold" TextColor="#031649" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="#E9EFE4" />
+
+                        <!-- Ngày mở thưởng -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Ngày mở thưởng" FontFamily="Geist" FontSize="13.5" TextColor="#66736A" />
+                            <Label Grid.Column="1" Text="{Binding SelectedTicket.DrawDateDisplay}" FontFamily="Geist" FontSize="14.5" FontAttributes="Bold" TextColor="#031649" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="#E9EFE4" />
+
+                        <!-- Quét lúc -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Thời điểm chụp" FontFamily="Geist" FontSize="13.5" TextColor="#66736A" />
+                            <Label Grid.Column="1" Text="{Binding SelectedTicket.CapturedDisplay}" FontFamily="Geist" FontSize="14.5" FontAttributes="Bold" TextColor="#031649" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="#E9EFE4" />
+
+                        <!-- Trạng thái -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Kết quả" FontFamily="Geist" FontSize="13.5" TextColor="#66736A" VerticalOptions="Center" />
+                            <Border Grid.Column="1" StrokeThickness="0" Padding="10,4" BackgroundColor="{Binding SelectedTicket.StatusBackground}">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                                <Label Text="{Binding SelectedTicket.StatusLabel}" FontFamily="Geist" FontSize="11" FontAttributes="Bold" TextColor="{Binding SelectedTicket.StatusTextColor}" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- Winning Detail Block -->
+                    <Border Grid.Row="3"
+                            IsVisible="{Binding SelectedTicket.IsWinner}"
+                            StrokeThickness="0"
+                            Padding="16,14"
+                            BackgroundColor="#0B2316">
+                        <Border.StrokeShape>
+                            <shapes:RoundRectangle CornerRadius="18" />
+                        </Border.StrokeShape>
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                <Label Text="Mức trúng thưởng" FontFamily="Geist" FontSize="12.5" TextColor="#CFE6D5" />
+                                <Label Grid.Column="1" Text="{Binding SelectedTicket.MatchedPrize}" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#F5C842" />
+                            </Grid>
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                                <Label Text="Tiền giải thưởng" FontFamily="Geist" FontSize="12.5" TextColor="#CFE6D5" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="{Binding SelectedTicket.PrizeAmountDisplay}" FontFamily="GeistMono" FontSize="18.5" FontAttributes="Bold" TextColor="#F5C842" VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Close / Delete Action Buttons -->
+                    <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <Button Grid.Column="0"
+                                Text="Đóng"
+                                Command="{Binding CloseTicketDetailsCommand}"
+                                HeightRequest="50"
+                                CornerRadius="16"
+                                FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
+                                BackgroundColor="#031649"
+                                TextColor="White">
+                            <Button.Shadow>
+                                <Shadow Brush="#031649" Radius="8" Offset="0,3" Opacity="0.15" />
+                            </Button.Shadow>
+                        </Button>
+                        <Button Grid.Column="1"
+                                Text="Xóa"
+                                Command="{Binding DeleteEntryCommand}"
+                                CommandParameter="{Binding SelectedTicket}"
+                                Clicked="OnDeleteButtonClickedFromModal"
+                                HeightRequest="50"
+                                WidthRequest="80"
+                                CornerRadius="16"
+                                FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
+                                BackgroundColor="#FEE2E2"
+                                TextColor="#DC2626">
+                        </Button>
+                    </Grid>
+
+                </Grid>
+            </Border>
         </Grid>
 
     </Grid>

@@ -244,7 +244,7 @@
                                 <Grid ColumnDefinitions="*,Auto">
                                     <Border WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#FEF2F2" HorizontalOptions="Start">
                                         <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
-                                        <Label Text="🪙" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        <Image Source="gold_coin.png" WidthRequest="26" HeightRequest="26" HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFit" />
                                     </Border>
                                     <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#EF4444" VerticalOptions="Center" />
                                 </Grid>

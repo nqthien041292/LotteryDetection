@@ -6,5 +6,6 @@ public interface ILotteryResultsService
 {
     Task<IReadOnlyList<LotteryRegionDraw>> GetTodayResultsAsync(CancellationToken ct = default);
     Task<IReadOnlyList<LotteryRegionDraw>> GetLiveResultsAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<LotteryRegionDraw>> GetResultsByDateAsync(DateTime date, CancellationToken ct = default);
     bool IsLiveDrawingTime();
 }

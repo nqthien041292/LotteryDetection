@@ -119,6 +119,26 @@ public class LotteryLiveResultsViewModel : BaseViewModel
         private set => SetProperty(ref heroDateLabel, value);
     }
 
+    public bool IsNotDrawingTime => !resultsService.IsLiveDrawingTime();
+
+    public string DrawingTimeStatusMessage
+    {
+        get
+        {
+            var time = DateTime.Now.TimeOfDay;
+            if (time < new TimeSpan(16, 10, 0))
+                return "Chưa tới giờ xổ số hôm nay. Buổi quay số trực tiếp đầu tiên (Miền Nam) sẽ bắt đầu từ 16:10 hàng ngày.";
+            if (time < new TimeSpan(17, 10, 0))
+                return "Chưa tới giờ xổ số Miền Trung (17:10) và Miền Bắc (18:10).";
+            if (time < new TimeSpan(18, 10, 0))
+                return "Chưa tới giờ xổ số Miền Bắc (18:10).";
+            return string.Empty;
+        }
+    }
+
+    public bool ShowDrawingTimeStatusMessage => !resultsService.IsLiveDrawingTime() && !string.IsNullOrEmpty(DrawingTimeStatusMessage);
+
+
     private void ToggleBac() => ShowBac = !ShowBac;
     private void ToggleTrung() => ShowTrung = !ShowTrung;
     private void ToggleNam() => ShowNam = !ShowNam;
@@ -182,16 +202,11 @@ public class LotteryLiveResultsViewModel : BaseViewModel
         ApplyFilter();
 
         UpdatedAtLabel = $"Trực tiếp lúc {DateTime.Now:HH:mm:ss}";
-        
-        var hasTodayData = allDraws.Any(d => d.DrawDate.Date == DateTime.Today);
-        if (hasTodayData)
-        {
-            HeroDateLabel = DateTime.Today.ToString("dd 'tháng' MM, yyyy");
-        }
-        else
-        {
-            HeroDateLabel = DateTime.Today.AddDays(-1).ToString("dd 'tháng' MM, yyyy") + " (Hôm qua)";
-        }
+        HeroDateLabel = DateTime.Today.ToString("dd 'tháng' MM, yyyy");
+
+        NotifyPropertyChanged(nameof(IsNotDrawingTime));
+        NotifyPropertyChanged(nameof(DrawingTimeStatusMessage));
+        NotifyPropertyChanged(nameof(ShowDrawingTimeStatusMessage));
     }
 
     public void StartAutoRefresh()

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using LotteryDetection.Mobile.Services.Interfaces;
 using LotteryDetection.Mobile.Services.Navigation;
 using LotteryDetection.Mobile.ViewModel;
+using LotteryDetection.Mobile.Models.Lottery;
 
 namespace LotteryDetection.Mobile.Views.LotteryHistory;
 
@@ -102,7 +103,7 @@ public partial class LotteryHistoryPage : ContentPage
     {
         if (sender is SwipeItem swipeItem)
         {
-            var entry = swipeItem.BindingContext as LotteryDetection.Mobile.Models.Lottery.LotteryHistoryEntry;
+            var entry = swipeItem.BindingContext as LotteryHistoryEntry;
             if (entry != null)
             {
                 bool confirm = await this.DisplayAlert("Xác nhận xóa", $"Bạn có chắc muốn xóa vé {entry.TicketNumber} của đài {entry.Province}?", "Xóa", "Hủy");
@@ -122,6 +123,36 @@ public partial class LotteryHistoryPage : ContentPage
             {
                 await this.DisplayAlert("Thông báo", "Không tìm thấy dữ liệu vé số này.", "Đóng");
             }
+        }
+    }
+
+    private async void OnDeleteButtonClickedFromModal(object? sender, EventArgs e)
+    {
+        if (vm?.SelectedTicket != null)
+        {
+            var entry = vm.SelectedTicket;
+            bool confirm = await this.DisplayAlert("Xác nhận xóa", $"Bạn có chắc muốn xóa vé {entry.TicketNumber} của đài {entry.Province}?", "Xóa", "Hủy");
+            if (confirm)
+            {
+                bool success = await vm.DeleteEntryAsync(entry);
+                if (success)
+                {
+                    // Close the modal card since the item has been deleted
+                    vm.CloseTicketDetailsCommand.Execute(null);
+                }
+                else
+                {
+                    await this.DisplayAlert("Lỗi", "Không thể xóa vé số này. Vui lòng thử lại sau.", "Đóng");
+                }
+            }
+        }
+    }
+
+    private void OnTicketCardTapped(object? sender, EventArgs e)
+    {
+        if (sender is BindableObject bo && bo.BindingContext is LotteryHistoryEntry entry)
+        {
+            vm?.OpenTicketDetailsCommand.Execute(entry);
         }
     }
 }

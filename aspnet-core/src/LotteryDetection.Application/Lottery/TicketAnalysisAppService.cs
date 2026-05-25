@@ -385,4 +385,37 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
             Prizes = r.Prizes
         }).ToList();
     }
+
+    public async Task<Dto.HistoryStatsDto> GetHistoryStatsAsync()
+    {
+        var query = _repository.GetAll()
+            .Where(t => t.CreatorUserId == AbpSession.UserId);
+
+        var totalCount = await query.CountAsync();
+        
+        var winnersQuery = query.Where(t => t.IsWinner == true);
+        var winCount = await winnersQuery.CountAsync();
+        
+        var prizeAmounts = await winnersQuery
+            .Where(t => t.PrizeAmount != null)
+            .Select(t => t.PrizeAmount)
+            .ToListAsync();
+
+        long totalWinnings = 0;
+        long biggestWin = 0;
+
+        if (prizeAmounts.Any())
+        {
+            totalWinnings = (long)prizeAmounts.Sum(p => p ?? 0);
+            biggestWin = (long)prizeAmounts.Max(p => p ?? 0);
+        }
+
+        return new Dto.HistoryStatsDto
+        {
+            TotalCount = totalCount,
+            WinCount = winCount,
+            TotalWinnings = totalWinnings,
+            BiggestWin = biggestWin
+        };
+    }
 }

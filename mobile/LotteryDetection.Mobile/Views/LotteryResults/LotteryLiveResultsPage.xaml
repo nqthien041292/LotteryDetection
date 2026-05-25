@@ -136,6 +136,29 @@
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
 
+                <!-- Status Warning Notice -->
+                <Border IsVisible="{Binding ShowDrawingTimeStatusMessage}"
+                        StrokeThickness="1"
+                        Stroke="#FDBA74"
+                        Padding="16"
+                        BackgroundColor="#FFF7ED">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Label Text="⏰" FontSize="22" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Chưa tới giờ xổ số"
+                                   FontFamily="Geist" FontSize="14.5" FontAttributes="Bold"
+                                   TextColor="#C2410C" />
+                            <Label Text="{Binding DrawingTimeStatusMessage}"
+                                   FontFamily="Geist" FontSize="12.5"
+                                   LineHeight="1.3"
+                                   TextColor="#EA580C" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
                 <!-- Skeleton -->
                 <Border IsVisible="{Binding ShowSkeleton}"
                         Padding="20"

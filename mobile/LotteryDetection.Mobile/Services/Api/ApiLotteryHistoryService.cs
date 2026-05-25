@@ -10,8 +10,6 @@ namespace LotteryDetection.Mobile.Services.Api;
 
 public class ApiLotteryHistoryService : ILotteryHistoryService
 {
-    private const string HistoryPath = "api/services/app/LotteryAnalysis/GetHistory?maxResultCount=100";
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -27,10 +25,8 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
         _authService = authService;
     }
 
-    public async Task<IReadOnlyList<LotteryHistoryEntry>> GetEntriesAsync(CancellationToken ct = default)
+    private async Task AppendAuthHeaderAsync(HttpRequestMessage request)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, HistoryPath);
-
         if (_authService.IsSignedIn)
         {
             try
@@ -44,28 +40,63 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
                 Debug.WriteLine($"[ApiLotteryHistoryService] Token unavailable: {ex.Message}");
             }
         }
+    }
+
+    public async Task<LotteryHistoryPageResult> GetEntriesAsync(int skipCount, int maxResultCount, CancellationToken ct = default)
+    {
+        string path = $"api/services/app/LotteryAnalysis/GetHistory?skipCount={skipCount}&maxResultCount={maxResultCount}";
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        await AppendAuthHeaderAsync(request);
 
         using var response = await _http.SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)
         {
             Debug.WriteLine($"[ApiLotteryHistoryService] HTTP {(int)response.StatusCode}");
-            return Array.Empty<LotteryHistoryEntry>();
+            return new LotteryHistoryPageResult();
         }
 
         var body = await response.Content.ReadAsStringAsync(ct);
         if (!IsJsonResponse(response, body))
         {
             Debug.WriteLine("[ApiLotteryHistoryService] Backend returned non-JSON history response.");
-            return Array.Empty<LotteryHistoryEntry>();
+            return new LotteryHistoryPageResult();
         }
 
-        var paged = ParseEnvelope(body);
-        if (paged?.Items == null) return Array.Empty<LotteryHistoryEntry>();
+        var paged = ParseEnvelope<PagedDto>(body);
+        if (paged?.Items == null) return new LotteryHistoryPageResult();
 
-        return paged.Items
+        var mapped = paged.Items
             .Select(MapToEntry)
             .OrderByDescending(e => e.CapturedAt)
             .ToList();
+
+        return new LotteryHistoryPageResult
+        {
+            TotalCount = paged.TotalCount,
+            Items = mapped
+        };
+    }
+
+    public async Task<LotteryHistoryStats?> GetStatsAsync(CancellationToken ct = default)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "api/services/app/LotteryAnalysis/GetHistoryStats");
+        await AppendAuthHeaderAsync(request);
+
+        using var response = await _http.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            Debug.WriteLine($"[ApiLotteryHistoryService] Stats HTTP {(int)response.StatusCode}");
+            return null;
+        }
+
+        var body = await response.Content.ReadAsStringAsync(ct);
+        if (!IsJsonResponse(response, body))
+        {
+            Debug.WriteLine("[ApiLotteryHistoryService] Backend returned non-JSON stats response.");
+            return null;
+        }
+
+        return ParseEnvelope<LotteryHistoryStats>(body);
     }
 
     public async Task<bool> DeleteEntryAsync(string id, CancellationToken ct = default)
@@ -73,20 +104,7 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
         if (!Guid.TryParse(id, out var guidId)) return false;
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "api/services/app/LotteryAnalysis/Delete");
-
-        if (_authService.IsSignedIn)
-        {
-            try
-            {
-                var token = await _authService.GetAccessTokenAsync();
-                if (!string.IsNullOrWhiteSpace(token))
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[ApiLotteryHistoryService] Token unavailable for delete: {ex.Message}");
-            }
-        }
+        await AppendAuthHeaderAsync(request);
 
         var payload = new { id = guidId };
         var json = JsonSerializer.Serialize(payload, JsonOptions);
@@ -102,12 +120,12 @@ public class ApiLotteryHistoryService : ILotteryHistoryService
         return true;
     }
 
-    private static PagedDto? ParseEnvelope(string body)
+    private static T? ParseEnvelope<T>(string body) where T : class
     {
         if (string.IsNullOrWhiteSpace(body)) return null;
         using var doc = JsonDocument.Parse(body);
         var result = doc.RootElement.TryGetProperty("result", out var r) ? r : doc.RootElement;
-        return JsonSerializer.Deserialize<PagedDto>(result.GetRawText(), JsonOptions);
+        return JsonSerializer.Deserialize<T>(result.GetRawText(), JsonOptions);
     }
 
     private static bool IsJsonResponse(HttpResponseMessage response, string body)

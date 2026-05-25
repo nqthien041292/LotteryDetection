@@ -25,6 +25,8 @@ public interface ITicketAnalysisAppService : IApplicationService
     Task TriggerScrapeFromDateAsync(DateTime startDate);
 
     Task<System.Collections.Generic.List<LotteryDrawResultDto>> GetDrawResultsAsync(DateTime drawDate);
+
+    Task<HistoryStatsDto> GetHistoryStatsAsync();
 }
 
 

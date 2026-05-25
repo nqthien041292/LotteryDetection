@@ -83,6 +83,50 @@ public class MockLotteryResultsService : ILotteryResultsService
         return list;
     }
 
+    public async Task<IReadOnlyList<LotteryRegionDraw>> GetResultsByDateAsync(DateTime date, CancellationToken ct = default)
+    {
+        await Task.Delay(150, ct);
+
+        var provincesNam = date.DayOfWeek switch
+        {
+            DayOfWeek.Monday => new[] { "TP. HCM", "Đồng Tháp", "Cà Mau" },
+            DayOfWeek.Tuesday => new[] { "Bến Tre", "Vũng Tàu", "Bạc Liêu" },
+            DayOfWeek.Wednesday => new[] { "Đồng Nai", "Cần Thơ", "Sóc Trăng" },
+            DayOfWeek.Thursday => new[] { "Tây Ninh", "An Giang", "Bình Thuận" },
+            DayOfWeek.Friday => new[] { "Vĩnh Long", "Bình Dương", "Trà Vinh" },
+            DayOfWeek.Saturday => new[] { "TP. HCM", "Long An", "Bình Phước", "Hậu Giang" },
+            DayOfWeek.Sunday => new[] { "Tiền Giang", "Kiên Giang", "Đà Lạt" },
+            _ => new[] { "Tiền Giang", "Kiên Giang", "Đà Lạt" }
+        };
+
+        var provincesTrung = date.DayOfWeek switch
+        {
+            DayOfWeek.Monday => new[] { "Thừa Thiên Huế", "Phú Yên" },
+            DayOfWeek.Tuesday => new[] { "Đắk Lắk", "Quảng Nam" },
+            DayOfWeek.Wednesday => new[] { "Đà Nẵng", "Khánh Hòa" },
+            DayOfWeek.Thursday => new[] { "Bình Định", "Quảng Trị", "Quảng Bình" },
+            DayOfWeek.Friday => new[] { "Gia Lai", "Ninh Thuận" },
+            DayOfWeek.Saturday => new[] { "Đà Nẵng", "Quảng Ngãi", "Đắk Nông" },
+            DayOfWeek.Sunday => new[] { "Khánh Hòa", "Kon Tum" },
+            _ => new[] { "Khánh Hòa", "Kon Tum" }
+        };
+
+        var list = new List<LotteryRegionDraw>();
+        list.Add(BuildDraw(LotteryRegion.Bac, "Miền Bắc", "Hà Nội (XSMB)", date));
+
+        foreach (var p in provincesTrung)
+        {
+            list.Add(BuildDraw(LotteryRegion.Trung, "Miền Trung", p, date));
+        }
+
+        foreach (var p in provincesNam)
+        {
+            list.Add(BuildDraw(LotteryRegion.Nam, "Miền Nam", p, date));
+        }
+
+        return list;
+    }
+
     public async Task<IReadOnlyList<LotteryRegionDraw>> GetLiveResultsAsync(CancellationToken ct = default)
     {
         // Light artificial latency

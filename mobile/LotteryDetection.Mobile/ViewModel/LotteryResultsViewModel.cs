@@ -14,6 +14,7 @@ public class LotteryResultsViewModel : BaseViewModel
     private string updatedAtLabel = string.Empty;
     private string heroDateLabel = string.Empty;
     private bool hasLoaded;
+    private DateTime selectedDate = DateTime.Today;
 
     private IReadOnlyList<LotteryRegionDraw> allDraws = new List<LotteryRegionDraw>();
     private bool showBac = true;
@@ -131,6 +132,18 @@ public class LotteryResultsViewModel : BaseViewModel
         private set => SetProperty(ref heroDateLabel, value);
     }
 
+    public DateTime SelectedDate
+    {
+        get => selectedDate;
+        set
+        {
+            if (SetProperty(ref selectedDate, value))
+            {
+                _ = LoadDataForSelectedDateAsync();
+            }
+        }
+    }
+
     private void ToggleBac() => ShowBac = !ShowBac;
     private void ToggleTrung() => ShowTrung = !ShowTrung;
     private void ToggleNam() => ShowNam = !ShowNam;
@@ -201,12 +214,15 @@ public class LotteryResultsViewModel : BaseViewModel
             var hasTodayData = allDraws.Any(d => d.DrawDate.Date == DateTime.Today);
             if (hasTodayData)
             {
+                selectedDate = DateTime.Today;
                 HeroDateLabel = DateTime.Today.ToString("dd 'tháng' MM, yyyy");
             }
             else
             {
+                selectedDate = DateTime.Today.AddDays(-1);
                 HeroDateLabel = DateTime.Today.AddDays(-1).ToString("dd 'tháng' MM, yyyy") + " (Hôm qua)";
             }
+            NotifyPropertyChanged(nameof(SelectedDate));
             
             hasLoaded = true;
             NotifyLiveButtonStyles();
@@ -214,6 +230,36 @@ public class LotteryResultsViewModel : BaseViewModel
         catch (Exception ex)
         {
             Debug.WriteLine($"[LotteryResults] InitializeAsync error: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+            NotifyPropertyChanged(nameof(ShowSkeleton));
+            NotifyPropertyChanged(nameof(ShowEmptyState));
+        }
+    }
+
+    public async Task LoadDataForSelectedDateAsync()
+    {
+        IsBusy = true;
+        NotifyPropertyChanged(nameof(ShowSkeleton));
+        NotifyPropertyChanged(nameof(ShowEmptyState));
+        try
+        {
+            var data = await resultsService.GetResultsByDateAsync(SelectedDate);
+            allDraws = data ?? new List<LotteryRegionDraw>();
+            
+            ApplyFilter();
+
+            UpdatedAtLabel = $"Cập nhật lúc {DateTime.Now:HH:mm}";
+            HeroDateLabel = SelectedDate.ToString("dd 'tháng' MM, yyyy");
+            
+            hasLoaded = true;
+            NotifyLiveButtonStyles();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LotteryResults] LoadDataForSelectedDateAsync error: {ex.Message}");
         }
         finally
         {
