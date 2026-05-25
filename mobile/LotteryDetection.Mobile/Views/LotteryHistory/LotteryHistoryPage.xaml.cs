@@ -31,6 +31,11 @@ public partial class LotteryHistoryPage : ContentPage
         base.OnAppearing();
         _isPageActive = true;
 
+        if (HistoryScrollView != null)
+        {
+            HistoryScrollView.Orientation = ScrollOrientation.Vertical;
+        }
+
         if (vm != null)
         {
             await vm.InitializeAsync();
@@ -123,6 +128,12 @@ public partial class LotteryHistoryPage : ContentPage
             {
                 await this.DisplayAlert("Thông báo", "Không tìm thấy dữ liệu vé số này.", "Đóng");
             }
+
+            // Sau khi thực hiện xong tương tác hộp thoại, khôi phục lại cuộn dọc cho ScrollView
+            if (HistoryScrollView != null)
+            {
+                HistoryScrollView.Orientation = ScrollOrientation.Vertical;
+            }
         }
     }
 
@@ -167,10 +178,15 @@ public partial class LotteryHistoryPage : ContentPage
 
     private void OnSwipeEnded(object? sender, SwipeEndedEventArgs e)
     {
-        // Khi kết thúc vuốt, kích hoạt lại tính năng cuộn dọc bình thường cho ScrollView
-        if (HistoryScrollView != null)
+        // Khi kết thúc vuốt, chỉ kích hoạt lại tính năng cuộn dọc khi SwipeView đã đóng hoàn toàn (e.IsOpen == false).
+        // Nếu e.IsOpen == true (tức là nút Xóa đang mở), giữ nguyên cuộn là Neither để nút Xóa vẫn hiển thị nguyên vẹn chờ người dùng bấm,
+        // đồng thời tránh kích hoạt chu trình layout dội ngược (auto-snap back) trên iOS làm đóng nút Xóa ngoài ý muốn.
+        if (!e.IsOpen)
         {
-            HistoryScrollView.Orientation = ScrollOrientation.Vertical;
+            if (HistoryScrollView != null)
+            {
+                HistoryScrollView.Orientation = ScrollOrientation.Vertical;
+            }
         }
     }
 }
