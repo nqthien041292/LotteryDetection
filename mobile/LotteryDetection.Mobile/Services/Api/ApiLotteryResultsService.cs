@@ -219,6 +219,23 @@ public class ApiLotteryResultsService : ILotteryResultsService
         return db == q || db.Contains(q) || q.Contains(db);
     }
 
+    private static string MapVietnameseLabelToEnglishKey(string label)
+    {
+        return label.ToLowerInvariant().Trim() switch
+        {
+            "đặc biệt" or "dac biet" => "Special",
+            "giải nhất" or "giai nhat" => "First",
+            "giải nhì" or "giai nhi" => "Second",
+            "giải ba" or "giai ba" => "Third",
+            "giải tư" or "giai tu" => "Fourth",
+            "giải năm" or "giai nam" => "Fifth",
+            "giải sáu" or "giai sau" => "Sixth",
+            "giải bảy" or "giai bay" => "Seventh",
+            "giải tám" or "giai tam" => "Eighth",
+            _ => label
+        };
+    }
+
     private static LotteryRegionDraw MapToRegionDraw(LotteryDrawResultDto dto, LotteryRegion region, string regionLabel)
     {
         var draw = new LotteryRegionDraw
@@ -274,7 +291,19 @@ public class ApiLotteryResultsService : ILotteryResultsService
             string cellString;
             bool isDrawn;
 
-            if (dto.Prizes != null && dto.Prizes.TryGetValue(config.Label, out var nums) && nums != null && nums.Count > 0)
+            string apiKey = MapVietnameseLabelToEnglishKey(config.Label);
+            bool hasPrize = false;
+            List<string>? nums = null;
+
+            if (dto.Prizes != null)
+            {
+                if (dto.Prizes.TryGetValue(config.Label, out nums) || dto.Prizes.TryGetValue(apiKey, out nums))
+                {
+                    hasPrize = nums != null && nums.Count > 0;
+                }
+            }
+
+            if (hasPrize && nums != null)
             {
                 cellString = string.Join(" · ", nums);
                 isDrawn = true;
