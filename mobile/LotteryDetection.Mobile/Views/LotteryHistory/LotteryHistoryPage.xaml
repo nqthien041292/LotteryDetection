@@ -223,21 +223,12 @@
                                          HorizontalOptions="Fill">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="lotteryModels:LotteryHistoryEntry">
-                                <SwipeView SwipeStarted="OnSwipeStarted" SwipeEnded="OnSwipeEnded">
-                                    <SwipeView.RightItems>
-                                        <SwipeItems Mode="Reveal">
-                                            <SwipeItem Text="Xóa"
-                                                       BackgroundColor="#DC2626"
-                                                       BindingContext="{Binding .}"
-                                                       Invoked="OnDeleteSwipeItemInvoked" />
-                                        </SwipeItems>
-                                    </SwipeView.RightItems>
-                                    <!-- Card trúng giải mạ vàng kép tinh xảo -->
-                                    <Border StrokeThickness="1.5"
-                                            Stroke="#F5C842"
-                                            BackgroundColor="#0B2316"
-                                            Padding="16"
-                                            HorizontalOptions="Fill">
+                                <!-- Card trúng giải mạ vàng kép tinh xảo -->
+                                <Border StrokeThickness="1.5"
+                                        Stroke="#F5C842"
+                                        BackgroundColor="#0B2316"
+                                        Padding="16"
+                                        HorizontalOptions="Fill">
                                         <Border.StrokeShape>
                                             <shapes:RoundRectangle CornerRadius="20" />
                                         </Border.StrokeShape>
@@ -250,7 +241,7 @@
                                         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
 
                                             <!-- Header row: trophy + status chip -->
-                                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
                                                 <Border Grid.Column="0"
                                                         WidthRequest="44" HeightRequest="44"
                                                         StrokeThickness="0"
@@ -280,6 +271,15 @@
                                                     <Label Text="{Binding CapturedDisplay}"
                                                            FontFamily="Geist" FontSize="10" FontAttributes="Bold"
                                                            TextColor="#A9D7B6" />
+                                                </Border>
+                                                
+                                                <!-- Nút Xóa trực tiếp -->
+                                                <Border Grid.Column="3" WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#2D1212" VerticalOptions="Center">
+                                                    <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="OnDeleteTicketClicked" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="✕" TextColor="#EF4444" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,-1,0,0" />
                                                 </Border>
                                             </Grid>
 
@@ -327,7 +327,7 @@
                                             </Grid>
                                         </Grid>
                                     </Border>
-                                </SwipeView>
+
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>
@@ -344,21 +344,12 @@
                                          HorizontalOptions="Fill">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="lotteryModels:LotteryHistoryEntry">
-                                <SwipeView SwipeStarted="OnSwipeStarted" SwipeEnded="OnSwipeEnded">
-                                    <SwipeView.RightItems>
-                                        <SwipeItems Mode="Reveal">
-                                            <SwipeItem Text="Xóa"
-                                                       BackgroundColor="#DC2626"
-                                                       BindingContext="{Binding .}"
-                                                       Invoked="OnDeleteSwipeItemInvoked" />
-                                        </SwipeItems>
-                                    </SwipeView.RightItems>
-                                    <!-- Thẻ vé bo góc sâu, đổ bóng mịn hiện đại -->
-                                    <Border StrokeThickness="1"
-                                            Stroke="{Binding CardStrokeColor}"
-                                            BackgroundColor="White"
-                                            Padding="14"
-                                            HorizontalOptions="Fill">
+                                <!-- Thẻ vé bo góc sâu, đổ bóng mịn hiện đại -->
+                                <Border StrokeThickness="1"
+                                        Stroke="{Binding CardStrokeColor}"
+                                        BackgroundColor="White"
+                                        Padding="14"
+                                        HorizontalOptions="Fill">
                                         <Border.StrokeShape>
                                             <shapes:RoundRectangle CornerRadius="18" />
                                         </Border.StrokeShape>
@@ -368,7 +359,7 @@
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnTicketCardTapped" />
                                         </Border.GestureRecognizers>
-                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
 
                                             <Border Grid.Column="0"
                                                     WidthRequest="48" HeightRequest="48"
@@ -413,9 +404,18 @@
                                                        HorizontalTextAlignment="End"
                                                        TextColor="{Binding PrizeAmountColor}" />
                                             </VerticalStackLayout>
+                                            
+                                            <!-- Nút Xóa trực tiếp -->
+                                            <Border Grid.Column="3" WidthRequest="32" HeightRequest="32" StrokeThickness="0" BackgroundColor="#FEE2E2" VerticalOptions="Center">
+                                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnDeleteTicketClicked" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="✕" TextColor="#DC2626" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,-1,0,0" />
+                                            </Border>
                                         </Grid>
                                     </Border>
-                                </SwipeView>
+
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>

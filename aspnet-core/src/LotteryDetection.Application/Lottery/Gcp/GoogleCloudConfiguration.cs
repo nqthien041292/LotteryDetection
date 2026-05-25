@@ -17,7 +17,7 @@ public class GoogleCloudConfiguration : ITransientDependency
 
     public string Location => _configuration["GoogleCloud:Location"] ?? "us-central1";
 
-    public string VertexAIModel => _configuration["GoogleCloud:VertexAI:Model"] ?? "gemini-2.5-flash";
+    public string VertexAIModel => _configuration["GoogleCloud:VertexAI:Model"] ?? "gemini-1.5-pro-002";
 
     public int VertexAIMaxOutputTokens =>
         int.TryParse(_configuration["GoogleCloud:VertexAI:MaxOutputTokens"], out var n) ? n : 2048;

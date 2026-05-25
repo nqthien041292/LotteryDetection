@@ -30,14 +30,14 @@ internal static class VietnameseProvinceNormalizer
             ["Miền Trung"] = new[] { "mien trung", "xsmt", "central" },
             ["Miền Nam"] = new[] { "mien nam", "xsmn", "southern" },
 
-            ["TP. Hồ Chí Minh"] = new[]
+            ["TP. HCM"] = new[]
             {
                 "tp ho chi minh", "thanh pho ho chi minh", "ho chi minh", "hcm", "tphcm",
-                "tp hcm", "sai gon", "saigon", "xshcm"
+                "tp hcm", "sai gon", "saigon", "xshcm", "tp. ho chi minh"
             },
 
             ["An Giang"] = new[] { "an giang", "xsag" },
-            ["Bà Rịa - Vũng Tàu"] = new[] { "ba ria vung tau", "vung tau", "xsvt", "brvt" },
+            ["Vũng Tàu"] = new[] { "ba ria vung tau", "vung tau", "xsvt", "brvt", "ba ria - vung tau" },
             ["Bạc Liêu"] = new[] { "bac lieu", "xsbl" },
             ["Bắc Giang"] = new[] { "bac giang", "xsbg" },
             ["Bắc Kạn"] = new[] { "bac kan" },
@@ -70,7 +70,7 @@ internal static class VietnameseProvinceNormalizer
             ["Kiên Giang"] = new[] { "kien giang", "xskg" },
             ["Kon Tum"] = new[] { "kon tum", "xskt" },
             ["Lai Châu"] = new[] { "lai chau" },
-            ["Lâm Đồng"] = new[] { "lam dong", "xsld" },
+            ["Đà Lạt"] = new[] { "lam dong", "xsld", "da lat", "lam dong" },
             ["Lạng Sơn"] = new[] { "lang son" },
             ["Lào Cai"] = new[] { "lao cai" },
             ["Long An"] = new[] { "long an", "xsla" },

@@ -104,38 +104,26 @@ public partial class LotteryHistoryPage : ContentPage
         await NavigationService.Default.NavigateBackAsync();
     }
 
-    private async void OnDeleteSwipeItemInvoked(object? sender, EventArgs e)
+    private async void OnDeleteTicketClicked(object? sender, EventArgs e)
     {
-        if (sender is SwipeItem swipeItem)
+        if (sender is BindableObject bo && bo.BindingContext is LotteryHistoryEntry entry)
         {
-            var entry = swipeItem.BindingContext as LotteryHistoryEntry;
-            if (entry != null)
+            bool confirm = await this.DisplayAlert("Xác nhận xóa", $"Bạn có chắc muốn xóa vé {entry.TicketNumber} của đài {entry.Province}?", "Xóa", "Hủy");
+            if (confirm)
             {
-                bool confirm = await this.DisplayAlert("Xác nhận xóa", $"Bạn có chắc muốn xóa vé {entry.TicketNumber} của đài {entry.Province}?", "Xóa", "Hủy");
-                if (confirm)
+                if (vm != null)
                 {
-                    if (vm != null)
+                    bool success = await vm.DeleteEntryAsync(entry);
+                    if (!success)
                     {
-                        bool success = await vm.DeleteEntryAsync(entry);
-                        if (!success)
-                        {
-                            await this.DisplayAlert("Lỗi", "Không thể xóa vé số này. Vui lòng thử lại sau hoặc kiểm tra kết nối mạng.", "Đóng");
-                        }
+                        await this.DisplayAlert("Lỗi", "Không thể xóa vé số này. Vui lòng thử lại sau hoặc kiểm tra kết nối mạng.", "Đóng");
                     }
                 }
             }
-            else
-            {
-                await this.DisplayAlert("Thông báo", "Không tìm thấy dữ liệu vé số này.", "Đóng");
-            }
-
-            // Sau khi thực hiện xong tương tác hộp thoại, khôi phục lại cuộn dọc cho ScrollView
-            if (HistoryScrollView != null)
-            {
-                HistoryScrollView.Orientation = ScrollOrientation.Vertical;
-            }
         }
     }
+
+
 
     private async void OnDeleteButtonClickedFromModal(object? sender, EventArgs e)
     {
@@ -167,26 +155,5 @@ public partial class LotteryHistoryPage : ContentPage
         }
     }
 
-    private void OnSwipeStarted(object? sender, SwipeStartedEventArgs e)
-    {
-        // Khi bắt đầu vuốt, tạm thời tắt tính năng cuộn dọc của ScrollView để tránh xung đột trên iOS
-        if (HistoryScrollView != null)
-        {
-            HistoryScrollView.Orientation = ScrollOrientation.Neither;
-        }
-    }
 
-    private void OnSwipeEnded(object? sender, SwipeEndedEventArgs e)
-    {
-        // Khi kết thúc vuốt, chỉ kích hoạt lại tính năng cuộn dọc khi SwipeView đã đóng hoàn toàn (e.IsOpen == false).
-        // Nếu e.IsOpen == true (tức là nút Xóa đang mở), giữ nguyên cuộn là Neither để nút Xóa vẫn hiển thị nguyên vẹn chờ người dùng bấm,
-        // đồng thời tránh kích hoạt chu trình layout dội ngược (auto-snap back) trên iOS làm đóng nút Xóa ngoài ý muốn.
-        if (!e.IsOpen)
-        {
-            if (HistoryScrollView != null)
-            {
-                HistoryScrollView.Orientation = ScrollOrientation.Vertical;
-            }
-        }
-    }
 }
