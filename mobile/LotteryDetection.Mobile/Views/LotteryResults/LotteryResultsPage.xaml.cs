@@ -111,4 +111,9 @@ public partial class LotteryResultsPage : ContentPage
     {
         await NavigationService.Default.NavigateBackAsync();
     }
+
+    private void OnDatePickerTapped(object? sender, EventArgs e)
+    {
+        ActualDatePicker.Focus();
+    }
 }
