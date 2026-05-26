@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using LotteryDetection.Mobile.Services.Interfaces;
 #if IOS || ANDROID
+using Plugin.Firebase;
 using Plugin.Firebase.CloudMessaging;
 #endif
 
@@ -20,27 +21,18 @@ public class PushNotificationService : IPushNotificationService
         try
         {
 #if IOS || ANDROID
-            // Only attempt if Firebase is actually available/initialized
-            // This is a safeguard if the developer forgot to add GoogleService-Info.plist
-            if (Plugin.Firebase.CrossFirebase.IsInitialized)
+            await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+            
+            CrossFirebaseCloudMessaging.Current.NotificationReceived += (s, e) =>
             {
-                await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
-                
-                CrossFirebaseCloudMessaging.Current.NotificationReceived += (s, e) =>
-                {
-                    Debug.WriteLine($"[PushNotificationService] Notification Received: {e.Notification.Title} - {e.Notification.Body}");
-                };
+                Debug.WriteLine($"[PushNotificationService] Notification Received: {e.Notification.Title} - {e.Notification.Body}");
+            };
 
-                CrossFirebaseCloudMessaging.Current.TokenChanged += async (s, e) =>
-                {
-                    Debug.WriteLine($"[PushNotificationService] Token Changed: {e.Token}");
-                    await RegisterTokenAsync();
-                };
-            }
-            else
+            CrossFirebaseCloudMessaging.Current.TokenChanged += async (s, e) =>
             {
-                Debug.WriteLine("[PushNotificationService] Skip initialization: Firebase not initialized.");
-            }
+                Debug.WriteLine($"[PushNotificationService] Token Changed: {e.Token}");
+                await RegisterTokenAsync();
+            };
 #endif
         }
         catch (Exception ex)
