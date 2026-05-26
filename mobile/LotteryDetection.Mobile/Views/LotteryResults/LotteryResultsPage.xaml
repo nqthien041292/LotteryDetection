@@ -338,12 +338,12 @@
                                                        TextColor="{Binding AccentColor}" />
                                                 <StackLayout BindableLayout.ItemsSource="{Binding SpecialPrize.DigitGroups}" Spacing="10">
                                                     <BindableLayout.ItemTemplate>
-                                                        <DataTemplate x:DataType="col:IEnumerable">
+                                                        <DataTemplate>
                                                             <HorizontalStackLayout BindableLayout.ItemsSource="{Binding .}"
                                                                                  HorizontalOptions="Center"
                                                                                  Spacing="6">
                                                                 <BindableLayout.ItemTemplate>
-                                                                    <DataTemplate x:DataType="x:String">
+                                                                    <DataTemplate>
                                                                         <components:LotteryBallView Text="{Binding .}" 
                                                                                                     BallSize="42" 
                                                                                                     FontSize="19" />
@@ -372,14 +372,14 @@
                                                                        TextColor="#66736A" />
                                                                 <StackLayout BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
                                                                     <BindableLayout.ItemTemplate>
-                                                                        <DataTemplate x:DataType="col:IEnumerable">
+                                                                        <DataTemplate>
                                                                             <FlexLayout BindableLayout.ItemsSource="{Binding .}"
                                                                                         Wrap="Wrap"
                                                                                         JustifyContent="Start"
                                                                                         AlignItems="Center"
                                                                                         AlignContent="Start">
                                                                                 <BindableLayout.ItemTemplate>
-                                                                                    <DataTemplate x:DataType="x:String">
+                                                                                    <DataTemplate>
                                                                                         <components:LotteryBallView Text="{Binding .}" 
                                                                                                                     BallSize="30" 
                                                                                                                     FontSize="13"

@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="LotteryDetection.Mobile.Views.Components.LotteryBallView"
-             x:Name="this">
+             x:Name="this"
+             WidthRequest="{Binding BallSize, Source={x:Reference this}}"
+             HeightRequest="{Binding BallSize, Source={x:Reference this}}">
 
-    <Border WidthRequest="{Binding BallSize, Source={x:Reference this}}" 
-            HeightRequest="{Binding BallSize, Source={x:Reference this}}"
-            HorizontalOptions="Center"
-            VerticalOptions="Center"
+    <Border HorizontalOptions="Fill"
+            VerticalOptions="Fill"
             StrokeThickness="0"
             Padding="0">
         <Border.StrokeShape>
