@@ -6,6 +6,7 @@
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:lotteryModels="clr-namespace:LotteryDetection.Mobile.Models.Lottery"
              xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
+             xmlns:col="clr-namespace:System.Collections;assembly=netstandard"
              xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
              x:Class="LotteryDetection.Mobile.Views.LotteryResults.LotteryResultsPage"
              x:DataType="viewModel:LotteryResultsViewModel"
@@ -335,25 +336,23 @@
                                                        FontFamily="Geist" FontSize="11" FontAttributes="Bold"
                                                        HorizontalTextAlignment="Center"
                                                        TextColor="{Binding AccentColor}" />
-                                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding SpecialPrize.DigitGroups}" Spacing="10">
+                                                <StackLayout BindableLayout.ItemsSource="{Binding SpecialPrize.DigitGroups}" Spacing="10">
                                                     <BindableLayout.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <FlexLayout BindableLayout.ItemsSource="{Binding .}"
-                                                                        Wrap="NoWrap"
-                                                                        JustifyContent="Center"
-                                                                        AlignItems="Center">
+                                                        <DataTemplate x:DataType="x:Collections:IEnumerable">
+                                                            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding .}"
+                                                                                 HorizontalOptions="Center"
+                                                                                 Spacing="6">
                                                                 <BindableLayout.ItemTemplate>
                                                                     <DataTemplate x:DataType="x:String">
                                                                         <components:LotteryBallView Text="{Binding .}" 
-                                                                                                    BallSize="44" 
-                                                                                                    FontSize="20"
-                                                                                                    Margin="3,0" />
+                                                                                                    BallSize="42" 
+                                                                                                    FontSize="19" />
                                                                     </DataTemplate>
                                                                 </BindableLayout.ItemTemplate>
-                                                            </FlexLayout>
+                                                            </HorizontalStackLayout>
                                                         </DataTemplate>
                                                     </BindableLayout.ItemTemplate>
-                                                </VerticalStackLayout>
+                                                </StackLayout>
                                             </VerticalStackLayout>
 
                                             <!-- Other Prizes -->
@@ -371,9 +370,9 @@
                                                                 <Label Text="{Binding TierLabel}"
                                                                        FontFamily="Geist" FontSize="11" FontAttributes="Bold"
                                                                        TextColor="#66736A" />
-                                                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
+                                                                <StackLayout BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
                                                                     <BindableLayout.ItemTemplate>
-                                                                        <DataTemplate>
+                                                                        <DataTemplate x:DataType="x:Collections:IEnumerable">
                                                                             <FlexLayout BindableLayout.ItemsSource="{Binding .}"
                                                                                         Wrap="Wrap"
                                                                                         JustifyContent="Start"
@@ -382,7 +381,7 @@
                                                                                 <BindableLayout.ItemTemplate>
                                                                                     <DataTemplate x:DataType="x:String">
                                                                                         <components:LotteryBallView Text="{Binding .}" 
-                                                                                                                    BallSize="32" 
+                                                                                                                    BallSize="30" 
                                                                                                                     FontSize="13"
                                                                                                                     Margin="0,0,4,4" />
                                                                                     </DataTemplate>
@@ -390,7 +389,7 @@
                                                                             </FlexLayout>
                                                                         </DataTemplate>
                                                                     </BindableLayout.ItemTemplate>
-                                                                </VerticalStackLayout>
+                                                                </StackLayout>
                                                             </VerticalStackLayout>
                                                         </DataTemplate>
                                                     </BindableLayout.ItemTemplate>

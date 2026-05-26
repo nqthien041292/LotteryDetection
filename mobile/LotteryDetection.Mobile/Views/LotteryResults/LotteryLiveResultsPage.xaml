@@ -6,6 +6,8 @@
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:lotteryModels="clr-namespace:LotteryDetection.Mobile.Models.Lottery"
              xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
+             xmlns:col="clr-namespace:System.Collections;assembly=netstandard"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
              x:Class="LotteryDetection.Mobile.Views.LotteryResults.LotteryLiveResultsPage"
              x:DataType="viewModel:LotteryLiveResultsViewModel"
              Title="Kết quả trực tiếp"
@@ -274,26 +276,24 @@
                                                        TextColor="{Binding AccentColor}" />
                                                 
                                                 <!-- If Drawn -->
-                                                <VerticalStackLayout IsVisible="{Binding SpecialPrize.IsDrawn}"
+                                                <StackLayout IsVisible="{Binding SpecialPrize.IsDrawn}"
                                                                      BindableLayout.ItemsSource="{Binding SpecialPrize.DigitGroups}" Spacing="10">
                                                     <BindableLayout.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <FlexLayout BindableLayout.ItemsSource="{Binding .}"
-                                                                        Wrap="NoWrap"
-                                                                        JustifyContent="Center"
-                                                                        AlignItems="Center">
+                                                        <DataTemplate x:DataType="col:IEnumerable">
+                                                            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding .}"
+                                                                                 HorizontalOptions="Center"
+                                                                                 Spacing="6">
                                                                 <BindableLayout.ItemTemplate>
                                                                     <DataTemplate x:DataType="x:String">
                                                                         <components:LotteryBallView Text="{Binding .}" 
-                                                                                                    BallSize="44" 
-                                                                                                    FontSize="20"
-                                                                                                    Margin="3,0" />
+                                                                                                    BallSize="42" 
+                                                                                                    FontSize="19" />
                                                                     </DataTemplate>
                                                                 </BindableLayout.ItemTemplate>
-                                                            </FlexLayout>
+                                                            </HorizontalStackLayout>
                                                         </DataTemplate>
                                                     </BindableLayout.ItemTemplate>
-                                                </VerticalStackLayout>
+                                                </StackLayout>
 
                                                 <!-- If Not Drawn (Loading) -->
                                                 <HorizontalStackLayout IsVisible="{Binding SpecialPrize.IsNotDrawn}"
@@ -320,10 +320,10 @@
                                                                        TextColor="#66736A" />
                                                                 
                                                                 <!-- If Drawn -->
-                                                                <VerticalStackLayout IsVisible="{Binding IsDrawn}"
+                                                                <StackLayout IsVisible="{Binding IsDrawn}"
                                                                                      BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
                                                                     <BindableLayout.ItemTemplate>
-                                                                        <DataTemplate>
+                                                                        <DataTemplate x:DataType="col:IEnumerable">
                                                                             <FlexLayout BindableLayout.ItemsSource="{Binding .}"
                                                                                         Wrap="Wrap"
                                                                                         JustifyContent="Start"
@@ -332,7 +332,7 @@
                                                                                 <BindableLayout.ItemTemplate>
                                                                                     <DataTemplate x:DataType="x:String">
                                                                                         <components:LotteryBallView Text="{Binding .}" 
-                                                                                                                    BallSize="32" 
+                                                                                                                    BallSize="30" 
                                                                                                                     FontSize="13"
                                                                                                                     Margin="0,0,4,4" />
                                                                                     </DataTemplate>
@@ -340,7 +340,7 @@
                                                                             </FlexLayout>
                                                                         </DataTemplate>
                                                                     </BindableLayout.ItemTemplate>
-                                                                </VerticalStackLayout>
+                                                                </StackLayout>
 
                                                                 <!-- If Not Drawn -->
                                                                 <HorizontalStackLayout IsVisible="{Binding IsNotDrawn}"

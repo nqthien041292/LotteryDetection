@@ -94,17 +94,35 @@ public class LotteryRegionDraw
     public IEnumerable<LotteryPrizeTier> OtherPrizes => Prizes.Where(p => !p.IsSpecial);
 }
 
-public class LotteryPrizeTier
+public class LotteryPrizeTier : System.ComponentModel.INotifyPropertyChanged
 {
+    private string numbers = string.Empty;
     public string TierLabel { get; set; } = string.Empty;
-    public string Numbers { get; set; } = string.Empty;
     public bool IsSpecial { get; set; }
     public bool IsDrawn { get; set; } = true;
     public bool IsNotDrawn => !IsDrawn;
 
-    public List<string> NumberList => Numbers.Split(new[] { ' ', '·' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    public string Numbers
+    {
+        get => numbers;
+        set
+        {
+            if (numbers != value)
+            {
+                numbers = value;
+                OnPropertyChanged(nameof(Numbers));
+                OnPropertyChanged(nameof(NumberList));
+                OnPropertyChanged(nameof(DigitGroups));
+            }
+        }
+    }
 
-    public List<List<string>> DigitGroups => Numbers.Split(new[] { ' ', '·' }, StringSplitOptions.RemoveEmptyEntries)
+    public List<string> NumberList => Numbers.Split(new[] { ' ', '·', '|', '-', '.', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+    public List<List<string>> DigitGroups => Numbers.Split(new[] { ' ', '·', '|', '-', '.', ',' }, StringSplitOptions.RemoveEmptyEntries)
         .Select(n => n.Select(c => c.ToString()).ToList())
         .ToList();
+
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+    protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
 }
