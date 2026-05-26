@@ -103,4 +103,8 @@ public class LotteryPrizeTier
     public bool IsNotDrawn => !IsDrawn;
 
     public List<string> NumberList => Numbers.Split(new[] { ' ', '·' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+    public List<List<string>> DigitGroups => Numbers.Split(new[] { ' ', '·' }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(n => n.Select(c => c.ToString()).ToList())
+        .ToList();
 }

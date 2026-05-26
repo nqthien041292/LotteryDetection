@@ -7,10 +7,12 @@
 
     <Border WidthRequest="{Binding BallSize, Source={x:Reference this}}" 
             HeightRequest="{Binding BallSize, Source={x:Reference this}}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
             StrokeThickness="0"
             Padding="0">
         <Border.StrokeShape>
-            <shapes:RoundRectangle CornerRadius="{Binding CornerRadius, Source={x:Reference this}}" />
+            <shapes:Ellipse />
         </Border.StrokeShape>
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
