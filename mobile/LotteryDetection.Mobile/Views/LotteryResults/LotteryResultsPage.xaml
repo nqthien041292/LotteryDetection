@@ -49,50 +49,12 @@
         <ScrollView Grid.Row="1" ios:ScrollView.ShouldDelayContentTouches="False">
             <VerticalStackLayout Padding="20,4,20,28" Spacing="16">
 
-                <!-- Lottery Type Segmented Control -->
-                <Border StrokeThickness="0" BackgroundColor="#E9EFE4" Padding="4" HorizontalOptions="Fill">
-                    <Border.StrokeShape>
-                        <shapes:RoundRectangle CornerRadius="16" />
-                    </Border.StrokeShape>
-                    <Grid ColumnDefinitions="*,*">
-                        <!-- Traditional Tab -->
-                        <Border Grid.Column="0" StrokeThickness="0" Padding="12,10" BackgroundColor="{Binding IsTraditionalSelected, Converter={StaticResource BooleanToColorConverter}, ConverterParameter='White|Transparent'}">
-                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                            <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectTraditionalCommand}" /></Border.GestureRecognizers>
-                            <Label Text="Truyền thống" HorizontalOptions="Center" FontFamily="Geist" FontSize="14" FontAttributes="Bold" TextColor="{Binding IsTraditionalSelected, Converter={StaticResource BooleanToColorConverter}, ConverterParameter='#173D2A|#66736A'}" />
-                        </Border>
-                        <!-- Vietlott Tab -->
-                        <Border Grid.Column="1" StrokeThickness="0" Padding="12,10" BackgroundColor="{Binding IsVietlottSelected, Converter={StaticResource BooleanToColorConverter}, ConverterParameter='White|Transparent'}">
-                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                            <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectVietlottCommand}" /></Border.GestureRecognizers>
-                            <Label Text="Vietlott" HorizontalOptions="Center" FontFamily="Geist" FontSize="14" FontAttributes="Bold" TextColor="{Binding IsVietlottSelected, Converter={StaticResource BooleanToColorConverter}, ConverterParameter='#173D2A|#66736A'}" />
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <!-- Vietlott Sub-Tabs (Only visible when Vietlott selected) -->
-                <HorizontalStackLayout IsVisible="{Binding IsVietlottSelected}" Spacing="10" HorizontalOptions="Center" Margin="0,4">
-                    <Border StrokeThickness="0" BackgroundColor="{Binding SelectedVietlottType, Converter={StaticResource EqualityToColorConverter}, ConverterParameter='Max3D|#FF4D8D|#E9EFE4'}" Padding="14,8">
-                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="20" /></Border.StrokeShape>
-                        <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectMax3DCommand}" /></Border.GestureRecognizers>
-                        <Label Text="Max 3D" TextColor="{Binding SelectedVietlottType, Converter={StaticResource EqualityToColorConverter}, ConverterParameter='Max3D|White|#66736A'}" FontFamily="Geist" FontSize="12" FontAttributes="Bold" />
-                    </Border>
-                    <Border StrokeThickness="0" BackgroundColor="{Binding SelectedVietlottType, Converter={StaticResource EqualityToColorConverter}, ConverterParameter='Max3D+|#FF4D8D|#E9EFE4'}" Padding="14,8">
-                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="20" /></Border.StrokeShape>
-                        <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectMax3DPlusCommand}" /></Border.GestureRecognizers>
-                        <Label Text="Max 3D+" TextColor="{Binding SelectedVietlottType, Converter={StaticResource EqualityToColorConverter}, ConverterParameter='Max3D+|White|#66736A'}" FontFamily="Geist" FontSize="12" FontAttributes="Bold" />
-                    </Border>
-                    <Border StrokeThickness="0" BackgroundColor="{Binding SelectedVietlottType, Converter={StaticResource EqualityToColorConverter}, ConverterParameter='Max3DPro|#FF4D8D|#E9EFE4'}" Padding="14,8">
-                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="20" /></Border.StrokeShape>
-                        <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SelectMax3DProCommand}" /></Border.GestureRecognizers>
-                        <Label Text="Max 3D Pro" TextColor="{Binding SelectedVietlottType, Converter={StaticResource EqualityToColorConverter}, ConverterParameter='Max3DPro|White|#66736A'}" FontFamily="Geist" FontSize="12" FontAttributes="Bold" />
-                    </Border>
-                </HorizontalStackLayout>
+                <!-- Removed Segmented Control and Sub-Tabs -->
 
                 <!-- Hero -->
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="{Binding IsVietlottSelected, Converter={StaticResource BooleanToTextConverter}, ConverterParameter='Kết quả Vietlott|Xổ số ba miền'}"
+                        <Label Text="Xổ số ba miền"
                                FontFamily="Geist" FontSize="13"
                                TextColor="#52705A" />
                         <Label Text="{Binding HeroDateLabel}"
@@ -189,6 +151,13 @@
                             Clicked="OnDatePickerClicked"
                             HorizontalOptions="Fill"
                             VerticalOptions="Fill" />
+
+                    <!-- Hidden DatePicker for programmatic access -->
+                    <DatePicker x:Name="ActualDatePicker"
+                                Date="{Binding SelectedDate}"
+                                IsVisible="False"
+                                Opacity="0"
+                                InputTransparent="True" />
                 </Grid>
 
                 <!-- Region Selector Filters (Only for Traditional) -->
@@ -332,25 +301,15 @@
                                                     <shapes:RoundRectangle CornerRadius="12" />
                                                 </Border.StrokeShape>
                                                 <Label Text="{Binding RegionIcon}"
-                                                       IsVisible="{Binding IsVietlott, Converter={StaticResource InvertBooleanConverter}}"
                                                        FontFamily="Geist" FontSize="18" FontAttributes="Bold"
                                                        HorizontalOptions="Center" VerticalOptions="Center"
                                                        TextColor="{Binding AccentTextColor}" />
-                                                <Label Text="🎰"
-                                                       IsVisible="{Binding IsVietlott}"
-                                                       FontSize="20"
-                                                       HorizontalOptions="Center" VerticalOptions="Center" />
                                             </Border>
                                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                                 <Label Text="{Binding ProvinceLabel}"
                                                        FontFamily="Geist" FontSize="17" FontAttributes="Bold"
                                                        TextColor="#142116" />
-                                                <Label IsVisible="{Binding IsVietlott, Converter={StaticResource InvertBooleanConverter}}"
-                                                       Text="{Binding RegionLabel}"
-                                                       FontFamily="Geist" FontSize="11"
-                                                       TextColor="#66736A" />
-                                                <Label IsVisible="{Binding IsVietlott}"
-                                                       Text="{Binding DayOfWeekLabel}"
+                                                <Label Text="{Binding RegionLabel}"
                                                        FontFamily="Geist" FontSize="11"
                                                        TextColor="#66736A" />
                                             </VerticalStackLayout>
@@ -362,72 +321,36 @@
                                                 <Border.StrokeShape>
                                                     <shapes:RoundRectangle CornerRadius="9" />
                                                 </Border.StrokeShape>
-                                                <Label IsVisible="{Binding IsVietlott, Converter={StaticResource InvertBooleanConverter}}"
-                                                       Text="{Binding DrawDateDisplay}"
+                                                <Label Text="{Binding DrawDateDisplay}"
                                                        FontFamily="GeistMono" FontSize="11" FontAttributes="Bold"
                                                        TextColor="#142116" />
-                                                <Label IsVisible="{Binding IsVietlott}"
-                                                       Text="{Binding DrawId}"
-                                                       FontFamily="GeistMono" FontSize="11" FontAttributes="Bold"
-                                                       TextColor="#FF4D8D" />
                                             </Border>
                                         </Grid>
 
-                                        <!-- Traditional Prizes -->
-                                        <VerticalStackLayout IsVisible="{Binding IsVietlott, Converter={StaticResource InvertBooleanConverter}}" Spacing="14">
-                                            <!-- Đặc biệt highlight -->
-                                            <Border StrokeThickness="0"
-                                                    Padding="16"
-                                                    BackgroundColor="{Binding AccentColor}">
-                                                <Border.StrokeShape>
-                                                    <shapes:RoundRectangle CornerRadius="16" />
-                                                </Border.StrokeShape>
-                                                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
-                                                    <Label Text="GIẢI ĐẶC BIỆT"
-                                                           FontFamily="Geist" FontSize="11" FontAttributes="Bold"
-                                                           HorizontalTextAlignment="Center"
-                                                           TextColor="{Binding AccentTextColor}"
-                                                           Opacity="0.7" />
-                                                    <Label Text="{Binding SpecialPrize.Numbers}"
-                                                           FontFamily="GeistMono" FontSize="34" FontAttributes="Bold"
-                                                           LineHeight="1.0"
-                                                           HorizontalTextAlignment="Center"
-                                                           TextColor="{Binding AccentTextColor}" />
-                                                </VerticalStackLayout>
-                                            </Border>
-
-                                            <!-- Secondary prizes -->
-                                            <Border StrokeThickness="0"
-                                                    Padding="14"
-                                                    BackgroundColor="White">
-                                                <Border.StrokeShape>
-                                                    <shapes:RoundRectangle CornerRadius="14" />
-                                                </Border.StrokeShape>
-                                                <VerticalStackLayout Spacing="10"
-                                                                     BindableLayout.ItemsSource="{Binding OtherPrizes}">
+                                        <!-- Unified Prizes (Ball Style) -->
+                                        <VerticalStackLayout Spacing="14">
+                                            <!-- Special Prize -->
+                                            <VerticalStackLayout Spacing="8">
+                                                <Label Text="GIẢI ĐẶC BIỆT"
+                                                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                                       HorizontalTextAlignment="Center"
+                                                       TextColor="{Binding AccentColor}" />
+                                                <FlexLayout BindableLayout.ItemsSource="{Binding SpecialPrize.NumberList}"
+                                                            Wrap="NoWrap"
+                                                            JustifyContent="Center"
+                                                            AlignItems="Center">
                                                     <BindableLayout.ItemTemplate>
-                                                        <DataTemplate x:DataType="lotteryModels:LotteryPrizeTier">
-                                                            <Grid ColumnDefinitions="78,*" ColumnSpacing="12">
-                                                                <Label Grid.Column="0"
-                                                                       Text="{Binding TierLabel}"
-                                                                       FontFamily="Geist" FontSize="12"
-                                                                       VerticalOptions="Center"
-                                                                       TextColor="#66736A" />
-                                                                <Label Grid.Column="1"
-                                                                       Text="{Binding Numbers}"
-                                                                       FontFamily="GeistMono" FontSize="13.5"
-                                                                       FontAttributes="Bold"
-                                                                       VerticalOptions="Center"
-                                                                       TextColor="#142116" />
-                                                            </Grid>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <components:LotteryBallView Text="{Binding .}" 
+                                                                                        BallSize="48" 
+                                                                                        FontSize="22"
+                                                                                        Margin="4,0" />
                                                         </DataTemplate>
                                                     </BindableLayout.ItemTemplate>
-                                                </VerticalStackLayout>
-                                            </Border>
-                                        </VerticalStackLayout>
+                                                </FlexLayout>
+                                            </VerticalStackLayout>
 
-                                        <!-- Vietlott Prizes (Ball Style) -->
-                                        <VerticalStackLayout IsVisible="{Binding IsVietlott}" Spacing="12">
+                                            <!-- Other Prizes -->
                                             <Border StrokeThickness="0"
                                                     Padding="14"
                                                     BackgroundColor="White">
@@ -435,10 +358,10 @@
                                                     <shapes:RoundRectangle CornerRadius="18" />
                                                 </Border.StrokeShape>
                                                 <VerticalStackLayout Spacing="16"
-                                                                     BindableLayout.ItemsSource="{Binding Prizes}">
+                                                                     BindableLayout.ItemsSource="{Binding OtherPrizes}">
                                                     <BindableLayout.ItemTemplate>
                                                         <DataTemplate x:DataType="lotteryModels:LotteryPrizeTier">
-                                                            <VerticalStackLayout Spacing="8">
+                                                            <VerticalStackLayout Spacing="6">
                                                                 <Label Text="{Binding TierLabel}"
                                                                        FontFamily="Geist" FontSize="11" FontAttributes="Bold"
                                                                        TextColor="#66736A" />
@@ -450,9 +373,9 @@
                                                                     <BindableLayout.ItemTemplate>
                                                                         <DataTemplate x:DataType="x:String">
                                                                             <components:LotteryBallView Text="{Binding .}" 
-                                                                                                        BallSize="38" 
-                                                                                                        FontSize="16"
-                                                                                                        Margin="0,0,8,8" />
+                                                                                                        BallSize="34" 
+                                                                                                        FontSize="14"
+                                                                                                        Margin="0,0,6,6" />
                                                                         </DataTemplate>
                                                                     </BindableLayout.ItemTemplate>
                                                                 </FlexLayout>
@@ -461,12 +384,6 @@
                                                     </BindableLayout.ItemTemplate>
                                                 </VerticalStackLayout>
                                             </Border>
-                                            
-                                            <!-- Check ticket subtext -->
-                                            <Label Text="Bạn có vé này? Kiểm tra ngay! ›"
-                                                   FontFamily="Geist" FontSize="12" FontAttributes="Bold"
-                                                   TextColor="#FF4D8D"
-                                                   HorizontalOptions="Center" />
                                         </VerticalStackLayout>
                                         
                                     </VerticalStackLayout>
