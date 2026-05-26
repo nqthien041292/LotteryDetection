@@ -1,13 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:local="clr-namespace:LotteryDetection.Mobile.Views.Components"
              x:Class="LotteryDetection.Mobile.Views.Components.LotteryBallView"
-             x:Name="this"
-             WidthRequest="{Binding BallSize, Source={x:Reference this}}"
-             HeightRequest="{Binding BallSize, Source={x:Reference this}}">
+             x:Name="thisView"
+             WidthRequest="{Binding BallSize, Source={RelativeSource Self}}"
+             HeightRequest="{Binding BallSize, Source={RelativeSource Self}}">
 
-    <Border HorizontalOptions="Fill"
-            VerticalOptions="Fill"
+    <Border WidthRequest="{Binding BallSize, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}" 
+            HeightRequest="{Binding BallSize, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}"
             StrokeThickness="0"
             Padding="0">
         <Border.StrokeShape>
@@ -15,20 +17,20 @@
         </Border.StrokeShape>
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="{Binding StartColor, Source={x:Reference this}}" Offset="0.0" />
-                <GradientStop Color="{Binding EndColor, Source={x:Reference this}}" Offset="1.0" />
+                <GradientStop Color="{Binding StartColor, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}" Offset="0.0" />
+                <GradientStop Color="{Binding EndColor, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}" Offset="1.0" />
             </LinearGradientBrush>
         </Border.Background>
         <Border.Shadow>
-            <Shadow Brush="{Binding ShadowColor, Source={x:Reference this}}" 
+            <Shadow Brush="{Binding ShadowColor, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}" 
                     Radius="4" 
                     Offset="0,2" 
                     Opacity="0.3" />
         </Border.Shadow>
         
-        <Label Text="{Binding Text, Source={x:Reference this}}"
+        <Label Text="{Binding Text, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}"
                TextColor="White"
-               FontSize="{Binding FontSize, Source={x:Reference this}}"
+               FontSize="{Binding FontSize, Source={RelativeSource AncestorType={x:Type local:LotteryBallView}}}"
                FontAttributes="Bold"
                HorizontalOptions="Center"
                VerticalOptions="Center" />

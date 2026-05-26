@@ -367,9 +367,12 @@
                                                     <BindableLayout.ItemTemplate>
                                                         <DataTemplate x:DataType="lotteryModels:LotteryPrizeTier">
                                                             <VerticalStackLayout Spacing="6">
-                                                                <Label Text="{Binding TierLabel}"
-                                                                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
-                                                                       TextColor="#66736A" />
+                                                                <HorizontalStackLayout Spacing="8">
+                                                                    <Label Text="{Binding TierLabel}"
+                                                                           FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                                                           TextColor="#66736A" />
+                                                                    <Label Text="{Binding Numbers}" FontSize="9" TextColor="Red" VerticalOptions="Center" />
+                                                                </HorizontalStackLayout>
                                                                 <StackLayout BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
                                                                     <BindableLayout.ItemTemplate>
                                                                         <DataTemplate>
