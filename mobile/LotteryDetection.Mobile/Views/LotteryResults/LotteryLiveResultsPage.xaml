@@ -5,6 +5,7 @@
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:lotteryModels="clr-namespace:LotteryDetection.Mobile.Models.Lottery"
+             xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
              x:Class="LotteryDetection.Mobile.Views.LotteryResults.LotteryLiveResultsPage"
              x:DataType="viewModel:LotteryLiveResultsViewModel"
              Title="Kết quả trực tiếp"
