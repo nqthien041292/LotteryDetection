@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using LotteryDetection.Mobile.Services;
 using LotteryDetection.Mobile.Services.Api;
 using LotteryDetection.Mobile.Services.Auth;
 using LotteryDetection.Mobile.Services.Configuration;
@@ -174,17 +175,20 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICalendarService>(_ => MockCalendarService.Instance);
         builder.Services.AddSingleton<IHelpTicketService>(_ => MockHelpTicketService.Instance);
         builder.Services.AddSingleton<IFamilyAuditLogService>(_ => MockFamilyAuditLogService.Instance);
+        builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
 
         // Register ViewModels
         builder.Services.AddTransient<SplashViewModel>(sp =>
         {
             var authService = sp.GetRequiredService<IAuthService>();
-            return new SplashViewModel(NavigationService.Default, authService);
+            var pushService = sp.GetRequiredService<IPushNotificationService>();
+            return new SplashViewModel(NavigationService.Default, authService, pushService);
         });
         builder.Services.AddTransient<LoginPageViewModel>(sp =>
         {
             var authService = sp.GetRequiredService<IAuthService>();
-            return new LoginPageViewModel(NavigationService.Default, authService);
+            var pushService = sp.GetRequiredService<IPushNotificationService>();
+            return new LoginPageViewModel(NavigationService.Default, authService, pushService);
         });
         builder.Services.AddTransient<LotteryCaptureViewModel>(sp =>
         {

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="LotteryDetection.Mobile.Views.Components.LotteryBallView"
+             x:Name="this">
+
+    <Border WidthRequest="{Binding BallSize, Source={x:Reference this}}" 
+            HeightRequest="{Binding BallSize, Source={x:Reference this}}"
+            StrokeThickness="0"
+            Padding="0">
+        <Border.StrokeShape>
+            <shapes:RoundRectangle CornerRadius="{Binding CornerRadius, Source={x:Reference this}}" />
+        </Border.StrokeShape>
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="{Binding StartColor, Source={x:Reference this}}" Offset="0.0" />
+                <GradientStop Color="{Binding EndColor, Source={x:Reference this}}" Offset="1.0" />
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border.Shadow>
+            <Shadow Brush="{Binding ShadowColor, Source={x:Reference this}}" 
+                    Radius="4" 
+                    Offset="0,2" 
+                    Opacity="0.3" />
+        </Border.Shadow>
+        
+        <Label Text="{Binding Text, Source={x:Reference this}}"
+               TextColor="White"
+               FontSize="{Binding FontSize, Source={x:Reference this}}"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+    </Border>
+</ContentView>

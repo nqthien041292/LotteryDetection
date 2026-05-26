@@ -20,6 +20,8 @@ public class LotteryResultsViewModel : BaseViewModel
     private bool showBac = true;
     private bool showTrung = true;
     private bool showNam = true;
+    private string selectedLotteryType = "Traditional"; // "Traditional", "Vietlott"
+    private string selectedVietlottType = "Max3D"; // "Max3D", "Max3D+", "Max3DPro"
 
     public LotteryResultsViewModel(ILotteryResultsService resultsService, INavigationService navigationService)
     {
@@ -37,6 +39,11 @@ public class LotteryResultsViewModel : BaseViewModel
         ToggleBacCommand = new Command(ToggleBac);
         ToggleTrungCommand = new Command(ToggleTrung);
         ToggleNamCommand = new Command(ToggleNam);
+        SelectTraditionalCommand = new Command(() => SelectedLotteryType = "Traditional");
+        SelectVietlottCommand = new Command(() => SelectedLotteryType = "Vietlott");
+        SelectMax3DCommand = new Command(() => SelectedVietlottType = "Max3D");
+        SelectMax3DPlusCommand = new Command(() => SelectedVietlottType = "Max3D+");
+        SelectMax3DProCommand = new Command(() => SelectedVietlottType = "Max3DPro");
     }
 
     public ObservableCollection<LotteryRegionDraw> Regions { get; }
@@ -45,6 +52,11 @@ public class LotteryResultsViewModel : BaseViewModel
     public ICommand ToggleBacCommand { get; }
     public ICommand ToggleTrungCommand { get; }
     public ICommand ToggleNamCommand { get; }
+    public ICommand SelectTraditionalCommand { get; }
+    public ICommand SelectVietlottCommand { get; }
+    public ICommand SelectMax3DCommand { get; }
+    public ICommand SelectMax3DPlusCommand { get; }
+    public ICommand SelectMax3DProCommand { get; }
 
     public bool HasRegions => Regions.Count > 0;
     public bool ShowSkeleton => IsBusy && !hasLoaded;
@@ -106,6 +118,35 @@ public class LotteryResultsViewModel : BaseViewModel
             }
         }
     }
+
+    public string SelectedLotteryType
+    {
+        get => selectedLotteryType;
+        set
+        {
+            if (SetProperty(ref selectedLotteryType, value))
+            {
+                ApplyFilter();
+                NotifyPropertyChanged(nameof(IsTraditionalSelected));
+                NotifyPropertyChanged(nameof(IsVietlottSelected));
+            }
+        }
+    }
+
+    public string SelectedVietlottType
+    {
+        get => selectedVietlottType;
+        set
+        {
+            if (SetProperty(ref selectedVietlottType, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
+
+    public bool IsTraditionalSelected => SelectedLotteryType == "Traditional";
+    public bool IsVietlottSelected => SelectedLotteryType == "Vietlott";
 
     // Chip Visual Style Helpers
     public string BacChipBg => ShowBac ? "#16A34A" : "#F1F5F9";
@@ -185,16 +226,62 @@ public class LotteryResultsViewModel : BaseViewModel
     private void ApplyFilter()
     {
         Regions.Clear();
-        foreach (var draw in allDraws)
+        if (IsTraditionalSelected)
         {
-            if (draw.Region == LotteryRegion.Bac && !ShowBac) continue;
-            if (draw.Region == LotteryRegion.Trung && !ShowTrung) continue;
-            if (draw.Region == LotteryRegion.Nam && !ShowNam) continue;
+            foreach (var draw in allDraws.Where(d => !d.IsVietlott))
+            {
+                if (draw.Region == LotteryRegion.Bac && !ShowBac) continue;
+                if (draw.Region == LotteryRegion.Trung && !ShowTrung) continue;
+                if (draw.Region == LotteryRegion.Nam && !ShowNam) continue;
 
-            Regions.Add(draw);
+                Regions.Add(draw);
+            }
+        }
+        else
+        {
+            // Filter Vietlott
+            foreach (var draw in allDraws.Where(d => d.IsVietlott && d.VietlottType == SelectedVietlottType))
+            {
+                Regions.Add(draw);
+            }
+
+            if (Regions.Count == 0)
+            {
+                // Add mock data for demonstration if empty
+                AddMockVietlottData();
+            }
         }
         NotifyPropertyChanged(nameof(HasRegions));
         NotifyPropertyChanged(nameof(ShowEmptyState));
+    }
+
+    private void AddMockVietlottData()
+    {
+        var mockDraw = new LotteryRegionDraw
+        {
+            IsVietlott = true,
+            VietlottType = SelectedVietlottType,
+            DrawId = "#01068",
+            DrawDate = SelectedDate,
+            ProvinceLabel = SelectedVietlottType
+        };
+
+        if (SelectedVietlottType == "Max3D")
+        {
+            mockDraw.Prizes.Add(new LotteryPrizeTier { TierLabel = "Giải Nhất", Numbers = "123 456", IsSpecial = true });
+            mockDraw.Prizes.Add(new LotteryPrizeTier { TierLabel = "Giải Nhì", Numbers = "789 012", IsSpecial = false });
+            mockDraw.Prizes.Add(new LotteryPrizeTier { TierLabel = "Giải Ba", Numbers = "345 678", IsSpecial = false });
+        }
+        else if (SelectedVietlottType == "Max3D+")
+        {
+            mockDraw.Prizes.Add(new LotteryPrizeTier { TierLabel = "Giải Nhất", Numbers = "123 456 · 789 012", IsSpecial = true });
+        }
+        else if (SelectedVietlottType == "Max3DPro")
+        {
+            mockDraw.Prizes.Add(new LotteryPrizeTier { TierLabel = "Giải Đặc Biệt", Numbers = "11 22 33 44 55 66", IsSpecial = true });
+        }
+
+        Regions.Add(mockDraw);
     }
 
     public async Task InitializeAsync(CancellationToken ct = default)

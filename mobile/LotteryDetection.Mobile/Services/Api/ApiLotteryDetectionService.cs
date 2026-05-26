@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,6 +18,7 @@ namespace LotteryDetection.Mobile.Services.Api;
 public class ApiLotteryDetectionService : ILotteryDetectionService
 {
     private const string AnalyzePath = "api/services/app/LotteryAnalysis/AnalyzeTicket";
+    private const string RegisterTokenPath = "api/services/app/DeviceToken/RegisterDeviceToken";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -31,6 +33,36 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
     {
         _http = http;
         _authService = authService;
+    }
+
+    public async Task RegisterDeviceTokenAsync(string token, string deviceType, string deviceName)
+    {
+        if (!_authService.IsSignedIn) return;
+
+        var input = new
+        {
+            token = token,
+            deviceType = deviceType,
+            deviceName = deviceName
+        };
+
+        var json = JsonSerializer.Serialize(input, JsonOptions);
+        var content = new StringContent(json, Encoding.UTF8);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, RegisterTokenPath) { Content = content };
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        var accessToken = await _authService.GetAccessTokenAsync();
+        if (!string.IsNullOrWhiteSpace(accessToken))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        using var response = await _http.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine($"[ApiLotteryDetectionService] Failed to register device token: {error}");
+        }
     }
 
     public async Task<List<LotteryTicketResult>> AnalyzeAsync(string imagePath, CancellationToken ct)

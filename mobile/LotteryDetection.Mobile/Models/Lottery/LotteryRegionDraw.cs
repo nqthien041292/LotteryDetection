@@ -41,6 +41,11 @@ public class LotteryRegionDraw
     public ObservableCollection<LotteryProvinceHeader> Provinces { get; set; } = new();
     public ObservableCollection<LotteryRowDraw> Rows { get; set; } = new();
 
+    public bool IsVietlott { get; set; }
+    public string VietlottType { get; set; } = string.Empty; // "Max3D", "Max3D+", "Max3DPro"
+    public string DrawId { get; set; } = string.Empty; // e.g., "#01068"
+    public string DayOfWeekLabel => DrawDate.ToString("dddd");
+
     public string ColumnDefinitions => string.Join(",", Provinces.Select(_ => "*"));
 
     // For backwards compatibility
@@ -96,4 +101,6 @@ public class LotteryPrizeTier
     public bool IsSpecial { get; set; }
     public bool IsDrawn { get; set; } = true;
     public bool IsNotDrawn => !IsDrawn;
+
+    public List<string> NumberList => Numbers.Split(new[] { ' ', '·' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 }

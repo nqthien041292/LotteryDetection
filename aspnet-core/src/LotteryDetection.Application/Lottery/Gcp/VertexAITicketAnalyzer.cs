@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -185,16 +187,21 @@ public class VertexAITicketAnalyzer : IVertexAITicketAnalyzer, ITransientDepende
             return new System.Collections.Generic.List<VertexAIAnalysisResult>();
         }
 
-        return payload.Tickets.Select(t => new VertexAIAnalysisResult
+        var results = new System.Collections.Generic.List<VertexAIAnalysisResult>();
+        foreach (var t in payload.Tickets)
         {
-            Province = NullIfBlank(t.Province),
-            DrawDate = ParseDate(t.Draw_Date),
-            TicketNumber = NullIfBlank(t.Ticket_Number),
-            DrawType = NullIfBlank(t.Draw_Type),
-            Confidence = t.Confidence.HasValue ? (decimal)Math.Clamp(t.Confidence.Value, 0d, 1d) : (decimal?)null,
-            Notes = NullIfBlank(t.Notes),
-            RawJson = text
-        }).ToList();
+            results.Add(new VertexAIAnalysisResult
+            {
+                Province = NullIfBlank(t.Province),
+                DrawDate = ParseDate(t.Draw_Date),
+                TicketNumber = NullIfBlank(t.Ticket_Number),
+                DrawType = NullIfBlank(t.Draw_Type),
+                Confidence = t.Confidence.HasValue ? (decimal)Math.Clamp(t.Confidence.Value, 0d, 1d) : (decimal?)null,
+                Notes = NullIfBlank(t.Notes),
+                RawJson = text
+            });
+        }
+        return results;
     }
 
     private static DateTime? ParseDate(string raw)

@@ -3,6 +3,7 @@ using LotteryDetection.Mobile.Services.Auth;
 using LotteryDetection.Mobile.Services.Configuration;
 using LotteryDetection.Mobile.Services.Mock;
 using LotteryDetection.Mobile.Services.Navigation;
+using LotteryDetection.Mobile.Services.Interfaces;
 
 namespace LotteryDetection.Mobile.ViewModel;
 
@@ -13,6 +14,7 @@ public class LoginPageViewModel : BaseViewModel
 {
     private readonly IAuthService _authService;
     private readonly INavigationService _navigationService;
+    private readonly IPushNotificationService _pushNotificationService;
     private readonly SemaphoreSlim _sessionCheckLock = new(1, 1);
     private bool _initialSessionChecked;
     private string? _errorMessage;
@@ -20,14 +22,15 @@ public class LoginPageViewModel : BaseViewModel
     private string? _statusMessage;
 
     public LoginPageViewModel()
-        : this(NavigationService.Default, GetAuthService())
+        : this(NavigationService.Default, GetAuthService(), GetPushService())
     {
     }
 
-    public LoginPageViewModel(INavigationService navigationService, IAuthService authService)
+    public LoginPageViewModel(INavigationService navigationService, IAuthService authService, IPushNotificationService pushNotificationService)
     {
         _navigationService = navigationService;
         _authService = authService;
+        _pushNotificationService = pushNotificationService;
         SignInWithMicrosoftCommand = new Command(async () => await SignInWithMicrosoftAsync(), () => IsNotBusy);
     }
 
@@ -87,6 +90,9 @@ public class LoginPageViewModel : BaseViewModel
             // the auth service holds a valid token. Navigate straight to Dashboard.
             if (_authService.IsSignedIn)
             {
+                await _pushNotificationService.InitializeAsync();
+                _ = _pushNotificationService.RegisterTokenAsync();
+                
                 await _navigationService.NavigateToDashboardAsync();
                 return;
             }
@@ -104,6 +110,9 @@ public class LoginPageViewModel : BaseViewModel
 
             if (restored)
             {
+                await _pushNotificationService.InitializeAsync();
+                _ = _pushNotificationService.RegisterTokenAsync();
+                
                 StatusMessage = $"Welcome back, {_authService.UserDisplayName}!";
                 await Task.Delay(500);
                 await _navigationService.NavigateToDashboardAsync();
@@ -156,6 +165,10 @@ public class LoginPageViewModel : BaseViewModel
 
             StatusMessage = $"Welcome, {_authService.UserDisplayName}!";
             await Task.Delay(500);
+
+            await _pushNotificationService.InitializeAsync();
+            _ = _pushNotificationService.RegisterTokenAsync();
+
             await _navigationService.NavigateToDashboardAsync();
         }
         catch (Exception ex)
@@ -187,5 +200,11 @@ public class LoginPageViewModel : BaseViewModel
     {
         var services = IPlatformApplication.Current?.Services;
         return services?.GetService<IAuthService>() ?? MockAuthService.Instance;
+    }
+
+    private static IPushNotificationService GetPushService()
+    {
+        var services = IPlatformApplication.Current?.Services;
+        return services?.GetService<IPushNotificationService>() ?? new Services.PushNotificationService(MockLotteryDetectionService.Instance);
     }
 }

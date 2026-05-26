@@ -29,4 +29,10 @@ public class LotteryDetectionApplicationModule : AbpModule
     {
         IocManager.RegisterAssemblyByConvention(typeof(LotteryDetectionApplicationModule).GetAssembly());
     }
+
+    public override void PostInitialize()
+    {
+        var workManager = IocManager.Resolve<Abp.Threading.BackgroundWorkers.IBackgroundWorkerManager>();
+        workManager.Add(IocManager.Resolve<LotteryDetection.Lottery.Workers.LotteryResultWorker>());
+    }
 }

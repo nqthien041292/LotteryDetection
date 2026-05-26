@@ -51,6 +51,8 @@ public class LotteryDetectionDbContext : AbpZeroDbContext<Tenant, Role, User, Lo
     
     public virtual DbSet<LotteryDrawResult> LotteryDrawResults { get; set; }
     
+    public virtual DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
+    
     /* Define an IDbSet for each entity of the application */
 
     public virtual DbSet<OpenIddictApplication> Applications { get; }

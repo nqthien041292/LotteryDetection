@@ -1,12 +1,18 @@
 using Foundation;
+using Plugin.Firebase;
+using Plugin.Firebase.Core.Platforms.iOS;
 
 namespace LotteryDetection.Mobile;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
 {
-    // Console.Error lands in stderr which simctl captures via os_log. If launch ever
-    // silently dies again, grep simlog.txt for "[FATAL] CreateMauiApp threw".
+    public override bool FinishedLaunching(UIKit.UIApplication application, NSDictionary launchOptions)
+    {
+        // CrossFirebase.Initialize(); // Commented out to prevent crash if GoogleService-Info.plist is missing
+        return base.FinishedLaunching(application, launchOptions);
+    }
+
     protected override MauiApp CreateMauiApp()
     {
         try

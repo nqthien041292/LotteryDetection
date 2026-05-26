@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Abp.AspNetZeroCore;
 using Abp.AspNetZeroCore.Timing;
 using Abp.AutoMapper;
@@ -118,6 +118,7 @@ public class LotteryDetectionCoreModule : AbpModule
 
         Configuration.Notifications.Notifiers.Add<SmsRealTimeNotifier>();
         Configuration.Notifications.Notifiers.Add<EmailRealTimeNotifier>();
+        Configuration.Notifications.Notifiers.Add<FirebaseRealTimeNotifier>();
     }
 
     public override void Initialize()

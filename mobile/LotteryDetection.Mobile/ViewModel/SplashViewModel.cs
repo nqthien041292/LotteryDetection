@@ -1,5 +1,6 @@
 using LotteryDetection.Mobile.Services.Auth;
 using LotteryDetection.Mobile.Services.Mock;
+using LotteryDetection.Mobile.Services.Interfaces;
 using LotteryDetection.Mobile.Services.Navigation;
 
 namespace LotteryDetection.Mobile.ViewModel;
@@ -16,17 +17,19 @@ public class SplashViewModel : BaseViewModel
 
     private readonly IAuthService _authService;
     private readonly INavigationService _navigationService;
+    private readonly IPushNotificationService _pushNotificationService;
     private bool _started;
 
     public SplashViewModel()
-        : this(NavigationService.Default, GetAuthService())
+        : this(NavigationService.Default, GetAuthService(), GetPushService())
     {
     }
 
-    public SplashViewModel(INavigationService navigationService, IAuthService authService)
+    public SplashViewModel(INavigationService navigationService, IAuthService authService, IPushNotificationService pushNotificationService)
     {
         _navigationService = navigationService;
         _authService = authService;
+        _pushNotificationService = pushNotificationService;
     }
 
     public async Task RunStartupAsync()
@@ -80,7 +83,13 @@ public class SplashViewModel : BaseViewModel
             var done = await Task.WhenAny(restoreTask, Task.Delay(Timeout.Infinite, cts.Token));
 
             if (done == restoreTask && await restoreTask && _authService.IsSignedIn)
+            {
+                // Initialize push notifications and register token
+                await _pushNotificationService.InitializeAsync();
+                _ = _pushNotificationService.RegisterTokenAsync(); // Fire and forget
+                
                 return StartupDestination.Dashboard;
+            }
 
             return StartupDestination.Login;
         }
@@ -102,5 +111,11 @@ public class SplashViewModel : BaseViewModel
     {
         var services = IPlatformApplication.Current?.Services;
         return services?.GetService<IAuthService>() ?? MockAuthService.Instance;
+    }
+
+    private static IPushNotificationService GetPushService()
+    {
+        var services = IPlatformApplication.Current?.Services;
+        return services?.GetService<IPushNotificationService>() ?? new Services.PushNotificationService(MockLotteryDetectionService.Instance);
     }
 }

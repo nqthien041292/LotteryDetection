@@ -111,4 +111,9 @@ public class MockLotteryDetectionService : ILotteryDetectionService
 
         return results;
     }
+
+    public async Task RegisterDeviceTokenAsync(string deviceToken, string platform, string? userId)
+    {
+        await Task.Delay(500); // Simulate network
+    }
 }
