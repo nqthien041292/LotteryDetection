@@ -338,7 +338,7 @@
                                                        TextColor="{Binding AccentColor}" />
                                                 <StackLayout BindableLayout.ItemsSource="{Binding SpecialPrize.DigitGroups}" Spacing="10">
                                                     <BindableLayout.ItemTemplate>
-                                                        <DataTemplate x:DataType="x:Collections:IEnumerable">
+                                                        <DataTemplate x:DataType="col:IEnumerable">
                                                             <HorizontalStackLayout BindableLayout.ItemsSource="{Binding .}"
                                                                                  HorizontalOptions="Center"
                                                                                  Spacing="6">
@@ -372,7 +372,7 @@
                                                                        TextColor="#66736A" />
                                                                 <StackLayout BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
                                                                     <BindableLayout.ItemTemplate>
-                                                                        <DataTemplate x:DataType="x:Collections:IEnumerable">
+                                                                        <DataTemplate x:DataType="col:IEnumerable">
                                                                             <FlexLayout BindableLayout.ItemsSource="{Binding .}"
                                                                                         Wrap="Wrap"
                                                                                         JustifyContent="Start"
