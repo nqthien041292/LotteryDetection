@@ -39,48 +39,88 @@ public class NavigationService : INavigationService
 
     public async Task NavigateToNotificationsAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToNotificationsAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(NotificationsPage));
     }
 
     public async Task NavigateToSettingsAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToSettingsAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(SettingsPage));
     }
 
     public async Task NavigateToHelpAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToHelpAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(HelpPage));
     }
 
     public async Task NavigateToLoginWithSocialAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToLoginWithSocialAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
     }
 
     public async Task NavigateToLotteryCaptureAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToLotteryCaptureAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(LotteryCapturePage));
     }
 
     public async Task NavigateToLotteryResultsAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToLotteryResultsAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(LotteryResultsPage));
     }
 
     public async Task NavigateToLotteryHistoryAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToLotteryHistoryAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync(nameof(LotteryHistoryPage));
     }
 
     public async Task NavigateToLotteryLiveResultsAsync()
     {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToLotteryLiveResultsAsync);
+            return;
+        }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync("LotteryLiveResultsPage");
     }
