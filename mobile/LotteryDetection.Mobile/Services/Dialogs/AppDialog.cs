@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Maui.ApplicationModel;
 
 namespace LotteryDetection.Mobile.Services.Dialogs;
 
@@ -16,19 +17,22 @@ public static class AppDialog
         string? message = null,
         string ok = "OK")
     {
-        var host = ResolveHostPage();
-        if (host == null) return;
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var host = ResolveHostPage();
+            if (host == null) return;
 
-        await DialogGate.WaitAsync();
-        try
-        {
-            await host.DisplayAlert(title, message ?? string.Empty, ok);
-            await Task.Delay(300);
-        }
-        finally
-        {
-            DialogGate.Release();
-        }
+            await DialogGate.WaitAsync();
+            try
+            {
+                await host.DisplayAlert(title, message ?? string.Empty, ok);
+                await Task.Delay(300);
+            }
+            finally
+            {
+                DialogGate.Release();
+            }
+        });
     }
 
     public static async Task<bool> ShowConfirmAsync(
@@ -40,20 +44,23 @@ public static class AppDialog
         string? icon = null,
         string? iconBackground = null)
     {
-        var host = ResolveHostPage();
-        if (host == null) return false;
+        return await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var host = ResolveHostPage();
+            if (host == null) return false;
 
-        await DialogGate.WaitAsync();
-        try
-        {
-            var confirmed = await host.DisplayAlert(title, message ?? string.Empty, acceptText, cancelText);
-            await Task.Delay(300);
-            return confirmed;
-        }
-        finally
-        {
-            DialogGate.Release();
-        }
+            await DialogGate.WaitAsync();
+            try
+            {
+                var confirmed = await host.DisplayAlert(title, message ?? string.Empty, acceptText, cancelText);
+                await Task.Delay(300);
+                return confirmed;
+            }
+            finally
+            {
+                DialogGate.Release();
+            }
+        });
     }
 
     public static async Task<string?> ShowPromptAsync(
@@ -65,27 +72,30 @@ public static class AppDialog
         string? placeholder = null,
         int maxLength = 256)
     {
-        var host = ResolveHostPage();
-        if (host == null) return null;
+        return await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var host = ResolveHostPage();
+            if (host == null) return null;
 
-        await DialogGate.WaitAsync();
-        try
-        {
-            var result = await host.DisplayPromptAsync(
-                title,
-                message ?? string.Empty,
-                accept,
-                cancel,
-                placeholder,
-                maxLength,
-                initialValue: initialValue);
-            await Task.Delay(300);
-            return result;
-        }
-        finally
-        {
-            DialogGate.Release();
-        }
+            await DialogGate.WaitAsync();
+            try
+            {
+                var result = await host.DisplayPromptAsync(
+                    title,
+                    message ?? string.Empty,
+                    accept,
+                    cancel,
+                    placeholder,
+                    maxLength,
+                    initialValue: initialValue);
+                await Task.Delay(300);
+                return result;
+            }
+            finally
+            {
+                DialogGate.Release();
+            }
+        });
     }
 
     // Returns the picked option, or null if cancelled.
@@ -94,22 +104,25 @@ public static class AppDialog
         string cancelText,
         params string[] options)
     {
-        var host = ResolveHostPage();
-        if (host == null) return null;
-
-        await DialogGate.WaitAsync();
-        try
+        return await MainThread.InvokeOnMainThreadAsync(async () =>
         {
-            var picked = await host.DisplayActionSheet(title, cancelText, null, options);
-            if (string.IsNullOrEmpty(picked) || picked == cancelText) return null;
+            var host = ResolveHostPage();
+            if (host == null) return null;
 
-            await Task.Delay(250);
-            return picked;
-        }
-        finally
-        {
-            DialogGate.Release();
-        }
+            await DialogGate.WaitAsync();
+            try
+            {
+                var picked = await host.DisplayActionSheet(title, cancelText, null, options);
+                if (string.IsNullOrEmpty(picked) || picked == cancelText) return null;
+
+                await Task.Delay(250);
+                return picked;
+            }
+            finally
+            {
+                DialogGate.Release();
+            }
+        });
     }
 
     private static Page? ResolveHostPage()
