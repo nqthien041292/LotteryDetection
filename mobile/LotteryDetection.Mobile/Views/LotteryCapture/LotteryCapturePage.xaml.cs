@@ -89,7 +89,7 @@ public partial class LotteryCapturePage : ContentPage
         catch (Exception ex)
         {
             // Log but don't crash the app
-            Microsoft.Maui.Controls.Internals.Log.Warning("LotteryCapture", $"TryStartCapturePulse failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[LotteryCapture] TryStartCapturePulse failed: {ex.Message}");
         }
     }
 
@@ -175,7 +175,7 @@ public partial class LotteryCapturePage : ContentPage
         }
         catch (Exception ex)
         {
-            Microsoft.Maui.Controls.Internals.Log.Warning("LotteryCapture", $"Laser Animation failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[LotteryCapture] Laser Animation failed: {ex.Message}");
         }
     }
 
@@ -203,7 +203,7 @@ public partial class LotteryCapturePage : ContentPage
         }
         catch (Exception ex)
         {
-            Microsoft.Maui.Controls.Internals.Log.Warning("LotteryCapture", $"Button Pulse failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[LotteryCapture] Button Pulse failed: {ex.Message}");
         }
     }
 
