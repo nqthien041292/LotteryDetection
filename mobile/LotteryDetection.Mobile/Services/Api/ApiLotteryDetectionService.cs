@@ -186,8 +186,12 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
         }
         catch (JsonException)
         {
+            if (body.Contains("<html", StringComparison.OrdinalIgnoreCase))
+                return "Lỗi hệ thống (Server Error). Vui lòng thử lại sau.";
         }
-        return body.Length > 200 ? body[..200] : body;
+        
+        var plain = body.Trim();
+        return plain.Length > 200 ? plain[..200] : plain;
     }
 
     private static string GuessContentType(string path)
