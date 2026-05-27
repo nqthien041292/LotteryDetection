@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using LotteryDetection.Mobile.Models.Lottery;
+using LotteryDetection.Mobile.Services.Auth;
 using LotteryDetection.Mobile.Services.Dialogs;
 using LotteryDetection.Mobile.Services.Interfaces;
 using LotteryDetection.Mobile.Services.Logging;
@@ -285,6 +286,23 @@ public class LotteryCaptureViewModel : BaseViewModel
                 StatusHint = $"AI đã tìm thấy {tickets.Count} vé. Rất tiếc chưa có vé trúng giải.";
             
             ShowPreviewModal = true;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            RemoteLogService.Instance.Error("LotteryCapture", $"AnalyzeAsync auth failed: {ex.Message}", ex);
+            StatusHint = "Phiên đăng nhập hết hạn. Đang chuyển hướng...";
+            await AppDialog.ShowAlertAsync(title: "Hết hạn phiên đăng nhập", message: "Phiên đăng nhập của bạn đã hết hạn trên hệ thống. Vui lòng đăng nhập lại.");
+            try
+            {
+                var authService = IPlatformApplication.Current?.Services.GetService<IAuthService>();
+                if (authService != null)
+                    await authService.SignOutAsync();
+            }
+            catch (Exception authEx)
+            {
+                RemoteLogService.Instance.Error("LotteryCapture", $"Failed to sign out during auth exception: {authEx.Message}", authEx);
+            }
+            await navigationService.NavigateToLoginWithSocialAsync();
         }
         catch (OperationCanceledException)
         {
