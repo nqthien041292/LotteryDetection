@@ -52,7 +52,13 @@ public sealed class MicrosoftAuthHelper
         {
             // MSAL 4.50+ auto-discovers the parent UIViewController on iOS
             // when running under MAUI, so we don't need WithParentActivityOrWindow.
+#if ANDROID
+            result = await _app.AcquireTokenInteractive(Scopes)
+                .WithParentActivityOrWindow(Microsoft.Maui.ApplicationModel.Platform.CurrentActivity)
+                .ExecuteAsync();
+#else
             result = await _app.AcquireTokenInteractive(Scopes).ExecuteAsync();
+#endif
         }
 
         return new MicrosoftAuthResult

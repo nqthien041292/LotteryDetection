@@ -46,6 +46,7 @@ public partial class AppShell : Shell
     {
         // Only overlay pages whose root content is a Grid (all our ContentPages).
         if (CurrentPage is not ContentPage contentPage) return;
+        if (contentPage is SplashPage) return; // Do not show global loading overlay on the SplashPage
         if (contentPage.Content is not Grid rootGrid) return;
 
         var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;

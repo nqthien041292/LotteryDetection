@@ -8,9 +8,30 @@ public class PermissionService : IPermissionService
 {
     public static IPermissionService Default { get; } = new PermissionService();
 
+    public Task<PermissionStatus> CheckCameraAsync()
+    {
+#if ANDROID
+        return AndroidCameraPermission.CheckAsync();
+#else
+        return MainThread.InvokeOnMainThreadAsync(Permissions.CheckStatusAsync<Permissions.Camera>);
+#endif
+    }
+
+    public async Task<PermissionStatus> RequestCameraAsync()
+    {
+#if ANDROID
+        return await MainThread.InvokeOnMainThreadAsync(AndroidCameraPermission.RequestAsync);
+#else
+        var status = await CheckCameraAsync();
+        if (status == PermissionStatus.Granted)
+            return status;
+
+        return await MainThread.InvokeOnMainThreadAsync(Permissions.RequestAsync<Permissions.Camera>);
+#endif
+    }
+
     public async Task<bool> RequestMicAndCalendarAsync()
     {
-
         var micStatus = await Permissions.RequestAsync<Permissions.Microphone>();
         var micGranted = micStatus == PermissionStatus.Granted;
 

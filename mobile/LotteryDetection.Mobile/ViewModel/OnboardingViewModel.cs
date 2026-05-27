@@ -113,15 +113,34 @@ public class OnboardingViewModel : BaseViewModel
 
     private async Task CompleteOnboardingAsync()
     {
+        var cameraStatus = await permissionService.CheckCameraAsync();
+        if (cameraStatus == PermissionStatus.Granted)
+        {
+            await FinishAndNavigateAsync();
+            return;
+        }
+
         ShowPermissionPopup = true;
     }
 
     private async Task OnAllowPermissionsAsync()
     {
+        if (IsBusy) return;
+
+        IsBusy = true;
+        var cameraStatus = PermissionStatus.Unknown;
+
+        try
+        {
+            cameraStatus = await permissionService.RequestCameraAsync();
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
         ShowPermissionPopup = false;
-        var cameraGranted = await Permissions.RequestAsync<Permissions.Camera>();
-        MicrophoneEnabled = cameraGranted == PermissionStatus.Granted;
-        CalendarEnabled = true;
+        MicrophoneEnabled = cameraStatus == PermissionStatus.Granted;
 
         await FinishAndNavigateAsync();
     }

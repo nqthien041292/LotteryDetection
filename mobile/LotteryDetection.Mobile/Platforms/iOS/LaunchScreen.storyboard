@@ -15,23 +15,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brand-mark">
-                                <rect key="frame" x="156.5" y="354" width="80" height="80"/>
-                                <color key="backgroundColor" red="0.11764705882352941" green="0.35686274509803922" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="brand-mark">
+                                <rect key="frame" x="136.5" y="334" width="120" height="120"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="80" id="brand-width"/>
-                                    <constraint firstAttribute="height" constant="80" id="brand-height"/>
+                                    <constraint firstAttribute="width" constant="120" id="brand-width"/>
+                                    <constraint firstAttribute="height" constant="120" id="brand-height"/>
                                 </constraints>
-                            </view>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="DoVeSo AI" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="brand-label">
                                 <rect key="frame" x="125" y="456" width="143" height="38"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="32"/>
-                                <color key="textColor" red="0.09019607843137255" green="0.12549019607843137" blue="0.2" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" red="0.011764705882352941" green="0.08627450980392157" blue="0.28627450980392155" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="launch-safe-area"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.9803921568627451" green="0.984313725490196" blue="0.9647058823529412" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="brand-mark" firstAttribute="centerX" secondItem="launch-root-view" secondAttribute="centerX" id="brand-center-x"/>
                             <constraint firstItem="brand-mark" firstAttribute="centerY" secondItem="launch-root-view" secondAttribute="centerY" constant="-36" id="brand-center-y"/>
