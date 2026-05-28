@@ -41,7 +41,7 @@ public class NavigationService : INavigationService
             return;
         }
         if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync($"//{nameof(LotteryCapturePage)}");
+        await Shell.Current.GoToAsync(nameof(LotteryCapturePage));
     }
 
     public async Task NavigateToLotteryResultsAsync()

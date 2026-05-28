@@ -408,14 +408,9 @@
                                         </Border>
 
                                         <!-- Prize banner -->
-                                        <Border Padding="18" StrokeThickness="0">
+                                        <Border Padding="18" StrokeThickness="0"
+                                                BackgroundColor="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='#F5C842|#E5E8E5'}">
                                             <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='#E7F6DE|#F1F3F0'}" Offset="0.0" />
-                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='#F5C842|#E5E8E5'}" Offset="1.0" />
-                                                </LinearGradientBrush>
-                                            </Border.Background>
                                             <VerticalStackLayout Spacing="6">
                                                 <Label Text="{Binding ResultHeadline}"
                                                        FontFamily="Geist" FontSize="18" FontAttributes="Bold"
