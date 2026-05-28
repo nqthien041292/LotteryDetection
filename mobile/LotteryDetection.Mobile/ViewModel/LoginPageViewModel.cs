@@ -93,7 +93,7 @@ public class LoginPageViewModel : BaseViewModel
                 await _pushNotificationService.InitializeAsync();
                 _ = _pushNotificationService.RegisterTokenAsync();
                 
-                await _navigationService.NavigateToLotteryCaptureAsync();
+                await _navigationService.NavigateToDashboardAsync();
                 return;
             }
 
@@ -115,7 +115,7 @@ public class LoginPageViewModel : BaseViewModel
                 
                 StatusMessage = $"Welcome back, {_authService.UserDisplayName}!";
                 await Task.Delay(500);
-                await _navigationService.NavigateToLotteryCaptureAsync();
+                await _navigationService.NavigateToDashboardAsync();
             }
             else
             {

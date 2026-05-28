@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using LotteryDetection.Mobile.Views.Dashboard;
 using LotteryDetection.Mobile.Views.Forms;
 using LotteryDetection.Mobile.Views.LotteryCapture;
 using LotteryDetection.Mobile.Views.LotteryHistory;
@@ -19,6 +20,17 @@ public class NavigationService : INavigationService
         }
         if (Shell.Current == null) return;
         await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
+    }
+
+    public async Task NavigateToDashboardAsync()
+    {
+        if (!MainThread.IsMainThread)
+        {
+            await MainThread.InvokeOnMainThreadAsync(NavigateToDashboardAsync);
+            return;
+        }
+        if (Shell.Current == null) return;
+        await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}");
     }
 
     public async Task NavigateToLotteryCaptureAsync()
@@ -83,7 +95,7 @@ public class NavigationService : INavigationService
                 }
                 catch
                 {
-                    await Shell.Current.GoToAsync($"//{nameof(LotteryCapturePage)}");
+                    await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}");
                 }
             }
         }

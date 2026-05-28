@@ -4,7 +4,7 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:onboarding="clr-namespace:LotteryDetection.Mobile.Views.OnBoarding"
        xmlns:forms="clr-namespace:LotteryDetection.Mobile.Views.Forms"
-       xmlns:capture="clr-namespace:LotteryDetection.Mobile.Views.LotteryCapture"
+       xmlns:dashboard="clr-namespace:LotteryDetection.Mobile.Views.Dashboard"
        x:Class="LotteryDetection.Mobile.AppShell"
        Shell.FlyoutBehavior="Disabled"
        Shell.NavBarIsVisible="False"
@@ -25,6 +25,6 @@
         Route="LoginPage"
         ContentTemplate="{DataTemplate forms:LoginPage}" />
     <ShellContent
-        Route="LotteryCapturePage"
-        ContentTemplate="{DataTemplate capture:LotteryCapturePage}" />
+        Route="DashboardPage"
+        ContentTemplate="{DataTemplate dashboard:DashboardPage}" />
 </Shell>

@@ -54,8 +54,8 @@ public class SplashViewModel : BaseViewModel
                     await MainThread.InvokeOnMainThreadAsync(() =>
                         Shell.Current.GoToAsync("//onboarding"));
                     break;
-                case StartupDestination.LotteryCapture:
-                    await _navigationService.NavigateToLotteryCaptureAsync();
+                case StartupDestination.Dashboard:
+                    await _navigationService.NavigateToDashboardAsync();
                     break;
                 default:
                     await _navigationService.NavigateToLoginWithSocialAsync();
@@ -88,7 +88,7 @@ public class SplashViewModel : BaseViewModel
                 await _pushNotificationService.InitializeAsync();
                 _ = _pushNotificationService.RegisterTokenAsync(); // Fire and forget
                 
-                return StartupDestination.LotteryCapture;
+                return StartupDestination.Dashboard;
             }
 
             return StartupDestination.Login;
@@ -104,7 +104,7 @@ public class SplashViewModel : BaseViewModel
     {
         Onboarding,
         Login,
-        LotteryCapture
+        Dashboard
     }
 
     private static IAuthService GetAuthService()

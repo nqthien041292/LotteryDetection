@@ -1,3 +1,4 @@
+using LotteryDetection.Mobile.Views.Dashboard;
 using LotteryDetection.Mobile.Views.Forms;
 using LotteryDetection.Mobile.Views.LotteryCapture;
 using LotteryDetection.Mobile.Views.LotteryHistory;
@@ -112,6 +113,7 @@ public partial class AppShell : Shell
     {
         Routing.RegisterRoute(nameof(SplashPage), typeof(SplashPage));
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
+        Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(LotteryCapturePage), typeof(LotteryCapturePage));
         Routing.RegisterRoute(nameof(LotteryResultsPage), typeof(LotteryResultsPage));
         Routing.RegisterRoute(nameof(LotteryLiveResultsPage), typeof(LotteryLiveResultsPage));
