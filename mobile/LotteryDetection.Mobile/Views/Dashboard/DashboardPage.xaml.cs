@@ -39,9 +39,6 @@ public partial class DashboardPage : ContentPage
         PredictionCard.Opacity = 0;
         PredictionCard.TranslationY = 25;
 
-        TasksCard.Opacity = 0;
-        TasksCard.TranslationY = 25;
-
         ProcessCard.Opacity = 0;
         ProcessCard.TranslationY = 25;
 
@@ -82,9 +79,6 @@ public partial class DashboardPage : ContentPage
         _ = PredictionCard.TranslateTo(0, 0, 350, Easing.CubicOut);
 
         await Task.Delay(80);
-
-        _ = TasksCard.FadeTo(1, 350, Easing.CubicOut);
-        _ = TasksCard.TranslateTo(0, 0, 350, Easing.CubicOut);
 
         // Kích hoạt vòng lặp chuyển động liên tục của Kim nguyên bảo và Rương kho báu
         _ = StartSecondaryIconsAnimationLoop();

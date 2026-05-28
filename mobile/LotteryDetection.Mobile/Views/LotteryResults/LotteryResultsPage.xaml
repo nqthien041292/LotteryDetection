@@ -446,7 +446,7 @@
                        FontFamily="Geist" FontSize="11"
                        LineHeight="1.4"
                        TextColor="#8A958D"
-                       Margin="4,2,4,80" />
+                       Margin="4,2,4,24" />
 
             </VerticalStackLayout>
         </ScrollView>

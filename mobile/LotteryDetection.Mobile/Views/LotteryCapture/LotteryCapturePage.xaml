@@ -65,7 +65,7 @@
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="Chụp Ảnh Vé Số " />
-                                <Span Text="&#10;Thần Tài " TextColor="#00bb77" />
+                                <Span Text="Thần Tài " TextColor="#00bb77" />
                                 <Span Text="Dò Giúp Bạn! 🔮" />
                             </FormattedString>
                         </Label.FormattedText>
