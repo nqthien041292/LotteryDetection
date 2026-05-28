@@ -30,24 +30,49 @@
                                LineHeight="1.1"
                                TextColor="#031649" />
                     </VerticalStackLayout>
-                    <VerticalStackLayout x:Name="HeaderAvatarBorder" Grid.Column="1" Spacing="4" HorizontalOptions="End" VerticalOptions="Center">
-                        <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0"
-                                BackgroundColor="#E5E7EB" HorizontalOptions="End">
-                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="22" /></Border.StrokeShape>
-                            <shapes:Path Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                                         Fill="#6B7280"
-                                         WidthRequest="24" HeightRequest="24"
-                                         HorizontalOptions="Center" VerticalOptions="Center"
-                                         Aspect="Uniform" />
-                        </Border>
+                    <!-- Right header chip: name + avatar laid out horizontally so the name
+                         sits inline with the "DÒ VÉ SỐ TỰ ĐỘNG" eyebrow on the left
+                         instead of stacking under the avatar (which previously left a
+                         visible whitespace gap beneath "Gõ Cửa Thần Tài"). -->
+                    <HorizontalStackLayout x:Name="HeaderAvatarBorder" Grid.Column="1" Spacing="10" HorizontalOptions="End" VerticalOptions="Start" Margin="0,1,0,0">
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenSettingsCommand}" />
+                        </HorizontalStackLayout.GestureRecognizers>
                         <Label Text="{Binding UserDisplayName}"
-                               FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                               FontFamily="Geist" FontSize="12.5" FontAttributes="Bold"
                                TextColor="#031649"
-                               HorizontalOptions="End"
-                               MaxLines="1"
-                               LineBreakMode="TailTruncation"
-                               MaximumWidthRequest="120" />
-                    </VerticalStackLayout>
+                               VerticalOptions="Center"
+                               MaxLines="1" LineBreakMode="TailTruncation"
+                               MaximumWidthRequest="150" />
+                        <Grid WidthRequest="38" HeightRequest="38">
+                            <Border WidthRequest="38" HeightRequest="38"
+                                    StrokeThickness="1" Stroke="#E5E7EB"
+                                    BackgroundColor="White">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="19" /></Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#031649" Offset="0,2" Radius="8" Opacity="0.08" />
+                                </Border.Shadow>
+                                <Grid>
+                                    <shapes:Path IsVisible="{Binding HasNoCustomAvatar}"
+                                                 Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                                                 Fill="#6B7280"
+                                                 WidthRequest="22" HeightRequest="22"
+                                                 HorizontalOptions="Center" VerticalOptions="Center"
+                                                 Aspect="Uniform" />
+                                    <Image IsVisible="{Binding HasCustomAvatar}"
+                                           Source="{Binding AvatarSource}"
+                                           Aspect="AspectFill"
+                                           WidthRequest="36" HeightRequest="36"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                            <Border WidthRequest="10" HeightRequest="10"
+                                    StrokeThickness="2" Stroke="White" BackgroundColor="#00bb77"
+                                    HorizontalOptions="End" VerticalOptions="End">
+                                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                            </Border>
+                        </Grid>
+                    </HorizontalStackLayout>
                 </Grid>
 
                 <!-- Main Scan Ticket Card with Brand Colors and Mascot -->

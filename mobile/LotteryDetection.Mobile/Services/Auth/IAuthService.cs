@@ -65,4 +65,11 @@ public interface IAuthService
     ///     <c>"Microsoft:external"</c>.
     /// </summary>
     Task SetDisplayNameAsync(string displayName);
+
+    /// <summary>
+    ///     POST the image bytes as the signed-in user's profile picture.
+    ///     The backend stores it as an ABP BinaryObject and links it to
+    ///     <c>User.ProfilePictureId</c>.
+    /// </summary>
+    Task UploadProfilePictureAsync(byte[] imageBytes, string contentType);
 }

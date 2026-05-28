@@ -29,6 +29,7 @@ public partial class LotteryCapturePage : ContentPage
         {
             vm = viewModel;
             vm.PropertyChanged += OnViewModelPropertyChanged;
+            vm.RefreshAvatar();
             await vm.InitializeAsync();
             
             // Khởi chạy vòng lặp thở của khung chụp ảnh

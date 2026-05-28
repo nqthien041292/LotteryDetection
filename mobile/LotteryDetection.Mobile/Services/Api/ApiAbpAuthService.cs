@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -72,6 +73,34 @@ public class ApiAbpAuthService : IAuthService
             throw new OperationCanceledException("Người dùng huỷ đăng nhập.");
 
         return await SignInWithCredentialsAsync(username, password);
+    }
+
+    public async Task UploadProfilePictureAsync(byte[] imageBytes, string contentType)
+    {
+        if (imageBytes == null || imageBytes.Length == 0)
+            throw new ArgumentException("imageBytes is empty.", nameof(imageBytes));
+
+        var token = await GetAccessTokenAsync();
+
+        using var content = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent(imageBytes);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(
+            string.IsNullOrWhiteSpace(contentType) ? "image/jpeg" : contentType);
+        content.Add(fileContent, "file", "profile.jpg");
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "Profile/UploadProfilePicture")
+        {
+            Content = content
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        using var response = await _http.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                ExtractError(body) ?? $"HTTP {(int)response.StatusCode}");
+        }
     }
 
     public async Task SetDisplayNameAsync(string displayName)

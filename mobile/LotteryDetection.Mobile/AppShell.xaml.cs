@@ -3,6 +3,7 @@ using LotteryDetection.Mobile.Views.Forms;
 using LotteryDetection.Mobile.Views.LotteryCapture;
 using LotteryDetection.Mobile.Views.LotteryHistory;
 using LotteryDetection.Mobile.Views.LotteryResults;
+using LotteryDetection.Mobile.Views.Settings;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace LotteryDetection.Mobile;
@@ -117,5 +118,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(LotteryCapturePage), typeof(LotteryCapturePage));
         Routing.RegisterRoute(nameof(LotteryResultsPage), typeof(LotteryResultsPage));
         Routing.RegisterRoute(nameof(LotteryHistoryPage), typeof(LotteryHistoryPage));
+        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
     }
 }

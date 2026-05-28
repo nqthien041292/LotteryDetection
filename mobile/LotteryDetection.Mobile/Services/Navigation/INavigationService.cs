@@ -7,5 +7,6 @@ public interface INavigationService
     Task NavigateToLotteryCaptureAsync();
     Task NavigateToLotteryResultsAsync();
     Task NavigateToLotteryHistoryAsync();
+    Task NavigateToSettingsAsync();
     Task NavigateBackAsync();
 }

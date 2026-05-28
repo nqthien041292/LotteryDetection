@@ -34,6 +34,33 @@ public class LotteryCaptureViewModel : BaseViewModel
         RetakeCommand = new Command(Reset);
         ConfirmCommand = new Command(async () => await ConfirmAsync(), () => HasResults);
         RequestCameraPermissionCommand = new Command(async () => await RefreshCameraPermissionAsync(true));
+        OpenSettingsCommand = new Command(async () => await navigationService.NavigateToSettingsAsync());
+    }
+
+    public ICommand OpenSettingsCommand { get; }
+
+    // Mirror of the avatar-from-Preferences pattern used by DashboardViewModel
+    // so the right-side header chip swaps the lucky-cat mascot for the user's
+    // profile photo once they upload one in Settings.
+    public string? AvatarImagePath
+    {
+        get
+        {
+            var path = Preferences.Get(SettingsViewModel.PrefAvatarPathKey, null as string);
+            return !string.IsNullOrEmpty(path) && System.IO.File.Exists(path) ? path : null;
+        }
+    }
+    public bool HasCustomAvatar => !string.IsNullOrEmpty(AvatarImagePath);
+    public bool HasNoCustomAvatar => !HasCustomAvatar;
+    public ImageSource? AvatarSource =>
+        HasCustomAvatar ? ImageSource.FromFile(AvatarImagePath!) : null;
+
+    public void RefreshAvatar()
+    {
+        NotifyPropertyChanged(nameof(AvatarImagePath));
+        NotifyPropertyChanged(nameof(AvatarSource));
+        NotifyPropertyChanged(nameof(HasCustomAvatar));
+        NotifyPropertyChanged(nameof(HasNoCustomAvatar));
     }
 
     public bool IsCapturing

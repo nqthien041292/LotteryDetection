@@ -17,6 +17,8 @@ public sealed class MockAuthService : IAuthService
 
     public Task SetDisplayNameAsync(string displayName) => Task.CompletedTask;
 
+    public Task UploadProfilePictureAsync(byte[] imageBytes, string contentType) => Task.CompletedTask;
+
     public Task<string> GetAccessTokenAsync() => Task.FromResult("mock-access-token");
 
     public Task SignOutAsync() => Task.CompletedTask;

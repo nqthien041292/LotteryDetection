@@ -22,11 +22,13 @@ public class DashboardViewModel : BaseViewModel
         OpenLotteryCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
         OpenLotteryHistoryCommand = new Command(async () => await navigationService.NavigateToLotteryHistoryAsync());
         OpenLotteryResultsCommand = new Command(async () => await navigationService.NavigateToLotteryResultsAsync());
+        OpenSettingsCommand = new Command(async () => await navigationService.NavigateToSettingsAsync());
     }
 
     public ICommand OpenLotteryCaptureCommand { get; }
     public ICommand OpenLotteryHistoryCommand { get; }
     public ICommand OpenLotteryResultsCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
 
     // Read live from IAuthService each time so the silent MSAL refresh kicked
     // off by the splash (which may finish *after* the page was first bound) is
@@ -36,7 +38,28 @@ public class DashboardViewModel : BaseViewModel
             ? authService!.UserDisplayName!
             : "Khách";
 
-    public void RefreshUserDisplayName() => NotifyPropertyChanged(nameof(UserDisplayName));
+    public string? AvatarImagePath
+    {
+        get
+        {
+            var path = Preferences.Get(SettingsViewModel.PrefAvatarPathKey, null as string);
+            return !string.IsNullOrEmpty(path) && System.IO.File.Exists(path) ? path : null;
+        }
+    }
+
+    public bool HasCustomAvatar => !string.IsNullOrEmpty(AvatarImagePath);
+    public bool HasNoCustomAvatar => !HasCustomAvatar;
+    public ImageSource? AvatarSource =>
+        HasCustomAvatar ? ImageSource.FromFile(AvatarImagePath!) : null;
+
+    public void RefreshUserDisplayName()
+    {
+        NotifyPropertyChanged(nameof(UserDisplayName));
+        NotifyPropertyChanged(nameof(AvatarImagePath));
+        NotifyPropertyChanged(nameof(AvatarSource));
+        NotifyPropertyChanged(nameof(HasCustomAvatar));
+        NotifyPropertyChanged(nameof(HasNoCustomAvatar));
+    }
 
     private static IAuthService? ResolveAuthService()
         => IPlatformApplication.Current?.Services.GetService<IAuthService>();

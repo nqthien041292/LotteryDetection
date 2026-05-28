@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Identity.Client;
 
 namespace LotteryDetection.Mobile.Services.Auth;
@@ -98,9 +99,9 @@ public sealed class MicrosoftAuthHelper
             var bytes = Convert.FromBase64String(payload);
             using var doc = JsonDocument.Parse(bytes);
             if (doc.RootElement.TryGetProperty("name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String)
-                return nameEl.GetString();
+                return Sanitize(nameEl.GetString());
             if (doc.RootElement.TryGetProperty("preferred_username", out var upnEl) && upnEl.ValueKind == JsonValueKind.String)
-                return upnEl.GetString();
+                return Sanitize(upnEl.GetString());
         }
         catch
         {
@@ -108,6 +109,15 @@ public sealed class MicrosoftAuthHelper
         }
         return null;
     }
+
+    /// <summary>
+    /// Collapses any run of whitespace (including \n, \r, \t and non-breaking
+    /// spaces some IdPs sneak into the `name` claim) down to a single space
+    /// and trims. Stops the Settings header from rendering the user name on
+    /// two lines.
+    /// </summary>
+    private static string? Sanitize(string? raw)
+        => string.IsNullOrWhiteSpace(raw) ? null : Regex.Replace(raw, @"\s+", " ").Trim();
 
     /// <summary>
     /// Silent-only token acquisition for cases where we want to refresh the
