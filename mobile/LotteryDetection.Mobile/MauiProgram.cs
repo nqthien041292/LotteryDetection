@@ -127,8 +127,6 @@ public static class MauiProgram
         });
 #endif
 
-        builder.Services.AddSingleton<IAIService>(_ => MockAIService.Instance);
-
         // When `Api.BaseUrl` is configured in appsettings, talk to the real backend
         // (LotteryDetection.Web.Host). Auth flips together with the lottery services
         // so the bearer token they attach is actually accepted by ABP.
@@ -164,17 +162,6 @@ public static class MauiProgram
             builder.Services.AddSingleton<ILotteryHistoryService>(_ => MockLotteryHistoryService.Instance);
             builder.Services.AddSingleton<ILotteryResultsService>(_ => MockLotteryResultsService.Instance);
         }
-        builder.Services.AddSingleton<IDashboardRealtimeService>(_ => MockDashboardRealtimeService.Instance);
-        builder.Services.AddSingleton<ITaskService>(_ => MockTaskService.Instance);
-        builder.Services.AddSingleton<INotificationService>(_ => MockNotificationService.Instance);
-        builder.Services.AddSingleton<IGamificationService>(_ => MockGamificationService.Instance);
-        builder.Services.AddSingleton<IRewardService>(_ => MockRewardService.Instance);
-        builder.Services.AddSingleton<IFamilyService>(_ => MockFamilyService.Instance);
-        builder.Services.AddSingleton<IFamilyMemberCache>(_ => MockFamilyMemberCache.Instance);
-        builder.Services.AddSingleton<IProfileService>(_ => MockProfileService.Instance);
-        builder.Services.AddSingleton<ICalendarService>(_ => MockCalendarService.Instance);
-        builder.Services.AddSingleton<IHelpTicketService>(_ => MockHelpTicketService.Instance);
-        builder.Services.AddSingleton<IFamilyAuditLogService>(_ => MockFamilyAuditLogService.Instance);
         builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
 
         // Register ViewModels

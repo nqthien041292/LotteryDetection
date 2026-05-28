@@ -154,6 +154,6 @@ public class OnboardingViewModel : BaseViewModel
     private async Task FinishAndNavigateAsync()
     {
         Preferences.Set("OnboardingCompleted", true);
-        await navigationService.NavigateToDashboardAsync();
+        await navigationService.NavigateToLotteryCaptureAsync();
     }
 }

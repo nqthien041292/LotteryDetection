@@ -4,13 +4,13 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:onboarding="clr-namespace:LotteryDetection.Mobile.Views.OnBoarding"
        xmlns:forms="clr-namespace:LotteryDetection.Mobile.Views.Forms"
-       xmlns:dashboard="clr-namespace:LotteryDetection.Mobile.Views.Dashboard"
+       xmlns:capture="clr-namespace:LotteryDetection.Mobile.Views.LotteryCapture"
        x:Class="LotteryDetection.Mobile.AppShell"
        Shell.FlyoutBehavior="Disabled"
        Shell.NavBarIsVisible="False"
-       Shell.BackgroundColor="#F4F8FE" 
-       Shell.ForegroundColor="#1E5BFF" 
-       Shell.TitleColor="#172033" 
+       Shell.BackgroundColor="#F4F8FE"
+       Shell.ForegroundColor="#1E5BFF"
+       Shell.TitleColor="#172033"
        Shell.UnselectedColor="#9CA3AF"
        Shell.TabBarBackgroundColor="#FFFFFF"
        Shell.TabBarTitleColor="#1E5BFF"
@@ -25,6 +25,6 @@
         Route="LoginPage"
         ContentTemplate="{DataTemplate forms:LoginPage}" />
     <ShellContent
-        Route="DashboardPage"
-        ContentTemplate="{DataTemplate dashboard:DashboardPage}" />
+        Route="LotteryCapturePage"
+        ContentTemplate="{DataTemplate capture:LotteryCapturePage}" />
 </Shell>

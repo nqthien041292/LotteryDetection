@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using LotteryDetection.Mobile.Views.Dashboard;
-using LotteryDetection.Mobile.Views.Family;
 using LotteryDetection.Mobile.Views.Forms;
 using LotteryDetection.Mobile.Views.LotteryCapture;
 using LotteryDetection.Mobile.Views.LotteryHistory;
@@ -11,64 +9,6 @@ namespace LotteryDetection.Mobile.Services.Navigation;
 public class NavigationService : INavigationService
 {
     public static INavigationService Default { get; } = new NavigationService();
-
-    public async Task NavigateToDashboardAsync()
-    {
-        if (!MainThread.IsMainThread)
-        {
-            await MainThread.InvokeOnMainThreadAsync(NavigateToDashboardAsync);
-            return;
-        }
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}");
-    }
-
-    public Task NavigateToRootTabAsync(string? tabKey)
-    {
-        if (string.IsNullOrWhiteSpace(tabKey))
-            return Task.CompletedTask;
-
-        return tabKey.ToLowerInvariant() switch
-        {
-            "home" => NavigateToDashboardAsync(),
-            "mic" => NavigateToRootAsync(nameof(LotteryCapturePage)),
-            "settings" => NavigateToRootAsync(nameof(SettingsPage)),
-            _ => Task.CompletedTask
-        };
-    }
-
-    public async Task NavigateToNotificationsAsync()
-    {
-        if (!MainThread.IsMainThread)
-        {
-            await MainThread.InvokeOnMainThreadAsync(NavigateToNotificationsAsync);
-            return;
-        }
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(NotificationsPage));
-    }
-
-    public async Task NavigateToSettingsAsync()
-    {
-        if (!MainThread.IsMainThread)
-        {
-            await MainThread.InvokeOnMainThreadAsync(NavigateToSettingsAsync);
-            return;
-        }
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(SettingsPage));
-    }
-
-    public async Task NavigateToHelpAsync()
-    {
-        if (!MainThread.IsMainThread)
-        {
-            await MainThread.InvokeOnMainThreadAsync(NavigateToHelpAsync);
-            return;
-        }
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(HelpPage));
-    }
 
     public async Task NavigateToLoginWithSocialAsync()
     {
@@ -89,7 +29,7 @@ public class NavigationService : INavigationService
             return;
         }
         if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(LotteryCapturePage));
+        await Shell.Current.GoToAsync($"//{nameof(LotteryCapturePage)}");
     }
 
     public async Task NavigateToLotteryResultsAsync()
@@ -122,13 +62,7 @@ public class NavigationService : INavigationService
             return;
         }
         if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync("LotteryLiveResultsPage");
-    }
-
-    private async Task NavigateToRootAsync(string route)
-    {
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}/{route}");
+        await Shell.Current.GoToAsync(nameof(LotteryLiveResultsPage));
     }
 
     public async Task NavigateBackAsync()
@@ -137,8 +71,6 @@ public class NavigationService : INavigationService
 
         async Task DoNavigateBack()
         {
-            // PopAsync directly manipulates the navigation stack and reliably returns
-            // to the page that opened the current child route.
             try
             {
                 await Shell.Current.Navigation.PopAsync();
@@ -151,7 +83,7 @@ public class NavigationService : INavigationService
                 }
                 catch
                 {
-                    await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}");
+                    await Shell.Current.GoToAsync($"//{nameof(LotteryCapturePage)}");
                 }
             }
         }
