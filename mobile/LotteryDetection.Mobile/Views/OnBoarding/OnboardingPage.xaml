@@ -70,7 +70,7 @@
                         <!-- Floating Tech Elements -->
                         <Border HorizontalOptions="Start" VerticalOptions="Start" Margin="14,14,0,0" Padding="8,4" BackgroundColor="#22C55E" StrokeThickness="0">
                             <Border.StrokeShape><shapes:RoundRectangle CornerRadius="8" /></Border.StrokeShape>
-                            <Label Text="AI SCAN" FontSize="10" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="QUÉT AI" FontSize="10" FontAttributes="Bold" TextColor="White" />
                         </Border>
                     </Grid>
                 </Border>
@@ -256,7 +256,7 @@
                            FontAttributes="Bold"
                            HorizontalTextAlignment="Center"
                            TextColor="#0F172A" />
-                    <Label Text="DoVeSo AI cần quyền truy cập camera để chụp ảnh và tự động nhận diện vé số một cách chính xác nhất."
+                    <Label Text="DòVéSố AI cần quyền truy cập camera để chụp ảnh và tự động nhận diện vé số một cách chính xác nhất."
                            FontFamily="Geist"
                            FontSize="14"
                            LineHeight="1.45"

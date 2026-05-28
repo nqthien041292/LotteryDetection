@@ -20,7 +20,6 @@ public class LotteryResultsViewModel : BaseViewModel
     private bool showBac = true;
     private bool showTrung = true;
     private bool showNam = true;
-    private string selectedLotteryType = "Traditional";
 
     public LotteryResultsViewModel(ILotteryResultsService resultsService, INavigationService navigationService)
     {
@@ -30,15 +29,19 @@ public class LotteryResultsViewModel : BaseViewModel
         OpenCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
         OpenLiveResultsCommand = new Command(async () => await navigationService.NavigateToLotteryLiveResultsAsync());
 
-        // Load local preferences
+        // Load local preferences; if a previous build persisted all-three-off
+        // (no longer reachable via UI), recover by enabling all regions.
         showBac = Microsoft.Maui.Storage.Preferences.Get("ShowRegionBac", true);
         showTrung = Microsoft.Maui.Storage.Preferences.Get("ShowRegionTrung", true);
         showNam = Microsoft.Maui.Storage.Preferences.Get("ShowRegionNam", true);
+        if (!showBac && !showTrung && !showNam)
+        {
+            showBac = showTrung = showNam = true;
+        }
 
         ToggleBacCommand = new Command(ToggleBac);
         ToggleTrungCommand = new Command(ToggleTrung);
         ToggleNamCommand = new Command(ToggleNam);
-        SelectTraditionalCommand = new Command(() => SelectedLotteryType = "Traditional");
     }
 
     public ObservableCollection<LotteryRegionDraw> Regions { get; }
@@ -47,7 +50,6 @@ public class LotteryResultsViewModel : BaseViewModel
     public ICommand ToggleBacCommand { get; }
     public ICommand ToggleTrungCommand { get; }
     public ICommand ToggleNamCommand { get; }
-    public ICommand SelectTraditionalCommand { get; }
 
     public bool HasRegions => Regions.Count > 0;
     public bool ShowSkeleton => IsBusy && !hasLoaded;
@@ -110,15 +112,6 @@ public class LotteryResultsViewModel : BaseViewModel
         }
     }
 
-    public string SelectedLotteryType
-    {
-        get => selectedLotteryType;
-        set => SetProperty(ref selectedLotteryType, value);
-    }
-
-    public bool IsTraditionalSelected => true;
-    public bool IsVietlottSelected => false;
-
     // Chip Visual Style Helpers
     public string BacChipBg => ShowBac ? "#16A34A" : "#F1F5F9";
     public string BacChipText => ShowBac ? "#FFFFFF" : "#94A3B8";
@@ -156,9 +149,26 @@ public class LotteryResultsViewModel : BaseViewModel
         }
     }
 
-    private void ToggleBac() => ShowBac = !ShowBac;
-    private void ToggleTrung() => ShowTrung = !ShowTrung;
-    private void ToggleNam() => ShowNam = !ShowNam;
+    // Refuse to toggle off the last enabled region so the page never lands in the
+    // "no region selected" empty state — users would otherwise tap a chip expecting
+    // to focus that region and accidentally hide all results.
+    private void ToggleBac()
+    {
+        if (ShowBac && !ShowTrung && !ShowNam) return;
+        ShowBac = !ShowBac;
+    }
+
+    private void ToggleTrung()
+    {
+        if (ShowTrung && !ShowBac && !ShowNam) return;
+        ShowTrung = !ShowTrung;
+    }
+
+    private void ToggleNam()
+    {
+        if (ShowNam && !ShowBac && !ShowTrung) return;
+        ShowNam = !ShowNam;
+    }
 
     // Live Button Dynamic Styles
     public string LiveButtonStartColor => IsAnyActiveRegionLive ? "#FF4D4D" : "#64748B";

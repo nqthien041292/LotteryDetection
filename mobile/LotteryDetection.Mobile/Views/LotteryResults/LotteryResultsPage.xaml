@@ -49,7 +49,7 @@
 
         <!-- Body -->
         <ScrollView Grid.Row="1" ios:ScrollView.ShouldDelayContentTouches="False">
-            <VerticalStackLayout Padding="20,4,20,28" Spacing="16">
+            <VerticalStackLayout Padding="20,4,20,28" Spacing="12">
 
                 <!-- Removed Segmented Control and Sub-Tabs -->
 
@@ -120,7 +120,7 @@
                 </Grid>
 
                 <!-- Date Selection Area (Isolated Trigger Strategy) -->
-                <Grid Margin="0,10" HeightRequest="75">
+                <Grid>
                     <VerticalStackLayout Spacing="6" InputTransparent="True">
                         <Label Text="Chọn ngày xem kết quả"
                                FontFamily="Geist" FontSize="13" FontAttributes="Bold"
@@ -162,8 +162,8 @@
                                 InputTransparent="True" />
                 </Grid>
 
-                <!-- Region Selector Filters (Only for Traditional) -->
-                <VerticalStackLayout IsVisible="{Binding IsTraditionalSelected}" Spacing="8" Margin="0,4,0,4">
+                <!-- Region Selector Filters -->
+                <VerticalStackLayout Spacing="8">
                     <Label Text="Bộ lọc miền:"
                            FontFamily="Geist" FontSize="11" FontAttributes="Bold"
                            TextColor="#66736A"

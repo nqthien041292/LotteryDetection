@@ -22,12 +22,18 @@
                    HorizontalOptions="Center" />
 
             <VerticalStackLayout Spacing="6">
-                <Label Text="DoVeSo AI"
-                       FontFamily="Geist"
+                <Label FontFamily="Geist"
                        FontSize="30"
                        FontAttributes="Bold"
                        HorizontalTextAlignment="Center"
-                       TextColor="#142116" />
+                       TextColor="#031649">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="DòVéSố " />
+                            <Span Text="AI" TextColor="#00bb77" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
                 <Label Text="Chụp ảnh và tự động dò vé số"
                        FontFamily="Geist"
                        FontSize="14"

@@ -10,7 +10,7 @@
              x:DataType="viewModel:LoginPageViewModel"
              Shell.NavBarIsVisible="False"
              ios:Page.UseSafeArea="True"
-             BackgroundColor="{AppThemeBinding Light=White, Dark={DynamicResource FamilyCreamDark}}">
+             BackgroundColor="#FAFBF6">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -35,14 +35,14 @@
                    HorizontalOptions="Center"
                    Margin="0,0,0,28" />
 
-            <!-- Title with gradient "AI" -->
+            <!-- Title with brand "AI" highlight -->
             <Label HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    FontFamily="Geist" FontSize="36" FontAttributes="Bold"
                    CharacterSpacing="-0.025"
                    LineHeight="1"
                    Margin="0,0,0,14"
-                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                   TextColor="#031649">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="DòVéSố " />
@@ -57,19 +57,19 @@
                    HorizontalTextAlignment="Center"
                    FontFamily="Geist" FontSize="15" LineHeight="1.45"
                    MaximumWidthRequest="320"
-                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                   TextColor="#66736A"
                    Margin="0,0,0,28" />
 
             <!-- Microsoft sign-in button -->
             <Border StrokeThickness="1"
-                    Stroke="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
-                    BackgroundColor="{AppThemeBinding Light={DynamicResource FamilyCreamLight}, Dark={DynamicResource FamilyPaperDark}}"
+                    Stroke="#E2E8F0"
+                    BackgroundColor="White"
                     HeightRequest="56"
                     Padding="0"
                     HorizontalOptions="Fill">
                 <Border.StrokeShape><shapes:RoundRectangle CornerRadius="14" /></Border.StrokeShape>
                 <Border.Shadow>
-                    <Shadow Brush="#1E5BFF" Offset="0,2" Radius="6" Opacity="0.06" />
+                    <Shadow Brush="#031649" Offset="0,2" Radius="6" Opacity="0.06" />
                 </Border.Shadow>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SignInWithMicrosoftCommand}" />
@@ -91,12 +91,12 @@
                     <ActivityIndicator Grid.Column="0"
                                        IsRunning="{Binding IsBusy}"
                                        IsVisible="{Binding IsBusy}"
-                                       Color="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}"
+                                       Color="#031649"
                                        HeightRequest="18" WidthRequest="18" />
                     <Label Grid.Column="1"
                            FontFamily="Geist" FontSize="15" FontAttributes="Bold"
                            VerticalOptions="Center"
-                           TextColor="{AppThemeBinding Light={DynamicResource FamilyInkLight}, Dark={DynamicResource FamilyInkDark}}">
+                           TextColor="#031649">
                         <Label.Triggers>
                             <DataTrigger TargetType="Label" Binding="{Binding IsBusy}" Value="True">
                                 <Setter Property="Text" Value="Đang đăng nhập…" />
@@ -109,39 +109,16 @@
                 </Grid>
             </Border>
 
-            <!-- "OR" divider -->
-            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,20,0,16">
-                <BoxView Grid.Column="0" HeightRequest="1"
-                         Color="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
-                         VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="OR"
-                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
-                       CharacterSpacing="0.06"
-                       TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}"
-                       VerticalOptions="Center" />
-                <BoxView Grid.Column="2" HeightRequest="1"
-                         Color="{AppThemeBinding Light={DynamicResource FamilyCream3Light}, Dark={DynamicResource FamilyCream3Dark}}"
-                         VerticalOptions="Center" />
-            </Grid>
-
-            <Button Text="Sử dụng email thay thế"
-                    HeightRequest="48"
-                    CornerRadius="14"
-                    BackgroundColor="Transparent"
-                    BorderWidth="0"
-                    FontFamily="Geist" FontSize="15" FontAttributes="Bold"
-                    TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
-
             <!-- Status / error -->
             <Label Text="{Binding StatusMessage}"
                    FontFamily="Geist" FontSize="13"
                    HorizontalOptions="Center"
-                   TextColor="{AppThemeBinding Light={DynamicResource FamilyInk3Light}, Dark={DynamicResource FamilyInk3Dark}}"
+                   TextColor="#66736A"
                    IsVisible="{Binding HasStatus}" Margin="0,12,0,0" />
             <Label Text="{Binding ErrorMessage}"
                    FontFamily="Geist" FontSize="13"
                    HorizontalOptions="Center"
-                   TextColor="{AppThemeBinding Light={DynamicResource FamilyDangerLight}, Dark={DynamicResource FamilyDangerDark}}"
+                   TextColor="#DC2626"
                    IsVisible="{Binding HasError}" Margin="0,8,0,0" />
         </VerticalStackLayout>
 
@@ -151,17 +128,17 @@
                HorizontalOptions="Center"
                HorizontalTextAlignment="Center"
                FontFamily="Geist" FontSize="11.5" LineHeight="1.4"
-               TextColor="{AppThemeBinding Light={DynamicResource FamilyInk4Light}, Dark={DynamicResource FamilyInk4Dark}}">
+               TextColor="#8A958D">
             <Label.FormattedText>
                 <FormattedString>
                     <Span Text="Bằng cách tiếp tục, bạn đồng ý với " />
                     <Span Text="Điều khoản"
                           TextDecorations="Underline"
-                          TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                          TextColor="#031649" />
                     <Span Text=" và " />
                     <Span Text="Chính sách bảo mật"
                           TextDecorations="Underline"
-                          TextColor="{AppThemeBinding Light={DynamicResource FamilyInk2Light}, Dark={DynamicResource FamilyInk2Dark}}" />
+                          TextColor="#031649" />
                     <Span Text=" của chúng tôi." />
                 </FormattedString>
             </Label.FormattedText>
