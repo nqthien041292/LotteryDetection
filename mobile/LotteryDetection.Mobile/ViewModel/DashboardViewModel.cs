@@ -19,7 +19,7 @@ public class DashboardViewModel : BaseViewModel
 
         OpenLotteryCaptureCommand = new Command(async () => await navigationService.NavigateToLotteryCaptureAsync());
         OpenLotteryHistoryCommand = new Command(async () => await navigationService.NavigateToLotteryHistoryAsync());
-        OpenLotteryResultsCommand = new Command(async () => await navigationService.NavigateToLotteryLiveResultsAsync());
+        OpenLotteryResultsCommand = new Command(async () => await navigationService.NavigateToLotteryResultsAsync());
         ShowFeatureUnderDevelopmentCommand = new Command(async () => await AppDialog.ShowAlertAsync(
             title: "Sắp ra mắt",
             message: "Tính năng này đang được phát triển. Vui lòng quay lại sau."));

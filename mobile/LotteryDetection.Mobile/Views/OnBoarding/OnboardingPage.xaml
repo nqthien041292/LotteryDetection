@@ -4,6 +4,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:LotteryDetection.Mobile.ViewModel"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             ios:Page.UseSafeArea="True"
              x:Class="LotteryDetection.Mobile.Views.OnBoarding.OnboardingPage"
              x:DataType="viewModel:OnboardingViewModel"
              Shell.NavBarIsVisible="False"
@@ -15,7 +17,7 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- Header Actions -->
-        <Grid Grid.Row="0" Padding="20,44,20,0" ColumnDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" Padding="20,8,20,0" ColumnDefinitions="Auto,*,Auto">
             <Button Text="‹"
                     FontSize="28"
                     WidthRequest="42"

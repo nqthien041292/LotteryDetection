@@ -3,15 +3,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             ios:Page.UseSafeArea="True"
              x:Class="LotteryDetection.Mobile.Views.Dashboard.DashboardPage"
              NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
              Padding="0"
-                           BackgroundColor="#FAFBF6">
+             BackgroundColor="#FAFBF6">
 
     <Grid RowDefinitions="*,Auto">
         <ScrollView Grid.Row="0">
-            <VerticalStackLayout Padding="20,44,20,24" Spacing="18">
+            <VerticalStackLayout Padding="20,8,20,24" Spacing="18">
                 <!-- Top Header Row with Waving Lucky Cat Avatar -->
                 <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Margin="0,0,0,4">
                     <VerticalStackLayout x:Name="HeaderTitleStack" Spacing="2">
