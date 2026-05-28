@@ -33,7 +33,7 @@ public interface IAuthService
     ///     provider (Microsoft <c>oid</c> / Google <c>sub</c>); ABP cross-checks
     ///     it against the provider's userinfo endpoint.
     /// </summary>
-    Task<string> SignInExternalAsync(string provider, string providerKey, string providerAccessCode);
+    Task<string> SignInExternalAsync(string provider, string providerKey, string providerAccessCode, string? displayName = null);
 
     /// <summary>
     ///     Get access token. Uses silent auth (cached/refreshed token).
@@ -57,4 +57,12 @@ public interface IAuthService
     ///     Returns true if session restored, false otherwise.
     /// </summary>
     Task<bool> TryRestoreSessionAsync();
+
+    /// <summary>
+    ///     Overwrite the cached <see cref="UserDisplayName" /> (and persist).
+    ///     Used after a silent MSAL refresh to recover the real user name when
+    ///     the session was originally persisted with a placeholder like
+    ///     <c>"Microsoft:external"</c>.
+    /// </summary>
+    Task SetDisplayNameAsync(string displayName);
 }

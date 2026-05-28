@@ -74,7 +74,21 @@ public class ApiAbpAuthService : IAuthService
         return await SignInWithCredentialsAsync(username, password);
     }
 
-    public async Task<string> SignInExternalAsync(string provider, string providerKey, string providerAccessCode)
+    public async Task SetDisplayNameAsync(string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName)) return;
+        _userName = displayName;
+        try
+        {
+            await SecureStorage.SetAsync(KeyUserName, displayName);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ApiAbpAuthService] SetDisplayNameAsync persist failed: {ex.Message}");
+        }
+    }
+
+    public async Task<string> SignInExternalAsync(string provider, string providerKey, string providerAccessCode, string? displayName = null)
     {
         if (string.IsNullOrWhiteSpace(provider))
             throw new ArgumentException("provider is required.", nameof(provider));
@@ -98,7 +112,10 @@ public class ApiAbpAuthService : IAuthService
         var auth = ParseAuthEnvelope(body)
                    ?? throw new InvalidOperationException("Phản hồi đăng nhập rỗng.");
 
-        await PersistAsync(auth, $"{provider}:external");
+        var persistedName = !string.IsNullOrWhiteSpace(displayName)
+            ? displayName
+            : $"{provider}:external";
+        await PersistAsync(auth, persistedName);
         return _accessToken!;
     }
 

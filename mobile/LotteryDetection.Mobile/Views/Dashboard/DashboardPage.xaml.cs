@@ -20,6 +20,11 @@ public partial class DashboardPage : ContentPage
         base.OnAppearing();
         _isPageActive = true;
 
+        // The splash kicks off a best-effort silent MSAL refresh that may
+        // complete after this page was first bound — re-read the user name on
+        // every appearance so it eventually picks up the real value.
+        (BindingContext as DashboardViewModel)?.RefreshUserDisplayName();
+
         // 1. Đưa các phần tử về trạng thái ẩn và dịch chuyển xuống dưới để tạo hiệu ứng staggered entrance
         HeaderTitleStack.Opacity = 0;
         HeaderTitleStack.TranslationY = -15;

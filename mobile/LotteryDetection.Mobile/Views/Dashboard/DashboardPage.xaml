@@ -14,7 +14,7 @@
     <Grid RowDefinitions="*,Auto">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="20,8,20,24" Spacing="18">
-                <!-- Top Header Row with Waving Lucky Cat Avatar -->
+                <!-- Top Header Row with User Avatar + Name -->
                 <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Margin="0,0,0,4">
                     <VerticalStackLayout x:Name="HeaderTitleStack" Spacing="2">
                         <Label Text="DÒ VÉ SỐ TỰ ĐỘNG"
@@ -30,10 +30,24 @@
                                LineHeight="1.1"
                                TextColor="#031649" />
                     </VerticalStackLayout>
-                    <Border x:Name="HeaderAvatarBorder" Grid.Column="1" WidthRequest="52" HeightRequest="52" StrokeThickness="1.5" Stroke="#00bb77" BackgroundColor="White">
-                        <Border.StrokeShape><shapes:RoundRectangle CornerRadius="26" /></Border.StrokeShape>
-                        <Image Source="lucky_mascot.png" Aspect="AspectFill" Margin="2" />
-                    </Border>
+                    <VerticalStackLayout x:Name="HeaderAvatarBorder" Grid.Column="1" Spacing="4" HorizontalOptions="End" VerticalOptions="Center">
+                        <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0"
+                                BackgroundColor="#E5E7EB" HorizontalOptions="End">
+                            <Border.StrokeShape><shapes:RoundRectangle CornerRadius="22" /></Border.StrokeShape>
+                            <shapes:Path Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                                         Fill="#6B7280"
+                                         WidthRequest="24" HeightRequest="24"
+                                         HorizontalOptions="Center" VerticalOptions="Center"
+                                         Aspect="Uniform" />
+                        </Border>
+                        <Label Text="{Binding UserDisplayName}"
+                               FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                               TextColor="#031649"
+                               HorizontalOptions="End"
+                               MaxLines="1"
+                               LineBreakMode="TailTruncation"
+                               MaximumWidthRequest="120" />
+                    </VerticalStackLayout>
                 </Grid>
 
                 <!-- Main Scan Ticket Card with Brand Colors and Mascot -->

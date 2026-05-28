@@ -84,10 +84,17 @@ public class SplashViewModel : BaseViewModel
 
             if (done == restoreTask && await restoreTask && _authService.IsSignedIn)
             {
+                // Best-effort: refresh the user's display name from MSAL silently
+                // so the Dashboard header shows the real name (e.g. "Nguyen Quang
+                // Thien") instead of a stale placeholder like "Microsoft:external"
+                // persisted by an older build. Fire-and-forget — the splash never
+                // waits on this, and any failure is non-fatal.
+                _ = RefreshMicrosoftDisplayNameAsync();
+
                 // Initialize push notifications and register token
                 await _pushNotificationService.InitializeAsync();
                 _ = _pushNotificationService.RegisterTokenAsync(); // Fire and forget
-                
+
                 return StartupDestination.Dashboard;
             }
 
@@ -97,6 +104,26 @@ public class SplashViewModel : BaseViewModel
         {
             Console.WriteLine($"[Splash] Startup resolve failed: {ex.Message}");
             return StartupDestination.Login;
+        }
+    }
+
+    private async Task RefreshMicrosoftDisplayNameAsync()
+    {
+        try
+        {
+            var (clientId, tenantId) = Services.Configuration.AppConfiguration.GetMicrosoftClient();
+            if (string.IsNullOrWhiteSpace(clientId)) return;
+
+            var msal = new MicrosoftAuthHelper(clientId, tenantId ?? "common");
+            var result = await msal.TryGetSilentResultAsync();
+            if (!string.IsNullOrWhiteSpace(result?.DisplayName))
+            {
+                await _authService.SetDisplayNameAsync(result!.DisplayName!);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Splash] Display-name refresh skipped: {ex.Message}");
         }
     }
 
