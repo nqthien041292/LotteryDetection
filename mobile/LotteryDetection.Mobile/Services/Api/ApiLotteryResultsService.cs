@@ -611,8 +611,12 @@ public class ApiLotteryResultsService : ILotteryResultsService
 
             if (dto.Prizes != null)
             {
-                if (dto.Prizes.TryGetValue(config.Label, out nums) || dto.Prizes.TryGetValue(apiKey, out nums))
+                var match = dto.Prizes.FirstOrDefault(kv =>
+                    string.Equals(kv.Key, config.Label, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(kv.Key, apiKey, StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(match.Key))
                 {
+                    nums = match.Value;
                     hasPrize = nums != null && nums.Count > 0;
                 }
             }

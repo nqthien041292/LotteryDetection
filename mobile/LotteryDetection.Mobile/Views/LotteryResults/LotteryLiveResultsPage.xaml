@@ -8,33 +8,34 @@
              xmlns:components="clr-namespace:LotteryDetection.Mobile.Views.Components"
              xmlns:col="clr-namespace:System.Collections;assembly=netstandard"
              xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             ios:Page.UseSafeArea="True"
              x:Class="LotteryDetection.Mobile.Views.LotteryResults.LotteryLiveResultsPage"
              x:DataType="viewModel:LotteryLiveResultsViewModel"
              Title="Kết quả trực tiếp"
              NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#F6F8F2">
+             BackgroundColor="#FAFBF6">
 
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- Top bar -->
         <Grid Grid.Row="0"
-              Padding="20,42,20,12"
+              Padding="20,8,20,12"
               ColumnDefinitions="Auto,*,Auto">
             <Button Grid.Column="0"
                     Text="‹"
                     FontSize="28"
-                    WidthRequest="42" HeightRequest="42"
+                    WidthRequest="44" HeightRequest="44"
                     Padding="0" CornerRadius="14"
                     BackgroundColor="#E9EFE4"
-                    TextColor="#173D2A"
+                    TextColor="#031649"
                     Clicked="OnBackClicked" />
             <Label Grid.Column="1"
                    Text="Kết quả trực tiếp"
                    HorizontalOptions="Center" VerticalOptions="Center"
                    FontFamily="Geist" FontSize="18" FontAttributes="Bold"
-                   TextColor="#142116" />
-            <BoxView Grid.Column="2" WidthRequest="42" HeightRequest="42" BackgroundColor="Transparent" />
+                   TextColor="#031649" />
+            <BoxView Grid.Column="2" WidthRequest="44" HeightRequest="44" BackgroundColor="Transparent" />
         </Grid>
 
         <!-- Body -->
@@ -214,25 +215,28 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="lotteryModels:LotteryRegionDraw">
                             <Border StrokeThickness="1"
-                                    Stroke="{Binding CardStrokeColor}"
-                                    BackgroundColor="{Binding CardTintColor}"
+                                    Stroke="#E2E8F0"
+                                    BackgroundColor="White"
                                     Padding="0">
                                 <Border.StrokeShape>
-                                    <shapes:RoundRectangle CornerRadius="22" />
+                                    <shapes:RoundRectangle CornerRadius="18" />
                                 </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#0F172A" Offset="0,8" Radius="18" Opacity="0.08" />
+                                </Border.Shadow>
 
-                                <Grid RowDefinitions="6,Auto">
+                                <Grid RowDefinitions="4,Auto">
 
                                     <!-- Top color stripe -->
                                     <BoxView Grid.Row="0"
                                              Color="{Binding AccentColor}" />
 
-                                    <VerticalStackLayout Grid.Row="1" Padding="18" Spacing="14">
+                                    <VerticalStackLayout Grid.Row="1" Padding="16" Spacing="14">
 
                                         <!-- Header row -->
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                             <Border Grid.Column="0"
-                                                    WidthRequest="36" HeightRequest="36"
+                                                    WidthRequest="40" HeightRequest="40"
                                                     StrokeThickness="0"
                                                     BackgroundColor="{Binding AccentColor}"
                                                     VerticalOptions="Center">
@@ -240,119 +244,154 @@
                                                     <shapes:RoundRectangle CornerRadius="12" />
                                                 </Border.StrokeShape>
                                                 <Label Text="{Binding RegionIcon}"
-                                                       FontFamily="Geist" FontSize="18" FontAttributes="Bold"
+                                                       FontFamily="Geist" FontSize="20" FontAttributes="Bold"
                                                        HorizontalOptions="Center" VerticalOptions="Center"
                                                        TextColor="{Binding AccentTextColor}" />
                                             </Border>
                                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                                 <Label Text="{Binding ProvinceLabel}"
-                                                       FontFamily="Geist" FontSize="17" FontAttributes="Bold"
+                                                       FontFamily="Geist" FontSize="19" FontAttributes="Bold"
                                                        TextColor="#142116" />
                                                 <Label Text="{Binding RegionLabel}"
-                                                       FontFamily="Geist" FontSize="11"
+                                                       FontFamily="Geist" FontSize="12"
                                                        TextColor="#66736A" />
                                             </VerticalStackLayout>
                                             <Border Grid.Column="2"
-                                                    StrokeThickness="0"
-                                                    Padding="9,5"
-                                                    BackgroundColor="White"
+                                                    StrokeThickness="1"
+                                                    Stroke="#E2E8F0"
+                                                    Padding="10,6"
+                                                    BackgroundColor="#F8FAFC"
                                                     VerticalOptions="Center">
                                                 <Border.StrokeShape>
-                                                    <shapes:RoundRectangle CornerRadius="9" />
+                                                    <shapes:RoundRectangle CornerRadius="10" />
                                                 </Border.StrokeShape>
                                                 <Label Text="{Binding DrawDateDisplay}"
                                                        FontFamily="GeistMono" FontSize="11" FontAttributes="Bold"
-                                                       TextColor="#142116" />
+                                                       TextColor="#334155" />
                                             </Border>
                                         </Grid>
 
-                                        <!-- Unified Prizes (Ball Style) -->
-                                        <VerticalStackLayout Spacing="14">
+                                        <!-- Unified Prizes -->
+                                        <VerticalStackLayout Spacing="12">
                                             <!-- Special Prize -->
-                                            <VerticalStackLayout Spacing="8">
-                                                <Label Text="GIẢI ĐẶC BIỆT"
-                                                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
-                                                       HorizontalTextAlignment="Center"
-                                                       TextColor="{Binding AccentColor}" />
-                                                
-                                                <!-- If Drawn -->
-                                                <StackLayout IsVisible="{Binding SpecialPrize.IsDrawn}"
-                                                                     BindableLayout.ItemsSource="{Binding SpecialPrize.DigitGroups}" Spacing="10">
-                                                    <BindableLayout.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding .}"
-                                                                                 HorizontalOptions="Center"
-                                                                                 Spacing="6">
-                                                                <BindableLayout.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <components:LotteryBallView Text="{Binding .}" 
-                                                                                                    BallSize="42" 
-                                                                                                    FontSize="19" />
-                                                                    </DataTemplate>
-                                                                </BindableLayout.ItemTemplate>
-                                                            </HorizontalStackLayout>
-                                                        </DataTemplate>
-                                                    </BindableLayout.ItemTemplate>
-                                                </StackLayout>
+                                            <Border StrokeThickness="1"
+                                                    Stroke="#F8D77A"
+                                                    BackgroundColor="#FFF8DB"
+                                                    Padding="16,14">
+                                                <Border.StrokeShape>
+                                                    <shapes:RoundRectangle CornerRadius="16" />
+                                                </Border.StrokeShape>
+                                                <VerticalStackLayout Spacing="5">
+                                                    <Label Text="GIẢI ĐẶC BIỆT"
+                                                           FontFamily="Geist" FontSize="11" FontAttributes="Bold"
+                                                           CharacterSpacing="0.8"
+                                                           HorizontalTextAlignment="Center"
+                                                           TextColor="#92400E" />
+                                                    
+                                                    <!-- If Drawn -->
+                                                    <FlexLayout IsVisible="{Binding HasSpecialPrize}"
+                                                                BindableLayout.ItemsSource="{Binding SpecialNumberSegments}"
+                                                                Wrap="Wrap"
+                                                                JustifyContent="Center"
+                                                                AlignItems="Center">
+                                                        <BindableLayout.ItemTemplate>
+                                                            <DataTemplate x:DataType="lotteryModels:LotteryNumberDisplayPart">
+                                                                <HorizontalStackLayout Spacing="0" Margin="0,0,10,0">
+                                                                    <Label Text="{Binding Prefix}"
+                                                                           FontFamily="GeistMono"
+                                                                           FontSize="40"
+                                                                           FontAttributes="Bold"
+                                                                           CharacterSpacing="1.2"
+                                                                           TextColor="#334155" />
+                                                                    <Label Text="{Binding Suffix}"
+                                                                           FontFamily="GeistMono"
+                                                                           FontSize="40"
+                                                                           FontAttributes="Bold"
+                                                                           CharacterSpacing="1.2"
+                                                                           TextColor="#DC2626" />
+                                                                    <Label Text="{Binding Separator}"
+                                                                           FontFamily="GeistMono"
+                                                                           FontSize="28"
+                                                                           FontAttributes="Bold"
+                                                                           Margin="8,5,0,0"
+                                                                           TextColor="#CBD5E1" />
+                                                                </HorizontalStackLayout>
+                                                            </DataTemplate>
+                                                        </BindableLayout.ItemTemplate>
+                                                    </FlexLayout>
 
-                                                <!-- If Not Drawn (Loading) -->
-                                                <HorizontalStackLayout IsVisible="{Binding SpecialPrize.IsNotDrawn}"
-                                                                       Spacing="8" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,4,0,0">
-                                                    <ActivityIndicator IsRunning="True" Color="{Binding AccentColor}" WidthRequest="20" HeightRequest="20" />
-                                                    <Label Text="Đang quay..." FontFamily="Geist" FontSize="15" FontAttributes="Italic" TextColor="{Binding AccentColor}" VerticalOptions="Center" />
-                                                </HorizontalStackLayout>
-                                            </VerticalStackLayout>
+                                                    <!-- If Not Drawn (Loading) -->
+                                                    <HorizontalStackLayout IsVisible="{Binding IsSpecialPrizeNotDrawn}"
+                                                                           Spacing="8" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,4,0,0">
+                                                        <ActivityIndicator IsRunning="True" Color="#B45309" WidthRequest="20" HeightRequest="20" />
+                                                        <Label Text="Đang quay..." FontFamily="Geist" FontSize="15" FontAttributes="Italic" TextColor="#92400E" VerticalOptions="Center" />
+                                                    </HorizontalStackLayout>
+                                                </VerticalStackLayout>
+                                            </Border>
 
                                             <!-- Other Prizes -->
-                                            <Border StrokeThickness="0"
-                                                    Padding="14"
-                                                    BackgroundColor="White">
-                                                <Border.StrokeShape>
-                                                    <shapes:RoundRectangle CornerRadius="18" />
-                                                </Border.StrokeShape>
-                                                <VerticalStackLayout Spacing="16"
-                                                                     BindableLayout.ItemsSource="{Binding OtherPrizes}">
-                                                    <BindableLayout.ItemTemplate>
-                                                        <DataTemplate x:DataType="lotteryModels:LotteryPrizeTier">
-                                                            <VerticalStackLayout Spacing="6">
+                                            <VerticalStackLayout Spacing="8"
+                                                                 BindableLayout.ItemsSource="{Binding OtherPrizes}">
+                                                <BindableLayout.ItemTemplate>
+                                                    <DataTemplate x:DataType="lotteryModels:LotteryPrizeTier">
+                                                        <Border StrokeThickness="1"
+                                                                Stroke="#EEF2F7"
+                                                                BackgroundColor="#FBFCFE"
+                                                                Padding="12,10">
+                                                            <Border.StrokeShape>
+                                                                <shapes:RoundRectangle CornerRadius="12" />
+                                                            </Border.StrokeShape>
+                                                            <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
                                                                 <Label Text="{Binding TierLabel}"
-                                                                       FontFamily="Geist" FontSize="11" FontAttributes="Bold"
-                                                                       TextColor="#66736A" />
+                                                                       FontFamily="Geist"
+                                                                       FontSize="13"
+                                                                       FontAttributes="Bold"
+                                                                       TextColor="#64748B"
+                                                                       VerticalOptions="Start" />
                                                                 
                                                                 <!-- If Drawn -->
-                                                                <StackLayout IsVisible="{Binding IsDrawn}"
-                                                                                     BindableLayout.ItemsSource="{Binding DigitGroups}" Spacing="8">
+                                                                <FlexLayout Grid.Column="1"
+                                                                            IsVisible="{Binding IsDrawn}"
+                                                                            BindableLayout.ItemsSource="{Binding NumberSegments}"
+                                                                            Wrap="Wrap"
+                                                                            AlignItems="Center">
                                                                     <BindableLayout.ItemTemplate>
-                                                                        <DataTemplate>
-                                                                            <FlexLayout BindableLayout.ItemsSource="{Binding .}"
-                                                                                        Wrap="Wrap"
-                                                                                        JustifyContent="Start"
-                                                                                        AlignItems="Center"
-                                                                                        AlignContent="Start">
-                                                                                <BindableLayout.ItemTemplate>
-                                                                                    <DataTemplate>
-                                                                                        <components:LotteryBallView Text="{Binding .}" 
-                                                                                                                    BallSize="30" 
-                                                                                                                    FontSize="13"
-                                                                                                                    Margin="0,0,4,4" />
-                                                                                    </DataTemplate>
-                                                                                </BindableLayout.ItemTemplate>
-                                                                            </FlexLayout>
+                                                                        <DataTemplate x:DataType="lotteryModels:LotteryNumberDisplayPart">
+                                                                            <HorizontalStackLayout Spacing="0" Margin="0,0,9,3">
+                                                                                <Label Text="{Binding Prefix}"
+                                                                                       FontFamily="GeistMono"
+                                                                                       FontSize="15"
+                                                                                       FontAttributes="Bold"
+                                                                                       TextColor="#334155" />
+                                                                                <Label Text="{Binding Suffix}"
+                                                                                       FontFamily="GeistMono"
+                                                                                       FontSize="15"
+                                                                                       FontAttributes="Bold"
+                                                                                       TextColor="#DC2626" />
+                                                                                <Label Text="{Binding Separator}"
+                                                                                       FontFamily="GeistMono"
+                                                                                       FontSize="14"
+                                                                                       FontAttributes="Bold"
+                                                                                       Margin="6,0,0,0"
+                                                                                       TextColor="#CBD5E1" />
+                                                                            </HorizontalStackLayout>
                                                                         </DataTemplate>
                                                                     </BindableLayout.ItemTemplate>
-                                                                </StackLayout>
+                                                                </FlexLayout>
 
                                                                 <!-- If Not Drawn -->
-                                                                <HorizontalStackLayout IsVisible="{Binding IsNotDrawn}"
-                                                                                       Spacing="6" VerticalOptions="Center">
+                                                                <HorizontalStackLayout Grid.Column="1"
+                                                                                       IsVisible="{Binding IsNotDrawn}"
+                                                                                       Spacing="6"
+                                                                                       VerticalOptions="Center">
                                                                     <ActivityIndicator IsRunning="True" Color="#16A34A" WidthRequest="14" HeightRequest="14" />
                                                                     <Label Text="Đang quay..." FontFamily="Geist" FontSize="12" FontAttributes="Italic" TextColor="#16A34A" VerticalOptions="Center" />
                                                                 </HorizontalStackLayout>
-                                                            </VerticalStackLayout>
-                                                        </DataTemplate>
-                                                    </BindableLayout.ItemTemplate>
-                                                </VerticalStackLayout>
-                                            </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </BindableLayout.ItemTemplate>
+                                            </VerticalStackLayout>
                                         </VerticalStackLayout>
                                     </VerticalStackLayout>
                                 </Grid>

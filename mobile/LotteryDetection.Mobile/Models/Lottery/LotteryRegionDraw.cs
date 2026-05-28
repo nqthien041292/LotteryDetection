@@ -24,6 +24,13 @@ public class LotteryNumberCol
     public int ColumnIndex { get; set; }
 }
 
+public class LotteryNumberDisplayPart
+{
+    public string Prefix { get; set; } = string.Empty;
+    public string Suffix { get; set; } = string.Empty;
+    public string Separator { get; set; } = string.Empty;
+}
+
 public class LotteryRowDraw
 {
     public string TierLabel { get; set; } = string.Empty;
@@ -92,6 +99,16 @@ public class LotteryRegionDraw
 
     public LotteryPrizeTier? SpecialPrize => Prizes.FirstOrDefault(p => p.IsSpecial);
     public IEnumerable<LotteryPrizeTier> OtherPrizes => Prizes.Where(p => !p.IsSpecial);
+
+    // Direct, non-nullable accessor for XAML. Compiled bindings on iOS MAUI 9 don't reliably
+    // resolve chained access through a nullable computed property (`SpecialPrize.DigitGroups`)
+    // — the inner BindableLayout receives null and never renders.
+    public List<List<string>> SpecialDigitGroups => SpecialPrize?.DigitGroups ?? new List<List<string>>();
+    public string SpecialPrizeNumbers => SpecialPrize?.Numbers ?? string.Empty;
+    public List<LotteryNumberDisplayPart> SpecialNumberSegments => SpecialPrize?.NumberSegments ?? new List<LotteryNumberDisplayPart>();
+    public bool HasSpecialPrize => SpecialPrize != null && !string.IsNullOrEmpty(SpecialPrize.Numbers) && SpecialPrize.Numbers != "-";
+    public bool IsSpecialPrizeDrawn => SpecialPrize?.IsDrawn ?? false;
+    public bool IsSpecialPrizeNotDrawn => SpecialPrize?.IsNotDrawn ?? false;
 }
 
 public class LotteryPrizeTier : System.ComponentModel.INotifyPropertyChanged
@@ -113,6 +130,7 @@ public class LotteryPrizeTier : System.ComponentModel.INotifyPropertyChanged
                 OnPropertyChanged(nameof(Numbers));
                 OnPropertyChanged(nameof(NumberList));
                 OnPropertyChanged(nameof(DigitGroups));
+                OnPropertyChanged(nameof(NumberSegments));
             }
         }
     }
@@ -122,6 +140,24 @@ public class LotteryPrizeTier : System.ComponentModel.INotifyPropertyChanged
     public List<List<string>> DigitGroups => Numbers.Split(new[] { ' ', '·', '|', '-', '.', ',' }, StringSplitOptions.RemoveEmptyEntries)
         .Select(n => n.Select(c => c.ToString()).ToList())
         .ToList();
+
+    public List<LotteryNumberDisplayPart> NumberSegments
+    {
+        get
+        {
+            var numbers = NumberList;
+            return numbers.Select((number, index) =>
+            {
+                var suffixLength = Math.Min(2, number.Length);
+                return new LotteryNumberDisplayPart
+                {
+                    Prefix = number[..^suffixLength],
+                    Suffix = number[^suffixLength..],
+                    Separator = index < numbers.Count - 1 ? "·" : string.Empty
+                };
+            }).ToList();
+        }
+    }
 
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
