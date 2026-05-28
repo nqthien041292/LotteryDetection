@@ -140,6 +140,7 @@ jobs:
             ASPNETCORE_ENVIRONMENT=Production
             Authentication__Microsoft__IsEnabled=true
             Authentication__Google__IsEnabled=true
+            Authentication__Facebook__IsEnabled=true
           # All provider secrets live in Google Secret Manager. The runtime SA
           # has roles/secretmanager.secretAccessor — see aspnet-core/scripts/
           # setup-external-auth.sh for the create-once instructions.
@@ -149,6 +150,8 @@ jobs:
             Authentication__Microsoft__ConsumerSecret=auth-microsoft-client-secret:latest
             Authentication__Google__ClientId=auth-google-client-id:latest
             Authentication__Google__ClientSecret=auth-google-client-secret:latest
+            Authentication__Facebook__AppId=auth-facebook-app-id:latest
+            Authentication__Facebook__AppSecret=auth-facebook-app-secret:latest
             CloudScheduler__JobKey=cloud-scheduler-job-key:latest
 
       - name: Show service URL

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# setup-external-auth.sh — register Microsoft + Google client credentials
+# setup-external-auth.sh — register Microsoft + Google + Facebook client credentials
 # with Google Secret Manager so the Cloud Run deploy can inject them as
 # env vars. The values themselves come from app registrations you create
 # in the respective developer consoles (see README block at the bottom).
@@ -11,7 +11,8 @@
 # Or pass values directly (useful for re-runs / CI):
 #   ./setup-external-auth.sh --project-id <PID> \
 #     --ms-client-id <ID> --ms-client-secret <SECRET> \
-#     --google-client-id <ID> --google-client-secret <SECRET>
+#     --google-client-id <ID> --google-client-secret <SECRET> \
+#     --facebook-app-id <ID> --facebook-app-secret <SECRET>
 #
 # Re-running is safe — each `gcloud secrets create` is guarded; existing
 # secrets get a new version via `gcloud secrets versions add`.
@@ -23,6 +24,8 @@ MS_CLIENT_ID=""
 MS_CLIENT_SECRET=""
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
+FACEBOOK_APP_ID=""
+FACEBOOK_APP_SECRET=""
 RUNTIME_SA="lottery-runtime"
 
 while [[ $# -gt 0 ]]; do
@@ -32,6 +35,8 @@ while [[ $# -gt 0 ]]; do
     --ms-client-secret)    MS_CLIENT_SECRET="$2";     shift 2 ;;
     --google-client-id)    GOOGLE_CLIENT_ID="$2";     shift 2 ;;
     --google-client-secret) GOOGLE_CLIENT_SECRET="$2"; shift 2 ;;
+    --facebook-app-id)     FACEBOOK_APP_ID="$2";      shift 2 ;;
+    --facebook-app-secret) FACEBOOK_APP_SECRET="$2";  shift 2 ;;
     -h|--help)
       grep -E '^# ' "$0" | sed -E 's/^# ?//'
       exit 0
@@ -68,6 +73,8 @@ prompt_if_empty MS_CLIENT_ID      "Microsoft Application (client) ID"
 prompt_if_empty MS_CLIENT_SECRET  "Microsoft client secret" 1
 prompt_if_empty GOOGLE_CLIENT_ID  "Google OAuth client ID"
 prompt_if_empty GOOGLE_CLIENT_SECRET "Google OAuth client secret" 1
+prompt_if_empty FACEBOOK_APP_ID     "Facebook App ID"
+prompt_if_empty FACEBOOK_APP_SECRET "Facebook App Secret" 1
 
 upsert_secret() {
   local name="$1" value="$2"
@@ -93,6 +100,8 @@ upsert_secret auth-microsoft-client-id     "$MS_CLIENT_ID"
 upsert_secret auth-microsoft-client-secret "$MS_CLIENT_SECRET"
 upsert_secret auth-google-client-id        "$GOOGLE_CLIENT_ID"
 upsert_secret auth-google-client-secret    "$GOOGLE_CLIENT_SECRET"
+upsert_secret auth-facebook-app-id         "$FACEBOOK_APP_ID"
+upsert_secret auth-facebook-app-secret     "$FACEBOOK_APP_SECRET"
 
 cat <<EOF
 
@@ -124,4 +133,12 @@ Google Cloud (OAuth 2.0)
      create a separate "Web application" client and use its secret here)
   3. Configure the OAuth consent screen if you haven't already (External,
      scope: openid + email + profile is enough).
+
+Facebook
+  1. https://developers.facebook.com/apps → Create App → Consumer
+       Name: DòVéSố AI
+  2. Add product "Facebook Login for iOS"
+       Bundle ID: com.lotterydetection.mobile
+  3. Copy the numeric App ID → FACEBOOK_APP_ID
+  4. Settings → Basic → Show App Secret → copy → FACEBOOK_APP_SECRET
 EOF

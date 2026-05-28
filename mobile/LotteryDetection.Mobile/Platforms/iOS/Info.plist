@@ -51,7 +51,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.REPLACE_WITH_REVERSED_GOOGLE_CLIENT_ID</string>
+				<string>com.googleusercontent.apps.134361125995-gn1dfrdtl7v9jgldbeq7dvh26kg105be</string>
 			</array>
 		</dict>
 		<!-- Facebook sign-in callback. Replace REPLACE_WITH_FACEBOOK_APP_ID
@@ -59,7 +59,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fbREPLACE_WITH_FACEBOOK_APP_ID</string>
+				<string>fb838658272624139</string>
 			</array>
 		</dict>
 	</array>
