@@ -47,12 +47,37 @@ public class TicketAnalysisAppService : LotteryDetectionAppServiceBase, ITicketA
     [AbpAllowAnonymous]
     public async Task CheckPendingResultsAsync()
     {
+        // 1) Proactively scrape today's draws for every province active on this
+        //    weekday so /GetDrawResults serves fresh numbers to "Kết quả hôm nay"
+        //    even when no user has uploaded a ticket yet. The provider is a no-op
+        //    when the row already exists, and silently skips provinces whose draw
+        //    hasn't happened — so calling all of them every 5 min is safe.
+        var today = DateTime.UtcNow.AddHours(7).Date;
+        var todayDayOfWeek = today.DayOfWeek;
+        foreach (var province in ActiveProvinces)
+        {
+            if (!Scraping.MinhNgocResultProvider.IsProvinceActiveOnDayOfWeek(province, todayDayOfWeek))
+                continue;
+            try
+            {
+                await _lotteryResultProvider.GetResultAsync(province, today, allowScrape: true);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Proactive scrape failed for {province} on {today:yyyy-MM-dd}: {ex.Message}");
+            }
+        }
+
+        // 2) Match any tickets still waiting on a result (regardless of date —
+        //    a user might have uploaded a ticket for an earlier date that we
+        //    only just scraped via a backfill).
         var pendingTickets = await _repository.GetAll()
             .Where(t => t.Status == TicketAnalysisStatus.Succeeded && t.IsWinner == null)
             .ToListAsync();
 
         if (!pendingTickets.Any())
         {
+            await CurrentUnitOfWork.SaveChangesAsync();
             return;
         }
 
