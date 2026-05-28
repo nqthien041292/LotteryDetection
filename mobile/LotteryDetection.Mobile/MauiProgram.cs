@@ -165,12 +165,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
 
         // Register ViewModels
-        builder.Services.AddTransient<SplashViewModel>(sp =>
-        {
-            var authService = sp.GetRequiredService<IAuthService>();
-            var pushService = sp.GetRequiredService<IPushNotificationService>();
-            return new SplashViewModel(NavigationService.Default, authService, pushService);
-        });
+        builder.Services.AddTransient<SplashViewModel>(_ => new SplashViewModel(NavigationService.Default));
         builder.Services.AddTransient<LoginPageViewModel>(sp =>
         {
             var authService = sp.GetRequiredService<IAuthService>();
