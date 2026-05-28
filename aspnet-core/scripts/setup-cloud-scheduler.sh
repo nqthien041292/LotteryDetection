@@ -42,7 +42,7 @@ echo "[4/4] Tạo Cloud Scheduler Job"
 # Chạy vào các phút 0, 15, 30, 45 mỗi giờ từ 16h đến 18h59 giờ Việt Nam
 gcloud scheduler jobs create http "$JOB_NAME" \
   --schedule="0,15,30,45 16-18 * * *" \
-  --timezone="Asia/Ho_Chi_Minh" \
+  --time-zone="Asia/Ho_Chi_Minh" \
   --uri="$API_URL" \
   --http-method=POST \
   --headers="X-CloudScheduler-Job-Key=$JOB_KEY" \
@@ -50,10 +50,10 @@ gcloud scheduler jobs create http "$JOB_NAME" \
   --message-body="{}" 2>/dev/null || \
 gcloud scheduler jobs update http "$JOB_NAME" \
   --schedule="0,15,30,45 16-18 * * *" \
-  --timezone="Asia/Ho_Chi_Minh" \
+  --time-zone="Asia/Ho_Chi_Minh" \
   --uri="$API_URL" \
   --http-method=POST \
-  --headers="X-CloudScheduler-Job-Key=$JOB_KEY" \
+  --update-headers="X-CloudScheduler-Job-Key=$JOB_KEY" \
   --location="$REGION" \
   --message-body="{}"
 
