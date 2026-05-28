@@ -68,6 +68,18 @@ public static class AppConfiguration
         return null;
     }
 
+    public static string? GetFacebookAppId()
+    {
+        EnsureLoaded();
+        if (_config!.RootElement.TryGetProperty("Facebook", out var f) &&
+            f.TryGetProperty("AppId", out var a))
+        {
+            var value = a.GetString();
+            return string.IsNullOrWhiteSpace(value) ? null : value;
+        }
+        return null;
+    }
+
     public static string GetAzureAdClientId()
     {
         EnsureLoaded();

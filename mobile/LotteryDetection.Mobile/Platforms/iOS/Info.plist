@@ -45,11 +45,31 @@
 				<string>msauth.com.lotterydetection.mobile</string>
 			</array>
 		</dict>
+		<!-- Google sign-in callback. Replace with the reversed iOS client ID
+		     from Google Cloud Console (Credentials → iOS OAuth client).
+		     Format: com.googleusercontent.apps.<client-id-prefix> -->
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.REPLACE_WITH_REVERSED_GOOGLE_CLIENT_ID</string>
+			</array>
+		</dict>
+		<!-- Facebook sign-in callback. Replace REPLACE_WITH_FACEBOOK_APP_ID
+		     with the numeric Facebook App ID, prefixed by "fb". -->
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fbREPLACE_WITH_FACEBOOK_APP_ID</string>
+			</array>
+		</dict>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>msauthv2</string>
 		<string>msauthv3</string>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

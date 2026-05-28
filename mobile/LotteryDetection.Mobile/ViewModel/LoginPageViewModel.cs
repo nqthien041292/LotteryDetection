@@ -32,6 +32,8 @@ public class LoginPageViewModel : BaseViewModel
         _authService = authService;
         _pushNotificationService = pushNotificationService;
         SignInWithMicrosoftCommand = new Command(async () => await SignInWithMicrosoftAsync(), () => IsNotBusy);
+        SignInWithGoogleCommand = new Command(async () => await SignInWithGoogleAsync(), () => IsNotBusy);
+        SignInWithFacebookCommand = new Command(async () => await SignInWithFacebookAsync(), () => IsNotBusy);
     }
 
     public string? ErrorMessage
@@ -67,6 +69,8 @@ public class LoginPageViewModel : BaseViewModel
             {
                 NotifyPropertyChanged(nameof(IsNotBusy));
                 (SignInWithMicrosoftCommand as Command)?.ChangeCanExecute();
+                (SignInWithGoogleCommand as Command)?.ChangeCanExecute();
+                (SignInWithFacebookCommand as Command)?.ChangeCanExecute();
             }
         }
     }
@@ -74,6 +78,8 @@ public class LoginPageViewModel : BaseViewModel
     public bool IsNotBusy => !IsBusy;
 
     public ICommand SignInWithMicrosoftCommand { get; }
+    public ICommand SignInWithGoogleCommand { get; }
+    public ICommand SignInWithFacebookCommand { get; }
 
     /// <summary>
     ///     Called every time the LoginPage appears. Handles initial session restore
@@ -137,6 +143,82 @@ public class LoginPageViewModel : BaseViewModel
     ///     Backward-compatible entry point. Forwards to OnPageAppearingAsync.
     /// </summary>
     public Task InitializeAsync() => OnPageAppearingAsync();
+
+    private async Task SignInWithGoogleAsync()
+    {
+        ErrorMessage = null;
+        StatusMessage = null;
+        IsBusy = true;
+        try
+        {
+            StatusMessage = "Đang mở Google sign-in…";
+            var clientId = AppConfiguration.GetGoogleClientId();
+            if (string.IsNullOrWhiteSpace(clientId))
+                throw new InvalidOperationException("Google ClientId chưa cấu hình trong appsettings.json.");
+
+            var helper = new GoogleAuthHelper(clientId);
+            var result = await helper.SignInAsync();
+            await _authService.SignInExternalAsync("Google", result.ProviderKey, result.AccessToken, result.DisplayName);
+
+            StatusMessage = $"Welcome, {_authService.UserDisplayName}!";
+            await Task.Delay(500);
+
+            await _pushNotificationService.InitializeAsync();
+            _ = _pushNotificationService.RegisterTokenAsync();
+
+            await _navigationService.NavigateToDashboardAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[LoginPage] Google sign-in failed: {ex}");
+            if (IsUserCancellation(ex)) { StatusMessage = null; ErrorMessage = null; }
+            else ErrorMessage = $"Google sign-in thất bại: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task SignInWithFacebookAsync()
+    {
+        ErrorMessage = null;
+        StatusMessage = null;
+        IsBusy = true;
+        try
+        {
+            StatusMessage = "Đang mở Facebook sign-in…";
+            var appId = AppConfiguration.GetFacebookAppId();
+            if (string.IsNullOrWhiteSpace(appId))
+                throw new InvalidOperationException("Facebook AppId chưa cấu hình trong appsettings.json.");
+
+            var helper = new FacebookAuthHelper(appId);
+            var result = await helper.SignInAsync();
+            await _authService.SignInExternalAsync("Facebook", result.ProviderKey, result.AccessToken, result.DisplayName);
+
+            StatusMessage = $"Welcome, {_authService.UserDisplayName}!";
+            await Task.Delay(500);
+
+            await _pushNotificationService.InitializeAsync();
+            _ = _pushNotificationService.RegisterTokenAsync();
+
+            await _navigationService.NavigateToDashboardAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[LoginPage] Facebook sign-in failed: {ex}");
+            if (IsUserCancellation(ex)) { StatusMessage = null; ErrorMessage = null; }
+            else ErrorMessage = $"Facebook sign-in thất bại: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private static bool IsUserCancellation(Exception ex)
+        => ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase)
+           || ex.Message.Contains("user_cancel", StringComparison.OrdinalIgnoreCase);
 
     private async Task SignInWithMicrosoftAsync()
     {
