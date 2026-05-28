@@ -275,22 +275,24 @@ public class LotteryCaptureViewModel : BaseViewModel
         try
         {
             var tickets = await detectionService.AnalyzeAsync(ImagePath!, CancellationToken.None);
-            Results.Clear();
-            foreach (var t in tickets) Results.Add(t);
-            NotifyPropertyChanged(nameof(HasResults));
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Results.Clear();
+                foreach (var t in tickets) Results.Add(t);
+                NotifyPropertyChanged(nameof(HasResults));
 
-            var winCount = tickets.Count(t => t.IsWinner);
-            if (winCount > 0)
-                StatusHint = $"Chúc mừng! Tìm thấy {tickets.Count} vé, trong đó có {winCount} vé trúng.";
-            else
-                StatusHint = $"AI đã tìm thấy {tickets.Count} vé. Rất tiếc chưa có vé trúng giải.";
-            
-            ShowPreviewModal = true;
+                var winCount = tickets.Count(t => t.IsWinner);
+                StatusHint = winCount > 0
+                    ? $"Chúc mừng! Tìm thấy {tickets.Count} vé, trong đó có {winCount} vé trúng."
+                    : $"AI đã tìm thấy {tickets.Count} vé. Rất tiếc chưa có vé trúng giải.";
+
+                ShowPreviewModal = true;
+            });
         }
         catch (UnauthorizedAccessException ex)
         {
             RemoteLogService.Instance.Error("LotteryCapture", $"AnalyzeAsync auth failed: {ex.Message}", ex);
-            StatusHint = "Phiên đăng nhập hết hạn. Đang chuyển hướng...";
+            await MainThread.InvokeOnMainThreadAsync(() => StatusHint = "Phiên đăng nhập hết hạn. Đang chuyển hướng...");
             await AppDialog.ShowAlertAsync(title: "Hết hạn phiên đăng nhập", message: "Phiên đăng nhập của bạn đã hết hạn trên hệ thống. Vui lòng đăng nhập lại.");
             try
             {
@@ -306,18 +308,21 @@ public class LotteryCaptureViewModel : BaseViewModel
         }
         catch (OperationCanceledException)
         {
-            StatusHint = "Đã huỷ phân tích.";
+            await MainThread.InvokeOnMainThreadAsync(() => StatusHint = "Đã huỷ phân tích.");
         }
         catch (Exception ex)
         {
             RemoteLogService.Instance.Error("LotteryCapture", $"AnalyzeAsync failed: {ex.Message}", ex);
-            StatusHint = "Phân tích thất bại. Vui lòng thử lại.";
+            await MainThread.InvokeOnMainThreadAsync(() => StatusHint = "Phân tích thất bại. Vui lòng thử lại.");
             await AppDialog.ShowAlertAsync(title: "Lỗi phân tích", message: ex.Message);
         }
         finally
         {
-            IsAnalyzing = false;
-            NotifyPropertyChanged(nameof(StatusBadge));
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                IsAnalyzing = false;
+                NotifyPropertyChanged(nameof(StatusBadge));
+            });
         }
     }
 
