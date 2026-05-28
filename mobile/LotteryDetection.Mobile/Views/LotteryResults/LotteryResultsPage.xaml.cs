@@ -53,6 +53,7 @@ public partial class LotteryResultsPage : ContentPage
             {
                 StopLiveAnimation();
             }
+            vm.StartAutoRefresh();
         }
     }
 
@@ -60,6 +61,7 @@ public partial class LotteryResultsPage : ContentPage
     {
         base.OnDisappearing();
         StopLiveAnimation();
+        vm?.StopAutoRefresh();
     }
 
     private void StartLiveAnimation()
@@ -68,7 +70,7 @@ public partial class LotteryResultsPage : ContentPage
 
         if (vm == null || !vm.IsAnyActiveRegionLive)
         {
-            LiveButtonBorder.Opacity = 1.0;
+            LiveBadge.Opacity = 1.0;
             return;
         }
 
@@ -85,12 +87,12 @@ public partial class LotteryResultsPage : ContentPage
                     // Check if still live active, if not reset and exit
                     if (vm == null || !vm.IsAnyActiveRegionLive)
                     {
-                        LiveButtonBorder.Opacity = 1.0;
+                        LiveBadge.Opacity = 1.0;
                         break;
                     }
 
-                    await LiveButtonBorder.FadeTo(0.3, 500);
-                    await LiveButtonBorder.FadeTo(1.0, 500);
+                    await LiveBadge.FadeTo(0.3, 500);
+                    await LiveBadge.FadeTo(1.0, 500);
                 }
                 catch
                 {
@@ -104,7 +106,7 @@ public partial class LotteryResultsPage : ContentPage
     {
         animationCts?.Cancel();
         animationCts = null;
-        LiveButtonBorder.Opacity = 1.0;
+        LiveBadge.Opacity = 1.0;
     }
 
     private async void OnBackClicked(object? sender, EventArgs e)

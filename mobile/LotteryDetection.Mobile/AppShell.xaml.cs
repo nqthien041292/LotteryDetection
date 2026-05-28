@@ -116,7 +116,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(LotteryCapturePage), typeof(LotteryCapturePage));
         Routing.RegisterRoute(nameof(LotteryResultsPage), typeof(LotteryResultsPage));
-        Routing.RegisterRoute(nameof(LotteryLiveResultsPage), typeof(LotteryLiveResultsPage));
         Routing.RegisterRoute(nameof(LotteryHistoryPage), typeof(LotteryHistoryPage));
     }
 }

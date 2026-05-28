@@ -67,55 +67,33 @@
                                FontFamily="Geist" FontSize="12"
                                TextColor="#66736A" />
                     </VerticalStackLayout>
-                    <Border x:Name="LiveButtonBorder"
+                    <!-- ĐANG LIVE status badge (visible only during draw hours, non-interactive) -->
+                    <Border x:Name="LiveBadge"
                             Grid.Column="1"
-                            StrokeThickness="1.5"
-                            Stroke="{Binding LiveButtonStrokeColor}"
-                            Padding="14,10"
+                            IsVisible="{Binding IsAnyActiveRegionLive}"
+                            StrokeThickness="0"
+                            BackgroundColor="#D90429"
+                            Padding="12,8"
                             VerticalOptions="Center"
                             HorizontalOptions="End">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="{Binding LiveButtonStartColor}" Offset="0.0" />
-                                <GradientStop Color="{Binding LiveButtonEndColor}" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
                         <Border.StrokeShape>
-                            <shapes:RoundRectangle CornerRadius="18" />
+                            <shapes:RoundRectangle CornerRadius="14" />
                         </Border.StrokeShape>
                         <Border.Shadow>
-                            <Shadow Brush="{Binding LiveButtonShadowColor}" Radius="8" Offset="0,4" Opacity="0.3" />
+                            <Shadow Brush="#D90429" Radius="8" Offset="0,4" Opacity="0.35" />
                         </Border.Shadow>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding OpenLiveResultsCommand}" />
-                        </Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="6" VerticalOptions="Center">
-                            <!-- Pulse Dot -->
-                            <Ellipse Grid.Column="0"
-                                     WidthRequest="8" HeightRequest="8"
-                                     Fill="{Binding LiveButtonPulseColor}"
-                                     VerticalOptions="Center">
+                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                            <Ellipse WidthRequest="8" HeightRequest="8" Fill="#4ADE80" VerticalOptions="Center">
                                 <Ellipse.Shadow>
-                                    <Shadow Brush="{Binding LiveButtonPulseColor}" Radius="6" Offset="0,0" Opacity="0.8" />
+                                    <Shadow Brush="#4ADE80" Radius="6" Offset="0,0" Opacity="0.8" />
                                 </Ellipse.Shadow>
                             </Ellipse>
-                            
-                            <!-- Label -->
-                            <Label Grid.Column="1"
-                                   Text="{Binding LiveButtonLabel}"
+                            <Label Text="ĐANG LIVE"
                                    FontFamily="Geist" FontSize="12" FontAttributes="Bold"
                                    TextColor="White"
                                    VerticalOptions="Center"
                                    CharacterSpacing="0.5" />
-                                   
-                            <!-- Chevron -->
-                            <Label Grid.Column="2"
-                                   Text="›"
-                                   FontFamily="Geist" FontSize="16" FontAttributes="Bold"
-                                   TextColor="White"
-                                   VerticalOptions="Center"
-                                   Margin="0,-2,0,0" />
-                        </Grid>
+                        </HorizontalStackLayout>
                     </Border>
                 </Grid>
 
@@ -349,6 +327,7 @@
                                                            CharacterSpacing="0.8"
                                                            HorizontalTextAlignment="Center"
                                                            TextColor="#92400E" />
+                                                    <!-- Drawn -->
                                                     <FlexLayout IsVisible="{Binding HasSpecialPrize}"
                                                                 BindableLayout.ItemsSource="{Binding SpecialNumberSegments}"
                                                                 Wrap="Wrap"
@@ -379,6 +358,13 @@
                                                             </DataTemplate>
                                                         </BindableLayout.ItemTemplate>
                                                     </FlexLayout>
+
+                                                    <!-- Drawing now (live) -->
+                                                    <HorizontalStackLayout IsVisible="{Binding IsSpecialPrizeNotDrawn}"
+                                                                           Spacing="8" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,4,0,0">
+                                                        <ActivityIndicator IsRunning="True" Color="#B45309" WidthRequest="20" HeightRequest="20" />
+                                                        <Label Text="Đang quay..." FontFamily="Geist" FontSize="15" FontAttributes="Italic" TextColor="#92400E" VerticalOptions="Center" />
+                                                    </HorizontalStackLayout>
                                                 </VerticalStackLayout>
                                             </Border>
 
@@ -401,7 +387,9 @@
                                                                        FontAttributes="Bold"
                                                                        TextColor="#64748B"
                                                                        VerticalOptions="Start" />
+                                                                <!-- Drawn -->
                                                                 <FlexLayout Grid.Column="1"
+                                                                            IsVisible="{Binding IsDrawn}"
                                                                             BindableLayout.ItemsSource="{Binding NumberSegments}"
                                                                             Wrap="Wrap"
                                                                             AlignItems="Center">
@@ -428,6 +416,15 @@
                                                                         </DataTemplate>
                                                                     </BindableLayout.ItemTemplate>
                                                                 </FlexLayout>
+
+                                                                <!-- Drawing now (live) -->
+                                                                <HorizontalStackLayout Grid.Column="1"
+                                                                                       IsVisible="{Binding IsNotDrawn}"
+                                                                                       Spacing="6"
+                                                                                       VerticalOptions="Center">
+                                                                    <ActivityIndicator IsRunning="True" Color="#16A34A" WidthRequest="14" HeightRequest="14" />
+                                                                    <Label Text="Đang quay..." FontFamily="Geist" FontSize="12" FontAttributes="Italic" TextColor="#16A34A" VerticalOptions="Center" />
+                                                                </HorizontalStackLayout>
                                                             </Grid>
                                                         </Border>
                                                     </DataTemplate>

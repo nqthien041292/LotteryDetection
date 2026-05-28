@@ -4,6 +4,7 @@ using LotteryDetection.Mobile.Views.Forms;
 using LotteryDetection.Mobile.Views.LotteryCapture;
 using LotteryDetection.Mobile.Views.LotteryHistory;
 using LotteryDetection.Mobile.Views.LotteryResults;
+// LotteryLiveResultsPage was removed — live drawing UI now lives inline on LotteryResultsPage.
 
 namespace LotteryDetection.Mobile.Services.Navigation;
 
@@ -66,18 +67,7 @@ public class NavigationService : INavigationService
         await Shell.Current.GoToAsync(nameof(LotteryHistoryPage));
     }
 
-    public async Task NavigateToLotteryLiveResultsAsync()
-    {
-        if (!MainThread.IsMainThread)
-        {
-            await MainThread.InvokeOnMainThreadAsync(NavigateToLotteryLiveResultsAsync);
-            return;
-        }
-        if (Shell.Current == null) return;
-        await Shell.Current.GoToAsync(nameof(LotteryLiveResultsPage));
-    }
-
-    public async Task NavigateBackAsync()
+public async Task NavigateBackAsync()
     {
         if (Shell.Current == null) return;
 
