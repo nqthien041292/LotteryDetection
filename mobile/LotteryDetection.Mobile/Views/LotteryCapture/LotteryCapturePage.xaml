@@ -412,8 +412,8 @@
                                             <Border.StrokeShape><shapes:RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                                             <Border.Background>
                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='True=#E7F6DE;False=#F1F3F0'}" Offset="0.0" />
-                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='True=#F5C842;False=#E5E8E5'}" Offset="1.0" />
+                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='#E7F6DE|#F1F3F0'}" Offset="0.0" />
+                                                    <GradientStop Color="{Binding IsWinner, Converter={StaticResource BoolToObject}, ConverterParameter='#F5C842|#E5E8E5'}" Offset="1.0" />
                                                 </LinearGradientBrush>
                                             </Border.Background>
                                             <VerticalStackLayout Spacing="6">
