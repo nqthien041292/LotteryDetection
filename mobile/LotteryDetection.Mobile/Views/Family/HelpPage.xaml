@@ -217,8 +217,8 @@
                                 Padding="16">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Offset="0" Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryDeepLight}, Dark={DynamicResource FamilyPrimaryDeepDark}}" />
-                                    <GradientStop Offset="1" Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}" />
+                                    <GradientStop Offset="0" Color="#0A2E8A" />
+                                    <GradientStop Offset="1" Color="#1E5BFF" />
                                 </LinearGradientBrush>
                             </Border.Background>
                             <VerticalStackLayout Spacing="6">

@@ -94,12 +94,8 @@
                         </Border.StrokeShape>
                         <Border.Background>
                             <RadialGradientBrush Radius="0.95" Center="0.5,0.35">
-                                <GradientStop
-                                    Color="{AppThemeBinding Light={StaticResource FamilyMicGradientCenterLight}, Dark={StaticResource FamilyMicGradientCenterDark}}"
-                                    Offset="0" />
-                                <GradientStop
-                                    Color="{AppThemeBinding Light={DynamicResource FamilyPrimaryLight}, Dark={DynamicResource FamilyPrimaryDark}}"
-                                    Offset="1" />
+                                <GradientStop Color="#E0EAFF" Offset="0" />
+                                <GradientStop Color="#1E5BFF" Offset="1" />
                             </RadialGradientBrush>
                         </Border.Background>
                         <Border.Shadow>
