@@ -703,6 +703,8 @@ public class TokenAuthController : LotteryDetectionControllerBase
 
     private async Task<User> RegisterExternalUserAsync(ExternalAuthUserInfo externalLoginInfo)
     {
+        EnsureExternalUserInfoCanRegister(externalLoginInfo);
+
         string username;
 
         using (var providerManager =
@@ -736,6 +738,22 @@ public class TokenAuthController : LotteryDetectionControllerBase
         await CurrentUnitOfWork.SaveChangesAsync();
 
         return user;
+    }
+
+    private static void EnsureExternalUserInfoCanRegister(ExternalAuthUserInfo externalLoginInfo)
+    {
+        if (externalLoginInfo.Provider == "Facebook" &&
+            externalLoginInfo.EmailAddress.IsNullOrWhiteSpace() &&
+            !externalLoginInfo.ProviderKey.IsNullOrWhiteSpace())
+        {
+            externalLoginInfo.EmailAddress = $"facebook_{externalLoginInfo.ProviderKey}@facebook.local";
+        }
+
+        if (externalLoginInfo.Name.IsNullOrWhiteSpace())
+            externalLoginInfo.Name = externalLoginInfo.Provider;
+
+        if (externalLoginInfo.Surname.IsNullOrWhiteSpace())
+            externalLoginInfo.Surname = "User";
     }
 
     private async Task<ExternalAuthUserInfo> GetExternalUserInfo(ExternalAuthenticateModel model)

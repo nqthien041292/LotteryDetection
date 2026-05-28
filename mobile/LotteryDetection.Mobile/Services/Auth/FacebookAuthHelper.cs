@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.Maui.Authentication;
 
@@ -26,14 +27,38 @@ public sealed class FacebookAuthHelper
 
     public async Task<ExternalAuthResult> SignInAsync()
     {
+        var state = Base64Url(RandomNumberGenerator.GetBytes(24));
         var authUrl = new Uri(
             "https://www.facebook.com/v18.0/dialog/oauth" +
             $"?client_id={Uri.EscapeDataString(_appId)}" +
             $"&redirect_uri={Uri.EscapeDataString(_redirectUri)}" +
             "&response_type=token" +
-            "&scope=email,public_profile");
+            "&scope=public_profile" +
+            "&auth_type=rerequest" +
+            "&display=touch" +
+            $"&state={Uri.EscapeDataString(state)}");
 
-        var result = await WebAuthenticator.Default.AuthenticateAsync(authUrl, new Uri(_redirectUri));
+        var result = await WebAuthenticator.Default.AuthenticateAsync(new WebAuthenticatorOptions
+        {
+            Url = authUrl,
+            CallbackUrl = new Uri(_redirectUri),
+            PrefersEphemeralWebBrowserSession = true
+        });
+
+        if (result.Properties.TryGetValue("error", out var error))
+        {
+            result.Properties.TryGetValue("error_description", out var description);
+            throw new InvalidOperationException(
+                string.IsNullOrWhiteSpace(description)
+                    ? $"Facebook trả lỗi: {error}"
+                    : $"Facebook trả lỗi: {description}");
+        }
+
+        if (result.Properties.TryGetValue("state", out var returnedState) &&
+            !string.Equals(returnedState, state, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Facebook callback không hợp lệ (state không khớp).");
+        }
 
         // WebAuthenticator parses access_token from the fragment/query into
         // both AccessToken and Properties — prefer the strongly typed slot.
@@ -67,4 +92,7 @@ public sealed class FacebookAuthHelper
             DisplayName = displayName
         };
     }
+
+    private static string Base64Url(byte[] bytes)
+        => Convert.ToBase64String(bytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
 }

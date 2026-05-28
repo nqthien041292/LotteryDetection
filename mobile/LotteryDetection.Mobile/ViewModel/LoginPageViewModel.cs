@@ -68,6 +68,15 @@ public class LoginPageViewModel : BaseViewModel
             if (SetProperty(ref _isBusy, value))
             {
                 NotifyPropertyChanged(nameof(IsNotBusy));
+                NotifyPropertyChanged(nameof(IsMicrosoftBusy));
+                NotifyPropertyChanged(nameof(IsGoogleBusy));
+                NotifyPropertyChanged(nameof(IsFacebookBusy));
+                NotifyPropertyChanged(nameof(IsMicrosoftIdle));
+                NotifyPropertyChanged(nameof(IsGoogleIdle));
+                NotifyPropertyChanged(nameof(IsFacebookIdle));
+                NotifyPropertyChanged(nameof(MicrosoftButtonOpacity));
+                NotifyPropertyChanged(nameof(GoogleButtonOpacity));
+                NotifyPropertyChanged(nameof(FacebookButtonOpacity));
                 (SignInWithMicrosoftCommand as Command)?.ChangeCanExecute();
                 (SignInWithGoogleCommand as Command)?.ChangeCanExecute();
                 (SignInWithFacebookCommand as Command)?.ChangeCanExecute();
@@ -76,6 +85,43 @@ public class LoginPageViewModel : BaseViewModel
     }
 
     public bool IsNotBusy => !IsBusy;
+
+    // Which provider is currently exchanging tokens. Used by the per-button
+    // DataTriggers so only the tapped button flips to "Đang đăng nhập…".
+    private string? _activeProvider;
+    public string? ActiveProvider
+    {
+        get => _activeProvider;
+        private set
+        {
+            if (SetProperty(ref _activeProvider, value))
+            {
+                NotifyPropertyChanged(nameof(IsMicrosoftBusy));
+                NotifyPropertyChanged(nameof(IsGoogleBusy));
+                NotifyPropertyChanged(nameof(IsFacebookBusy));
+                NotifyPropertyChanged(nameof(IsMicrosoftIdle));
+                NotifyPropertyChanged(nameof(IsGoogleIdle));
+                NotifyPropertyChanged(nameof(IsFacebookIdle));
+                NotifyPropertyChanged(nameof(MicrosoftButtonOpacity));
+                NotifyPropertyChanged(nameof(GoogleButtonOpacity));
+                NotifyPropertyChanged(nameof(FacebookButtonOpacity));
+            }
+        }
+    }
+
+    public bool IsMicrosoftBusy => IsBusy && ActiveProvider == "microsoft";
+    public bool IsGoogleBusy    => IsBusy && ActiveProvider == "google";
+    public bool IsFacebookBusy  => IsBusy && ActiveProvider == "facebook";
+    public bool IsMicrosoftIdle => !IsMicrosoftBusy;
+    public bool IsGoogleIdle    => !IsGoogleBusy;
+    public bool IsFacebookIdle  => !IsFacebookBusy;
+
+    // Visual "disabled" state for buttons whose sign-in is NOT the currently
+    // active one. Commands already gate execution via IsNotBusy, so the
+    // tap is silently ignored — this just dims them so the user can tell.
+    public double MicrosoftButtonOpacity => (IsBusy && !IsMicrosoftBusy) ? 0.4 : 1.0;
+    public double GoogleButtonOpacity    => (IsBusy && !IsGoogleBusy)    ? 0.4 : 1.0;
+    public double FacebookButtonOpacity  => (IsBusy && !IsFacebookBusy)  ? 0.4 : 1.0;
 
     public ICommand SignInWithMicrosoftCommand { get; }
     public ICommand SignInWithGoogleCommand { get; }
@@ -148,6 +194,7 @@ public class LoginPageViewModel : BaseViewModel
     {
         ErrorMessage = null;
         StatusMessage = null;
+        ActiveProvider = "google";
         IsBusy = true;
         try
         {
@@ -177,6 +224,7 @@ public class LoginPageViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            ActiveProvider = null;
         }
     }
 
@@ -184,6 +232,7 @@ public class LoginPageViewModel : BaseViewModel
     {
         ErrorMessage = null;
         StatusMessage = null;
+        ActiveProvider = "facebook";
         IsBusy = true;
         try
         {
@@ -213,6 +262,7 @@ public class LoginPageViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            ActiveProvider = null;
         }
     }
 
@@ -224,6 +274,7 @@ public class LoginPageViewModel : BaseViewModel
     {
         ErrorMessage = null;
         StatusMessage = null;
+        ActiveProvider = "microsoft";
         IsBusy = true;
 
         try
@@ -272,6 +323,7 @@ public class LoginPageViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            ActiveProvider = null;
         }
     }
 
