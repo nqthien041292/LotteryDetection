@@ -1,218 +1,87 @@
-﻿@model LotteryDetection.Web.Public.Views.Shared.Components.Header.HeaderViewModel
+@model LotteryDetection.Web.Public.Views.Shared.Components.Header.HeaderViewModel
 
-<!--begin::Header Section-->
-<div class="mb-0" id="home">
-    <!--begin::Wrapper-->
-    <div class="bgi-no-repeat bgi-size-contain bgi-position-x-center bgi-position-y-bottom landing-dark-bg" style="background-image: url(/metronic/assets/media/svg/illustrations/landing.svg)">
-        <!--begin::Header-->
-        <div class="landing-header" data-kt-sticky="true" data-kt-sticky-name="landing-header" data-kt-sticky-offset="{default: '200px', lg: '300px'}">
-            <!--begin::Container-->
-            <div class="container">
-                <!--begin::Wrapper-->
-                <div class="d-flex align-items-center justify-content-between">
-                    <!--begin::Logo-->
-                    <div class="d-flex align-items-center flex-equal">
-                        <!--begin::Mobile menu toggle-->
-                        <button class="btn btn-icon btn-active-color-primary me-3 d-flex d-lg-none" id="kt_landing_menu_toggle">
-                            <!--begin::Svg Icon | path: icons/duotune/abstract/abs015.svg-->
-                            <span class="svg-icon svg-icon-2hx">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="currentColor"/>
-                                    <path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="currentColor"/>
-                                </svg>
-                            </span>
-                            <!--end::Svg Icon-->
+<!-- Navbar Start -->
+<div class="container-fluid sticky-top">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark p-0">
+            <!-- Logo -->
+            <a href="/" class="navbar-brand d-flex align-items-center gap-2">
+                <img src="~/Common/Images/logo.png" alt="DòXổSố AI"
+                     style="height:38px;width:38px;object-fit:contain;border-radius:10px;background:#fff;padding:2px;">
+                <span style="font-family:'Ubuntu',sans-serif;font-weight:700;font-size:1.25rem;color:#fff;">
+                    DòXổSố <span style="color:#00bb77;">AI</span>
+                </span>
+            </a>
+
+            <!-- Mobile toggle -->
+            <button type="button" class="navbar-toggler ms-auto me-0"
+                    data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto">
+                    <a href="#hero"          class="nav-item nav-link">Trang chủ</a>
+                    <a href="#about"         class="nav-item nav-link">Giới thiệu</a>
+                    <a href="#features"      class="nav-item nav-link">Tính năng</a>
+                    <a href="#screenshots"   class="nav-item nav-link">Screenshots</a>
+                    <a href="#team"          class="nav-item nav-link">Đội ngũ</a>
+                </div>
+
+                @if (Model.Languages.Count > 1)
+                {
+                    <div class="dropdown me-2">
+                        <button type="button"
+                                class="btn btn-outline-light rounded-pill px-3 dropdown-toggle"
+                                data-bs-toggle="dropdown">
+                            <i class="@Model.CurrentLanguage.Icon"></i> @Model.CurrentLanguage.DisplayName
                         </button>
-                        <!--end::Mobile menu toggle-->
-                        <!--begin::Logo image-->
-                        <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
-                            <img alt="DòXổSố AI" src="~/Common/Images/logo.png"
-                                 class="logo-default"
-                                 style="height:40px;width:40px;object-fit:contain;border-radius:12px;background:#fff;padding:2px;"/>
-                            <img alt="DòXổSố AI" src="~/Common/Images/logo.png"
-                                 class="logo-sticky"
-                                 style="height:36px;width:36px;object-fit:contain;border-radius:10px;"/>
-                            <span class="logo-default fw-bold fs-5 ms-1" style="color:#fff;letter-spacing:-.3px;">DòXổSố <span style="color:#00bb77;">AI</span></span>
-                            <span class="logo-sticky fw-bold fs-5 ms-1" style="color:#031649;letter-spacing:-.3px;">DòXổSố <span style="color:#00bb77;">AI</span></span>
-                        </a>
-                        <!--end::Logo image-->
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @foreach (var languageInfo in Model.Languages)
+                            {
+                                if (Model.CurrentLanguage.Name == languageInfo.Name) continue;
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="@Url.Action("ChangeCulture", "AbpLocalization", new {
+                                           area = "",
+                                           cultureName = languageInfo.Name,
+                                           returnUrl = Context.Request.Path + Context.Request.QueryString
+                                       })">
+                                        <i class="@languageInfo.Icon"></i> <span>@languageInfo.DisplayName</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
                     </div>
-                    <!--end::Logo-->
-                    <!--begin::Menu wrapper-->
-                    <div class="d-lg-block" id="kt_header_nav_wrapper">
-                        <div class="d-lg-block p-5 p-lg-0" data-kt-drawer="true" data-kt-drawer-name="landing-menu" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="200px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_landing_menu_toggle" data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_body', lg: '#kt_header_nav_wrapper'}">
-                            <!--begin::Menu-->
-                            <div class="menu menu-column flex-nowrap menu-rounded menu-lg-row menu-title-gray-500 menu-state-title-primary nav nav-flush fs-5 fw-semibold" id="kt_landing_menu">
-                                <!--begin::Menu item-->
-                                <div class="menu-item">
-                                    <a class="menu-link nav-link active py-3 px-4 px-xxl-6" href="#kt_body" data-kt-scroll-toggle="true" data-kt-drawer-dismiss="true">Trang chủ</a>
-                                </div>
-                                <!--end::Menu item-->
-                                <!--begin::Menu item-->
-                                <div class="menu-item">
-                                    <a class="menu-link nav-link py-3 px-4 px-xxl-6" href="#features" data-kt-scroll-toggle="true" data-kt-drawer-dismiss="true">Tính năng</a>
-                                </div>
-                                <!--end::Menu item-->
-                                <!--begin::Menu item-->
-                                <div class="menu-item">
-                                    <a class="menu-link nav-link py-3 px-4 px-xxl-6" href="#how-it-works" data-kt-scroll-toggle="true" data-kt-drawer-dismiss="true">Cách dùng</a>
-                                </div>
-                                <!--end::Menu item-->
-                                <!--begin::Menu item-->
-                                <div class="menu-item">
-                                    <a class="menu-link nav-link py-3 px-4 px-xxl-6" href="#reviews" data-kt-scroll-toggle="true" data-kt-drawer-dismiss="true">Đánh giá</a>
-                                </div>
-                                <!--end::Menu item-->
-                                <!--begin::Menu item-->
-                                <div class="menu-item">
-                                    <a class="menu-link nav-link py-3 px-4 px-xxl-6" href="#faq" data-kt-scroll-toggle="true" data-kt-drawer-dismiss="true">FAQ</a>
-                                </div>
-                                <!--end::Menu item-->
-                            </div>
-                            <!--end::Menu-->
-                        </div>
-                    </div>
-                    <!--end::Menu wrapper-->
-                    <!--begin::Toolbar-->
-                    <!--begin::Menu-->
-                    <div class="menu menu-rounded menu-column menu-gray-600 fw-semibold w-150px" data-kt-menu="true">
-                        @if (Model.Languages.Count > 1)
-                        {
-                            <!--begin::Menu item-->
-                            <div class="menu-item" data-kt-menu-trigger="hover" data-kt-menu-placement="bottom-start">
-                                <a href="#" class="menu-link px-5">
-                                    <span class="menu-title position-relative">
-                                        <span class="d-flex align-items-center rounded px-5 py-4 position-absolute translate-middle-y top-50 end-0">
-                                            <i class="@Model.CurrentLanguage.Icon me-3"></i> @Model.CurrentLanguage.DisplayName
-                                        </span>
-                                    </span>
+                }
+
+                @if (Model.LoginInformations?.User != null)
+                {
+                    <div class="dropdown d-none d-lg-block">
+                        <button type="button"
+                                class="btn btn-light rounded-pill px-3 dropdown-toggle"
+                                data-bs-toggle="dropdown">
+                            @Model.GetShownLoginName()
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("Logout", "Account")">
+                                    <i class="fa fa-sign-out-alt me-2"></i>Đăng xuất
                                 </a>
-
-                                <!--begin::Menu sub-->
-                                <div class="menu-sub menu-sub-dropdown w-225px py-2 mt-5">
-                                    @foreach (var languageInfo in Model.Languages)
-                                    {
-                                        if (Model.CurrentLanguage.Name == languageInfo.Name)
-                                        {
-                                            continue;
-                                        }
-
-                                        <div class="menu-item px-0 py-0">
-                                            <a href="@Url.Action("ChangeCulture", "AbpLocalization", new
-                                                     {
-                                                         area = "",
-                                                         cultureName = languageInfo.Name,
-                                                         returnUrl = Context.Request.Path + Context.Request.QueryString
-                                                     })" class="menu-link d-flex px-5">
-                                                <span class="symbol symbol-20px me-3">
-                                                    <i class="@languageInfo.Icon me-3"></i>
-                                                </span>
-                                                @languageInfo.DisplayName
-                                            </a>
-                                        </div>
-                                    }
-                                </div>
-                                <!--end::Menu sub-->
-                            </div>
-                            <!--end::Menu item-->
-                        }
+                            </li>
+                        </ul>
                     </div>
-                    <!--end::Menu-->
-                    @if (Model.LoginInformations?.User == null && Model.IsMultiTenancyEnabled && Model.TenantRegistrationEnabled && Model.IsInHostView)
-                    {
-                        <div class="flex-equal text-end me-4">
-                            <a href="@(string.Format("{0}{1}", Model.AdminWebSiteRootAddress, "?redirect=TenantRegistration&forceNewRegistration=true"))" class="btn btn-secondary">@L("NewTenant")</a>
-                        </div>
-                    }
-                    @if (Model.LoginInformations?.User != null)
-                    {
-                        <div class="menu menu-rounded menu-column menu-gray-600 fw-semibold w-125px" data-kt-menu="true">
-                            <!--begin::Menu item-->
-                            <div class="menu-item" data-kt-menu-trigger="hover" data-kt-menu-placement="bottom-end">
-                                <a href="#" class="menu-link px-5">
-                                    <span class="menu-title position-relative">
-                                        <span class="d-flex align-items-center rounded px-5 py-4 position-absolute translate-middle-y top-50 end-0">
-                                            @Model.GetShownLoginName()
-                                        </span>
-                                    </span>
-                                </a>
-
-                                <!--begin::Menu sub-->
-                                <div class="menu-sub menu-sub-dropdown w-125px mt-5">
-                                    <div class="menu-item px-3">
-                                        <a href="@Url.Action("Logout", "Account")" class="menu-link d-flex px-5">
-                                            <span class="symbol symbol-20px me-3">
-                                                <i class="icon-logout"></i>
-                                            </span>
-                                            @L("Logout")
-                                        </a>
-                                    </div>
-                                </div>
-                                <!--end::Menu sub-->
-                            </div>
-                            <!--end::Menu item-->
-                        </div>
-                    }
-                    else
-                    {
-                        <a href="#download" class="btn fw-bold px-6 py-3" style="background:#00bb77;color:#fff;border-radius:12px;" data-kt-scroll-toggle="true">Tải App</a>
-                    }
-                    <!--end::Toolbar-->
-                </div>
-                <!--end::Wrapper-->
+                }
+                else
+                {
+                    <a href="#download"
+                       class="btn btn-primary rounded-pill px-4 d-none d-lg-block"
+                       style="font-weight:600;">
+                        <i class="fa fa-download me-2"></i>Tải App
+                    </a>
+                }
             </div>
-            <!--end::Container-->
-        </div>
-        <!--end::Header-->
-        <!--begin::Landing hero-->
-        <div id="hero" class="w-100 px-6 px-lg-0" style="padding-top:60px; padding-bottom:80px;">
-            <div class="container">
-                <div class="row align-items-center g-10">
-                    <!--begin::Left — Text-->
-                    <div class="col-lg-6 text-center text-lg-start">
-                        <span class="badge fw-bold fs-7 mb-6 px-4 py-2" style="background:rgba(0,187,119,0.18);color:#00bb77;border-radius:20px;letter-spacing:.5px;">
-                            🎯 &nbsp;Miễn phí · iOS &amp; Android
-                        </span>
-                        <h1 class="text-white fw-bold lh-sm mb-6" style="font-size:clamp(2rem,5vw,3.2rem);">
-                            Dò Xổ Số<br/>
-                            <span style="background:linear-gradient(to right,#00bb77 0%,#00e89a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
-                                Thần Tốc Cùng AI
-                            </span>
-                        </h1>
-                        <p class="text-white fs-5 mb-10 lh-lg" style="opacity:.78;">
-                            Chụp ảnh vé số — AI nhận diện và trả kết quả trong 2 giây.<br class="d-none d-lg-block"/>
-                            Chính xác, nhanh chóng, hoàn toàn miễn phí.
-                        </p>
-                        <div class="d-flex flex-center flex-lg-start flex-wrap gap-4">
-                            <a href="#download" class="dxs-btn dxs-btn-primary" data-kt-scroll-toggle="true">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                                Tải App Ngay
-                            </a>
-                            <a href="#how-it-works" class="dxs-btn dxs-btn-outline" data-kt-scroll-toggle="true">
-                                Xem cách dùng →
-                            </a>
-                        </div>
-                    </div>
-                    <!--end::Left-->
-                    <!--begin::Right — Phone mockup-->
-                    <div class="col-lg-6 d-flex justify-content-center justify-content-lg-end">
-                        <img src="~/metronic/assets/media/product-demos/demo1.png"
-                             class="dxs-phone-frame"
-                             alt="DòXổSố AI App Screenshot"/>
-                    </div>
-                    <!--end::Right-->
-                </div>
-            </div>
-        </div>
-        <!--end::Landing hero-->
+        </nav>
     </div>
-    <!--end::Wrapper-->
-    <!--begin::Curve bottom-->
-    <div class="landing-curve landing-dark-color mb-10 mb-lg-20">
-        <svg viewBox="15 12 1470 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 11C3.93573 11.3356 7.85984 11.6689 11.7725 12H1488.16C1492.1 11.6689 1496.04 11.3356 1500 11V12H1488.16C913.668 60.3476 586.282 60.6117 11.7725 12H0V11Z" fill="currentColor"></path>
-        </svg>
-    </div>
-    <!--end::Curve bottom-->
 </div>
-<!--end::Header Section-->
+<!-- Navbar End -->

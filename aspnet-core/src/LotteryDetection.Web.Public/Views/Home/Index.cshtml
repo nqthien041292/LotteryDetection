@@ -3,404 +3,310 @@
     ViewBag.CurrentPageName = FrontEndPageNames.Home;
 }
 
-<!--begin::Features Section-->
-<section id="features" class="py-20" style="background-color:#FAFBF6;">
+<!-- Hero Start -->
+<div id="hero" class="container-fluid pt-5 hero-header mb-5">
+    <div class="container pt-5">
+        <div class="row g-5 pt-5 align-items-center">
+            <!-- Text -->
+            <div class="col-lg-6 align-self-center text-center text-lg-start mb-lg-5">
+                <div class="btn btn-sm border rounded-pill px-3 mb-3 animated slideInRight"
+                     style="color:#00bb77;border-color:rgba(0,187,119,.4);">
+                    🎯 &nbsp;Miễn phí · iOS & Android
+                </div>
+                <h1 class="display-4 text-white mb-4 animated slideInRight" style="line-height:1.15;">
+                    Dò Xổ Số<br>
+                    <span style="background:linear-gradient(to right,#00bb77,#00e89a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                        Thần Tốc Cùng AI
+                    </span>
+                </h1>
+                <p class="text-white mb-5 animated slideInRight" style="opacity:.8;font-size:1.1rem;line-height:1.7;">
+                    Chụp ảnh vé số — AI nhận diện và trả kết quả trong 2 giây.<br>
+                    Chính xác, nhanh chóng, hoàn toàn miễn phí.
+                </p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start animated slideInRight">
+                    <a href="#download" class="btn btn-primary py-sm-3 px-sm-5 rounded-pill">
+                        <i class="fa fa-download me-2"></i>Tải App Ngay
+                    </a>
+                    <a href="#about" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill">
+                        Xem thêm →
+                    </a>
+                </div>
+            </div>
+            <!-- Phone mockup -->
+            <div class="col-lg-6 align-self-end text-center text-lg-end pb-4">
+                <img class="hero-phone-img animated slideInRight"
+                     src="~/Common/Images/42c751f5ffc17e9f27d0.jpg"
+                     alt="DòXổSố AI – Trang chủ app"
+                     style="max-height:520px;border-radius:32px;">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Hero End -->
+
+
+<!-- Stats Start -->
+<div class="container-fluid py-5" style="background:var(--light);">
+    <div class="container py-3">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 col-sm-6 wow fadeIn" data-wow-delay="0.1s">
+                <div class="stat-card text-center">
+                    <div class="stat-number mb-2">100K+</div>
+                    <h5 class="mb-1" style="color:var(--dark);">Vé đã dò</h5>
+                    <p class="text-muted mb-0 small">Tính từ khi ra mắt</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 wow fadeIn" data-wow-delay="0.3s">
+                <div class="stat-card text-center">
+                    <div class="stat-number mb-2">50K+</div>
+                    <h5 class="mb-1" style="color:var(--dark);">Người dùng</h5>
+                    <p class="text-muted mb-0 small">Trên iOS & Android</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 wow fadeIn" data-wow-delay="0.5s">
+                <div class="stat-card text-center">
+                    <div class="stat-number mb-2">99%</div>
+                    <h5 class="mb-1" style="color:var(--dark);">Độ chính xác</h5>
+                    <p class="text-muted mb-0 small">Được kiểm chứng thực tế</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Stats End -->
+
+
+<!-- About Start -->
+<div id="about" class="container-fluid py-5">
     <div class="container">
-        <div class="text-center mb-16">
-            <span class="badge fw-bold fs-7 mb-5 px-4 py-2" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:20px;">Tính Năng</span>
-            <h2 class="fw-bold fs-2hx mb-4" style="color:#031649;">Mọi thứ bạn cần để dò xổ số</h2>
-            <p class="fs-5 text-muted mw-550px mx-auto">Chỉ cần chiếc điện thoại, DòXổSố AI làm hết phần còn lại.</p>
-        </div>
-        <div class="row g-6">
-            <div class="col-sm-6 col-lg-3">
-                <div class="dxs-feature-card">
-                    <div class="dxs-icon-circle"><i class="fa fa-camera fa-lg"></i></div>
-                    <h5 class="fw-bold mb-3" style="color:#031649;">AI Nhận Diện Tức Thì</h5>
-                    <p class="text-muted fs-6 mb-0 lh-lg">Chụp ảnh vé số, AI phân tích và trả kết quả trong vòng 2 giây.</p>
+        <div class="row g-5 align-items-center">
+            <!-- Screenshot image -->
+            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                <div class="about-img">
+                    <img class="img-fluid"
+                         src="~/Common/Images/08ad499ee7aa66f43fbb.jpg"
+                         alt="Chụp ảnh vé số với DòXổSố AI">
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="dxs-feature-card">
-                    <div class="dxs-icon-circle"><i class="fa fa-check-circle fa-lg"></i></div>
-                    <h5 class="fw-bold mb-3" style="color:#031649;">Kết Quả Chính Xác</h5>
-                    <p class="text-muted fs-6 mb-0 lh-lg">Dữ liệu xổ số cập nhật trực tiếp từ đài phát hành chính thức trên toàn quốc.</p>
+            <!-- Text -->
+            <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+                <div class="btn btn-sm border rounded-pill px-3 mb-3"
+                     style="color:var(--primary);border-color:rgba(0,187,119,.4);">
+                    Về ứng dụng
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="dxs-feature-card">
-                    <div class="dxs-icon-circle"><i class="fa fa-history fa-lg"></i></div>
-                    <h5 class="fw-bold mb-3" style="color:#031649;">Lịch Sử Đầy Đủ</h5>
-                    <p class="text-muted fs-6 mb-0 lh-lg">Lưu toàn bộ lịch sử dò vé, tra cứu bất kỳ lúc nào, kể cả khi offline.</p>
+                <h1 class="mb-4">Dò vé số chưa bao giờ đơn giản đến thế</h1>
+                <p class="mb-4">
+                    DòXổSố AI là ứng dụng dò xổ số thông minh sử dụng trí tuệ nhân tạo để nhận diện
+                    vé số và tra cứu kết quả tự động. Không cần nhập tay từng con số — chỉ cần chụp ảnh
+                    và để AI làm việc.
+                </p>
+                <p class="mb-4">
+                    Kết quả xổ số được cập nhật trực tiếp từ các đài phát hành chính thức trên toàn quốc,
+                    đảm bảo độ chính xác tuyệt đối.
+                </p>
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>AI nhận diện tức thì</h6>
+                        <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Kết quả chính xác</h6>
+                    </div>
+                    <div class="col-sm-6">
+                        <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Lịch sử đầy đủ</h6>
+                        <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Bảo mật dữ liệu</h6>
+                    </div>
                 </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="dxs-feature-card">
-                    <div class="dxs-icon-circle"><i class="fa fa-lock fa-lg"></i></div>
-                    <h5 class="fw-bold mb-3" style="color:#031649;">Bảo Mật Tuyệt Đối</h5>
-                    <p class="text-muted fs-6 mb-0 lh-lg">Không lưu ảnh vé số lên server. Dữ liệu cá nhân được mã hoá và bảo vệ an toàn.</p>
+                <div class="d-flex align-items-center gap-3">
+                    <a class="btn btn-primary rounded-pill px-4" href="#features">Xem tính năng</a>
+                    <a class="btn btn-outline-primary btn-square" href="#download" title="Tải app">
+                        <i class="fa fa-download"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</section>
-<!--end::Features Section-->
+</div>
+<!-- About End -->
 
-<!--begin::How It Works Section-->
-<section id="how-it-works" class="py-20" style="background:#fff;">
-    <div class="container">
-        <div class="text-center mb-16">
-            <span class="badge fw-bold fs-7 mb-5 px-4 py-2" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:20px;">Cách Dùng</span>
-            <h2 class="fw-bold fs-2hx mb-4" style="color:#031649;">Chỉ 3 bước đơn giản</h2>
-            <p class="fs-5 text-muted mw-500px mx-auto">Không cần kỹ thuật. Không cần đăng ký phức tạp. Mở app và bắt đầu.</p>
-        </div>
-        <div class="row g-10 align-items-start">
-            <div class="col-md-4 text-center">
-                <div class="dxs-step-badge">1</div>
-                <div class="mb-6">
-                    <img src="~/metronic/assets/media/illustrations/sketchy-1/2.png" class="mh-125px" alt="Chụp ảnh"/>
-                </div>
-                <h5 class="fw-bold mb-3" style="color:#031649;">Chụp Ảnh</h5>
-                <p class="text-muted fs-6 mw-250px mx-auto lh-lg">Đưa camera vào tấm vé số hoặc chọn ảnh từ thư viện điện thoại.</p>
-            </div>
-            <div class="col-md-4 text-center">
-                <div class="dxs-step-badge">2</div>
-                <div class="mb-6">
-                    <img src="~/metronic/assets/media/illustrations/sketchy-1/8.png" class="mh-125px" alt="AI phân tích"/>
-                </div>
-                <h5 class="fw-bold mb-3" style="color:#031649;">AI Phân Tích</h5>
-                <p class="text-muted fs-6 mw-250px mx-auto lh-lg">Trí tuệ nhân tạo nhận diện dãy số và tra cứu kết quả xổ số tức thì.</p>
-            </div>
-            <div class="col-md-4 text-center">
-                <div class="dxs-step-badge">3</div>
-                <div class="mb-6">
-                    <img src="~/metronic/assets/media/illustrations/sketchy-1/12.png" class="mh-125px" alt="Xem kết quả"/>
-                </div>
-                <h5 class="fw-bold mb-3" style="color:#031649;">Xem Kết Quả</h5>
-                <p class="text-muted fs-6 mw-250px mx-auto lh-lg">Biết ngay vé trúng hay không, trúng giải bao nhiêu — trong tích tắc.</p>
-            </div>
-        </div>
-    </div>
-</section>
-<!--end::How It Works Section-->
 
-<!--begin::Stats Section-->
-<section id="stats">
-    <!--begin::Curve top-->
-    <div class="landing-curve" style="color:#031649; margin-bottom:-2px;">
-        <svg viewBox="15 -1 1470 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 48C4.93573 47.6644 8.85984 47.3311 12.7725 47H1489.16C1493.1 47.3311 1497.04 47.6644 1501 48V47H1489.16C914.668 -1.34764 587.282 -1.61174 12.7725 47H1V48Z" fill="currentColor"></path>
-        </svg>
-    </div>
-    <!--end::Curve top-->
-    <div class="py-20" style="background-color:#031649;">
-        <div class="container">
-            <div class="text-center mb-16">
-                <h2 class="text-white fw-bold fs-2hx mb-4">Được tin dùng bởi hàng chục nghìn người</h2>
-                <p class="fs-5 lh-lg" style="color:rgba(255,255,255,0.65);">Dữ liệu xổ số cập nhật theo thời gian thực từ các đài trên toàn quốc.</p>
+<!-- Features Start -->
+<div id="features" class="container-fluid py-5" style="background:var(--light);">
+    <div class="container py-5">
+        <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width:720px;margin-bottom:3rem;">
+            <div class="btn btn-sm border rounded-pill px-3 mb-3"
+                 style="color:var(--primary);border-color:rgba(0,187,119,.4);">
+                Tính năng nổi bật
             </div>
-            <div class="row g-6 justify-content-center">
-                <div class="col-sm-4 text-center">
-                    <div class="py-10">
-                        <div class="dxs-stat-num mb-3">100K+</div>
-                        <div class="text-white fw-bold fs-4 mb-2">Vé đã dò</div>
-                        <div class="fs-6" style="color:rgba(255,255,255,0.5);">Tính từ khi ra mắt</div>
+            <h1 class="mb-4">Mọi thứ bạn cần để dò xổ số</h1>
+            <p class="mb-0">Chỉ cần chiếc điện thoại. DòXổSố AI làm hết phần còn lại.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+                <div class="service-item d-flex flex-column text-center rounded h-100">
+                    <div class="service-icon btn-square">
+                        <i class="fa fa-camera fa-2x"></i>
                     </div>
+                    <h5 class="mb-3">AI Nhận Diện Tức Thì</h5>
+                    <p class="mb-0">Chụp ảnh vé số, AI phân tích và trả kết quả trong vòng 2 giây.</p>
                 </div>
-                <div class="col-sm-4 text-center">
-                    <div class="py-10">
-                        <div class="dxs-stat-num mb-3">50K+</div>
-                        <div class="text-white fw-bold fs-4 mb-2">Người dùng</div>
-                        <div class="fs-6" style="color:rgba(255,255,255,0.5);">Trên iOS &amp; Android</div>
+            </div>
+            <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.3s">
+                <div class="service-item d-flex flex-column text-center rounded h-100">
+                    <div class="service-icon btn-square">
+                        <i class="fa fa-check-circle fa-2x"></i>
                     </div>
+                    <h5 class="mb-3">Kết Quả Chính Xác</h5>
+                    <p class="mb-0">Dữ liệu xổ số cập nhật trực tiếp từ đài phát hành chính thức trên toàn quốc.</p>
                 </div>
-                <div class="col-sm-4 text-center">
-                    <div class="py-10">
-                        <div class="dxs-stat-num mb-3">99%</div>
-                        <div class="text-white fw-bold fs-4 mb-2">Độ chính xác</div>
-                        <div class="fs-6" style="color:rgba(255,255,255,0.5);">Được kiểm chứng thực tế</div>
+            </div>
+            <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.5s">
+                <div class="service-item d-flex flex-column text-center rounded h-100">
+                    <div class="service-icon btn-square">
+                        <i class="fa fa-history fa-2x"></i>
                     </div>
+                    <h5 class="mb-3">Lịch Sử Đầy Đủ</h5>
+                    <p class="mb-0">Lưu toàn bộ lịch sử dò vé, tra cứu bất kỳ lúc nào, kể cả khi offline.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
+                <div class="service-item d-flex flex-column text-center rounded h-100">
+                    <div class="service-icon btn-square">
+                        <i class="fa fa-lock fa-2x"></i>
+                    </div>
+                    <h5 class="mb-3">Bảo Mật Tuyệt Đối</h5>
+                    <p class="mb-0">Không lưu ảnh vé số lên server. Dữ liệu được mã hoá và bảo vệ an toàn.</p>
                 </div>
             </div>
         </div>
-    </div>
-    <!--begin::Curve bottom-->
-    <div class="landing-curve" style="color:#031649; margin-top:-2px;">
-        <svg viewBox="15 12 1470 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 11C3.93573 11.3356 7.85984 11.6689 11.7725 12H1488.16C1492.1 11.6689 1496.04 11.3356 1500 11V12H1488.16C913.668 60.3476 586.282 60.6117 11.7725 12H0V11Z" fill="currentColor"></path>
-        </svg>
-    </div>
-    <!--end::Curve bottom-->
-</section>
-<!--end::Stats Section-->
-
-<!--begin::Screenshots Section-->
-<section id="screenshots" class="py-20" style="background:#FAFBF6;">
-    <div class="container">
-        <div class="text-center mb-14">
-            <span class="badge fw-bold fs-7 mb-5 px-4 py-2" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:20px;">App Screenshots</span>
-            <h2 class="fw-bold fs-2hx mb-4" style="color:#031649;">Giao diện đẹp, dễ dùng</h2>
-            <p class="fs-5 text-muted">Thiết kế tối giản — từ đăng nhập đến kết quả, chỉ vài thao tác.</p>
-        </div>
-        <!--begin::Screenshot grid-->
-        <div class="row g-6 justify-content-center">
-            <!--begin::Screenshot 1 — Đăng nhập-->
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="text-center">
-                    <div class="dxs-screen-frame">
-                        <img src="~/Common/Images/aeb64a80e4b465ea3ca5.jpg"
-                             alt="Màn hình đăng nhập"
-                             class="dxs-screenshot"/>
-                    </div>
-                    <p class="mt-4 fw-semibold fs-7 text-muted">Đăng nhập nhanh</p>
-                </div>
-            </div>
-            <!--end::Screenshot 1-->
-            <!--begin::Screenshot 2 — Dashboard-->
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="text-center">
-                    <div class="dxs-screen-frame">
-                        <img src="~/Common/Images/42c751f5ffc17e9f27d0.jpg"
-                             alt="Trang chủ"
-                             class="dxs-screenshot"/>
-                    </div>
-                    <p class="mt-4 fw-semibold fs-7 text-muted">Trang chủ</p>
-                </div>
-            </div>
-            <!--end::Screenshot 2-->
-            <!--begin::Screenshot 3 — Chụp ảnh-->
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="text-center">
-                    <div class="dxs-screen-frame">
-                        <img src="~/Common/Images/08ad499ee7aa66f43fbb.jpg"
-                             alt="Chụp ảnh vé số"
-                             class="dxs-screenshot"/>
-                    </div>
-                    <p class="mt-4 fw-semibold fs-7 text-muted">Chụp ảnh vé</p>
-                </div>
-            </div>
-            <!--end::Screenshot 3-->
-            <!--begin::Screenshot 4 — AI phân tích-->
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="text-center">
-                    <div class="dxs-screen-frame">
-                        <img src="~/Common/Images/b112822e2c1aad44f40b.jpg"
-                             alt="AI đang phân tích"
-                             class="dxs-screenshot"/>
-                    </div>
-                    <p class="mt-4 fw-semibold fs-7 text-muted">AI phân tích</p>
-                </div>
-            </div>
-            <!--end::Screenshot 4-->
-            <!--begin::Screenshot 5 — Kết quả-->
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="text-center">
-                    <div class="dxs-screen-frame">
-                        <img src="~/Common/Images/857ac1476f73ee2db762.jpg"
-                             alt="Kết quả dò vé"
-                             class="dxs-screenshot"/>
-                    </div>
-                    <p class="mt-4 fw-semibold fs-7 text-muted">Kết quả tức thì</p>
-                </div>
-            </div>
-            <!--end::Screenshot 5-->
-            <!--begin::Screenshot 6 — Lịch sử-->
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="text-center">
-                    <div class="dxs-screen-frame">
-                        <img src="~/Common/Images/0af84dc5e3f162af3be0.jpg"
-                             alt="Lịch sử dò vé"
-                             class="dxs-screenshot"/>
-                    </div>
-                    <p class="mt-4 fw-semibold fs-7 text-muted">Lịch sử dò vé</p>
-                </div>
-            </div>
-            <!--end::Screenshot 6-->
-        </div>
-        <!--end::Screenshot grid-->
-    </div>
-</section>
-<!--end::Screenshots Section-->
-
-<!--begin::Testimonials Section-->
-<section id="reviews" class="py-20" style="background:#fff;">
-    <div class="container">
-        <div class="text-center mb-16">
-            <span class="badge fw-bold fs-7 mb-5 px-4 py-2" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:20px;">Đánh Giá</span>
-            <h2 class="fw-bold fs-2hx mb-4" style="color:#031649;">Người dùng nói gì?</h2>
-            <p class="fs-5 text-muted">Hơn 50.000 người tin dùng DòXổSố AI mỗi tuần.</p>
-        </div>
-        <div class="row g-6">
-            <!--begin::Review 1-->
-            <div class="col-md-4">
-                <div class="dxs-review-card">
-                    <div class="dxs-stars mb-4">★★★★★</div>
-                    <p class="text-muted fs-6 mb-8 lh-lg">
-                        "Ứng dụng cực kỳ tiện. Chụp ảnh vé là ra kết quả ngay, không cần ngồi so từng con số nữa. Tuyệt vời!"
-                    </p>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="symbol symbol-40px">
-                            <span class="symbol-label fw-bold fs-5" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:12px;">AN</span>
-                        </div>
-                        <div>
-                            <div class="fw-bold fs-6" style="color:#031649;">Anh Nguyễn</div>
-                            <div class="text-muted fs-7">TP. Hồ Chí Minh</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--end::Review 1-->
-            <!--begin::Review 2-->
-            <div class="col-md-4">
-                <div class="dxs-review-card">
-                    <div class="dxs-stars mb-4">★★★★★</div>
-                    <p class="text-muted fs-6 mb-8 lh-lg">
-                        "Dùng mỗi tuần vào thứ Bảy. AI nhận diện rất nhanh và chính xác. Không còn lo sót giải nữa rồi."
-                    </p>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="symbol symbol-40px">
-                            <span class="symbol-label fw-bold fs-5" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:12px;">TL</span>
-                        </div>
-                        <div>
-                            <div class="fw-bold fs-6" style="color:#031649;">Chị Lan</div>
-                            <div class="text-muted fs-7">Hà Nội</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--end::Review 2-->
-            <!--begin::Review 3-->
-            <div class="col-md-4">
-                <div class="dxs-review-card">
-                    <div class="dxs-stars mb-4">★★★★☆</div>
-                    <p class="text-muted fs-6 mb-8 lh-lg">
-                        "Giao diện đẹp, sạch. Kết quả so khớp đúng với đài phát hành. Mong app ra thêm nhiều tính năng!"
-                    </p>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="symbol symbol-40px">
-                            <span class="symbol-label fw-bold fs-5" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:12px;">MT</span>
-                        </div>
-                        <div>
-                            <div class="fw-bold fs-6" style="color:#031649;">Minh Trung</div>
-                            <div class="text-muted fs-7">Đà Nẵng</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--end::Review 3-->
-        </div>
-    </div>
-</section>
-<!--end::Testimonials Section-->
-
-<!--begin::FAQ Section-->
-<section id="faq" class="py-20" style="background:#FAFBF6;">
-    <div class="container">
-        <div class="text-center mb-14">
-            <span class="badge fw-bold fs-7 mb-5 px-4 py-2" style="background:rgba(0,187,119,0.12);color:#00bb77;border-radius:20px;">FAQ</span>
-            <h2 class="fw-bold fs-2hx mb-4" style="color:#031649;">Câu hỏi thường gặp</h2>
-        </div>
-        <div class="mw-800px mx-auto">
-            <!--begin::FAQ 1-->
-            <div class="dxs-faq-item">
-                <button class="dxs-faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
-                    App hỗ trợ những đài xổ số nào?
-                    <i class="fa fa-chevron-down text-muted fs-8"></i>
-                </button>
-                <div id="faq1" class="collapse show">
-                    <div class="dxs-faq-answer">
-                        DòXổSố AI hỗ trợ tất cả các đài xổ số kiến thiết miền Nam, miền Trung, miền Bắc và Vietlott. Kết quả được cập nhật ngay sau khi đài công bố chính thức.
-                    </div>
-                </div>
-            </div>
-            <!--end::FAQ 1-->
-            <!--begin::FAQ 2-->
-            <div class="dxs-faq-item">
-                <button class="dxs-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
-                    Kết quả dò có chính xác không?
-                    <i class="fa fa-chevron-down text-muted fs-8"></i>
-                </button>
-                <div id="faq2" class="collapse">
-                    <div class="dxs-faq-answer">
-                        Có. AI nhận diện số vé với độ chính xác 99%+ và kết quả xổ số được lấy trực tiếp từ nguồn chính thức. Nếu ảnh chụp không rõ, app sẽ thông báo để bạn chụp lại.
-                    </div>
-                </div>
-            </div>
-            <!--end::FAQ 2-->
-            <!--begin::FAQ 3-->
-            <div class="dxs-faq-item">
-                <button class="dxs-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
-                    App có miễn phí không?
-                    <i class="fa fa-chevron-down text-muted fs-8"></i>
-                </button>
-                <div id="faq3" class="collapse">
-                    <div class="dxs-faq-answer">
-                        Hoàn toàn miễn phí. Tải về, đăng ký và dò vé không mất bất kỳ chi phí nào. Không có phí ẩn hay gói nâng cấp bắt buộc.
-                    </div>
-                </div>
-            </div>
-            <!--end::FAQ 3-->
-            <!--begin::FAQ 4-->
-            <div class="dxs-faq-item">
-                <button class="dxs-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
-                    Dữ liệu và ảnh vé của tôi có bị lưu lại không?
-                    <i class="fa fa-chevron-down text-muted fs-8"></i>
-                </button>
-                <div id="faq4" class="collapse">
-                    <div class="dxs-faq-answer">
-                        Ảnh vé số không được lưu trên server của chúng tôi. Chỉ có dãy số vé và kết quả dò được lưu vào lịch sử cá nhân, được mã hoá và bảo vệ nghiêm ngặt.
-                    </div>
-                </div>
-            </div>
-            <!--end::FAQ 4-->
-            <!--begin::FAQ 5-->
-            <div class="dxs-faq-item">
-                <button class="dxs-faq-question collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
-                    App có hoạt động khi không có mạng không?
-                    <i class="fa fa-chevron-down text-muted fs-8"></i>
-                </button>
-                <div id="faq5" class="collapse">
-                    <div class="dxs-faq-answer">
-                        Cần kết nối mạng để AI phân tích và tra cứu kết quả xổ số mới nhất. Tuy nhiên, lịch sử dò đã lưu trước đó vẫn xem được khi offline.
-                    </div>
-                </div>
-            </div>
-            <!--end::FAQ 5-->
-        </div>
-    </div>
-</section>
-<!--end::FAQ Section-->
-
-<!--begin::Download CTA Section-->
-<section id="download" class="py-24 dxs-download-bg">
-    <div class="container text-center">
-        <h2 class="text-white fw-bold fs-2hx mb-5">Tải DòXổSố AI ngay hôm nay</h2>
-        <p class="fs-5 mb-10 mw-500px mx-auto lh-lg" style="color:rgba(255,255,255,0.75);">
-            Miễn phí &nbsp;·&nbsp; iOS &amp; Android &nbsp;·&nbsp; Không cần đăng ký phức tạp
-        </p>
-        <div class="d-flex flex-center flex-wrap gap-4">
-            <!--begin::App Store button-->
-            <a href="#" class="dxs-store-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                </svg>
-                <div class="text-start">
-                    <div style="font-size:10px;line-height:1;opacity:.75;">Download on the</div>
-                    <div class="fw-bold fs-5">App Store</div>
-                </div>
+        <div class="text-center mt-5 wow fadeIn" data-wow-delay="0.2s">
+            <a class="btn btn-primary rounded-pill px-4" href="#download">
+                <i class="fa fa-download me-2"></i>Tải App Miễn Phí
             </a>
-            <!--end::App Store button-->
-            <!--begin::Google Play button-->
-            <a href="#" class="dxs-store-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m12.954 11.616 2.957-2.957L6.36 3.291c-.633-.342-1.226-.39-1.746-.016l8.34 8.341zm3.461 3.462 3.074-1.729c.6-.336.929-.812.929-1.349 0-.537-.329-1.013-.929-1.349l-3.074-1.729-3.093 3.093 3.093 3.063zM4.609 3.277A1.55 1.55 0 0 0 4 4.795V19.205c0 .548.186 1.015.609 1.518l.058.055 8.34-8.34v-.174L4.609 3.277zm7.977 8.332-8.34 8.34c.52.374 1.113.325 1.746-.016l9.551-5.368-2.957-2.956z"/>
-                </svg>
-                <div class="text-start">
-                    <div style="font-size:10px;line-height:1;opacity:.75;">Get it on</div>
-                    <div class="fw-bold fs-5">Google Play</div>
-                </div>
-            </a>
-            <!--end::Google Play button-->
         </div>
     </div>
-</section>
-<!--end::Download CTA Section-->
+</div>
+<!-- Features End -->
+
+
+<!-- Screenshots Start -->
+<div id="screenshots" class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width:600px;margin-bottom:3rem;">
+            <div class="btn btn-sm border rounded-pill px-3 mb-3"
+                 style="color:var(--primary);border-color:rgba(0,187,119,.4);">
+                App Screenshots
+            </div>
+            <h1 class="mb-4">Giao diện đẹp, dễ dùng</h1>
+            <p>Thiết kế tối giản — từ đăng nhập đến kết quả, chỉ vài thao tác.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <!-- Screenshot 1 — Login -->
+            <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.1s">
+                <div class="screen-frame">
+                    <img src="~/Common/Images/aeb64a80e4b465ea3ca5.jpg" alt="Đăng nhập">
+                </div>
+                <p class="screen-caption text-center">Đăng nhập nhanh</p>
+            </div>
+            <!-- Screenshot 2 — Dashboard -->
+            <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.2s">
+                <div class="screen-frame">
+                    <img src="~/Common/Images/42c751f5ffc17e9f27d0.jpg" alt="Trang chủ">
+                </div>
+                <p class="screen-caption text-center">Trang chủ</p>
+            </div>
+            <!-- Screenshot 3 — Capture -->
+            <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.3s">
+                <div class="screen-frame">
+                    <img src="~/Common/Images/08ad499ee7aa66f43fbb.jpg" alt="Chụp ảnh vé">
+                </div>
+                <p class="screen-caption text-center">Chụp ảnh vé</p>
+            </div>
+            <!-- Screenshot 4 — AI analyzing -->
+            <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.4s">
+                <div class="screen-frame">
+                    <img src="~/Common/Images/b112822e2c1aad44f40b.jpg" alt="AI phân tích">
+                </div>
+                <p class="screen-caption text-center">AI phân tích</p>
+            </div>
+            <!-- Screenshot 5 — Result -->
+            <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.5s">
+                <div class="screen-frame">
+                    <img src="~/Common/Images/857ac1476f73ee2db762.jpg" alt="Kết quả dò vé">
+                </div>
+                <p class="screen-caption text-center">Kết quả tức thì</p>
+            </div>
+            <!-- Screenshot 6 — History -->
+            <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.6s">
+                <div class="screen-frame">
+                    <img src="~/Common/Images/0af84dc5e3f162af3be0.jpg" alt="Lịch sử dò vé">
+                </div>
+                <p class="screen-caption text-center">Lịch sử dò vé</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Screenshots End -->
+
+
+<!-- Team Start -->
+<div id="team" class="container-fluid py-5" style="background:var(--light);">
+    <div class="container py-5">
+        <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width:600px;margin-bottom:3rem;">
+            <div class="btn btn-sm border rounded-pill px-3 mb-3"
+                 style="color:var(--primary);border-color:rgba(0,187,119,.4);">
+                Đội ngũ
+            </div>
+            <h1 class="mb-4">Đội ngũ FamilyAI Tech</h1>
+            <p>Những người xây dựng DòXổSố AI với niềm đam mê công nghệ và tình yêu với người dùng Việt Nam.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <img class="team-img" src="~/img/team-van-nguyen.png" alt="Van Nguyen"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Van+Nguyen&size=180&background=031649&color=00bb77&bold=true&rounded=true'">
+                    </div>
+                    <h5 class="mb-1">Van Nguyen</h5>
+                    <p class="mb-2" style="color:var(--primary);">Co-founder &amp; AI Lead</p>
+                    <p class="text-muted mb-3 small">Chuyên gia AI &amp; Machine Learning với hơn 10 năm kinh nghiệm trong lĩnh vực nhận diện hình ảnh.</p>
+                    <div class="d-flex justify-content-center">
+                        <a class="btn btn-outline-primary btn-square" href="https://www.linkedin.com/in/van-nguyen-ai26/" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.2s">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <img class="team-img" src="~/img/team-tommy-nguyen.png" alt="Tommy Nguyen"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Tommy+Nguyen&size=180&background=031649&color=00bb77&bold=true&rounded=true'">
+                    </div>
+                    <h5 class="mb-1">Tommy Nguyen</h5>
+                    <p class="mb-2" style="color:var(--primary);">Co-founder &amp; Mobile Lead</p>
+                    <p class="text-muted mb-3 small">Full-stack developer chuyên về .NET và React Native, kiến trúc sư của DòXổSố AI mobile app.</p>
+                    <div class="d-flex justify-content-center">
+                        <a class="btn btn-outline-primary btn-square" href="https://www.linkedin.com/in/tommynguyen89898/" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <img class="team-img" src="~/img/team-chien-nguyen.png" alt="Chien Nguyen"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Chien+Nguyen&size=180&background=031649&color=00bb77&bold=true&rounded=true'">
+                    </div>
+                    <h5 class="mb-1">Chien Nguyen</h5>
+                    <p class="mb-2" style="color:var(--primary);">Co-founder &amp; Backend Lead</p>
+                    <p class="text-muted mb-3 small">Kỹ sư backend với chuyên môn về hệ thống phân tán, đảm bảo API xổ số luôn nhanh và chính xác.</p>
+                    <div class="d-flex justify-content-center">
+                        <a class="btn btn-outline-primary btn-square" href="https://www.linkedin.com/in/chien-nguyen-484a82149/" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Team End -->
