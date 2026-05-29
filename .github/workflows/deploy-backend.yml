@@ -176,6 +176,7 @@ jobs:
             --max-instances=4
             --timeout=60s
             --service-account=${{ secrets.GCP_RUNTIME_SA }}
+            --add-cloudsql-instances=${{ secrets.CLOUDSQL_INSTANCE }}
           env_vars: |
             ASPNETCORE_ENVIRONMENT=Production
           secrets: |
