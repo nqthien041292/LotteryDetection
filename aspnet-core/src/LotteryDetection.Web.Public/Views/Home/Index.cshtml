@@ -7,37 +7,35 @@
 <div id="hero" class="container-fluid pt-5 hero-header mb-5">
     <div class="container pt-5">
         <div class="row g-5 pt-5 align-items-center">
-            <!-- Text -->
             <div class="col-lg-6 align-self-center text-center text-lg-start mb-lg-5">
                 <div class="btn btn-sm border rounded-pill px-3 mb-3 animated slideInRight"
                      style="color:#00bb77;border-color:rgba(0,187,119,.4);">
-                    🎯 &nbsp;Miễn phí · iOS & Android
+                    🎯 &nbsp;@L("Public_Hero_Badge")
                 </div>
                 <h1 class="display-4 text-white mb-4 animated slideInRight" style="line-height:1.15;">
-                    Dò Xổ Số<br>
+                    @L("Public_Hero_Title1")<br>
                     <span style="background:linear-gradient(to right,#00bb77,#00e89a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
-                        Thần Tốc Cùng AI
+                        @L("Public_Hero_Title2")
                     </span>
                 </h1>
                 <p class="text-white mb-5 animated slideInRight" style="opacity:.8;font-size:1.1rem;line-height:1.7;">
-                    Chụp ảnh vé số — AI nhận diện và trả kết quả trong 2 giây.<br>
-                    Chính xác, nhanh chóng, hoàn toàn miễn phí.
+                    @L("Public_Hero_Desc")
                 </p>
                 <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start animated slideInRight">
                     <a href="#download" class="btn btn-primary py-sm-3 px-sm-5 rounded-pill">
-                        <i class="fa fa-download me-2"></i>Tải App Ngay
+                        <i class="fa fa-download me-2"></i>@L("Public_Hero_DownloadBtn")
                     </a>
                     <a href="#about" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill">
-                        Xem thêm →
+                        @L("Public_Hero_LearnMore")
                     </a>
                 </div>
             </div>
-            <!-- Phone mockup -->
             <div class="col-lg-6 align-self-end text-center text-lg-end pb-4">
                 <img class="hero-phone-img animated slideInRight"
-                     src="~/Common/Images/42c751f5ffc17e9f27d0.jpg"
-                     alt="DòXổSố AI – Trang chủ app"
-                     style="max-height:520px;border-radius:32px;">
+                     src="~/Common/Images/ai_hero.png"
+                     alt="@L("Public_AppName")"
+                     style="max-height:520px;border-radius:32px;box-shadow:0 0 30px rgba(0,232,154,0.5);"
+                     onerror="this.src='~/Common/Images/42c751f5ffc17e9f27d0.jpg'">
             </div>
         </div>
     </div>
@@ -52,22 +50,22 @@
             <div class="col-md-4 col-sm-6 wow fadeIn" data-wow-delay="0.1s">
                 <div class="stat-card text-center">
                     <div class="stat-number mb-2">100K+</div>
-                    <h5 class="mb-1" style="color:var(--dark);">Vé đã dò</h5>
-                    <p class="text-muted mb-0 small">Tính từ khi ra mắt</p>
+                    <h5 class="mb-1" style="color:var(--dark);">@L("Public_Stats_Tickets")</h5>
+                    <p class="text-muted mb-0 small">@L("Public_Stats_TicketsDesc")</p>
                 </div>
             </div>
             <div class="col-md-4 col-sm-6 wow fadeIn" data-wow-delay="0.3s">
                 <div class="stat-card text-center">
                     <div class="stat-number mb-2">50K+</div>
-                    <h5 class="mb-1" style="color:var(--dark);">Người dùng</h5>
-                    <p class="text-muted mb-0 small">Trên iOS & Android</p>
+                    <h5 class="mb-1" style="color:var(--dark);">@L("Public_Stats_Users")</h5>
+                    <p class="text-muted mb-0 small">@L("Public_Stats_UsersDesc")</p>
                 </div>
             </div>
             <div class="col-md-4 col-sm-6 wow fadeIn" data-wow-delay="0.5s">
                 <div class="stat-card text-center">
                     <div class="stat-number mb-2">99%</div>
-                    <h5 class="mb-1" style="color:var(--dark);">Độ chính xác</h5>
-                    <p class="text-muted mb-0 small">Được kiểm chứng thực tế</p>
+                    <h5 class="mb-1" style="color:var(--dark);">@L("Public_Stats_Accuracy")</h5>
+                    <p class="text-muted mb-0 small">@L("Public_Stats_AccuracyDesc")</p>
                 </div>
             </div>
         </div>
@@ -80,43 +78,36 @@
 <div id="about" class="container-fluid py-5">
     <div class="container">
         <div class="row g-5 align-items-center">
-            <!-- Screenshot image -->
             <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
                 <div class="about-img">
                     <img class="img-fluid"
-                         src="~/Common/Images/08ad499ee7aa66f43fbb.jpg"
-                         alt="Chụp ảnh vé số với DòXổSố AI">
+                         src="~/Common/Images/ai_about.png"
+                         alt="@L("Public_About_Badge")"
+                         style="border-radius:32px;box-shadow:0 0 30px rgba(0,187,119,0.5);"
+                         onerror="this.src='~/Common/Images/08ad499ee7aa66f43fbb.jpg'">
                 </div>
             </div>
-            <!-- Text -->
             <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
                 <div class="btn btn-sm border rounded-pill px-3 mb-3"
                      style="color:var(--primary);border-color:rgba(0,187,119,.4);">
-                    Về ứng dụng
+                    @L("Public_About_Badge")
                 </div>
-                <h1 class="mb-4">Dò vé số chưa bao giờ đơn giản đến thế</h1>
-                <p class="mb-4">
-                    DòXổSố AI là ứng dụng dò xổ số thông minh sử dụng trí tuệ nhân tạo để nhận diện
-                    vé số và tra cứu kết quả tự động. Không cần nhập tay từng con số — chỉ cần chụp ảnh
-                    và để AI làm việc.
-                </p>
-                <p class="mb-4">
-                    Kết quả xổ số được cập nhật trực tiếp từ các đài phát hành chính thức trên toàn quốc,
-                    đảm bảo độ chính xác tuyệt đối.
-                </p>
+                <h1 class="mb-4">@L("Public_About_Title")</h1>
+                <p class="mb-4">@L("Public_About_P1")</p>
+                <p class="mb-4">@L("Public_About_P2")</p>
                 <div class="row g-3 mb-4">
                     <div class="col-sm-6">
-                        <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>AI nhận diện tức thì</h6>
-                        <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Kết quả chính xác</h6>
+                        <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>@L("Public_About_Feature1")</h6>
+                        <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>@L("Public_About_Feature2")</h6>
                     </div>
                     <div class="col-sm-6">
-                        <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Lịch sử đầy đủ</h6>
-                        <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Bảo mật dữ liệu</h6>
+                        <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>@L("Public_About_Feature3")</h6>
+                        <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>@L("Public_About_Feature4")</h6>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <a class="btn btn-primary rounded-pill px-4" href="#features">Xem tính năng</a>
-                    <a class="btn btn-outline-primary btn-square" href="#download" title="Tải app">
+                    <a class="btn btn-primary rounded-pill px-4" href="#features">@L("Public_About_FeaturesBtn")</a>
+                    <a class="btn btn-outline-primary btn-square" href="#download">
                         <i class="fa fa-download"></i>
                     </a>
                 </div>
@@ -133,52 +124,44 @@
         <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width:720px;margin-bottom:3rem;">
             <div class="btn btn-sm border rounded-pill px-3 mb-3"
                  style="color:var(--primary);border-color:rgba(0,187,119,.4);">
-                Tính năng nổi bật
+                @L("Public_Features_Badge")
             </div>
-            <h1 class="mb-4">Mọi thứ bạn cần để dò xổ số</h1>
-            <p class="mb-0">Chỉ cần chiếc điện thoại. DòXổSố AI làm hết phần còn lại.</p>
+            <h1 class="mb-4">@L("Public_Features_Title")</h1>
+            <p class="mb-0">@L("Public_Features_Desc")</p>
         </div>
         <div class="row g-4">
             <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
                 <div class="service-item d-flex flex-column text-center rounded h-100">
-                    <div class="service-icon btn-square">
-                        <i class="fa fa-camera fa-2x"></i>
-                    </div>
-                    <h5 class="mb-3">AI Nhận Diện Tức Thì</h5>
-                    <p class="mb-0">Chụp ảnh vé số, AI phân tích và trả kết quả trong vòng 2 giây.</p>
+                    <div class="service-icon btn-square"><i class="fa fa-camera fa-2x"></i></div>
+                    <h5 class="mb-3">@L("Public_Feature1_Title")</h5>
+                    <p class="mb-0">@L("Public_Feature1_Desc")</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.3s">
                 <div class="service-item d-flex flex-column text-center rounded h-100">
-                    <div class="service-icon btn-square">
-                        <i class="fa fa-check-circle fa-2x"></i>
-                    </div>
-                    <h5 class="mb-3">Kết Quả Chính Xác</h5>
-                    <p class="mb-0">Dữ liệu xổ số cập nhật trực tiếp từ đài phát hành chính thức trên toàn quốc.</p>
+                    <div class="service-icon btn-square"><i class="fa fa-check-circle fa-2x"></i></div>
+                    <h5 class="mb-3">@L("Public_Feature2_Title")</h5>
+                    <p class="mb-0">@L("Public_Feature2_Desc")</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.5s">
                 <div class="service-item d-flex flex-column text-center rounded h-100">
-                    <div class="service-icon btn-square">
-                        <i class="fa fa-history fa-2x"></i>
-                    </div>
-                    <h5 class="mb-3">Lịch Sử Đầy Đủ</h5>
-                    <p class="mb-0">Lưu toàn bộ lịch sử dò vé, tra cứu bất kỳ lúc nào, kể cả khi offline.</p>
+                    <div class="service-icon btn-square"><i class="fa fa-history fa-2x"></i></div>
+                    <h5 class="mb-3">@L("Public_Feature3_Title")</h5>
+                    <p class="mb-0">@L("Public_Feature3_Desc")</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
                 <div class="service-item d-flex flex-column text-center rounded h-100">
-                    <div class="service-icon btn-square">
-                        <i class="fa fa-lock fa-2x"></i>
-                    </div>
-                    <h5 class="mb-3">Bảo Mật Tuyệt Đối</h5>
-                    <p class="mb-0">Không lưu ảnh vé số lên server. Dữ liệu được mã hoá và bảo vệ an toàn.</p>
+                    <div class="service-icon btn-square"><i class="fa fa-lock fa-2x"></i></div>
+                    <h5 class="mb-3">@L("Public_Feature4_Title")</h5>
+                    <p class="mb-0">@L("Public_Feature4_Desc")</p>
                 </div>
             </div>
         </div>
         <div class="text-center mt-5 wow fadeIn" data-wow-delay="0.2s">
             <a class="btn btn-primary rounded-pill px-4" href="#download">
-                <i class="fa fa-download me-2"></i>Tải App Miễn Phí
+                <i class="fa fa-download me-2"></i>@L("Public_Features_DownloadBtn")
             </a>
         </div>
     </div>
@@ -192,53 +175,47 @@
         <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width:600px;margin-bottom:3rem;">
             <div class="btn btn-sm border rounded-pill px-3 mb-3"
                  style="color:var(--primary);border-color:rgba(0,187,119,.4);">
-                App Screenshots
+                @L("Public_Screenshots_Badge")
             </div>
-            <h1 class="mb-4">Giao diện đẹp, dễ dùng</h1>
-            <p>Thiết kế tối giản — từ đăng nhập đến kết quả, chỉ vài thao tác.</p>
+            <h1 class="mb-4">@L("Public_Screenshots_Title")</h1>
+            <p>@L("Public_Screenshots_Desc")</p>
         </div>
         <div class="row g-4 justify-content-center">
-            <!-- Screenshot 1 — Login -->
             <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.1s">
                 <div class="screen-frame">
-                    <img src="~/Common/Images/aeb64a80e4b465ea3ca5.jpg" alt="Đăng nhập">
+                    <img src="~/Common/Images/aeb64a80e4b465ea3ca5.jpg" alt="@L("Public_Screenshot1_Caption")">
                 </div>
-                <p class="screen-caption text-center">Đăng nhập nhanh</p>
+                <p class="screen-caption text-center">@L("Public_Screenshot1_Caption")</p>
             </div>
-            <!-- Screenshot 2 — Dashboard -->
             <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.2s">
                 <div class="screen-frame">
-                    <img src="~/Common/Images/42c751f5ffc17e9f27d0.jpg" alt="Trang chủ">
+                    <img src="~/Common/Images/42c751f5ffc17e9f27d0.jpg" alt="@L("Public_Screenshot2_Caption")">
                 </div>
-                <p class="screen-caption text-center">Trang chủ</p>
+                <p class="screen-caption text-center">@L("Public_Screenshot2_Caption")</p>
             </div>
-            <!-- Screenshot 3 — Capture -->
             <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.3s">
                 <div class="screen-frame">
-                    <img src="~/Common/Images/08ad499ee7aa66f43fbb.jpg" alt="Chụp ảnh vé">
+                    <img src="~/Common/Images/08ad499ee7aa66f43fbb.jpg" alt="@L("Public_Screenshot3_Caption")">
                 </div>
-                <p class="screen-caption text-center">Chụp ảnh vé</p>
+                <p class="screen-caption text-center">@L("Public_Screenshot3_Caption")</p>
             </div>
-            <!-- Screenshot 4 — AI analyzing -->
             <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.4s">
                 <div class="screen-frame">
-                    <img src="~/Common/Images/b112822e2c1aad44f40b.jpg" alt="AI phân tích">
+                    <img src="~/Common/Images/b112822e2c1aad44f40b.jpg" alt="@L("Public_Screenshot4_Caption")">
                 </div>
-                <p class="screen-caption text-center">AI phân tích</p>
+                <p class="screen-caption text-center">@L("Public_Screenshot4_Caption")</p>
             </div>
-            <!-- Screenshot 5 — Result -->
             <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.5s">
                 <div class="screen-frame">
-                    <img src="~/Common/Images/857ac1476f73ee2db762.jpg" alt="Kết quả dò vé">
+                    <img src="~/Common/Images/857ac1476f73ee2db762.jpg" alt="@L("Public_Screenshot5_Caption")">
                 </div>
-                <p class="screen-caption text-center">Kết quả tức thì</p>
+                <p class="screen-caption text-center">@L("Public_Screenshot5_Caption")</p>
             </div>
-            <!-- Screenshot 6 — History -->
             <div class="col-6 col-md-4 col-lg-2 wow fadeIn" data-wow-delay="0.6s">
                 <div class="screen-frame">
-                    <img src="~/Common/Images/0af84dc5e3f162af3be0.jpg" alt="Lịch sử dò vé">
+                    <img src="~/Common/Images/0af84dc5e3f162af3be0.jpg" alt="@L("Public_Screenshot6_Caption")">
                 </div>
-                <p class="screen-caption text-center">Lịch sử dò vé</p>
+                <p class="screen-caption text-center">@L("Public_Screenshot6_Caption")</p>
             </div>
         </div>
     </div>
@@ -252,10 +229,10 @@
         <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width:600px;margin-bottom:3rem;">
             <div class="btn btn-sm border rounded-pill px-3 mb-3"
                  style="color:var(--primary);border-color:rgba(0,187,119,.4);">
-                Đội ngũ
+                @L("Public_Team_Badge")
             </div>
-            <h1 class="mb-4">Đội ngũ FamilyAI Tech</h1>
-            <p>Những người xây dựng DòXổSố AI với niềm đam mê công nghệ và tình yêu với người dùng Việt Nam.</p>
+            <h1 class="mb-4">@L("Public_Team_Title")</h1>
+            <p>@L("Public_Team_Desc")</p>
         </div>
         <div class="row g-4 justify-content-center">
             <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
@@ -265,8 +242,8 @@
                              onerror="this.src='https://ui-avatars.com/api/?name=Van+Nguyen&size=180&background=031649&color=00bb77&bold=true&rounded=true'">
                     </div>
                     <h5 class="mb-1">Van Nguyen</h5>
-                    <p class="mb-2" style="color:var(--primary);">Co-founder &amp; AI Lead</p>
-                    <p class="text-muted mb-3 small">Chuyên gia AI &amp; Machine Learning với hơn 10 năm kinh nghiệm trong lĩnh vực nhận diện hình ảnh.</p>
+                    <p class="mb-2" style="color:var(--primary);">@L("Public_Team_Van_Role")</p>
+                    <p class="text-muted mb-3 small">@L("Public_Team_Van_Bio")</p>
                     <div class="d-flex justify-content-center">
                         <a class="btn btn-outline-primary btn-square" href="https://www.linkedin.com/in/van-nguyen-ai26/" target="_blank">
                             <i class="fab fa-linkedin-in"></i>
@@ -281,8 +258,8 @@
                              onerror="this.src='https://ui-avatars.com/api/?name=Tommy+Nguyen&size=180&background=031649&color=00bb77&bold=true&rounded=true'">
                     </div>
                     <h5 class="mb-1">Tommy Nguyen</h5>
-                    <p class="mb-2" style="color:var(--primary);">Co-founder &amp; Mobile Lead</p>
-                    <p class="text-muted mb-3 small">Full-stack developer chuyên về .NET và React Native, kiến trúc sư của DòXổSố AI mobile app.</p>
+                    <p class="mb-2" style="color:var(--primary);">@L("Public_Team_Tommy_Role")</p>
+                    <p class="text-muted mb-3 small">@L("Public_Team_Tommy_Bio")</p>
                     <div class="d-flex justify-content-center">
                         <a class="btn btn-outline-primary btn-square" href="https://www.linkedin.com/in/tommynguyen89898/" target="_blank">
                             <i class="fab fa-linkedin-in"></i>
@@ -297,8 +274,8 @@
                              onerror="this.src='https://ui-avatars.com/api/?name=Chien+Nguyen&size=180&background=031649&color=00bb77&bold=true&rounded=true'">
                     </div>
                     <h5 class="mb-1">Chien Nguyen</h5>
-                    <p class="mb-2" style="color:var(--primary);">Co-founder &amp; Backend Lead</p>
-                    <p class="text-muted mb-3 small">Kỹ sư backend với chuyên môn về hệ thống phân tán, đảm bảo API xổ số luôn nhanh và chính xác.</p>
+                    <p class="mb-2" style="color:var(--primary);">@L("Public_Team_Chien_Role")</p>
+                    <p class="text-muted mb-3 small">@L("Public_Team_Chien_Bio")</p>
                     <div class="d-flex justify-content-center">
                         <a class="btn btn-outline-primary btn-square" href="https://www.linkedin.com/in/chien-nguyen-484a82149/" target="_blank">
                             <i class="fab fa-linkedin-in"></i>

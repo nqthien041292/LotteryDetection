@@ -1339,5 +1339,103 @@
 		<text name="CameraPermissionDenied">Camera permission was denied. To scan a QR code, please enable camera access in settings.</text>
 		<text name="PermissionRequired">Permission Required</text>
 		<text name="OpenSettings">Open Settings</text>
+
+		<!-- ==================== DòXổSố AI — Web Public ==================== -->
+		<!-- Brand -->
+		<text name="Public_AppName">DòXổSố AI</text>
+		<text name="Public_AppTagline">Free · iOS &amp; Android</text>
+
+		<!-- Navbar -->
+		<text name="Public_Nav_Home">Home</text>
+		<text name="Public_Nav_About">About</text>
+		<text name="Public_Nav_Features">Features</text>
+		<text name="Public_Nav_Screenshots">Screenshots</text>
+		<text name="Public_Nav_Team">Team</text>
+		<text name="Public_Nav_Download">Download App</text>
+
+		<!-- Hero -->
+		<text name="Public_Hero_Badge">Free · iOS &amp; Android</text>
+		<text name="Public_Hero_Title1">Check Lottery</text>
+		<text name="Public_Hero_Title2">Lightning Fast with AI</text>
+		<text name="Public_Hero_Desc">Take a photo of your lottery ticket — AI recognises the numbers and returns results in 2 seconds. Accurate, fast, and completely free.</text>
+		<text name="Public_Hero_DownloadBtn">Download Now</text>
+		<text name="Public_Hero_LearnMore">Learn more →</text>
+
+		<!-- Stats -->
+		<text name="Public_Stats_Tickets">Tickets checked</text>
+		<text name="Public_Stats_TicketsDesc">Since launch</text>
+		<text name="Public_Stats_Users">Users</text>
+		<text name="Public_Stats_UsersDesc">On iOS &amp; Android</text>
+		<text name="Public_Stats_Accuracy">Accuracy</text>
+		<text name="Public_Stats_AccuracyDesc">Verified in practice</text>
+
+		<!-- About -->
+		<text name="Public_About_Badge">About the app</text>
+		<text name="Public_About_Title">Lottery checking has never been this simple</text>
+		<text name="Public_About_P1">DòXổSố AI is a smart lottery-checking app powered by artificial intelligence. It recognises your ticket and looks up results automatically — no manual number entry needed.</text>
+		<text name="Public_About_P2">Results are sourced directly from official lottery broadcasters across the country, guaranteeing absolute accuracy.</text>
+		<text name="Public_About_Feature1">Instant AI recognition</text>
+		<text name="Public_About_Feature2">Accurate results</text>
+		<text name="Public_About_Feature3">Full history</text>
+		<text name="Public_About_Feature4">Data security</text>
+		<text name="Public_About_FeaturesBtn">View features</text>
+
+		<!-- Features -->
+		<text name="Public_Features_Badge">Key Features</text>
+		<text name="Public_Features_Title">Everything you need to check lottery</text>
+		<text name="Public_Features_Desc">All you need is a phone — DòXổSố AI does the rest.</text>
+		<text name="Public_Feature1_Title">Instant AI Recognition</text>
+		<text name="Public_Feature1_Desc">Photograph your lottery ticket and AI analyses it in under 2 seconds.</text>
+		<text name="Public_Feature2_Title">Accurate Results</text>
+		<text name="Public_Feature2_Desc">Lottery data updated directly from official broadcasters nationwide.</text>
+		<text name="Public_Feature3_Title">Full History</text>
+		<text name="Public_Feature3_Desc">All your past checks are saved and searchable, even offline.</text>
+		<text name="Public_Feature4_Title">Total Security</text>
+		<text name="Public_Feature4_Desc">Ticket photos are never stored on our servers. Your data is encrypted and protected.</text>
+		<text name="Public_Features_DownloadBtn">Download for Free</text>
+
+		<!-- Screenshots -->
+		<text name="Public_Screenshots_Badge">App Screenshots</text>
+		<text name="Public_Screenshots_Title">Beautiful, easy to use</text>
+		<text name="Public_Screenshots_Desc">Minimal design — from login to result in just a few taps.</text>
+		<text name="Public_Screenshot1_Caption">Quick login</text>
+		<text name="Public_Screenshot2_Caption">Home screen</text>
+		<text name="Public_Screenshot3_Caption">Capture ticket</text>
+		<text name="Public_Screenshot4_Caption">AI analysing</text>
+		<text name="Public_Screenshot5_Caption">Instant result</text>
+		<text name="Public_Screenshot6_Caption">Ticket history</text>
+
+		<!-- Team -->
+		<text name="Public_Team_Badge">Team</text>
+		<text name="Public_Team_Title">FamilyAI Tech Team</text>
+		<text name="Public_Team_Desc">The people building DòXổSố AI with a passion for technology and love for Vietnamese users.</text>
+		<text name="Public_Team_Van_Role">Co-founder &amp; AI Lead</text>
+		<text name="Public_Team_Van_Bio">AI &amp; Machine Learning expert with over 10 years of experience in computer vision and image recognition.</text>
+		<text name="Public_Team_Tommy_Role">Co-founder &amp; Mobile Lead</text>
+		<text name="Public_Team_Tommy_Bio">Full-stack developer specialising in .NET and React Native — architect of the DòXổSố AI mobile app.</text>
+		<text name="Public_Team_Chien_Role">Co-founder &amp; Backend Lead</text>
+		<text name="Public_Team_Chien_Bio">Backend engineer with expertise in distributed systems, keeping the lottery API fast and accurate.</text>
+
+		<!-- Footer -->
+		<text name="Public_Footer_Tagline">Smart lottery-checking app powered by AI. Photograph a ticket — get results instantly. Free for iOS and Android.</text>
+		<text name="Public_Footer_Contact">Contact</text>
+		<text name="Public_Footer_Address">Ho Chi Minh City, Vietnam</text>
+		<text name="Public_Footer_Email">support@doxoso.ai</text>
+		<text name="Public_Footer_Explore">Explore</text>
+		<text name="Public_Footer_AboutLink">About</text>
+		<text name="Public_Footer_FeaturesLink">Features</text>
+		<text name="Public_Footer_ScreenshotsLink">Screenshots</text>
+		<text name="Public_Footer_TeamLink">Team</text>
+		<text name="Public_Footer_ContactLink">Contact</text>
+		<text name="Public_Footer_AllRights">All rights reserved.</text>
+		<text name="Public_Footer_Privacy">Privacy Policy</text>
+		<text name="Public_Footer_Terms">Terms</text>
+		<text name="Public_Footer_Support">Support</text>
+
+		<!-- Download store buttons -->
+		<text name="Public_Download_DownloadOnThe">Download on the</text>
+		<text name="Public_Download_GetItOn">Get it on</text>
+		<text name="Public_Download_AppStore">App Store</text>
+		<text name="Public_Download_GooglePlay">Google Play</text>
 	</texts>
 </localizationDictionary>

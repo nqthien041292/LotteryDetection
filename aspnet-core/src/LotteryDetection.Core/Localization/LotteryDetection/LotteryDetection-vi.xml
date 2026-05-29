@@ -826,5 +826,103 @@
 		<text name="AdminName_Regex_Description">Tên quản trị viên phải bắt đầu bằng một chữ cái, ít nhất 2 ký tự và không có khoảng trắng</text>
 		<text name="AdminSurname_Regex_Description">Họ quản trị viên phải bắt đầu bằng một chữ cái, ít nhất 2 ký tự và không có khoảng trắng</text>
 		<text name="AdminEmailAddress_Regex_Description">Địa chỉ email phải có định dạng hợp lệ, ví dụ (example@domain.com), chứa ít nhất một dấu chấm và không có khoảng trắng</text>
+
+		<!-- ==================== DòXổSố AI — Web Public ==================== -->
+		<!-- Brand -->
+		<text name="Public_AppName">DòXổSố AI</text>
+		<text name="Public_AppTagline">Miễn phí · iOS &amp; Android</text>
+
+		<!-- Navbar -->
+		<text name="Public_Nav_Home">Trang chủ</text>
+		<text name="Public_Nav_About">Giới thiệu</text>
+		<text name="Public_Nav_Features">Tính năng</text>
+		<text name="Public_Nav_Screenshots">Screenshots</text>
+		<text name="Public_Nav_Team">Đội ngũ</text>
+		<text name="Public_Nav_Download">Tải App</text>
+
+		<!-- Hero -->
+		<text name="Public_Hero_Badge">Miễn phí · iOS &amp; Android</text>
+		<text name="Public_Hero_Title1">Dò Xổ Số</text>
+		<text name="Public_Hero_Title2">Thần Tốc Cùng AI</text>
+		<text name="Public_Hero_Desc">Chụp ảnh vé số — AI nhận diện và trả kết quả trong 2 giây. Chính xác, nhanh chóng, hoàn toàn miễn phí.</text>
+		<text name="Public_Hero_DownloadBtn">Tải App Ngay</text>
+		<text name="Public_Hero_LearnMore">Xem thêm →</text>
+
+		<!-- Stats -->
+		<text name="Public_Stats_Tickets">Vé đã dò</text>
+		<text name="Public_Stats_TicketsDesc">Tính từ khi ra mắt</text>
+		<text name="Public_Stats_Users">Người dùng</text>
+		<text name="Public_Stats_UsersDesc">Trên iOS &amp; Android</text>
+		<text name="Public_Stats_Accuracy">Độ chính xác</text>
+		<text name="Public_Stats_AccuracyDesc">Được kiểm chứng thực tế</text>
+
+		<!-- About -->
+		<text name="Public_About_Badge">Về ứng dụng</text>
+		<text name="Public_About_Title">Dò vé số chưa bao giờ đơn giản đến thế</text>
+		<text name="Public_About_P1">DòXổSố AI là ứng dụng dò xổ số thông minh sử dụng trí tuệ nhân tạo để nhận diện vé số và tra cứu kết quả tự động. Không cần nhập tay từng con số — chỉ cần chụp ảnh và để AI làm việc.</text>
+		<text name="Public_About_P2">Kết quả xổ số được cập nhật trực tiếp từ các đài phát hành chính thức trên toàn quốc, đảm bảo độ chính xác tuyệt đối.</text>
+		<text name="Public_About_Feature1">AI nhận diện tức thì</text>
+		<text name="Public_About_Feature2">Kết quả chính xác</text>
+		<text name="Public_About_Feature3">Lịch sử đầy đủ</text>
+		<text name="Public_About_Feature4">Bảo mật dữ liệu</text>
+		<text name="Public_About_FeaturesBtn">Xem tính năng</text>
+
+		<!-- Features -->
+		<text name="Public_Features_Badge">Tính năng nổi bật</text>
+		<text name="Public_Features_Title">Mọi thứ bạn cần để dò xổ số</text>
+		<text name="Public_Features_Desc">Chỉ cần chiếc điện thoại. DòXổSố AI làm hết phần còn lại.</text>
+		<text name="Public_Feature1_Title">AI Nhận Diện Tức Thì</text>
+		<text name="Public_Feature1_Desc">Chụp ảnh vé số, AI phân tích và trả kết quả trong vòng 2 giây.</text>
+		<text name="Public_Feature2_Title">Kết Quả Chính Xác</text>
+		<text name="Public_Feature2_Desc">Dữ liệu xổ số cập nhật trực tiếp từ đài phát hành chính thức trên toàn quốc.</text>
+		<text name="Public_Feature3_Title">Lịch Sử Đầy Đủ</text>
+		<text name="Public_Feature3_Desc">Lưu toàn bộ lịch sử dò vé, tra cứu bất kỳ lúc nào, kể cả khi offline.</text>
+		<text name="Public_Feature4_Title">Bảo Mật Tuyệt Đối</text>
+		<text name="Public_Feature4_Desc">Không lưu ảnh vé số lên server. Dữ liệu được mã hoá và bảo vệ an toàn.</text>
+		<text name="Public_Features_DownloadBtn">Tải App Miễn Phí</text>
+
+		<!-- Screenshots -->
+		<text name="Public_Screenshots_Badge">App Screenshots</text>
+		<text name="Public_Screenshots_Title">Giao diện đẹp, dễ dùng</text>
+		<text name="Public_Screenshots_Desc">Thiết kế tối giản — từ đăng nhập đến kết quả, chỉ vài thao tác.</text>
+		<text name="Public_Screenshot1_Caption">Đăng nhập nhanh</text>
+		<text name="Public_Screenshot2_Caption">Trang chủ</text>
+		<text name="Public_Screenshot3_Caption">Chụp ảnh vé</text>
+		<text name="Public_Screenshot4_Caption">AI phân tích</text>
+		<text name="Public_Screenshot5_Caption">Kết quả tức thì</text>
+		<text name="Public_Screenshot6_Caption">Lịch sử dò vé</text>
+
+		<!-- Team -->
+		<text name="Public_Team_Badge">Đội ngũ</text>
+		<text name="Public_Team_Title">Đội ngũ FamilyAI Tech</text>
+		<text name="Public_Team_Desc">Những người xây dựng DòXổSố AI với niềm đam mê công nghệ và tình yêu với người dùng Việt Nam.</text>
+		<text name="Public_Team_Van_Role">Co-founder &amp; AI Lead</text>
+		<text name="Public_Team_Van_Bio">Chuyên gia AI &amp; Machine Learning với hơn 10 năm kinh nghiệm trong lĩnh vực nhận diện hình ảnh.</text>
+		<text name="Public_Team_Tommy_Role">Co-founder &amp; Mobile Lead</text>
+		<text name="Public_Team_Tommy_Bio">Full-stack developer chuyên về .NET và React Native, kiến trúc sư của DòXổSố AI mobile app.</text>
+		<text name="Public_Team_Chien_Role">Co-founder &amp; Backend Lead</text>
+		<text name="Public_Team_Chien_Bio">Kỹ sư backend với chuyên môn về hệ thống phân tán, đảm bảo API xổ số luôn nhanh và chính xác.</text>
+
+		<!-- Footer -->
+		<text name="Public_Footer_Tagline">Ứng dụng dò xổ số thông minh bằng AI. Chụp ảnh — nhận kết quả tức thì. Miễn phí cho iOS và Android.</text>
+		<text name="Public_Footer_Contact">Liên hệ</text>
+		<text name="Public_Footer_Address">TP. Hồ Chí Minh, Việt Nam</text>
+		<text name="Public_Footer_Email">support@doxoso.ai</text>
+		<text name="Public_Footer_Explore">Khám phá</text>
+		<text name="Public_Footer_AboutLink">Giới thiệu</text>
+		<text name="Public_Footer_FeaturesLink">Tính năng</text>
+		<text name="Public_Footer_ScreenshotsLink">Screenshots</text>
+		<text name="Public_Footer_TeamLink">Đội ngũ</text>
+		<text name="Public_Footer_ContactLink">Liên hệ</text>
+		<text name="Public_Footer_AllRights">Bảo lưu mọi quyền.</text>
+		<text name="Public_Footer_Privacy">Chính sách bảo mật</text>
+		<text name="Public_Footer_Terms">Điều khoản</text>
+		<text name="Public_Footer_Support">Hỗ trợ</text>
+
+		<!-- Download store buttons -->
+		<text name="Public_Download_DownloadOnThe">Tải về trên</text>
+		<text name="Public_Download_GetItOn">Tải về tại</text>
+		<text name="Public_Download_AppStore">App Store</text>
+		<text name="Public_Download_GooglePlay">Google Play</text>
 	</texts>
 </localizationDictionary>
