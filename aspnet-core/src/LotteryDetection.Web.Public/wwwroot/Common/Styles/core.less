@@ -2,3 +2,147 @@
 .famfamfam-flags {
     display: inline-block;
 }
+
+/* ============================================================
+   DòXổSố AI — Brand CSS (synced with mobile app palette)
+   ============================================================ */
+:root {
+    --dxs-navy:   #031649;
+    --dxs-green:  #00bb77;
+    --dxs-bg:     #FAFBF6;
+    --dxs-muted:  #52705A;
+    --dxs-border: #E9EFE4;
+}
+
+/* Buttons */
+.dxs-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 15px;
+    transition: opacity 0.2s, transform 0.15s;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    &:hover { opacity: 0.88; transform: translateY(-2px); }
+}
+.dxs-btn-primary { background-color: var(--dxs-green); color: #fff; }
+.dxs-btn-outline {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.35);
+    &:hover { border-color: rgba(255,255,255,0.65); color: #fff; }
+}
+
+/* Phone frame (hero mockup) */
+.dxs-phone-frame {
+    border-radius: 36px;
+    box-shadow: 0 32px 80px rgba(3,22,73,0.32);
+    max-width: 280px;
+    width: 100%;
+}
+
+/* Feature cards */
+.dxs-feature-card {
+    background: #fff;
+    border: 1.5px solid var(--dxs-border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    height: 100%;
+    transition: box-shadow 0.2s, transform 0.2s;
+    &:hover { box-shadow: 0 12px 40px rgba(3,22,73,0.10); transform: translateY(-3px); }
+}
+.dxs-icon-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(0,187,119,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    font-size: 22px;
+    color: var(--dxs-green);
+}
+
+/* How it works steps */
+.dxs-step-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--dxs-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+/* Stats */
+.dxs-stat-num {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--dxs-green);
+    line-height: 1;
+}
+
+/* Review cards */
+.dxs-review-card {
+    background: #fff;
+    border: 1.5px solid var(--dxs-border);
+    border-radius: 20px;
+    padding: 28px;
+    height: 100%;
+}
+.dxs-stars { color: #F5C842; font-size: 18px; letter-spacing: 2px; }
+
+/* FAQ accordion */
+.dxs-faq-item {
+    border: 1.5px solid var(--dxs-border);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: #fff;
+}
+.dxs-faq-question {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--dxs-navy);
+    background: #fff;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    &:hover { background: var(--dxs-bg); }
+}
+.dxs-faq-answer {
+    padding: 0 24px 20px;
+    color: var(--dxs-muted);
+    font-size: 14.5px;
+    line-height: 1.75;
+}
+
+/* Download CTA */
+.dxs-download-bg { background: linear-gradient(135deg, var(--dxs-navy) 0%, #00845a 100%); }
+.dxs-store-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s;
+    &:hover { background: rgba(255,255,255,0.22); color: #fff; }
+}
