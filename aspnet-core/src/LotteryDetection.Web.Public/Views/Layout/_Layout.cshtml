@@ -71,13 +71,17 @@
     <!-- WOW.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
 
-    <!-- ABP -->
+    <!-- ABP: load core scripts first, then configure -->
+    <script src="~/AbpScripts/GetScripts?_v=@AppTimes.StartupTime.Ticks" type="text/javascript"></script>
     <script type="text/javascript">
+        var abp = abp || {};
+        abp.localization = abp.localization || {};
         abp.localization.defaultSourceName = '@LocalizationSourceName';
+        abp.security = abp.security || {};
+        abp.security.antiForgery = abp.security.antiForgery || {};
         abp.security.antiForgery.tokenCookieName = "Public-XSRF-TOKEN";
         abp.security.antiForgery.tokenHeaderName = "Public-X-XSRF-TOKEN";
     </script>
-    <script src="~/AbpScripts/GetScripts?_v=@AppTimes.StartupTime.Ticks" type="text/javascript"></script>
 
     <!-- Custom JS -->
     <script src="~/js/main.js" asp-append-version="true"></script>
