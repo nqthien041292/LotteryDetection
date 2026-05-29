@@ -1,0 +1,150 @@
+@using Abp.Timing
+@{
+    Layout = "~/Views/Layout/_Layout.cshtml";
+    ViewBag.Title = "Chính Sách Bảo Mật – DòXổSố AI";
+}
+
+<style>
+    .privacy-hero {
+        background: linear-gradient(135deg, #00bb77 0%, #009960 100%);
+        padding: 80px 0 60px;
+        color: white;
+    }
+    .privacy-body {
+        padding: 60px 0 80px;
+    }
+    .privacy-body h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #00bb77;
+        margin-top: 2rem;
+        margin-bottom: .75rem;
+    }
+    .privacy-body p, .privacy-body li {
+        color: #444;
+        line-height: 1.8;
+    }
+    .privacy-body ul {
+        padding-left: 1.4rem;
+    }
+    .privacy-body .last-updated {
+        font-size: .85rem;
+        color: #888;
+    }
+    .privacy-card {
+        background: #f8fdf9;
+        border-left: 4px solid #00bb77;
+        padding: 1rem 1.25rem;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<!-- Hero -->
+<div class="privacy-hero">
+    <div class="container text-center">
+        <h1 class="fw-bold mb-3">Chính Sách Bảo Mật</h1>
+        <p class="mb-0 opacity-75">Cập nhật lần cuối: @Clock.Now.ToString("dd/MM/yyyy")</p>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="privacy-body">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="privacy-card">
+                    <p class="mb-0">
+                        DòXổSố AI (<strong>doxoso.ai.vn</strong>) cam kết bảo vệ quyền riêng tư của bạn.
+                        Chính sách này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin
+                        khi bạn sử dụng ứng dụng và website.
+                    </p>
+                </div>
+
+                <h2>1. Thông tin chúng tôi thu thập</h2>
+                <p>Khi bạn sử dụng DòXổSố AI, chúng tôi có thể thu thập:</p>
+                <ul>
+                    <li><strong>Hình ảnh vé số:</strong> Ảnh bạn chụp và tải lên để dò kết quả. Ảnh được xử lý bởi AI và lưu trữ để hiển thị lại lịch sử.</li>
+                    <li><strong>Thông tin tài khoản:</strong> Tên, địa chỉ email, ảnh đại diện khi bạn đăng nhập qua Google, Microsoft hoặc Facebook.</li>
+                    <li><strong>Dữ liệu sử dụng:</strong> Lịch sử dò vé, kết quả phân tích, thời gian sử dụng ứng dụng.</li>
+                    <li><strong>Thông tin thiết bị:</strong> Loại thiết bị, hệ điều hành, phiên bản ứng dụng (không bao gồm thông tin định danh cá nhân).</li>
+                </ul>
+
+                <h2>2. Mục đích sử dụng thông tin</h2>
+                <p>Thông tin thu thập được dùng để:</p>
+                <ul>
+                    <li>Phân tích vé số bằng AI và trả về kết quả trúng thưởng.</li>
+                    <li>Lưu lịch sử dò vé để bạn xem lại bất cứ lúc nào.</li>
+                    <li>Gửi thông báo khi có kết quả xổ số mới.</li>
+                    <li>Cải thiện độ chính xác của mô hình AI.</li>
+                    <li>Đảm bảo an toàn và bảo mật hệ thống.</li>
+                </ul>
+
+                <h2>3. Chia sẻ thông tin với bên thứ ba</h2>
+                <p>Chúng tôi <strong>không bán</strong> thông tin cá nhân của bạn. Chúng tôi chỉ chia sẻ dữ liệu với:</p>
+                <ul>
+                    <li><strong>Google Cloud Vertex AI:</strong> Hình ảnh vé số được gửi đến Vertex AI để phân tích. Google tuân thủ chính sách bảo mật của riêng họ.</li>
+                    <li><strong>Google / Microsoft / Facebook:</strong> Khi bạn chọn đăng nhập bằng tài khoản của họ.</li>
+                    <li><strong>Google Cloud SQL:</strong> Dữ liệu được lưu trữ an toàn trên cơ sở hạ tầng đám mây của Google tại khu vực <em>asia-southeast1</em> (Singapore).</li>
+                </ul>
+
+                <h2>4. Bảo mật dữ liệu</h2>
+                <p>Chúng tôi áp dụng các biện pháp bảo mật tiêu chuẩn ngành:</p>
+                <ul>
+                    <li>Kết nối HTTPS/TLS cho toàn bộ dữ liệu truyền tải.</li>
+                    <li>Dữ liệu lưu trữ trên Google Cloud với mã hoá at-rest.</li>
+                    <li>Xác thực người dùng qua các nhà cung cấp OAuth uy tín.</li>
+                    <li>Không lưu trữ mật khẩu dưới dạng văn bản thuần.</li>
+                </ul>
+
+                <h2>5. Lưu trữ và xoá dữ liệu</h2>
+                <p>
+                    Hình ảnh và lịch sử dò vé được lưu trong tài khoản của bạn cho đến khi bạn xoá chúng
+                    hoặc yêu cầu xoá tài khoản. Bạn có thể xoá từng bản ghi trong mục <em>Lịch sử</em>
+                    của ứng dụng. Để xoá toàn bộ tài khoản và dữ liệu, vui lòng liên hệ:
+                    <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a>.
+                </p>
+
+                <h2>6. Quyền của bạn</h2>
+                <p>Bạn có quyền:</p>
+                <ul>
+                    <li>Truy cập và xem dữ liệu của mình trong ứng dụng.</li>
+                    <li>Yêu cầu chỉnh sửa thông tin không chính xác.</li>
+                    <li>Yêu cầu xoá tài khoản và toàn bộ dữ liệu liên quan.</li>
+                    <li>Từ chối nhận thông báo (tắt trong cài đặt thiết bị).</li>
+                </ul>
+
+                <h2>7. Trẻ em</h2>
+                <p>
+                    DòXổSố AI không dành cho người dưới 18 tuổi. Chúng tôi không cố ý thu thập
+                    thông tin từ trẻ em. Nếu bạn phát hiện tài khoản thuộc về người dưới 18 tuổi,
+                    vui lòng liên hệ chúng tôi để xoá.
+                </p>
+
+                <h2>8. Thay đổi chính sách</h2>
+                <p>
+                    Chính sách này có thể được cập nhật định kỳ. Chúng tôi sẽ thông báo qua email
+                    hoặc thông báo trong ứng dụng khi có thay đổi đáng kể. Việc tiếp tục sử dụng
+                    ứng dụng sau khi thay đổi có hiệu lực đồng nghĩa với việc bạn chấp nhận chính sách mới.
+                </p>
+
+                <h2>9. Liên hệ</h2>
+                <p>
+                    Nếu bạn có câu hỏi về chính sách bảo mật này, vui lòng liên hệ:
+                </p>
+                <ul>
+                    <li>Email: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a></li>
+                    <li>Website: <a href="https://doxoso.ai.vn">doxoso.ai.vn</a></li>
+                </ul>
+
+                <div class="mt-5 pt-3 border-top">
+                    <a href="/" class="btn btn-outline-success">
+                        <i class="fa fa-arrow-left me-2"></i>Về trang chủ
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

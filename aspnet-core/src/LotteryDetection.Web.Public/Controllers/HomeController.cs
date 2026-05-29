@@ -9,4 +9,9 @@ public class HomeController : LotteryDetectionControllerBase
     {
         return View();
     }
+
+    public ActionResult Privacy()
+    {
+        return View();
+    }
 }
