@@ -1357,7 +1357,7 @@
 		<text name="Public_Hero_Badge">Free · iOS &amp; Android</text>
 		<text name="Public_Hero_Title1">Check Lottery</text>
 		<text name="Public_Hero_Title2">Lightning Fast with AI</text>
-		<text name="Public_Hero_Desc">Take a photo of your lottery ticket — AI recognises the numbers and returns results in 2 seconds. Accurate, fast, and completely free.</text>
+		<text name="Public_Hero_Desc">Snap a photo of your lottery ticket. AI reads the numbers and delivers results in under 2 seconds. Fast, accurate, and completely free.</text>
 		<text name="Public_Hero_DownloadBtn">Download Now</text>
 		<text name="Public_Hero_LearnMore">Learn more →</text>
 
@@ -1372,7 +1372,7 @@
 		<!-- About -->
 		<text name="Public_About_Badge">About the app</text>
 		<text name="Public_About_Title">Lottery checking has never been this simple</text>
-		<text name="Public_About_P1">DòXổSố AI is a smart lottery-checking app powered by artificial intelligence. It recognises your ticket and looks up results automatically — no manual number entry needed.</text>
+		<text name="Public_About_P1">DòXổSố AI is a smart lottery-checking app powered by artificial intelligence. It reads your ticket and looks up results automatically. No typing numbers by hand.</text>
 		<text name="Public_About_P2">Results are sourced directly from official lottery broadcasters across the country, guaranteeing absolute accuracy.</text>
 		<text name="Public_About_Feature1">Instant AI recognition</text>
 		<text name="Public_About_Feature2">Accurate results</text>
@@ -1383,7 +1383,7 @@
 		<!-- Features -->
 		<text name="Public_Features_Badge">Key Features</text>
 		<text name="Public_Features_Title">Everything you need to check lottery</text>
-		<text name="Public_Features_Desc">All you need is a phone — DòXổSố AI does the rest.</text>
+		<text name="Public_Features_Desc">Just open your phone. DòXổSố AI takes care of the rest.</text>
 		<text name="Public_Feature1_Title">Instant AI Recognition</text>
 		<text name="Public_Feature1_Desc">Photograph your lottery ticket and AI analyses it in under 2 seconds.</text>
 		<text name="Public_Feature2_Title">Accurate Results</text>
@@ -1397,7 +1397,7 @@
 		<!-- Screenshots -->
 		<text name="Public_Screenshots_Badge">App Screenshots</text>
 		<text name="Public_Screenshots_Title">Beautiful, easy to use</text>
-		<text name="Public_Screenshots_Desc">Minimal design — from login to result in just a few taps.</text>
+		<text name="Public_Screenshots_Desc">Clean and simple design. From login to result in just a few taps.</text>
 		<text name="Public_Screenshot1_Caption">Quick login</text>
 		<text name="Public_Screenshot2_Caption">Home screen</text>
 		<text name="Public_Screenshot3_Caption">Capture ticket</text>
@@ -1407,12 +1407,12 @@
 
 		<!-- Team -->
 		<text name="Public_Team_Badge">Team</text>
-		<text name="Public_Team_Title">FamilyAI Tech Team</text>
+		<text name="Public_Team_Title">DoXoSo AI Team</text>
 		<text name="Public_Team_Desc">The people building DòXổSố AI with a passion for technology and love for Vietnamese users.</text>
 		<text name="Public_Team_Van_Role">Co-founder &amp; AI Lead</text>
 		<text name="Public_Team_Van_Bio">AI &amp; Machine Learning expert with over 10 years of experience in computer vision and image recognition.</text>
 		<text name="Public_Team_Tommy_Role">Co-founder &amp; Mobile Lead</text>
-		<text name="Public_Team_Tommy_Bio">Full-stack developer specialising in .NET and React Native — architect of the DòXổSố AI mobile app.</text>
+		<text name="Public_Team_Tommy_Bio">Full-stack developer specialising in .NET and React Native. He built the DòXổSố AI mobile app from the ground up.</text>
 		<text name="Public_Team_Chien_Role">Co-founder &amp; Backend Lead</text>
 		<text name="Public_Team_Chien_Bio">Backend engineer with expertise in distributed systems, keeping the lottery API fast and accurate.</text>
 		<text name="Public_Team_Quynh_Role">Founder &amp; Product Owner</text>
@@ -1421,7 +1421,7 @@
 		<text name="Public_Team_Thien_Bio">Expert in cloud architecture and AI solutions. Leads system design and end-to-end technical delivery.</text>
 
 		<!-- Footer -->
-		<text name="Public_Footer_Tagline">Smart lottery-checking app powered by AI. Photograph a ticket — get results instantly. Free for iOS and Android.</text>
+		<text name="Public_Footer_Tagline">A smart lottery app powered by AI. Snap a photo and get your results right away. Free for iOS and Android.</text>
 		<text name="Public_Footer_Contact">Contact</text>
 		<text name="Public_Footer_Address">Ho Chi Minh City, Vietnam</text>
 		<text name="Public_Footer_Email">support@doxoso.ai.vn</text>
