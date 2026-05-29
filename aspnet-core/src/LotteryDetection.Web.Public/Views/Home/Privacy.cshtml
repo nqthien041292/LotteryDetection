@@ -1,146 +1,158 @@
 @using Abp.Timing
 @{
     Layout = "~/Views/Layout/_Layout.cshtml";
-    ViewBag.Title = "Chính Sách Bảo Mật – DòXổSố AI";
+    bool isVi = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "vi";
+    ViewBag.Title = isVi ? "Chính Sách Bảo Mật – DòXổSố AI" : "Privacy Policy – DoXoSo AI";
 }
 
 <style>
-    .privacy-hero {
-        background: linear-gradient(135deg, #00bb77 0%, #009960 100%);
-        padding: 80px 0 60px;
-        color: white;
-    }
-    .privacy-body {
-        padding: 60px 0 80px;
-    }
-    .privacy-body h2 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #00bb77;
-        margin-top: 2rem;
-        margin-bottom: .75rem;
-    }
-    .privacy-body p, .privacy-body li {
-        color: #444;
-        line-height: 1.8;
-    }
-    .privacy-body ul {
-        padding-left: 1.4rem;
-    }
-    .privacy-body .last-updated {
-        font-size: .85rem;
-        color: #888;
-    }
-    .privacy-card {
-        background: #f8fdf9;
-        border-left: 4px solid #00bb77;
-        padding: 1rem 1.25rem;
-        border-radius: 0 8px 8px 0;
-        margin-bottom: 1.5rem;
-    }
+    .legal-hero { background: linear-gradient(135deg, #00bb77 0%, #009960 100%); padding: 80px 0 60px; color: white; }
+    .legal-body { padding: 60px 0 80px; }
+    .legal-body h2 { font-size: 1.2rem; font-weight: 700; color: #00bb77; margin-top: 2rem; margin-bottom: .6rem; }
+    .legal-body p, .legal-body li { color: #444; line-height: 1.85; }
+    .legal-body ul { padding-left: 1.4rem; }
+    .legal-card { background: #f8fdf9; border-left: 4px solid #00bb77; padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+    .lang-badge { font-size: .75rem; background: #e8f8f1; color: #00994d; padding: 2px 8px; border-radius: 20px; vertical-align: middle; margin-left: 8px; }
 </style>
 
-<!-- Hero -->
-<div class="privacy-hero">
+<div class="legal-hero">
     <div class="container text-center">
-        <h1 class="fw-bold mb-3">Chính Sách Bảo Mật</h1>
-        <p class="mb-0 opacity-75">Cập nhật lần cuối: @Clock.Now.ToString("dd/MM/yyyy")</p>
+        <h1 class="fw-bold mb-2">@(isVi ? "Chính Sách Bảo Mật" : "Privacy Policy")</h1>
+        <p class="mb-0 opacity-75">@(isVi ? "Cập nhật: " : "Last updated: ")@Clock.Now.ToString(isVi ? "dd/MM/yyyy" : "MMMM dd, yyyy")</p>
     </div>
 </div>
 
-<!-- Content -->
-<div class="privacy-body">
+<div class="legal-body">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
 
-                <div class="privacy-card">
-                    <p class="mb-0">
-                        DòXổSố AI (<strong>doxoso.ai.vn</strong>) cam kết bảo vệ quyền riêng tư của bạn.
-                        Chính sách này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin
-                        khi bạn sử dụng ứng dụng và website.
-                    </p>
+                <div class="privacy-card legal-card">
+                    @if (isVi) {
+                        <p class="mb-0">DòXổSố AI (<strong>doxoso.ai.vn</strong>) cam kết bảo vệ quyền riêng tư của bạn. Chính sách này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin khi bạn sử dụng ứng dụng và website.</p>
+                    } else {
+                        <p class="mb-0">DoXoSo AI (<strong>doxoso.ai.vn</strong>) is committed to protecting your privacy. This policy explains how we collect, use, and protect information when you use our app and website.</p>
+                    }
                 </div>
 
-                <h2>1. Thông tin chúng tôi thu thập</h2>
-                <p>Khi bạn sử dụng DòXổSố AI, chúng tôi có thể thu thập:</p>
-                <ul>
-                    <li><strong>Hình ảnh vé số:</strong> Ảnh bạn chụp và tải lên để dò kết quả. Ảnh được xử lý bởi AI và lưu trữ để hiển thị lại lịch sử.</li>
-                    <li><strong>Thông tin tài khoản:</strong> Tên, địa chỉ email, ảnh đại diện khi bạn đăng nhập qua Google, Microsoft hoặc Facebook.</li>
-                    <li><strong>Dữ liệu sử dụng:</strong> Lịch sử dò vé, kết quả phân tích, thời gian sử dụng ứng dụng.</li>
-                    <li><strong>Thông tin thiết bị:</strong> Loại thiết bị, hệ điều hành, phiên bản ứng dụng (không bao gồm thông tin định danh cá nhân).</li>
-                </ul>
+                @if (isVi) {
+                    <h2>1. Thông tin chúng tôi thu thập</h2>
+                    <ul>
+                        <li><strong>Hình ảnh vé số:</strong> Ảnh bạn tải lên để dò kết quả, được xử lý bởi AI và lưu để hiển thị lịch sử.</li>
+                        <li><strong>Thông tin tài khoản:</strong> Tên, email, ảnh đại diện khi đăng nhập qua Google, Microsoft hoặc Facebook.</li>
+                        <li><strong>Dữ liệu sử dụng:</strong> Lịch sử dò vé, kết quả phân tích, thời gian sử dụng.</li>
+                        <li><strong>Thông tin thiết bị:</strong> Loại thiết bị, hệ điều hành, phiên bản ứng dụng (không bao gồm định danh cá nhân).</li>
+                    </ul>
 
-                <h2>2. Mục đích sử dụng thông tin</h2>
-                <p>Thông tin thu thập được dùng để:</p>
-                <ul>
-                    <li>Phân tích vé số bằng AI và trả về kết quả trúng thưởng.</li>
-                    <li>Lưu lịch sử dò vé để bạn xem lại bất cứ lúc nào.</li>
-                    <li>Gửi thông báo khi có kết quả xổ số mới.</li>
-                    <li>Cải thiện độ chính xác của mô hình AI.</li>
-                    <li>Đảm bảo an toàn và bảo mật hệ thống.</li>
-                </ul>
+                    <h2>2. Mục đích sử dụng</h2>
+                    <ul>
+                        <li>Phân tích vé số bằng AI và trả kết quả trúng thưởng.</li>
+                        <li>Lưu lịch sử dò vé để bạn xem lại.</li>
+                        <li>Gửi thông báo khi có kết quả xổ số mới.</li>
+                        <li>Cải thiện độ chính xác của mô hình AI.</li>
+                        <li>Đảm bảo an toàn và bảo mật hệ thống.</li>
+                    </ul>
 
-                <h2>3. Chia sẻ thông tin với bên thứ ba</h2>
-                <p>Chúng tôi <strong>không bán</strong> thông tin cá nhân của bạn. Chúng tôi chỉ chia sẻ dữ liệu với:</p>
-                <ul>
-                    <li><strong>Google Cloud Vertex AI:</strong> Hình ảnh vé số được gửi đến Vertex AI để phân tích. Google tuân thủ chính sách bảo mật của riêng họ.</li>
-                    <li><strong>Google / Microsoft / Facebook:</strong> Khi bạn chọn đăng nhập bằng tài khoản của họ.</li>
-                    <li><strong>Google Cloud SQL:</strong> Dữ liệu được lưu trữ an toàn trên cơ sở hạ tầng đám mây của Google tại khu vực <em>asia-southeast1</em> (Singapore).</li>
-                </ul>
+                    <h2>3. Chia sẻ với bên thứ ba</h2>
+                    <p>Chúng tôi <strong>không bán</strong> thông tin cá nhân. Dữ liệu chỉ được chia sẻ với:</p>
+                    <ul>
+                        <li><strong>Google Cloud Vertex AI:</strong> Hình ảnh vé số để phân tích.</li>
+                        <li><strong>Google / Microsoft / Facebook:</strong> Khi bạn chọn đăng nhập qua họ.</li>
+                        <li><strong>Google Cloud SQL:</strong> Lưu trữ an toàn tại khu vực <em>asia-southeast1</em> (Singapore).</li>
+                    </ul>
 
-                <h2>4. Bảo mật dữ liệu</h2>
-                <p>Chúng tôi áp dụng các biện pháp bảo mật tiêu chuẩn ngành:</p>
-                <ul>
-                    <li>Kết nối HTTPS/TLS cho toàn bộ dữ liệu truyền tải.</li>
-                    <li>Dữ liệu lưu trữ trên Google Cloud với mã hoá at-rest.</li>
-                    <li>Xác thực người dùng qua các nhà cung cấp OAuth uy tín.</li>
-                    <li>Không lưu trữ mật khẩu dưới dạng văn bản thuần.</li>
-                </ul>
+                    <h2>4. Bảo mật dữ liệu</h2>
+                    <ul>
+                        <li>Kết nối HTTPS/TLS cho toàn bộ dữ liệu truyền tải.</li>
+                        <li>Dữ liệu lưu trữ được mã hoá at-rest trên Google Cloud.</li>
+                        <li>Xác thực người dùng qua OAuth uy tín, không lưu mật khẩu thuần.</li>
+                    </ul>
 
-                <h2>5. Lưu trữ và xoá dữ liệu</h2>
-                <p>
-                    Hình ảnh và lịch sử dò vé được lưu trong tài khoản của bạn cho đến khi bạn xoá chúng
-                    hoặc yêu cầu xoá tài khoản. Bạn có thể xoá từng bản ghi trong mục <em>Lịch sử</em>
-                    của ứng dụng. Để xoá toàn bộ tài khoản và dữ liệu, vui lòng liên hệ:
-                    <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a>.
-                </p>
+                    <h2>5. Lưu trữ và xoá dữ liệu</h2>
+                    <p>Lịch sử dò vé được lưu cho đến khi bạn xoá hoặc yêu cầu xoá tài khoản. Để xoá tài khoản và toàn bộ dữ liệu, liên hệ: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a>.</p>
 
-                <h2>6. Quyền của bạn</h2>
-                <p>Bạn có quyền:</p>
-                <ul>
-                    <li>Truy cập và xem dữ liệu của mình trong ứng dụng.</li>
-                    <li>Yêu cầu chỉnh sửa thông tin không chính xác.</li>
-                    <li>Yêu cầu xoá tài khoản và toàn bộ dữ liệu liên quan.</li>
-                    <li>Từ chối nhận thông báo (tắt trong cài đặt thiết bị).</li>
-                </ul>
+                    <h2>6. Quyền của bạn</h2>
+                    <ul>
+                        <li>Xem và chỉnh sửa thông tin cá nhân trong ứng dụng.</li>
+                        <li>Xoá từng bản ghi lịch sử trong mục <em>Lịch sử</em>.</li>
+                        <li>Yêu cầu xoá tài khoản và toàn bộ dữ liệu qua email.</li>
+                        <li>Tắt thông báo trong cài đặt thiết bị.</li>
+                    </ul>
 
-                <h2>7. Trẻ em</h2>
-                <p>
-                    DòXổSố AI không dành cho người dưới 18 tuổi. Chúng tôi không cố ý thu thập
-                    thông tin từ trẻ em. Nếu bạn phát hiện tài khoản thuộc về người dưới 18 tuổi,
-                    vui lòng liên hệ chúng tôi để xoá.
-                </p>
+                    <h2>7. Trẻ em</h2>
+                    <p>DòXổSố AI không dành cho người dưới 18 tuổi. Nếu phát hiện tài khoản thuộc về trẻ em, vui lòng liên hệ chúng tôi để xoá.</p>
 
-                <h2>8. Thay đổi chính sách</h2>
-                <p>
-                    Chính sách này có thể được cập nhật định kỳ. Chúng tôi sẽ thông báo qua email
-                    hoặc thông báo trong ứng dụng khi có thay đổi đáng kể. Việc tiếp tục sử dụng
-                    ứng dụng sau khi thay đổi có hiệu lực đồng nghĩa với việc bạn chấp nhận chính sách mới.
-                </p>
+                    <h2>8. Thay đổi chính sách</h2>
+                    <p>Chính sách có thể cập nhật định kỳ. Chúng tôi sẽ thông báo qua email hoặc trong ứng dụng khi có thay đổi đáng kể.</p>
 
-                <h2>9. Liên hệ</h2>
-                <p>
-                    Nếu bạn có câu hỏi về chính sách bảo mật này, vui lòng liên hệ:
-                </p>
-                <ul>
-                    <li>Email: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a></li>
-                    <li>Website: <a href="https://doxoso.ai.vn">doxoso.ai.vn</a></li>
-                </ul>
+                    <h2>9. Liên hệ</h2>
+                    <ul>
+                        <li>Email: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a></li>
+                        <li>Website: <a href="https://doxoso.ai.vn">doxoso.ai.vn</a></li>
+                    </ul>
+                } else {
+                    <h2>1. Information We Collect</h2>
+                    <ul>
+                        <li><strong>Lottery ticket images:</strong> Photos you upload for result checking, processed by AI and stored for history display.</li>
+                        <li><strong>Account information:</strong> Name, email, profile picture when signing in via Google, Microsoft, or Facebook.</li>
+                        <li><strong>Usage data:</strong> Ticket check history, analysis results, and usage time.</li>
+                        <li><strong>Device information:</strong> Device type, OS, app version (no personal identifiers).</li>
+                    </ul>
+
+                    <h2>2. How We Use Your Information</h2>
+                    <ul>
+                        <li>Analyze lottery tickets with AI and return prize results.</li>
+                        <li>Store ticket check history for your reference.</li>
+                        <li>Send notifications when new lottery results are available.</li>
+                        <li>Improve AI model accuracy.</li>
+                        <li>Ensure system safety and security.</li>
+                    </ul>
+
+                    <h2>3. Sharing with Third Parties</h2>
+                    <p>We <strong>do not sell</strong> personal information. Data is only shared with:</p>
+                    <ul>
+                        <li><strong>Google Cloud Vertex AI:</strong> Ticket images for AI analysis.</li>
+                        <li><strong>Google / Microsoft / Facebook:</strong> When you choose to sign in through them.</li>
+                        <li><strong>Google Cloud SQL:</strong> Secure storage in the <em>asia-southeast1</em> (Singapore) region.</li>
+                    </ul>
+
+                    <h2>4. Data Security</h2>
+                    <ul>
+                        <li>HTTPS/TLS encryption for all data in transit.</li>
+                        <li>Data stored with at-rest encryption on Google Cloud.</li>
+                        <li>Authentication via trusted OAuth providers; passwords are never stored in plain text.</li>
+                    </ul>
+
+                    <h2>5. Data Retention and Deletion</h2>
+                    <p>Ticket history is stored until you delete it or request account deletion. To delete your account and all associated data, contact: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a>.</p>
+
+                    <h2>6. Your Rights</h2>
+                    <ul>
+                        <li>View and edit your personal information in the app.</li>
+                        <li>Delete individual history records in the <em>History</em> section.</li>
+                        <li>Request full account and data deletion via email.</li>
+                        <li>Disable notifications in your device settings.</li>
+                    </ul>
+
+                    <h2>7. Children</h2>
+                    <p>DoXoSo AI is not intended for users under 18. If you believe an account belongs to a minor, please contact us for removal.</p>
+
+                    <h2>8. Policy Changes</h2>
+                    <p>This policy may be updated periodically. We will notify you via email or in-app notification when significant changes are made.</p>
+
+                    <h2>9. Contact Us</h2>
+                    <ul>
+                        <li>Email: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a></li>
+                        <li>Website: <a href="https://doxoso.ai.vn">doxoso.ai.vn</a></li>
+                    </ul>
+                }
 
                 <div class="mt-5 pt-3 border-top">
-                    <a href="/" class="btn btn-outline-success">
-                        <i class="fa fa-arrow-left me-2"></i>Về trang chủ
+                    <a href="/" class="btn btn-outline-success me-2">
+                        <i class="fa fa-arrow-left me-2"></i>@(isVi ? "Về trang chủ" : "Back to Home")
+                    </a>
+                    <a href="/Home/Terms" class="btn btn-outline-secondary">
+                        @(isVi ? "Điều Khoản Sử Dụng" : "Terms of Service")
                     </a>
                 </div>
 

@@ -14,4 +14,9 @@ public class HomeController : LotteryDetectionControllerBase
     {
         return View();
     }
+
+    public ActionResult Terms()
+    {
+        return View();
+    }
 }

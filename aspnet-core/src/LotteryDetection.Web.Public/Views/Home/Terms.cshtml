@@ -1,0 +1,159 @@
+@using Abp.Timing
+@{
+    Layout = "~/Views/Layout/_Layout.cshtml";
+    bool isVi = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "vi";
+    ViewBag.Title = isVi ? "Điều Khoản Sử Dụng – DòXổSố AI" : "Terms of Service – DoXoSo AI";
+}
+
+<style>
+    .legal-hero { background: linear-gradient(135deg, #00bb77 0%, #009960 100%); padding: 80px 0 60px; color: white; }
+    .legal-body { padding: 60px 0 80px; }
+    .legal-body h2 { font-size: 1.2rem; font-weight: 700; color: #00bb77; margin-top: 2rem; margin-bottom: .6rem; }
+    .legal-body p, .legal-body li { color: #444; line-height: 1.85; }
+    .legal-body ul { padding-left: 1.4rem; }
+    .legal-card { background: #f8fdf9; border-left: 4px solid #00bb77; padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+</style>
+
+<div class="legal-hero">
+    <div class="container text-center">
+        <h1 class="fw-bold mb-2">@(isVi ? "Điều Khoản Sử Dụng" : "Terms of Service")</h1>
+        <p class="mb-0 opacity-75">@(isVi ? "Cập nhật: " : "Last updated: ")@Clock.Now.ToString(isVi ? "dd/MM/yyyy" : "MMMM dd, yyyy")</p>
+    </div>
+</div>
+
+<div class="legal-body">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="legal-card">
+                    @if (isVi) {
+                        <p class="mb-0">Bằng cách tải xuống, cài đặt hoặc sử dụng ứng dụng DòXổSố AI, bạn đồng ý với các điều khoản sử dụng dưới đây. Nếu không đồng ý, vui lòng không sử dụng dịch vụ.</p>
+                    } else {
+                        <p class="mb-0">By downloading, installing, or using the DoXoSo AI app, you agree to these Terms of Service. If you do not agree, please do not use the service.</p>
+                    }
+                </div>
+
+                @if (isVi) {
+                    <h2>1. Chấp nhận điều khoản</h2>
+                    <p>Các điều khoản này áp dụng cho tất cả người dùng ứng dụng DòXổSố AI (iOS, Android) và website <strong>doxoso.ai.vn</strong>. Việc tiếp tục sử dụng dịch vụ sau khi điều khoản thay đổi đồng nghĩa với việc bạn chấp nhận phiên bản mới.</p>
+
+                    <h2>2. Mô tả dịch vụ</h2>
+                    <p>DòXổSố AI cung cấp dịch vụ dò xổ số tự động bằng trí tuệ nhân tạo. Người dùng chụp ảnh vé số và ứng dụng phân tích, đối chiếu với kết quả xổ số chính thức để xác định trúng thưởng.</p>
+                    <p><strong>Lưu ý:</strong> Kết quả từ ứng dụng chỉ mang tính tham khảo. Kết quả xổ số chính thức và hợp lệ là kết quả do đơn vị tổ chức xổ số công bố.</p>
+
+                    <h2>3. Tài khoản người dùng</h2>
+                    <ul>
+                        <li>Bạn phải đủ 18 tuổi trở lên để tạo tài khoản và sử dụng dịch vụ.</li>
+                        <li>Bạn chịu trách nhiệm bảo mật thông tin đăng nhập của mình.</li>
+                        <li>Mỗi người chỉ được tạo một tài khoản. Tài khoản không được chuyển nhượng.</li>
+                        <li>Chúng tôi có quyền tạm ngưng hoặc xoá tài khoản vi phạm điều khoản.</li>
+                    </ul>
+
+                    <h2>4. Sử dụng hợp lệ</h2>
+                    <p>Bạn đồng ý <strong>không</strong>:</p>
+                    <ul>
+                        <li>Sử dụng dịch vụ cho mục đích bất hợp pháp hoặc gian lận.</li>
+                        <li>Tải lên hình ảnh giả mạo, chỉnh sửa vé số.</li>
+                        <li>Cố gắng truy cập trái phép vào hệ thống hoặc tài khoản người dùng khác.</li>
+                        <li>Sử dụng bot, script tự động để truy cập dịch vụ.</li>
+                        <li>Sao chép, phân phối lại dữ liệu kết quả xổ số từ ứng dụng.</li>
+                    </ul>
+
+                    <h2>5. Sở hữu trí tuệ</h2>
+                    <p>Toàn bộ nội dung, giao diện, logo, mô hình AI và mã nguồn của DòXổSố AI thuộc quyền sở hữu của chúng tôi. Bạn không được sao chép, phân phối hoặc tạo sản phẩm phái sinh mà không có sự cho phép bằng văn bản.</p>
+
+                    <h2>6. Miễn trừ trách nhiệm</h2>
+                    <p>Dịch vụ được cung cấp "nguyên trạng" (as-is). Chúng tôi không đảm bảo:</p>
+                    <ul>
+                        <li>Độ chính xác tuyệt đối của kết quả phân tích AI.</li>
+                        <li>Dịch vụ luôn hoạt động liên tục, không gián đoạn.</li>
+                        <li>Kết quả xổ số hiển thị trong ứng dụng là cơ sở pháp lý để nhận thưởng.</li>
+                    </ul>
+
+                    <h2>7. Giới hạn trách nhiệm</h2>
+                    <p>Chúng tôi không chịu trách nhiệm về bất kỳ tổn thất nào phát sinh từ việc sử dụng hoặc không thể sử dụng dịch vụ, bao gồm nhưng không giới hạn ở tổn thất tài chính do hiểu nhầm kết quả xổ số.</p>
+
+                    <h2>8. Quyền riêng tư</h2>
+                    <p>Việc sử dụng dịch vụ cũng chịu sự điều chỉnh của <a href="/Home/Privacy">Chính Sách Bảo Mật</a>, được coi là một phần của các điều khoản này.</p>
+
+                    <h2>9. Luật áp dụng</h2>
+                    <p>Các điều khoản này được điều chỉnh theo pháp luật Việt Nam. Mọi tranh chấp sẽ được giải quyết tại tòa án có thẩm quyền tại Việt Nam.</p>
+
+                    <h2>10. Thay đổi điều khoản</h2>
+                    <p>Chúng tôi có thể cập nhật điều khoản bất kỳ lúc nào. Thay đổi có hiệu lực ngay khi đăng tải. Chúng tôi sẽ thông báo qua email hoặc trong ứng dụng với các thay đổi đáng kể.</p>
+
+                    <h2>11. Liên hệ</h2>
+                    <ul>
+                        <li>Email: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a></li>
+                        <li>Website: <a href="https://doxoso.ai.vn">doxoso.ai.vn</a></li>
+                    </ul>
+                } else {
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>These terms apply to all users of the DoXoSo AI app (iOS, Android) and website <strong>doxoso.ai.vn</strong>. Continued use of the service after changes to these terms constitutes acceptance of the updated version.</p>
+
+                    <h2>2. Description of Service</h2>
+                    <p>DoXoSo AI provides an AI-powered lottery ticket checking service. Users photograph lottery tickets and the app analyzes them against official lottery results to determine prize eligibility.</p>
+                    <p><strong>Note:</strong> App results are for reference only. Official and legally binding lottery results are those announced by the issuing lottery authority.</p>
+
+                    <h2>3. User Accounts</h2>
+                    <ul>
+                        <li>You must be at least 18 years old to create an account and use the service.</li>
+                        <li>You are responsible for maintaining the security of your login credentials.</li>
+                        <li>Each person may only create one account. Accounts may not be transferred.</li>
+                        <li>We reserve the right to suspend or delete accounts that violate these terms.</li>
+                    </ul>
+
+                    <h2>4. Acceptable Use</h2>
+                    <p>You agree <strong>not</strong> to:</p>
+                    <ul>
+                        <li>Use the service for unlawful or fraudulent purposes.</li>
+                        <li>Upload fake or altered ticket images.</li>
+                        <li>Attempt unauthorized access to our systems or other users' accounts.</li>
+                        <li>Use bots or automated scripts to access the service.</li>
+                        <li>Copy or redistribute lottery result data from the app.</li>
+                    </ul>
+
+                    <h2>5. Intellectual Property</h2>
+                    <p>All content, UI, logos, AI models, and source code of DoXoSo AI are our property. You may not copy, distribute, or create derivative works without written permission.</p>
+
+                    <h2>6. Disclaimer of Warranties</h2>
+                    <p>The service is provided "as is." We do not warrant:</p>
+                    <ul>
+                        <li>Absolute accuracy of AI analysis results.</li>
+                        <li>Uninterrupted or error-free service availability.</li>
+                        <li>That results shown in the app constitute a legal basis for claiming prizes.</li>
+                    </ul>
+
+                    <h2>7. Limitation of Liability</h2>
+                    <p>We are not liable for any losses arising from the use of or inability to use the service, including but not limited to financial losses from misinterpreting lottery results.</p>
+
+                    <h2>8. Privacy</h2>
+                    <p>Use of the service is also governed by our <a href="/Home/Privacy">Privacy Policy</a>, which is incorporated into these terms.</p>
+
+                    <h2>9. Governing Law</h2>
+                    <p>These terms are governed by the laws of Vietnam. Any disputes will be resolved before the competent courts in Vietnam.</p>
+
+                    <h2>10. Changes to Terms</h2>
+                    <p>We may update these terms at any time. Changes take effect upon posting. We will notify you via email or in-app notification for significant changes.</p>
+
+                    <h2>11. Contact</h2>
+                    <ul>
+                        <li>Email: <a href="mailto:support@doxoso.ai.vn">support@doxoso.ai.vn</a></li>
+                        <li>Website: <a href="https://doxoso.ai.vn">doxoso.ai.vn</a></li>
+                    </ul>
+                }
+
+                <div class="mt-5 pt-3 border-top">
+                    <a href="/" class="btn btn-outline-success me-2">
+                        <i class="fa fa-arrow-left me-2"></i>@(isVi ? "Về trang chủ" : "Back to Home")
+                    </a>
+                    <a href="/Home/Privacy" class="btn btn-outline-secondary">
+                        @(isVi ? "Chính Sách Bảo Mật" : "Privacy Policy")
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
