@@ -29,7 +29,7 @@ name: Deploy backend to Cloud Run
 # Deployer SA also needs roles/run.jobs.invoker (or run.admin already covers it).
 #
 # ─── GitHub repo configuration ───────────────────────────────────────────────
-# Variables:  GCP_PROJECT_ID, GCP_LOCATION
+# Variables:  GCP_LOCATION
 # Secrets:    GCP_WIF_PROVIDER, GCP_DEPLOYER_SA, GCP_RUNTIME_SA, CLOUDSQL_INSTANCE
 
 on:
@@ -41,6 +41,7 @@ on:
   workflow_dispatch:
 
 env:
+  GCP_PROJECT_ID: doxoso-ai
   REGION: asia-southeast1
   ARTIFACT_REPO: lottery-detection
   WEB_HOST_IMAGE: web-host
@@ -74,7 +75,7 @@ jobs:
       - name: Build and push images
         working-directory: aspnet-core
         env:
-          PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID || env.GCP_PROJECT_ID }}
         run: |
           WEB_HOST_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${WEB_HOST_IMAGE}:${GITHUB_SHA}"
           MIGRATOR_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${MIGRATOR_IMAGE}:${GITHUB_SHA}"
@@ -90,7 +91,7 @@ jobs:
 
       - name: Create or update Migrator Cloud Run Job
         env:
-          PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID || env.GCP_PROJECT_ID }}
         run: |
           # `jobs deploy` creates the job on first run and updates it on
           # subsequent runs — single command handles both paths.
@@ -108,7 +109,7 @@ jobs:
 
       - name: Execute Migrator job (apply migrations + seed)
         env:
-          PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID || env.GCP_PROJECT_ID }}
         run: |
           # --wait blocks until the execution completes and exits non-zero on
           # failure, so a broken migration fails the workflow before we
@@ -135,7 +136,7 @@ jobs:
             --service-account=${{ secrets.GCP_RUNTIME_SA }}
             --add-cloudsql-instances=${{ secrets.CLOUDSQL_INSTANCE }}
           env_vars: |
-            GoogleCloud__ProjectId=${{ vars.GCP_PROJECT_ID }}
+            GoogleCloud__ProjectId=${{ vars.GCP_PROJECT_ID || env.GCP_PROJECT_ID }}
             GoogleCloud__Location=${{ vars.GCP_LOCATION || 'asia-southeast1' }}
             ASPNETCORE_ENVIRONMENT=Production
             Authentication__Microsoft__IsEnabled=true
