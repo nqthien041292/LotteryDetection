@@ -1,5 +1,5 @@
 {
-  "remoteServiceBaseUrl": "https://localhost:44301",
+  "remoteServiceBaseUrl": "https://lottery-detection-api-mlncloyyiq-as.a.run.app",
   "appBaseUrl": "http://localhost:4200",
   "localeMappings": {
     "angular": [
