@@ -25,9 +25,15 @@
                         </button>
                         <!--end::Mobile menu toggle-->
                         <!--begin::Logo image-->
-                        <a href="/">
-                            <img alt="Logo" src="@Model.GetLogoUrl(ApplicationPath, "dark")" class="logo-default h-25px h-lg-30px"/>
-                            <img alt="Logo" src="@Model.GetLogoUrl(ApplicationPath, "light")" class="logo-sticky h-20px h-lg-25px"/>
+                        <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
+                            <img alt="DòXổSố AI" src="~/Common/Images/logo.png"
+                                 class="logo-default"
+                                 style="height:40px;width:40px;object-fit:contain;border-radius:12px;background:#fff;padding:2px;"/>
+                            <img alt="DòXổSố AI" src="~/Common/Images/logo.png"
+                                 class="logo-sticky"
+                                 style="height:36px;width:36px;object-fit:contain;border-radius:10px;"/>
+                            <span class="logo-default fw-bold fs-5 ms-1" style="color:#fff;letter-spacing:-.3px;">DòXổSố <span style="color:#00bb77;">AI</span></span>
+                            <span class="logo-sticky fw-bold fs-5 ms-1" style="color:#031649;letter-spacing:-.3px;">DòXổSố <span style="color:#00bb77;">AI</span></span>
                         </a>
                         <!--end::Logo image-->
                     </div>
