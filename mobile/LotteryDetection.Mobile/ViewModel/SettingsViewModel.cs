@@ -126,7 +126,7 @@ public class SettingsViewModel : BaseViewModel
     {
         var confirmed = await AppDialog.ShowConfirmAsync(
             title: "Đăng xuất",
-            message: "Bạn có chắc muốn đăng xuất khỏi DòVéSố AI?",
+            message: "Bạn có chắc muốn đăng xuất khỏi DòXổSố AI?",
             acceptText: "Đăng xuất",
             cancelText: "Huỷ",
             danger: true);

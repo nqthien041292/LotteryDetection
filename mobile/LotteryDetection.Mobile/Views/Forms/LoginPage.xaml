@@ -45,7 +45,7 @@
                    TextColor="#031649">
                 <Label.FormattedText>
                     <FormattedString>
-                        <Span Text="DòVéSố " />
+                        <Span Text="DòXổSố " />
                         <Span Text="AI"
                               TextColor="#00bb77" />
                     </FormattedString>

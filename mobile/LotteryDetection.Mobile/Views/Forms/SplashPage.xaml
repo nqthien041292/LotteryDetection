@@ -29,12 +29,12 @@
                        TextColor="#031649">
                     <Label.FormattedText>
                         <FormattedString>
-                            <Span Text="DòVéSố " />
+                            <Span Text="DòXổSố " />
                             <Span Text="AI" TextColor="#00bb77" />
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Label Text="Chụp ảnh và tự động dò vé số"
+                <Label Text="Chụp ảnh và tự động dò xổ số"
                        FontFamily="Geist"
                        FontSize="14"
                        HorizontalTextAlignment="Center"

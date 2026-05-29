@@ -278,7 +278,7 @@ public class LotteryCaptureViewModel : BaseViewModel
         NotifyPropertyChanged(nameof(HasResults));
         ShowPreviewModal = false;
         ImagePath = localPath;
-        StatusHint = "Ảnh đã sẵn sàng. Bấm \"AI dò vé số\" để phân tích.";
+        StatusHint = "Ảnh đã sẵn sàng. Bấm \"AI DÒ XỔ SỐ NGAY\" để phân tích.";
         NotifyPropertyChanged(nameof(StatusBadge));
     }
 

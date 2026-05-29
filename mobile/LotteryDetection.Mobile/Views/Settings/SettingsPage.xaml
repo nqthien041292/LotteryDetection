@@ -126,7 +126,7 @@
                                        FontFamily="Geist" FontSize="11" FontAttributes="Bold"
                                        CharacterSpacing="0.6"
                                        TextColor="#66736A" />
-                                <Label Text="DòVéSố AI"
+                                <Label Text="DòXổSố AI"
                                        FontFamily="Geist" FontSize="16" FontAttributes="Bold"
                                        TextColor="#031649" />
                             </VerticalStackLayout>

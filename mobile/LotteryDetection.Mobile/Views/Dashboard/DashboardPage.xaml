@@ -17,7 +17,7 @@
                 <!-- Top Header Row with User Avatar + Name -->
                 <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Margin="0,0,0,4">
                     <VerticalStackLayout x:Name="HeaderTitleStack" Spacing="2">
-                        <Label Text="DÒ VÉ SỐ TỰ ĐỘNG"
+                        <Label Text="DÒ XỔ SỐ TỰ ĐỘNG"
                                FontFamily="Geist"
                                FontSize="12"
                                FontAttributes="Bold"
@@ -231,7 +231,7 @@
                                 <Label Grid.Column="1" Text="›" FontSize="22" FontAttributes="Bold" TextColor="#F5C842" VerticalOptions="Center" />
                             </Grid>
                             <VerticalStackLayout Spacing="4">
-                                <Label Text="Lịch sử dò vé" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#031649" />
+                                <Label Text="Lịch sử dò xổ số" FontFamily="Geist" FontSize="13" FontAttributes="Bold" TextColor="#031649" />
                                 <Label Text="Xem lại ảnh chụp vé và kết quả dò thưởng."
                                        FontFamily="Geist" FontSize="12" LineHeight="1.35" TextColor="#66736A" />
                             </VerticalStackLayout>

@@ -31,9 +31,9 @@
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>NSCameraUsageDescription</key>
-	<string>DoVeSo AI needs camera access to capture lottery tickets.</string>
+	<string>DòXổSố AI needs camera access to capture lottery tickets.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>DoVeSo AI needs photo library access so you can select ticket images.</string>
+	<string>DòXổSố AI needs photo library access so you can select ticket images.</string>
 	<!-- MSAL on iOS uses ASWebAuthenticationSession by default, but the
 	     msauth.<bundleId> scheme must still be declared so the broker /
 	     Microsoft Authenticator fallback path can call back into the app. -->

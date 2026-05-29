@@ -39,7 +39,7 @@
 		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
 
 		<!-- Display name -->
-		<ApplicationTitle>DoVeSo AI</ApplicationTitle>
+		<ApplicationTitle>DòXổSố AI</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.lotterydetection.mobile</ApplicationId>

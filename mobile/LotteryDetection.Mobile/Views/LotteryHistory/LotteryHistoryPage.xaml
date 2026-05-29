@@ -11,7 +11,7 @@
              x:Class="LotteryDetection.Mobile.Views.LotteryHistory.LotteryHistoryPage"
              x:DataType="viewModel:LotteryHistoryViewModel"
              x:Name="thisPage"
-             Title="Lịch sử dò vé"
+             Title="Lịch sử dò xổ số"
              NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#FAFBF6">
@@ -40,7 +40,7 @@
             </Border>
             
             <Label Grid.Column="1"
-                   Text="LỊCH SỬ DÒ VÉ"
+                   Text="LỊCH SỬ DÒ XỔ SỐ"
                    HorizontalOptions="Center" VerticalOptions="Center"
                    FontFamily="Geist" FontSize="16" FontAttributes="Bold"
                    CharacterSpacing="1.2"
@@ -155,7 +155,7 @@
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="12">
                         <ActivityIndicator IsRunning="True" Color="#00bb77" HeightRequest="36" WidthRequest="36" />
-                        <Label Text="AI đang tải lịch sử dò vé…"
+                        <Label Text="AI đang tải lịch sử dò xổ số…"
                                FontFamily="Geist" FontSize="13" FontAttributes="Bold"
                                HorizontalTextAlignment="Center"
                                TextColor="#031649" />
@@ -189,11 +189,11 @@
                             <Image Source="lucky_mascot.png" Aspect="AspectFill" Margin="2" />
                         </Border>
                         
-                        <Label Text="Bạn đang không có lịch sử dò vé"
+                        <Label Text="Bạn đang không có lịch sử dò xổ số"
                                FontFamily="Geist" FontSize="17" FontAttributes="Bold"
                                HorizontalTextAlignment="Center"
                                TextColor="#031649" />
-                        <Label Text="Hãy bắt đầu dò vé ngay"
+                        <Label Text="Hãy bắt đầu dò xổ số ngay"
                                FontFamily="Geist" FontSize="13"
                                LineHeight="1.45"
                                HorizontalTextAlignment="Center"
@@ -470,7 +470,7 @@
               Padding="20,12,20,30"
               IsVisible="{Binding ShowEmptyState, Converter={StaticResource InvertBool}}">
             <Button x:Name="ContinueButton"
-                    Text="📸 TIẾP TỤC DÒ VÉ MỚI"
+                    Text="📸 TIẾP TỤC DÒ XỔ SỐ MỚI"
                     Command="{Binding StartCaptureCommand}"
                     HeightRequest="58"
                     CornerRadius="19"

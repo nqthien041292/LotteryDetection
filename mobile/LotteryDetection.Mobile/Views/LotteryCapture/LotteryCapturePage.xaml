@@ -10,7 +10,7 @@
              ios:Page.UseSafeArea="True"
              x:Class="LotteryDetection.Mobile.Views.LotteryCapture.LotteryCapturePage"
              x:DataType="viewModel:LotteryCaptureViewModel"
-             Title="Dò vé số"
+             Title="Dò xổ số"
              NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#FAFBF6">
@@ -40,7 +40,7 @@
                 <Label Text="‹" FontSize="26" FontAttributes="Bold" TextColor="#173D2A" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,-2,0,0" />
             </Border>
             <Label Grid.Column="1"
-                   Text="DÒ VÉ SỐ AI"
+                   Text="DÒ XỔ SỐ AI"
                    HorizontalOptions="Center" VerticalOptions="Center"
                    FontFamily="Geist" FontSize="16" FontAttributes="Bold"
                    CharacterSpacing="1.2"
@@ -303,7 +303,7 @@
         <Grid Grid.Row="2"
               Padding="20,12,20,30">
             <Button x:Name="AnalyzeButton"
-                    Text="🔮 AI DÒ VÉ SỐ NGAY"
+                    Text="🔮 AI DÒ XỔ SỐ NGAY"
                     Command="{Binding AnalyzeCommand}"
                     IsEnabled="{Binding CanAnalyze}"
                     HeightRequest="58"
@@ -364,7 +364,7 @@
                                        HorizontalOptions="Center" VerticalOptions="Center" />
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
-                                <Label Text="Kết quả AI dò vé"
+                                <Label Text="Kết quả AI dò xổ số"
                                        FontFamily="Geist" FontSize="15" FontAttributes="Bold"
                                        TextColor="#031649" />
                                 <Label Text="{Binding Results.Count, StringFormat='Tìm thấy {0} vé số'}"
