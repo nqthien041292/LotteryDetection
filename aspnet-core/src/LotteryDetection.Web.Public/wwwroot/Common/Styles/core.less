@@ -133,6 +133,26 @@
 
 /* Download CTA */
 .dxs-download-bg { background: linear-gradient(135deg, var(--dxs-navy) 0%, #00845a 100%); }
+/* Screenshot phone frame */
+.dxs-screen-frame {
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(3,22,73,0.18), 0 2px 8px rgba(3,22,73,0.10);
+    border: 2px solid rgba(3,22,73,0.08);
+    background: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 48px rgba(3,22,73,0.22), 0 4px 12px rgba(3,22,73,0.12);
+    }
+}
+.dxs-screenshot {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 26px;
+}
+
 .dxs-store-btn {
     display: inline-flex;
     align-items: center;
