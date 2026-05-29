@@ -902,6 +902,10 @@
 		<text name="Public_Team_Tommy_Bio">Lập trình viên full-stack, chuyên làm app di động. Người thiết kế và xây dựng toàn bộ ứng dụng DòXổSố AI.</text>
 		<text name="Public_Team_Chien_Role">Co-founder &amp; Backend Lead</text>
 		<text name="Public_Team_Chien_Bio">Kỹ sư backend, lo phần hệ thống để kết quả xổ số luôn được cập nhật nhanh và chính xác nhất có thể.</text>
+		<text name="Public_Team_Quynh_Role">Đồng sáng lập &amp; Product Owner</text>
+		<text name="Public_Team_Quynh_Bio">Đam mê trải nghiệm người dùng và định hướng sản phẩm. Người khởi xướng ý tưởng đưa AI vào dò xổ số Việt Nam.</text>
+		<text name="Public_Team_Thien_Role">Đồng sáng lập &amp; Solution Architect</text>
+		<text name="Public_Team_Thien_Bio">Chuyên gia về kiến trúc cloud và giải pháp AI. Phụ trách thiết kế hệ thống và triển khai kỹ thuật toàn diện.</text>
 
 		<!-- Footer -->
 		<text name="Public_Footer_Tagline">Dò vé xổ số bằng AI, nhanh và chính xác. Chụp ảnh là có kết quả ngay. Miễn phí trên iOS và Android.</text>

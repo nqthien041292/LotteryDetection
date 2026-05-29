@@ -1415,6 +1415,10 @@
 		<text name="Public_Team_Tommy_Bio">Full-stack developer specialising in .NET and React Native — architect of the DòXổSố AI mobile app.</text>
 		<text name="Public_Team_Chien_Role">Co-founder &amp; Backend Lead</text>
 		<text name="Public_Team_Chien_Bio">Backend engineer with expertise in distributed systems, keeping the lottery API fast and accurate.</text>
+		<text name="Public_Team_Quynh_Role">Founder &amp; Product Owner</text>
+		<text name="Public_Team_Quynh_Bio">Passionate about user experience and product strategy. Pioneered the idea of bringing AI to Vietnamese lottery checking.</text>
+		<text name="Public_Team_Thien_Role">Founder &amp; Solution Architect</text>
+		<text name="Public_Team_Thien_Bio">Expert in cloud architecture and AI solutions. Leads system design and end-to-end technical delivery.</text>
 
 		<!-- Footer -->
 		<text name="Public_Footer_Tagline">Smart lottery-checking app powered by AI. Photograph a ticket — get results instantly. Free for iOS and Android.</text>
