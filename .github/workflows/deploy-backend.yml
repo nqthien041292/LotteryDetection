@@ -155,6 +155,39 @@ jobs:
             Authentication__Facebook__AppSecret=auth-facebook-app-secret:latest
             CloudScheduler__JobKey=cloud-scheduler-job-key:latest
 
+      - name: Create or update Cloud Scheduler job
+        env:
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID || env.GCP_PROJECT_ID }}
+        run: |
+          SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" \
+            --region="$REGION" --project="$PROJECT_ID" --format='value(status.url)')
+          API_URL="${SERVICE_URL}/api/services/app/LotteryAnalysis/CheckPendingResults"
+          JOB_KEY=$(gcloud secrets versions access latest \
+            --secret=cloud-scheduler-job-key --project="$PROJECT_ID")
+
+          gcloud scheduler jobs create http lottery-result-checker \
+            --schedule="*/5 16-18 * * *" \
+            --time-zone="Asia/Ho_Chi_Minh" \
+            --uri="$API_URL" \
+            --http-method=POST \
+            --headers="X-CloudScheduler-Job-Key=${JOB_KEY}" \
+            --location="$REGION" \
+            --message-body="{}" \
+            --project="$PROJECT_ID" \
+            --quiet 2>/dev/null || \
+          gcloud scheduler jobs update http lottery-result-checker \
+            --schedule="*/5 16-18 * * *" \
+            --time-zone="Asia/Ho_Chi_Minh" \
+            --uri="$API_URL" \
+            --http-method=POST \
+            --update-headers="X-CloudScheduler-Job-Key=${JOB_KEY}" \
+            --location="$REGION" \
+            --message-body="{}" \
+            --project="$PROJECT_ID" \
+            --quiet
+
+          echo "Scheduler: lottery-result-checker → $API_URL"
+
       - name: Show service URL
         run: |
           URL=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --format='value(status.url)')
