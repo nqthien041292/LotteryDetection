@@ -178,6 +178,8 @@ jobs:
             --service-account=${{ secrets.GCP_RUNTIME_SA }}
           env_vars: |
             ASPNETCORE_ENVIRONMENT=Production
+          secrets: |
+            ConnectionStrings__Default=db-connection-string:latest
 
       - name: Show public site URL
         run: |
