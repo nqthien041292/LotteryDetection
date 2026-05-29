@@ -179,6 +179,8 @@ jobs:
             --add-cloudsql-instances=${{ secrets.CLOUDSQL_INSTANCE }}
           env_vars: |
             ASPNETCORE_ENVIRONMENT=Production
+            HealthChecks__HealthChecksEnabled=false
+            HealthChecks__HealthChecksUI__HealthChecksUIEnabled=false
           secrets: |
             ConnectionStrings__Default=db-connection-string:latest
 
