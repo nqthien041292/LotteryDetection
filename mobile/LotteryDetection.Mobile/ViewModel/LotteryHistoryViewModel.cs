@@ -36,16 +36,31 @@ public class LotteryHistoryViewModel : BaseViewModel
         LoadMoreCommand = new Command(async () => await LoadMoreAsync());
         OpenTicketDetailsCommand = new Command<LotteryHistoryEntry>(OnOpenTicketDetails);
         CloseTicketDetailsCommand = new Command(OnCloseTicketDetails);
+        OpenSettingsCommand = new Command(async () => await navigationService.NavigateToSettingsAsync());
     }
 
     public ObservableCollection<LotteryHistoryEntry> Entries { get; }
     public ObservableCollection<LotteryHistoryEntry> Winners { get; }
-    
+
     public ICommand StartCaptureCommand { get; }
     public ICommand DeleteEntryCommand { get; }
     public ICommand LoadMoreCommand { get; }
     public ICommand OpenTicketDetailsCommand { get; }
     public ICommand CloseTicketDetailsCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
+
+    public string? AvatarImagePath
+    {
+        get
+        {
+            var path = Preferences.Get(SettingsViewModel.PrefAvatarPathKey, null as string);
+            return !string.IsNullOrEmpty(path) && System.IO.File.Exists(path) ? path : null;
+        }
+    }
+    public bool HasCustomAvatar => !string.IsNullOrEmpty(AvatarImagePath);
+    public bool HasNoCustomAvatar => !HasCustomAvatar;
+    public ImageSource? AvatarSource =>
+        HasCustomAvatar ? ImageSource.FromFile(AvatarImagePath!) : null;
 
     public bool HasEntries => Entries.Count > 0;
     public bool HasWinners => Winners.Count > 0;

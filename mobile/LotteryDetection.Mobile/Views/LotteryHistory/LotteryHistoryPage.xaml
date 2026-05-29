@@ -46,12 +46,30 @@
                    CharacterSpacing="1.2"
                    TextColor="#031649" />
                    
-            <Border x:Name="HeaderChest" Grid.Column="2" WidthRequest="42" HeightRequest="42" StrokeThickness="1.5" Stroke="#F5C842" BackgroundColor="White" HorizontalOptions="End" VerticalOptions="Center">
-                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="21" /></Border.StrokeShape>
+            <Border Grid.Column="2" WidthRequest="44" HeightRequest="44"
+                    StrokeThickness="1" Stroke="#E5E7EB"
+                    BackgroundColor="White"
+                    HorizontalOptions="End" VerticalOptions="Center">
+                <Border.StrokeShape><shapes:RoundRectangle CornerRadius="22" /></Border.StrokeShape>
                 <Border.Shadow>
                     <Shadow Brush="#031649" Radius="8" Offset="0,3" Opacity="0.1" />
                 </Border.Shadow>
-                <Image Source="treasure_chest.png" Aspect="AspectFill" Margin="1.5" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenSettingsCommand}" />
+                </Border.GestureRecognizers>
+                <Grid>
+                    <shapes:Path IsVisible="{Binding HasNoCustomAvatar}"
+                                 Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                                 Fill="#6B7280"
+                                 WidthRequest="24" HeightRequest="24"
+                                 HorizontalOptions="Center" VerticalOptions="Center"
+                                 Aspect="Uniform" />
+                    <Image IsVisible="{Binding HasCustomAvatar}"
+                           Source="{Binding AvatarSource}"
+                           Aspect="AspectFill"
+                           WidthRequest="42" HeightRequest="42"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Grid>
             </Border>
         </Grid>
 
