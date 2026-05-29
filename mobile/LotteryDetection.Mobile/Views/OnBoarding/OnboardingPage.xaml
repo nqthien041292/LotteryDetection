@@ -256,7 +256,7 @@
                            FontAttributes="Bold"
                            HorizontalTextAlignment="Center"
                            TextColor="#0F172A" />
-                    <Label Text="DòXổSố AI cần quyền truy cập camera để chụp ảnh và tự động nhận diện xổ số một cách chính xác nhất."
+                    <Label Text="DòXổSố AI cần quyền truy cập camera để chụp ảnh và tự động nhận diện vé số một cách chính xác nhất."
                            FontFamily="Geist"
                            FontSize="14"
                            LineHeight="1.45"

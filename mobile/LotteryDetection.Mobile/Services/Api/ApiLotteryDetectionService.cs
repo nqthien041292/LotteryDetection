@@ -101,7 +101,7 @@ public class ApiLotteryDetectionService : ILotteryDetectionService
         var body = await response.Content.ReadAsStringAsync(ct);
 
         if (IsAuthRedirect(response))
-            throw new UnauthorizedAccessException("Bạn cần đăng nhập lại trước khi AI dò xổ số.");
+            throw new UnauthorizedAccessException("Bạn cần đăng nhập lại trước khi AI dò vé số.");
 
         if (!response.IsSuccessStatusCode)
             throw new HttpRequestException(ExtractErrorMessage(body) ?? $"HTTP {(int)response.StatusCode}");

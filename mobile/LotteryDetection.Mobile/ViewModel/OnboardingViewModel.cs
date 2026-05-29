@@ -93,7 +93,7 @@ public class OnboardingViewModel : BaseViewModel
 
     public bool ShowBackButton => SelectedIndex > 0;
 
-    public string NextButtonText => SelectedIndex < TotalSlides - 1 ? "Tiếp tục" : "Bắt đầu dò xổ số";
+    public string NextButtonText => SelectedIndex < TotalSlides - 1 ? "Tiếp tục" : "Bắt đầu dò vé";
 
     private async Task OnNextAsync()
     {
