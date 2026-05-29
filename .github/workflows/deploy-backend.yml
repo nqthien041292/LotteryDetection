@@ -46,7 +46,9 @@ env:
   ARTIFACT_REPO: lottery-detection
   WEB_HOST_IMAGE: web-host
   MIGRATOR_IMAGE: migrator
+  WEB_PUBLIC_IMAGE: web-public
   SERVICE_NAME: lottery-detection-api
+  PUBLIC_SERVICE_NAME: lottery-detection-public
   MIGRATOR_JOB: lottery-detection-migrator
 
 permissions:
@@ -80,14 +82,19 @@ jobs:
           WEB_HOST_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${WEB_HOST_IMAGE}:${GITHUB_SHA}"
           MIGRATOR_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${MIGRATOR_IMAGE}:${GITHUB_SHA}"
 
+          WEB_PUBLIC_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${WEB_PUBLIC_IMAGE}:${GITHUB_SHA}"
+
           docker build -f src/LotteryDetection.Web.Host/Dockerfile.cloudrun -t "$WEB_HOST_URI" .
           docker build -f src/LotteryDetection.Migrator/Dockerfile.cloudrun -t "$MIGRATOR_URI" .
+          docker build -f src/LotteryDetection.Web.Public/Dockerfile.cloudrun -t "$WEB_PUBLIC_URI" .
 
           docker push "$WEB_HOST_URI"
           docker push "$MIGRATOR_URI"
+          docker push "$WEB_PUBLIC_URI"
 
           echo "WEB_HOST_URI=$WEB_HOST_URI" >> "$GITHUB_ENV"
           echo "MIGRATOR_URI=$MIGRATOR_URI" >> "$GITHUB_ENV"
+          echo "WEB_PUBLIC_URI=$WEB_PUBLIC_URI" >> "$GITHUB_ENV"
 
       - name: Create or update Migrator Cloud Run Job
         env:
@@ -154,6 +161,29 @@ jobs:
             Authentication__Facebook__AppId=auth-facebook-app-id:latest
             Authentication__Facebook__AppSecret=auth-facebook-app-secret:latest
             CloudScheduler__JobKey=cloud-scheduler-job-key:latest
+
+      - name: Deploy Web.Public to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.PUBLIC_SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ env.WEB_PUBLIC_URI }}
+          flags: >-
+            --allow-unauthenticated
+            --memory=512Mi
+            --cpu=1
+            --min-instances=0
+            --max-instances=4
+            --timeout=60s
+            --service-account=${{ secrets.GCP_RUNTIME_SA }}
+          env_vars: |
+            ASPNETCORE_ENVIRONMENT=Production
+
+      - name: Show public site URL
+        run: |
+          URL=$(gcloud run services describe "$PUBLIC_SERVICE_NAME" --region "$REGION" --format='value(status.url)')
+          echo "Public site: $URL"
+          echo "::notice title=Public Site URL::$URL"
 
       - name: Create or update Cloud Scheduler job
         env:

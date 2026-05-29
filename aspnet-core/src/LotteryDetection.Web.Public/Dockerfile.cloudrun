@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.7
+#
+# Cloud Run image for LotteryDetection.Web.Public (public landing page).
+# Build context must be the `aspnet-core/` directory.
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY common.props ./
+COPY infrastructure/ infrastructure/
+COPY src/LotteryDetection.Web.Public/LotteryDetection.Web.Public.csproj         src/LotteryDetection.Web.Public/
+COPY src/LotteryDetection.Web.Core/LotteryDetection.Web.Core.csproj             src/LotteryDetection.Web.Core/
+COPY src/LotteryDetection.Application/LotteryDetection.Application.csproj       src/LotteryDetection.Application/
+COPY src/LotteryDetection.Application.Shared/LotteryDetection.Application.Shared.csproj \
+                                                                                src/LotteryDetection.Application.Shared/
+COPY src/LotteryDetection.Core/LotteryDetection.Core.csproj                     src/LotteryDetection.Core/
+COPY src/LotteryDetection.Core.Shared/LotteryDetection.Core.Shared.csproj       src/LotteryDetection.Core.Shared/
+COPY src/LotteryDetection.EntityFrameworkCore/LotteryDetection.EntityFrameworkCore.csproj \
+                                                                                src/LotteryDetection.EntityFrameworkCore/
+COPY src/LotteryDetection.GraphQL/LotteryDetection.GraphQL.csproj               src/LotteryDetection.GraphQL/
+
+RUN dotnet restore src/LotteryDetection.Web.Public/LotteryDetection.Web.Public.csproj
+
+COPY . .
+RUN dotnet publish src/LotteryDetection.Web.Public/LotteryDetection.Web.Public.csproj \
+        -c Release \
+        -o /app/publish \
+        /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    ASPNETCORE_ENVIRONMENT=Production
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "LotteryDetection.Web.Public.dll"]
