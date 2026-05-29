@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
 namespace LotteryDetection.Web.Public.Startup;
@@ -7,6 +8,9 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        // Npgsql v6+ requires UTC datetimes; this switch restores legacy behaviour
+        // for codebases that use unspecified/local DateTimes.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         CreateWebHostBuilder(args).Build().Run();
     }
 
